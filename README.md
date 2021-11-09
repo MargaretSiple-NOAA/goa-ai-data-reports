@@ -1,7 +1,7 @@
 # goa-data-reports (in progress)
 
 ## Overview
-GOA data reports summarize data from the trawl survey each year. These reports provide information for people like congressional aides, who may want a detailed breakdown of survey activity and 
+GOA data reports summarize data from the trawl survey each year. These reports provide detailed survey summaries for a technical audience.
 
 ### Structure
 The main report sections are:
