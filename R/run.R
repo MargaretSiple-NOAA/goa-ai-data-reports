@@ -33,9 +33,9 @@ source('./R/data.R') # contains tables and objects to be used in text, including
 
 # *** REPORT TITLE -------------------------------------------------------------
 report_title <- paste0('Data Report: ',maxyr,' ', NMFSReports::TitleCase(SURVEY),
-                       ' continental shelf Bottom Trawl Survey of Groundfish and Invertebrate Fauna')
-report_authors <- 'P. von Szalay, N. Raring, W. Palsson'
-# report_yr <- maxyr 
+                       ' Bottom Trawl Survey of Groundfish and Invertebrate Fauna')
+report_authors <- 'P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple'
+report_yr <- maxyr 
 
 
 # RUN EACH REPORT SECTION ------------------------------------------------------
