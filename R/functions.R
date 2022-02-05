@@ -182,22 +182,6 @@ SameColNames<-function(df.ls) {
 }
 
 
-# CapStr <- function(y) {
-#   c <- strsplit(y, " ")[[1]]
-#   paste(toupper(substring(c, 1,1)), substring(c, 2),
-#         sep="", collapse=" ")
-# }
-
-# yrofsurvey<-(maxyr-2018)+37
-# 
-# 
-# 
-# stndth<-ifelse(grepl(pattern = 1, x = substr(x = (maxyr-2018)+37, start = nchar((maxyr-2018)+37), 
-#                                              stop = nchar((maxyr-2018)+37) )), 
-#                "st", 
-#                ifelse(grepl(pattern = 2, x = substr(x = (maxyr-2018)+37, start = nchar((maxyr-2018)+37), 
-#                                                     stop = nchar((maxyr-2018)+37))), "nd", "th")
-# )
 
 
 #' Find the age of the file, when it was created. 
