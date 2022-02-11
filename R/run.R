@@ -1,6 +1,6 @@
 # RUN
 
-eport_title <- "Data Report"
+report_title <- "Data Report"
 workfaster <- TRUE # an attempt to satisfy limited patience
 refcontent <- TRUE # produce extra summary text and tables for each spp to help with writing
 googledrive_dl <- TRUE # redownload google drive tables and docs?
@@ -10,10 +10,9 @@ usePNGPDF <- "png"
 
 maxyr <- 2021
 compareyr <- 2019
-SRVY<-"NEBS"
+SRVY<-"GOA"
 ref_compareyr <- "@2019NEBSStevenson2022" # CHANGE
-ref_maxyr_npfmc <- "@NPFMC2019" # temp
-dir_googledrive <- "1i3NRmaAPpIYfMI35fpJCa-8AjefJ7J7X" # https://drive.google.com/drive/folders/1i3NRmaAPpIYfMI35fpJCa-8AjefJ7J7X?usp=sharing
+dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC
 
 # *** SIGN INTO GOOGLE DRIVE----------------------------------------------------
 googledrive::drive_deauth()
