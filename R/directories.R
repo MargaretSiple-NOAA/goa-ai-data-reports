@@ -16,13 +16,14 @@ for (i in 1:length(dirs)) {
 }
 
 # Where we save everything
-dir.output <- paste0(dir_in, "/output/")
-dir_out_todaysrun <- paste0(dir.output, "/", Sys.Date(), "/")
+dir.output <- paste0(dir_in, "output/")
+dir.create(dir.output)
+dir_out_todaysrun <- paste0(dir.output, Sys.Date(), "/")
 dir.create(dir_out_todaysrun)
 dir_out_todaysrun <- paste0(dir_out_todaysrun, "/", maxyr, "/")
 dir.create(dir_out_todaysrun)
 
-dirs <- c("chapters", "rawdata", "documentation", "code", "figures", "tables", "cite", "ref")
+dirs <- c("chapters", "rawdata", "documentation", "figures", "tables", "cite", "ref")
 for (i in 1:length(dirs)) {
   if (dir.exists(paste0(dir_out_todaysrun, dirs[i])) == FALSE) {
     dir.create(paste0(dir_out_todaysrun, "/", dirs[i]))
@@ -33,47 +34,7 @@ for (i in 1:length(dirs)) {
 # If loading in InDesign, table and figure headers need to be their own .docx. Here's a file that will do that for you.
 # TableFigureHeader<-system.file("rmd", "TableFigureHeader.Rmd", package = "RMarkReports")
 
-TableFigureHeader <- paste0(dir_code, "TableFigureHeader.Rmd")
-
-options("citation_format" = "pandoc")
-
-# SAVE ALL R FILES USED FOR EACH RUN -------------------------------------------
-listfiles <- list.files(path = dir_code)
-listfiles0 <- c(
-  listfiles[grepl(
-    pattern = "\\.r",
-    x = listfiles, ignore.case = T
-  )],
-  listfiles[grepl(
-    pattern = "\\.pptx",
-    x = listfiles, ignore.case = T
-  )],
-  listfiles[grepl(
-    pattern = "\\.docx",
-    x = listfiles, ignore.case = T
-  )]
-)
-listfiles0 <- listfiles0[!(grepl(pattern = "~", ignore.case = T, x = listfiles0))]
-
-for (i in 1:length(listfiles0)) {
-  file.copy(
-    from = paste0(dir_code, listfiles0[i]),
-    to = paste0(dir_out_code, listfiles0[i]),
-    overwrite = T
-  )
-}
-
-# SAVE ALL CITE FILES USED FOR EACH RUN ----------------------------------------
-listfiles0 <- list.files(path = dir_cite)
-listfiles0 <- listfiles0[!(grepl(pattern = "~", ignore.case = T, x = listfiles0))]
-
-for (i in 1:length(listfiles0)) {
-  file.copy(
-    from = paste0(dir_cite, listfiles0[i]),
-    to = paste0(dir_out_cite, listfiles0[i]),
-    overwrite = T
-  )
-}
+TableFigureHeader <- paste0(dir_R, "TableFigureHeader.Rmd")
 
 # CITATION STYLE ---------------------------------------------------------------
 options("citation_format" = "pandoc")
