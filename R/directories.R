@@ -34,7 +34,7 @@ for (i in 1:length(dirs)) {
 # If loading in InDesign, table and figure headers need to be their own .docx. Here's a file that will do that for you.
 # TableFigureHeader<-system.file("rmd", "TableFigureHeader.Rmd", package = "RMarkReports")
 
-TableFigureHeader <- paste0(dir_R, "TableFigureHeader.Rmd")
+#TableFigureHeader <- paste0(dir_R, "TableFigureHeader.Rmd")
 
 # CITATION STYLE ---------------------------------------------------------------
 options("citation_format" = "pandoc")
