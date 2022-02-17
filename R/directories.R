@@ -16,6 +16,10 @@ for (i in 1:length(dirs)) {
 }
 
 
+# Data folder (for storing db tables) -------------------------------------
+dir.create(paste0(dir_in,"data/"))
+
+
 # output folder -----------------------------------------------------------
 
 dir_output <- paste0(dir_in, "output/")
