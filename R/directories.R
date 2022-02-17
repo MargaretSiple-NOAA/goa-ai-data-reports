@@ -15,12 +15,13 @@ for (i in 1:length(dirs)) {
   )
 }
 
-# Where we save everything
-dir.output <- paste0(dir_in, "output/")
-dir.create(dir.output)
-dir_out_todaysrun <- paste0(dir.output, Sys.Date(), "/")
-dir.create(dir_out_todaysrun)
-dir_out_todaysrun <- paste0(dir_out_todaysrun, "/", maxyr, "/")
+
+# output folder -----------------------------------------------------------
+
+dir_output <- paste0(dir_in, "output/")
+dir.create(dir_output)
+
+dir_out_todaysrun <- paste0(dir_output, Sys.Date(), "/")
 dir.create(dir_out_todaysrun)
 
 dirs <- c("chapters", "rawdata", "documentation", "figures", "tables", "cite", "ref")
@@ -31,10 +32,10 @@ for (i in 1:length(dirs)) {
   assign(x = paste0("dir_out_", dirs[i]), value = paste0(dir_out_todaysrun, "/", dirs[i], "/"))
 }
 
-# If loading in InDesign, table and figure headers need to be their own .docx. Here's a file that will do that for you.
-# TableFigureHeader<-system.file("rmd", "TableFigureHeader.Rmd", package = "RMarkReports")
+# Folder with google drive snippets ---------------------------------------
 
-#TableFigureHeader <- paste0(dir_R, "TableFigureHeader.Rmd")
+dir_out_gdrive <- "gdrive"
+dir.create(dir_out_gdrive)
 
 # CITATION STYLE ---------------------------------------------------------------
 options("citation_format" = "pandoc")
