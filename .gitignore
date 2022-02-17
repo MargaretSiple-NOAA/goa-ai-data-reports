@@ -38,4 +38,7 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+# Ignore output directories
 data/
+gdrive/
+output/
