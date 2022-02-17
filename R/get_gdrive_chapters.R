@@ -9,7 +9,7 @@ id_googledrive <- googledrive::as_id(dir_googledrive)
 chaps <- googledrive::drive_ls(path = id_googledrive, type = "document")
 
 # Download chunks of text from google drive  
-for (i in chaps){
+for (i in 1:length(chaps)){
   googledrive::drive_download(file = googledrive::as_id(chaps$id[i]),type = 'txt', 
                               overwrite = TRUE, 
                               path = paste0(dir_out_gdrive, "/", chaps$name[i]))
