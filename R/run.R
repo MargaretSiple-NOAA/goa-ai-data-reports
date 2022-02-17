@@ -1,33 +1,25 @@
-# RUN
-
-report_title <- "Data Report"
-workfaster <- TRUE # an attempt to satisfy limited patience
-refcontent <- TRUE # produce extra summary text and tables for each spp to help with writing
-googledrive_dl <- TRUE # redownload google drive tables and docs?
-indesign_flowin <- FALSE
-pres_img <- FALSE
+# GOA DATA REPORT
+# Report info -------------------------------------------------------------
 usePNGPDF <- "png"
 
 maxyr <- 2021
 compareyr <- 2019
-SRVY<-"GOA"
+SRVY <- "GOA"
 ref_compareyr <- "@2019NEBSStevenson2022" # CHANGE
 dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC
 
-# *** SIGN INTO GOOGLE DRIVE----------------------------------------------------
-googledrive::drive_deauth()
-googledrive::drive_auth()
+# Set directories and get functions
+source("R/directories.R")
+source("R/load_packages.R")
+source("R/functions.R")
 
 
-# *** SOURCE SUPPORT SCRIPTS ---------------------------------------------------
+# Get data from RACEBASE --------------------------------------------------
+source("R/get_data.R")
 
-source('./R/directories.R')
-
-source('./R/functions.R')
-
-# source('./R/get_data.R') # used to be datadl.R in Emily code
-
-source('./R/data.R') # contains tables and objects to be used in text, including design-based estimates and static values
+# Get text from Google Drive ----------------------------------------------
+x <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
+if(x){source("./R/get_drive_chapters.R")}
 
 
 # *** REPORT TITLE -------------------------------------------------------------
@@ -36,14 +28,7 @@ report_title <- paste0('Data Report: ',maxyr,' ', NMFSReports::TitleCase(SURVEY)
 report_authors <- 'P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple'
 report_yr <- maxyr 
 
-
 # RUN EACH REPORT SECTION ------------------------------------------------------
-
-# TOLEDO
-# create file that checks for errors in RMDs
-# https://github.com/NOAA-EDAB/esp_data_aggregation/blob/main/R-scripts/test_rmds.R
-# https://github.com/NOAA-EDAB/esp_data_aggregation/blob/main/R-scripts/render%20dev%20report%20with%20errors.R
-
 # *** Figures and Tables ------------------------
 # - run figures and tables before each chapter so everything works smoothly
 
@@ -154,15 +139,6 @@ for (jj in 1:length(unique(report_spp1$file_name)[!is.na(unique(report_spp1$file
                     output_file = paste0(filename00, cnt_chapt_content, "_", 
                                          unique(report_spp1$file_name)[jj],".docx"))
 }
-
-# *** 07 - Results_crabretow ------------------------
-# cnt_chapt<-auto_counter(cnt_chapt)
-# cnt_chapt_content<-"001"
-# filename0<-paste0(cnt_chapt, "_results_crabretow_")
-# rmarkdown::render(paste0(dir_code, "/07_results_crabretow.Rmd"),
-#                   output_dir = dir_out_chapters,
-#                   output_file = paste0(filename0, cnt_chapt_content, ".docx"))
-
 
 # *** 09 - Appendix ------------------------
 cnt_chapt<-auto_counter(cnt_chapt)

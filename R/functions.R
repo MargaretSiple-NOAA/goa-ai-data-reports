@@ -1,31 +1,15 @@
-#' ---
-#' title: 'Data Report: MAXYR Eastern Bering Sea continental shelf Bottom Trawl Survey of Groundfish and Invertebrate Fauna'
-#' author: 'L. Britt, E. J. Dawson, R. Haehn and E. H. Markowitz'
-#' purpose: Store functions
-#' start date: 2021-09-01
-#' date modified: 2021-03-03        # CHANGE
-#' Notes:                             # CHANGE
-#' ---
 
-#############INSTALL PACKAGES##############
-# Here we list all the packages we will need for this whole process
-# We'll also use this in our works cited page!!!
+# Install packages --------------------------------------------------------
+
 PKG <- c(
-  # For creating R Markdown Docs
+  "devtools",
+  
+    # Markdown
   "knitr", # A general-purpose tool for dynamic report generation in R
-  "rmarkdown", # R Markdown Document Conversion
-  
-  # File Management
-  # "here", # For finding the root directory of your scripts and thus, find your files
-  # "officer",
-  
-  # Keeping Organized
-  "devtools", # Package development tools for R; used here for downloading packages from GitHub
-  # "renv", # saves the packages in the R environment
-  
+  "rmarkdown", 
   
   # Graphics
-  "ggplot2", # Create Elegant Data Visualisations Using the Grammar of Graphics
+  "ggplot2", 
   "cowplot",
   "png",
   "extrafont",
@@ -33,16 +17,12 @@ PKG <- c(
   "nmfspalette",  # devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
   "ggridges",
   
-  # Text
-  "NMFSReports", # devtools::install_github("emilymarkowitz-noaa/NMFSReports") # Package of my favorite grammar and file managment functions for writing reproducible reports
-  
   # Citations
   "knitcitations", # devtools::install_github("cboettig/knitcitations")
   
   # other tidyverse
   "dplyr",
   "googledrive",
-  "magrittr",
   "readr",
   "tidyr",
   
@@ -51,9 +31,8 @@ PKG <- c(
   "readtext",
   
   # RACE-GAP Specific
-  "akgfmaps", # devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
-  "coldpool", # devtools::install_github("sean-rohan-noaa/coldpool")
-  
+  "akgfmaps", 
+  # devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
   
   # Spatial
   "sf",
@@ -78,23 +57,9 @@ PKG <- c(
   "stars",
   "grid", 
   
-  # library(rasterVis)
-  # library(scales)
-  # library(ggthemes) # theme_map()
-  
   # check website links
   "pingr",
   "httr",
-  
-  
-  # Time
-  # "lubridate",
-  
-  # Species
-  # "taxize", 
-  
-  # For outputting JS files
-  # "jsonlite", 
   
   # Tables
   "officer", 
