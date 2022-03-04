@@ -40,29 +40,16 @@ if (y) {
 
 # Create tables and figures -----------------------------------------------
 
-report_spp1 <- NMFSReports::add_report_spp(
-  spp_info = spp_info,
-  spp_info_codes = "species_code",
-  report_spp = report_spp,
-  report_spp_col = "order",
-  report_spp_codes = "species_code",
-  lang = FALSE
-)
-
-cnt_chapt_content <- "001"
+z <- askYesNo(msg = "Do you want to build all the figures and tables right now? NOTE: This may take a while.")
+if (z) {
+  source("R/make_figures.R")
+}
 
 
 # Load figures and tables -------------------------------------------------
-load(file = paste0(dir_out_figures, "/report_figures.rdata"))
-load(file = paste0(dir_out_tables, "/report_tables.rdata"))
+load(file = paste0(dir_out_figures, "figtab/report_figures.rdata")) # object: list_figures
+load(file = paste0(dir_out_tables, "figtab/report_tables.rdata")) # object: list_tables
 
-
-  # *** *** General figures --------------------------------------------
-  filename0 <- paste0(cnt_chapt, "_")
-  rmarkdown::render(paste0(dir_code, "/figtab.Rmd"),
-    output_dir = dir_out_ref,
-    output_file = paste0(filename0, cnt_chapt_content, ".docx")
-  )
 
 # *** 01 - Abstract ------------------------
 cnt_chapt <- auto_counter(cnt_chapt)
