@@ -6,6 +6,8 @@ compareyr <- 2017
 survnumber <- "49th" #I have no idea if this is right
 dates_conducted <- "May 15th and July 31st, 2021"
 SRVY <- "GOA"
+vessel1 <- "FV Ocean Explorer"
+vessel2 <- "FV Alaska Provider"
 ref_compareyr <- "@von_szalay_data_2017" 
 dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC
 
@@ -17,6 +19,10 @@ report_title <- paste0(
 report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple"
 report_yr <- maxyr
 
+nfish <- 360 #UPDATE THESE
+ninverts <- 151
+nstations <- 500
+highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
 
 # Functions, packages, directories ---------------------------------------------
 source("R/directories.R")
