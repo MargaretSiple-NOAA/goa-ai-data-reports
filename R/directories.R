@@ -16,12 +16,14 @@ for (i in 1:length(dirs)) {
 }
 
 
+# Code folder (where markdown and scripts are stored) ---------------------
+dir_code <- paste0(dir_in,"R/")
+
 # Data folder (for storing db tables) -------------------------------------
 dir.create(paste0(dir_in,"data/"))
 
 
 # output folder -----------------------------------------------------------
-
 dir_output <- paste0(dir_in, "output/")
 dir.create(dir_output)
 
