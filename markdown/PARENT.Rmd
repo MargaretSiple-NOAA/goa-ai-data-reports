@@ -1,0 +1,32 @@
+---
+title: "PARENT"
+author: "M Siple"
+date: "3/4/2022"
+output:
+  bookdown::word_document2: default
+---
+
+```{r echo=FALSE}
+maxyr <- 2019
+library(magrittr)
+
+#load(here::here("figtab/report_figures.rdata"))
+load(here::here("figtab/report_tables.rdata"))
+```
+
+# Preface
+```{r child=here::here("gdrive","Preface.Rmd")}
+```
+
+# Abstract
+```{r child=here::here("gdrive","Abstract.Rmd")}
+```
+
+# Introduction
+```{r child=here::here("gdrive","Introduction.Rmd")}
+```
+
+<!-- # Methods -->
+<!-- ```{r child=here::here("gdrive","Methods.Rmd")} -->
+<!-- ``` -->
+

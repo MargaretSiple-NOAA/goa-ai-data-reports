@@ -1,0 +1,6 @@
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This is a child doc text and I'm going to paste `r maxyr`.
