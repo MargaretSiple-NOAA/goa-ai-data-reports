@@ -2,11 +2,15 @@
 
 
 # Tables ------------------------------------------------------------------
-table1 <- data.frame(Species = c("POP","ATF"), Abundance = c(1000, 2000))
+# Table 1 is the target sample sizes for different species categories
+# Table 2 is the number of stations allocated, attempted, and successfully completed.
+# Table 3 onwards are specific to each species.
+targetn <- read.csv("data/TargetN.csv") # for now, it's a csv
+sampled_stations <- data.frame(INPFC_area = c("Shumagin","Chirikof"), Stations_allocated = c(74, 32))
 
 list_tables <- list()
-list_tables[[1]] <- table1
-
+list_tables[[1]] <- targetn
+list_tables[[2]] <- sampled_stations
 
 
 # Figures -----------------------------------------------------------------
