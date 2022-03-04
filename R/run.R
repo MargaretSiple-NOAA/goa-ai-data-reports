@@ -1,18 +1,18 @@
 # GOA DATA REPORT
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2021
-compareyr <- 2019
+maxyr <- 2019
+compareyr <- 2017
 survnumber <- "49th" #I have no idea if this is right
 dates_conducted <- "May 15th and July 31st, 2021"
 SRVY <- "GOA"
-ref_compareyr <- "@2019NEBSStevenson2022" # CHANGE
+ref_compareyr <- "@von_szalay_data_2017" 
 dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC
 
 # Report info
 report_title <- paste0(
-  "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SURVEY),
-  " Bottom Trawl Survey of Groundfish and Invertebrate Fauna"
+  "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
+  " Bottom Trawl Survey"
 )
 report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple"
 report_yr <- maxyr
@@ -21,7 +21,7 @@ report_yr <- maxyr
 # Functions, packages, directories ---------------------------------------------
 source("R/directories.R")
 source("R/load_packages.R")
-source("R/functions.R")
+source("R/functions.R") # May not need all these functions.
 
 
 # Get data from RACEBASE --------------------------------------------------
@@ -40,7 +40,7 @@ if (y) {
 
 # Create tables and figures -----------------------------------------------
 
-report_spp1 <- add_report_spp(
+report_spp1 <- NMFSReports::add_report_spp(
   spp_info = spp_info,
   spp_info_codes = "species_code",
   report_spp = report_spp,
@@ -51,53 +51,18 @@ report_spp1 <- add_report_spp(
 
 cnt_chapt_content <- "001"
 
-if (FALSE) {
+
+# Load figures and tables -------------------------------------------------
+load(file = paste0(dir_out_figures, "/report_figures.rdata"))
+load(file = paste0(dir_out_tables, "/report_tables.rdata"))
+
+
   # *** *** General figures --------------------------------------------
   filename0 <- paste0(cnt_chapt, "_")
   rmarkdown::render(paste0(dir_code, "/figtab.Rmd"),
     output_dir = dir_out_ref,
     output_file = paste0(filename0, cnt_chapt_content, ".docx")
   )
-
-  # *** *** Species figures --------------------------------------------
-  for (jj in 1:length(unique(report_spp1$file_name)[!is.na(unique(report_spp1$file_name))])) {
-    print(paste0(jj, " of ", length(unique(report_spp1$file_name))))
-    start_time <- Sys.time()
-    filename00 <- paste0(cnt_chapt, "_spp_")
-    rmarkdown::render(paste0(dir_code, "/figtab_spp.Rmd"),
-      output_dir = dir_out_ref,
-      output_file = paste0(
-        filename00, cnt_chapt_content, "_",
-        unique(report_spp1$file_name)[jj], ".docx"
-      )
-    )
-    end_time <- Sys.time()
-    print(paste0(end_time - start_time))
-  }
-
-  # *** *** Appendix --------------------------------------------
-  filename0 <- paste0(cnt_chapt, "_")
-  rmarkdown::render(paste0(dir_code, "/figtab_appendix.Rmd"),
-    output_dir = dir_out_ref,
-    output_file = paste0(filename0, cnt_chapt_content, ".docx")
-  )
-
-  # *** *** Save --------------------------------------------
-  save(list_figures,
-    file = paste0(dir_out_figures, "/report_figures.rdata")
-  )
-
-  save(list_tables,
-    file = paste0(dir_out_tables, "/report_tables.rdata")
-  )
-}
-
-load(file = paste0(dir_out_figures, "/report_figures.rdata"))
-load(file = paste0(dir_out_tables, "/report_tables.rdata"))
-
-# rmarkdown::render(input = "./notforgit/test.Rmd",
-#                   output_dir = dir_out_chapters,
-#                   output_file = "test.docx")
 
 # *** 01 - Abstract ------------------------
 cnt_chapt <- auto_counter(cnt_chapt)
