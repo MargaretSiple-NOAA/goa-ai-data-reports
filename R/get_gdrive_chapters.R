@@ -27,8 +27,3 @@ for (i in 1:length(txtfiles)){
                  output = here::here("gdrive",
                                      gsub(txtfiles[i],pattern = ".txt",replacement = ".Rmd")))
 }
-
-# Now to insert google drive chunks into a markdown file, you can use, for example,:
-# ```{r, child = "gdrive/Preface.txt"}
-# 
-# ```
