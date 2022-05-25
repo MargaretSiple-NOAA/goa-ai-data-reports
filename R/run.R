@@ -51,10 +51,22 @@ if (y) {
 devtools::source_url("https://github.com/MargaretSiple-NOAA/AFSCDataReport/blob/main/code/functions.R?raw=TRUE")
 
 
+# Get CPUE tables from Emily's public-facing data pkg ---------------------
+# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports
+cpue_raw <- read.csv(here::here("../../gap_public_data","output/2022-05-25/cpue_station.csv"))
+head(cpue_raw)
+
+
 # Create tables and figures -----------------------------------------------
 
-z <- askYesNo(msg = "Do you want to build all the figures and tables right now? NOTE: This may take a while.")
+z <- askYesNo(msg = "Do you want to build all the tables right now? NOTE: This may take a while.")
 if (z) {
+  source("R/make_tables.R")
+}
+
+
+aa <- askYesNo(msg = "Do you want to build all the figures right now? NOTE: This may take a while.")
+if (aa) {
   source("R/make_figures.R")
 }
 
