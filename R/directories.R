@@ -24,10 +24,10 @@ dir.create(paste0(dir_in,"data/"))
 
 
 # output folder -----------------------------------------------------------
-dir_output <- paste0(dir_in, "output/")
-dir.create(dir_output)
+dir.output <- paste0(dir_in, "output/")
+dir.create(dir.output)
 
-dir_out_todaysrun <- paste0(dir_output, Sys.Date(), "/")
+dir_out_todaysrun <- paste0(dir.output, Sys.Date(), "/")
 dir.create(dir_out_todaysrun)
 
 dirs <- c("chapters", "rawdata", "documentation", "figures", "tables", "cite", "ref")
