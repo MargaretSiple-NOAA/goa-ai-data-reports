@@ -31,8 +31,8 @@ PKG <- c(
   "readtext",
   
   # RACE-GAP Specific
-  "akgfmaps", 
-  # devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
+  "akgfmaps", # devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
+  "coldpool", #devtools::install_github("afsc-gap-products/coldpool")
   
   # Spatial
   "sf",
