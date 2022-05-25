@@ -3,13 +3,16 @@
 usePNGPDF <- "png"
 maxyr <- 2019
 compareyr <- 2017
+
+
+# Survey information ------------------------------------------------------
 survnumber <- "49th" #I have no idea if this is right
 dates_conducted <- "May 15th and July 31st, 2021"
 SRVY <- "GOA"
 vessel1 <- "FV Ocean Explorer"
 vessel2 <- "FV Alaska Provider"
 ref_compareyr <- "@von_szalay_data_2017" 
-dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC
+dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited
 
 # Report info
 report_title <- paste0(
@@ -42,6 +45,10 @@ y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
 if (y) {
   source("R/get_gdrive_chapters.R")
 }
+
+
+# Get functions from Emily's data reports pkg -----------------------------
+devtools::source_url("https://github.com/MargaretSiple-NOAA/AFSCDataReport/blob/main/code/functions.R?raw=TRUE")
 
 
 # Create tables and figures -----------------------------------------------
