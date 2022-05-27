@@ -16,15 +16,6 @@ list_tables[[2]] <- sampled_stations
 list_tables[[3]] <- 
 
 
-# Figures -----------------------------------------------------------------
-# Fig 1 is district map
-# Fig 2 is the start of the CPUE maps
-
-# *** *** Save --------------------------------------------
-# save(list_figures,
-#      file = paste0(dir_out_figures, "/report_figures.rdata")
-# )
-
 save(list_tables,
      file = "figtab/report_tables.rdata"
 )
