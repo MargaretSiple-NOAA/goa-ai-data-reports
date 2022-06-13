@@ -18,7 +18,6 @@ plot_idw_xbyx <- function(
   plot_stratum = TRUE, 
   use.survey.bathymetry = FALSE) {
   
- # browser()
   reg_dat <- akgfmaps::get_base_layers(select.region = region)
   yrs <- as.numeric(sort(x = yrs, decreasing = T))
   figure <- ggplot()
