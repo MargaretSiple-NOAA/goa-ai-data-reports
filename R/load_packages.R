@@ -1,6 +1,28 @@
 # Load packages
 # Install packages --------------------------------------------------------
 
+# Packages in development (require devtools) -----------------------------------
+
+if(!"nmfspalettes" %in% installed.packages()){
+  devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
+}
+
+if(!"coldpool" %in% installed.packages()){
+  devtools::install_github("afsc-gap-products/coldpool")
+}
+
+if(!"akgfmaps" %in% installed.packages()){
+  devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
+}
+
+if(!"knitcitations" %in% installed.packages()){
+  devtools::install_github("cboettig/knitcitations")
+}
+
+
+
+# List and load required packages -----------------------------------------
+
 PKG <- c(
   "devtools",
   
@@ -14,7 +36,7 @@ PKG <- c(
   "png",
   "extrafont",
   "ggpubr",
-  "nmfspalette",  # devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
+  "nmfspalette",
   "ggridges",
   
   # Citations
@@ -32,7 +54,7 @@ PKG <- c(
   
   # RACE-GAP Specific
   "akgfmaps", # devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
-  "coldpool", #devtools::install_github("afsc-gap-products/coldpool")
+  "coldpool", # devtools::install_github("afsc-gap-products/coldpool")
   
   # Spatial
   "sf",
@@ -78,5 +100,9 @@ for (p in PKG) {
     install.packages(p)
     require(p,character.only = TRUE)}
 }
+
+
+
+
 
 loadfonts(device = "win")
