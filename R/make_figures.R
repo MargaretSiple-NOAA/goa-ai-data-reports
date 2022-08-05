@@ -17,12 +17,13 @@ yr <- 2017
 POP2017 <- cpue_raw %>% 
   filter(srvy=="GOA" & species_code == sp & year == yr) 
 colnames(POP2017)
+cpue_res <- 0.1 # will take less time
 # example data:
 # head(akgfmaps:::YFS2017)
 
 
 
- figure <- plot_idw_xbyx(
+ figure1 <- plot_idw_xbyx(
    yrs = yr, 
    dat = POP2017, 
    lat = "latitude_dd",
@@ -31,22 +32,26 @@ colnames(POP2017)
    year = "year",
    key.title = "POP (kg/ha)", 
    grid = "extrapolation.grid",
-   extrap.box = c(xmn = -180, xmx = -156, ymn = 54, ymx = 62), 
-   grid.cell = c(1.5, 1.5), # will take less time
+   extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62), 
+   grid.cell = c(cpue_res,cpue_res), 
    row0 = 1, 
    region = "goa") 
-
+ 
+ list_figures <- list()
+ list_figures[[1]] <- figure1
+ 
+ 
+ 
  
  # test
- akgfmaps::get_base_layers(select.region = "goa")
-
+#  png("figtab/POP2017.png", width = 8, height = 4.5,units = 'in',res = 200)
+# figure1
+# dev.off()
  
- figure <- plot_idw_xbyx(yrs = c(2017))
 
- 
 
  # *** *** Save --------------------------------------------
- # save(list_figures,
- #      file = paste0(dir_out_figures, "/report_figures.rdata")
- # )
+ save(list_figures,
+      file = paste0("figtab/report_figures.rdata")
+ )
  
