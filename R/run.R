@@ -4,17 +4,19 @@ usePNGPDF <- "png"
 maxyr <- 2019
 compareyr <- 2017
 
-
 # Survey information ------------------------------------------------------
 survnumber <- "49th" #I have no idea if this is right
 dates_conducted <- "May 15th and July 31st, 2021"
 SRVY <- "GOA"
+YEAR <- 2021
 vessel1 <- "FV Ocean Explorer"
 vessel2 <- "FV Alaska Provider"
 ref_compareyr <- "@von_szalay_data_2017" 
 dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited
 
-# Report info
+
+# Report info -------------------------------------------------------------
+# devtools::install_github("EmilyMarkowitz-NOAA/NMFSReports")
 report_title <- paste0(
   "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
   " Bottom Trawl Survey"
@@ -48,14 +50,14 @@ if (y) {
 
 
 # Get functions from Emily's data reports pkg -----------------------------
-devtools::source_url("https://github.com/MargaretSiple-NOAA/AFSCDataReport/blob/main/code/functions.R?raw=TRUE")
+#devtools::source_url("https://github.com/MargaretSiple-NOAA/AFSCDataReport/blob/main/code/functions.R?raw=TRUE")
+source("R/plot_idx_xbyx.R")
 
 
 # Get CPUE tables from Emily's public-facing data pkg ---------------------
 # Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports
 cpue_raw <- read.csv(here::here("../../gap_public_data","output/2022-05-25/cpue_station.csv"))
 head(cpue_raw)
-
 
 # Create tables and figures -----------------------------------------------
 
@@ -77,7 +79,7 @@ load(file = paste0(dir_out_tables, "figtab/report_tables.rdata")) # object: list
 
 
 # *** 01 - Abstract ------------------------
-cnt_chapt <- auto_counter(cnt_chapt)
+cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
 cnt_chapt_content <- "001"
 filename0 <- paste0(cnt_chapt, "_abstract_")
 rmarkdown::render(
@@ -88,7 +90,7 @@ rmarkdown::render(
 
 
 # *** 02 - Introduction ------------------------
-cnt_chapt <- auto_counter(cnt_chapt)
+cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
 cnt_chapt_content <- "001"
 filename0 <- paste0(cnt_chapt, "_introduction_")
 rmarkdown::render(paste0(dir_code, "/02_introduction.Rmd"),
@@ -98,7 +100,7 @@ rmarkdown::render(paste0(dir_code, "/02_introduction.Rmd"),
 
 
 # *** 04 - Methods ------------------------
-cnt_chapt <- auto_counter(cnt_chapt)
+cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
 cnt_chapt_content <- "001"
 filename0 <- paste0(cnt_chapt, "_methods_")
 rmarkdown::render(paste0(dir_code, "/04_methods.Rmd"),
@@ -108,7 +110,7 @@ rmarkdown::render(paste0(dir_code, "/04_methods.Rmd"),
 
 
 # *** 05 - Results ------------------------
-cnt_chapt <- auto_counter(cnt_chapt)
+cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
 cnt_chapt_content <- "001"
 filename0 <- paste0(cnt_chapt, "_results_")
 rmarkdown::render(paste0(dir_code, "/05_results.Rmd"),
@@ -142,7 +144,7 @@ for (jj in 1:length(unique(report_spp1$file_name)[!is.na(unique(report_spp1$file
 }
 
 # *** 09 - Appendix ------------------------
-cnt_chapt <- auto_counter(cnt_chapt)
+cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
 cnt_chapt_content <- "001"
 filename0 <- paste0(cnt_chapt, "_appendix_")
 rmarkdown::render(paste0(dir_code, "/09_appendix.Rmd"),
@@ -152,7 +154,7 @@ rmarkdown::render(paste0(dir_code, "/09_appendix.Rmd"),
 
 
 # *** 10 - Endmatter ------------------------
-cnt_chapt <- auto_counter(cnt_chapt)
+cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
 cnt_chapt_content <- "001"
 filename0 <- paste0(cnt_chapt, "_endmatter_")
 rmarkdown::render(paste0(dir_code, "/10_endmatter.Rmd"),
