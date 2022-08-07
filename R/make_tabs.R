@@ -38,14 +38,9 @@ if(SRVY=="GOA"){
     dplyr::select(SURVEY, STRATUM, INPFC_AREA) 
 }
 
-# most_abundant <- cpue_raw %>% 
-#   dplyr::filter(srvy=="GOA" & year == YEAR) %>%
-#   dplyr::group_by(common_name) %>%
-#   dplyr::summarize(totaln = sum(count, na.rm = TRUE)) %>%
-#   top_n(n = 11)
   
 make_top_cpue <- function(YEAR, SRVY){
-  cpue_raw %>% 
+  x <- cpue_raw %>% 
     filter(year==YEAR & srvy==SRVY) %>%
     dplyr::mutate(taxon = dplyr::case_when(
       species_code <= 31550 ~ "fish", 
@@ -54,8 +49,9 @@ make_top_cpue <- function(YEAR, SRVY){
     left_join(region_lu, by=c('stratum'='STRATUM')) %>%
     dplyr::group_by(INPFC_AREA, common_name) %>%
     dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
-    top_n(n = 20) %>%
+    slice_max(n = 20, order_by = mean_cpue) %>%
     dplyr::ungroup()
+  return(x)
 }
 
 top_CPUE <- make_top_cpue(YEAR = YEAR, SRVY = SRVY)
