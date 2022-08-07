@@ -1,13 +1,21 @@
 ---
-title: "PARENT"
-author: "M Siple"
-date: "3/4/2022"
 output:
-  bookdown::word_document2: default
+  word_document:
+    pandoc_args: ["--metadata-file=header.yaml"]
+    reference_docx: styles_reference.docx
+    df_print: kable
+csl: "../cite/citestyle.csl"
+bibliography: "../cite/bibliography.bib"
 ---
 
 ```{r echo=FALSE}
 maxyr <- 2019
+nfish <- 360 #UPDATE THESE
+ninverts <- 151
+nstations <- 500
+highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
+vessel1 <- "Ocean Explorer"
+vessel2 <- "Sea Storm"
 library(magrittr)
 
 #load(here::here("figtab/report_figures.rdata"))
