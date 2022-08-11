@@ -18,8 +18,9 @@ vessel1 <- "Ocean Explorer"
 vessel2 <- "Sea Storm"
 library(magrittr)
 
-#load(here::here("figtab/report_figures.rdata"))
-load(here::here("figtab/report_tables.rdata"))
+output_date <- "2022-08-11"
+load(paste0("output/ report_figures.rdata"))
+load(dir_out_tables,"report_tables.rdata")
 ```
 
 # Preface

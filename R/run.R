@@ -1,4 +1,5 @@
 # GOA DATA REPORT
+
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
 maxyr <- 2019
@@ -74,8 +75,8 @@ if (aa) {
 
 
 # Load figures and tables -------------------------------------------------
-load(file = paste0(dir_out_figures, "figtab/report_figures.rdata")) # object: list_figures
-load(file = paste0(dir_out_tables, "figtab/report_tables.rdata")) # object: list_tables
+load(file = paste0(dir_out_figures, "report_figures.rdata")) # object: list_figures
+load(file = paste0(dir_out_tables, "report_tables.rdata")) # object: list_tables
 
 
 # *** 01 - Abstract ------------------------

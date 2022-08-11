@@ -62,6 +62,6 @@ list_tables[[2]] <- sampled_stations
 list_tables[[3]] <- top_CPUE
 
 save(list_tables,
-     file = "figtab/report_tables.rdata"
+     file = paste0(dir_out_tables,"report_tables.rdata")
 )
 

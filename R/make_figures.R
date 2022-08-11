@@ -44,7 +44,7 @@ cpue_res <- 0.1 # will take less time
  
  
  # test
-#  png("figtab/POP2017.png", width = 8, height = 4.5,units = 'in',res = 200)
+ # png(filename = paste0(dir_out_figures,"POP2017.png"), width = 8, height = 4.5,units = 'in',res = 200)
 # figure1
 # dev.off()
  
@@ -52,6 +52,6 @@ cpue_res <- 0.1 # will take less time
 
  # *** *** Save --------------------------------------------
  save(list_figures,
-      file = paste0("figtab/report_figures.rdata")
+      file = paste0(dir_out_figures, "report_figures.rdata")
  )
  
