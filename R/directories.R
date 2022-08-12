@@ -1,3 +1,8 @@
+# LIBRARIES
+
+#library(magrittr)
+
+
 
 # SAVE FILE LOCATIONS ----------------------------------------------------------
 # Just in case you change the base name for any reason, it will change for anytime you load the files inside the folder, too! (e.g., if you have something against "scripts" being the name of the folder, just let the script know in one place aka right here).
