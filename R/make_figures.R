@@ -3,8 +3,9 @@
 # Figures -----------------------------------------------------------------
 # Fig 1: district map
 # Fig 2. CPUE map 1
-# Fig 3. size comp plot
+# Fig 3. size comp plot 1
 # Fig 4. CPUE map 2
+# Fig 5. size comp plot 2
 
 # Static figure: INPFC areas ----------------------------------------------
 # 
@@ -22,7 +23,6 @@ cpue_res <- 0.1 # will take less time
 # head(akgfmaps:::YFS2017)
 
 
-
  figure1 <- plot_idw_xbyx(
    yrs = yr, 
    dat = POP2017, 
@@ -38,13 +38,13 @@ cpue_res <- 0.1 # will take less time
    region = "goa") 
  
  list_figures <- list()
- list_figures[[1]] <- figure1
+ list_figures[[1]] <- figure1 #want to give these figures names so I can save them by filename - how do I do it?
  
  
+
  
- 
- # test
- # png(filename = paste0(dir_out_figures,"POP2017.png"), width = 8, height = 4.5,units = 'in',res = 200)
+# test
+# png(filename = paste0(dir_out_figures,"POP2017.png"), width = 8, height = 4.5,units = 'in',res = 200)
 # figure1
 # dev.off()
  
@@ -54,4 +54,13 @@ cpue_res <- 0.1 # will take less time
  save(list_figures,
       file = paste0(dir_out_figures, "report_figures.rdata")
  )
+ 
+
+# (optional) print out figures --------------------------------------------
+ # ******find out a way to print all figures in a list into a directory with a certain image file type
+# if(print_figs){
+#   for(i in 1:length(list_figures)){
+#     png(filename = paste0(dir_out_figures,names(list_figures)[i],".png"),)
+#   }
+#} 
  
