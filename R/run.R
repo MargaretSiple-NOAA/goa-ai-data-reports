@@ -4,6 +4,7 @@
 usePNGPDF <- "png"
 maxyr <- 2019
 compareyr <- 2017
+print_figs <- FALSE # print out PNGs of each figure?
 
 # Survey information ------------------------------------------------------
 survnumber <- "49th" #I have no idea if this is right
@@ -64,19 +65,19 @@ head(cpue_raw)
 
 z <- askYesNo(msg = "Do you want to build all the tables right now? NOTE: This may take a while.")
 if (z) {
-  source("R/make_tables.R")
+  source(here::here("R", "make_tabs.R"))
 }
 
 
 aa <- askYesNo(msg = "Do you want to build all the figures right now? NOTE: This may take a while.")
 if (aa) {
-  source("R/make_figures.R")
+  source(here::here("R", "make_figures.R"))
 }
 
 
 # Load figures and tables -------------------------------------------------
-load(file = paste0(dir_out_figures, "report_figures.rdata")) # object: list_figures
-load(file = paste0(dir_out_tables, "report_tables.rdata")) # object: list_tables
+# load(file = paste0(dir_out_figures, "report_figures.rdata")) # object: list_figures
+# load(file = paste0(dir_out_tables, "report_tables.rdata")) # object: list_tables
 
 
 # *** 01 - Abstract ------------------------
