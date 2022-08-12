@@ -9,18 +9,22 @@ bibliography: "../cite/bibliography.bib"
 ---
 
 ```{r echo=FALSE}
+library(magrittr)
 maxyr <- 2019
 nfish <- 360 #UPDATE THESE
 ninverts <- 151
 nstations <- 500
-highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
+highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
+                         Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
 vessel1 <- "Ocean Explorer"
 vessel2 <- "Sea Storm"
-library(magrittr)
 
 output_date <- "2022-08-11"
-load(paste0("output/ report_figures.rdata"))
-load(dir_out_tables,"report_tables.rdata")
+load(here::here("output",paste(output_date),"figures","report_figures.rdata"))
+load(here::here("output",paste(output_date),"tables","report_tables.rdata"))
+
+#load(paste0("output/", output_date,"/figures/report_figures.rdata"))
+#load(paste0("output/", output_date,"/tables/report_tables.rdata"))
 ```
 
 # Preface
@@ -33,6 +37,10 @@ load(dir_out_tables,"report_tables.rdata")
 
 # Introduction
 ```{r child=here::here("gdrive","Introduction.Rmd")}
+```
+
+```{r echo=FALSE}
+list_figures[[1]]
 ```
 
 <!-- # Methods -->
