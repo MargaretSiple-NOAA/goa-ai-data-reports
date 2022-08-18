@@ -36,7 +36,6 @@ source("R/directories.R")
 source("R/load_packages.R")
 source("R/functions.R") # May not need all these functions.
 
-
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
 if (x) {
@@ -58,7 +57,8 @@ source("R/plot_idx_xbyx.R")
 
 # Get CPUE tables from Emily's public-facing data pkg ---------------------
 # Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports
-cpue_raw <- read.csv(here::here("../../gap_public_data","output/2022-05-25/cpue_station.csv"))
+cpue_raw <- read.csv(here::here("../../gap_public_data",
+                                "output/2022-05-25/cpue_station.csv"))
 head(cpue_raw)
 
 # Create tables and figures -----------------------------------------------
@@ -78,6 +78,11 @@ if (aa) {
 # Load figures and tables -------------------------------------------------
 # load(file = paste0(dir_out_figures, "report_figures.rdata")) # object: list_figures
 # load(file = paste0(dir_out_tables, "report_tables.rdata")) # object: list_tables
+
+rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
+                  output_dir = dir_out_chapters,
+                  output_file = paste0("PARENT.docx")
+)
 
 
 # *** 01 - Abstract ------------------------
