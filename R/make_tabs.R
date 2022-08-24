@@ -31,12 +31,13 @@ targetn <- data.frame(
 sampled_stations <- data.frame(INPFC_area = c("Shumagin","Chirikof", "Kodiak","Yakutat","Southeastern", "All areas"), 
                                Stations_allocated = NA) # there is sql code for this in sql/
 
-if(SRVY=="GOA"){
-  dat <- read.csv("data/goa_strata.csv",header= TRUE)
-  region_lu <- dat %>% 
-    filter(SURVEY=="GOA") %>%
-    dplyr::select(SURVEY, STRATUM, INPFC_AREA) 
-}
+
+dat <- read.csv("data/goa_strata.csv",header= TRUE)
+region_lu <- dat %>% 
+  filter(SURVEY==SRVY) %>%
+  dplyr::select(SURVEY, STRATUM, INPFC_AREA) 
+
+
 
   
 make_top_cpue <- function(YEAR, SRVY){
@@ -49,8 +50,8 @@ make_top_cpue <- function(YEAR, SRVY){
     left_join(region_lu, by=c('stratum'='STRATUM')) %>%
     dplyr::group_by(INPFC_AREA, common_name) %>%
     dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
-    slice_max(n = 20, order_by = mean_cpue) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE)
   return(x)
 }
 
