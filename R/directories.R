@@ -35,7 +35,11 @@ dir.create(dir.output)
 dir_out_todaysrun <- paste0(dir.output, Sys.Date(), "/")
 dir.create(dir_out_todaysrun)
 
-dirs <- c("chapters", "rawdata", "documentation", "figures", "tables", "cite", "ref")
+dirs <- c("chapters", "rawdata", 
+          "documentation", 
+          "figures", 
+          "markdown", "tables", 
+          "cite", "ref")
 for (i in 1:length(dirs)) {
   if (dir.exists(paste0(dir_out_todaysrun, dirs[i])) == FALSE) {
     dir.create(paste0(dir_out_todaysrun, "/", dirs[i]))

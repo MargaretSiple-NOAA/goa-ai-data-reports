@@ -1,4 +1,4 @@
-# This script should load the necessary data and build PNGs of all the figures for the paper, so they can be loaded in the Markdown part.
+# This script should load the necessary data and build PNGs of all the figures for the paper, so they can be accessed in the Markdown part.
 
 
 # Tables ------------------------------------------------------------------
