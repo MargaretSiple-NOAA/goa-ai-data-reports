@@ -1,24 +1,25 @@
-# GOA DATA REPORT
+# GOA/AI DATA REPORT
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2019
-compareyr <- 2017
+maxyr <- 2018
+compareyr <- 2016
 print_figs <- FALSE # print out PNGs of each figure?
 
 # Survey information ------------------------------------------------------
-survnumber <- "49th" #I have no idea if this is right
+survnumber <- "49th" # I have no idea if this is right
 dates_conducted <- "May 15th and July 31st, 2021"
-SRVY <- "GOA"
-YEAR <- 2021
+SRVY <- "AI" # Options: "GOA", "AI"
+YEAR <- maxyr
 vessel1 <- "FV Ocean Explorer"
 vessel2 <- "FV Alaska Provider"
-ref_compareyr <- "@von_szalay_data_2017" 
-dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC" # https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited
+ref_compareyr <- "@von_szalay_data_2017"
+if (SRVY == "GOA"){dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"} # Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited.
+if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
+
 
 
 # Report info -------------------------------------------------------------
-# devtools::install_github("EmilyMarkowitz-NOAA/NMFSReports")
 report_title <- paste0(
   "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
   " Bottom Trawl Survey"
@@ -32,9 +33,9 @@ nstations <- 500
 highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
 
 # Functions, packages, directories ---------------------------------------------
-source("R/directories.R")
-source("R/load_packages.R")
-source("R/functions.R") # May not need all these functions.
+source("R/02_directories.R")
+source("R/03_load_packages.R")
+source("R/04_functions.R") # May not need all these functions.
 
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
@@ -46,7 +47,7 @@ if (x) {
 # Get text from Google Drive ----------------------------------------------
 y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
 if (y) {
-  source("R/get_gdrive_chapters.R")
+  source("R/05_get_gdrive_chapters.R")
 }
 
 

@@ -1,9 +1,10 @@
 # Load packages
 # Install packages --------------------------------------------------------
+# devtools::install_github("EmilyMarkowitz-NOAA/NMFSReports")
 
 # Packages in development (require devtools) -----------------------------------
 
-if(!"nmfspalettes" %in% installed.packages()){
+if(!"nmfspalette" %in% installed.packages()){
   devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
 }
 
@@ -12,7 +13,7 @@ if(!"coldpool" %in% installed.packages()){
 }
 
 if(!"akgfmaps" %in% installed.packages()){
-  devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
+  devtools::install_github("afsc-gap-products/akgfmaps", build_vignettes = TRUE)
 }
 
 if(!"knitcitations" %in% installed.packages()){
@@ -54,8 +55,8 @@ PKG <- c(
   "readtext",
   
   # RACE-GAP Specific
-  "akgfmaps", # devtools::install_github("sean-rohan-noaa/akgfmaps", build_vignettes = TRUE)
-  "coldpool", # devtools::install_github("afsc-gap-products/coldpool")
+  "akgfmaps", 
+  "coldpool", 
   
   # Spatial
   "sf",
