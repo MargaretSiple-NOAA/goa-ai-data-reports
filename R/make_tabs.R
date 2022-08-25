@@ -37,21 +37,29 @@ region_lu <- dat %>%
   filter(SURVEY==SRVY) %>%
   dplyr::select(SURVEY, STRATUM, INPFC_AREA) 
 
-
-
+common_names <- read.csv("data/local_racebase/species.csv",header = TRUE)
+species_names <- common_names %>% 
+  janitor::clean_names() %>%
+  dplyr::rename(scientific_name = species_name) %>%
+  dplyr::select(-year_added)
   
-make_top_cpue <- function(YEAR, SRVY){
+make_top_cpue <- function(YEAR, SRVY){ # Gives top 20 spps for each region
   x <- cpue_raw %>% 
     filter(year==YEAR & srvy==SRVY) %>%
     dplyr::mutate(taxon = dplyr::case_when(
       species_code <= 31550 ~ "fish", 
       species_code >= 40001 ~ "invert")) %>%
     dplyr::filter(taxon == "fish") %>%
+    dplyr::mutate(common_name = case_when(species_code >= 30050 & species_code<=30052 ~ "Rougheye / blackspotted rockfish complex",
+                 TRUE ~ common_name)) %>%
+    # Old skate check
+    #dplyr::filter(species_code >=400 & species_code<=495) %>%
     left_join(region_lu, by=c('stratum'='STRATUM')) %>%
     dplyr::group_by(INPFC_AREA, common_name) %>%
     dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
+    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
     dplyr::ungroup() %>%
-    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE)
+    dplyr::left_join(species_names)
   return(x)
 }
 
