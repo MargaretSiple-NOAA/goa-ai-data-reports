@@ -8,7 +8,7 @@ print_figs <- FALSE # print out PNGs of each figure?
 
 # Survey information ------------------------------------------------------
 survnumber <- "49th" # I have no idea if this is right
-dates_conducted <- "May 15th and July 31st, 2021"
+dates_conducted <- "June 6th through August 14th, 2018"
 SRVY <- "AI" # Options: "GOA", "AI"
 YEAR <- maxyr
 vessel1 <- "FV Ocean Explorer"
@@ -41,13 +41,13 @@ source("R/04_functions.R") # May not need all these functions.
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
 if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
-  source_url("https://github.com/afsc-gap-products/design-based-indices/blob/master/R/00_download_data_from_oracle.R")
+  source("R/05_download_data_from_oracle.R")
 }
 
 # Get text from Google Drive ----------------------------------------------
 y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
 if (y) {
-  source("R/05_get_gdrive_chapters.R")
+  source("R/06_get_gdrive_chapters.R")
 }
 
 
@@ -57,7 +57,7 @@ source("R/plot_idx_xbyx.R")
 
 
 # Get CPUE tables from Emily's public-facing data pkg ---------------------
-# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports
+# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. Kind of janky. Should use httr to get FOSS data but queries are weird so I am waiting 4 Em to fix.
 cpue_raw <- read.csv(here::here("../../gap_public_data",
                                 "output/2022-05-25/cpue_station.csv"))
 head(cpue_raw)
