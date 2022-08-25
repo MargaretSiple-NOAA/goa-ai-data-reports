@@ -1,6 +1,0 @@
-This is child 1.
-
-```{r}
-zanyparameter <- 1
-```
-
