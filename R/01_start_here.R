@@ -6,6 +6,10 @@ maxyr <- 2018
 compareyr <- 2016
 print_figs <- FALSE # print out PNGs of each figure?
 
+# When did you save the last version of the figures and tables you want to use?
+tabledate <- "2022-08-30"
+figuredate <- "2022-08-30"
+
 # Survey information ------------------------------------------------------
 survnumber <- "49th" # I have no idea if this is right
 dates_conducted <- "June 6th through August 14th, 2018"
@@ -30,7 +34,8 @@ report_yr <- maxyr
 nfish <- 360 #UPDATE THESE
 ninverts <- 151
 nstations <- 500
-highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
+highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
+                         Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
 
 # Functions, packages, directories ---------------------------------------------
 source("R/02_directories.R")
@@ -67,18 +72,24 @@ head(cpue_raw)
 z <- askYesNo(msg = "Do you want to build all the tables right now? NOTE: This may take a while.")
 if (z) {
   source(here::here("R", "make_tabs.R"))
+}else{
+  load(file = 
+    paste0(dir_in_tables,"report_tables.rdata")) # object: list_tables
 }
 
 
 aa <- askYesNo(msg = "Do you want to build all the figures right now? NOTE: This may take a while.")
 if (aa) {
   source(here::here("R", "make_figures.R"))
+}else{
+  load(file = paste0(
+    dir_in_figures,"report_figures.rdata")) # object: list_figures
 }
 
 
 # Load figures and tables -------------------------------------------------
-# load(file = paste0(dir_out_figures, "report_figures.rdata")) # object: list_figures
-# load(file = paste0(dir_out_tables, "report_tables.rdata")) # object: list_tables
+
+
 
 rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
                   output_dir = dir_out_chapters,
