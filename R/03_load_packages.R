@@ -20,7 +20,9 @@ if(!"knitcitations" %in% installed.packages()){
   devtools::install_github("cboettig/knitcitations")
 }
 
-
+if(!"NMFSReports" %in% installed.packages()){
+  devtools::install_github("EmilyMarkowitz-NOAA/NMFSReports")
+}
 
 # List and load required packages -----------------------------------------
 
@@ -53,6 +55,7 @@ PKG <- c(
   # Text Management
   "stringr",
   "readtext",
+  "officedown",
   
   # RACE-GAP Specific
   "akgfmaps", 
