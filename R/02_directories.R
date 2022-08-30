@@ -47,6 +47,25 @@ for (i in 1:length(dirs)) {
   assign(x = paste0("dir_out_", dirs[i]), value = paste0(dir_out_todaysrun, "/", dirs[i], "/"))
 }
 
+
+
+# Get tables and figures you already made ---------------------------------
+
+if(is.na(tabledate) | is.na(figuredate)){
+  print("Please choose the date when you last saved figures or tables.")
+}
+
+dir_in_tables <- paste0(dir_output,tabledate,"/tables/")
+dir_in_figures <- paste0(dir_output,figuredate, "/figures/")
+
+if(!file.exists(paste0(dir_in_tables,"report_tables.rdata"))){
+  print(paste("Tables file does not exist. Make sure you generated tables on", tabledate))
+}
+
+if(!file.exists(paste0(dir_in_figures,"report_figures.rdata"))){
+  print(paste("Tables file does not exist. Make sure you generated figures on", figuredate))
+}
+
 # Folder with google drive snippets ---------------------------------------
 
 dir_out_gdrive <- "gdrive"
