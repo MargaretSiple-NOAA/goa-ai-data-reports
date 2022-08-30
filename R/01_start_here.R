@@ -90,7 +90,6 @@ if (aa) {
 # Load figures and tables -------------------------------------------------
 
 
-
 rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
                   output_dir = dir_out_chapters,
                   output_file = paste0("PARENT.docx")

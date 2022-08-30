@@ -25,11 +25,12 @@ txtfiles <- list.files(path = paste0(dir_out_gdrive, "/"), pattern = ".txt")
 
 for (i in 1:length(txtfiles)) {
   print(txtfiles[i])
-  pandoc_convert(here::here("gdrive", paste(txtfiles[i])),
+  pandoc_convert(input = here::here("gdrive", paste(txtfiles[i])),
     to = "markdown",
     output = here::here(
       "gdrive",
       gsub(txtfiles[i], pattern = ".txt", replacement = ".Rmd")
-    )
+    ),
+    citeproc = TRUE
   )
 }
