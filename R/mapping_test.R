@@ -294,3 +294,55 @@ plot_idw_xbyx(
   grid.cell = c(1.5, 1.5), # will take less time
   row0 = 1, 
   region = "goa") 
+
+
+# Test for Aleutians ------------------------------------------------------
+
+library(akgfmaps)
+library(cowplot)
+
+ai_east <- akgfmaps::get_base_layers(select.region = "ai.east", set.crs = "auto")
+ai_central <- akgfmaps::get_base_layers(select.region = "ai.central", set.crs = "auto")
+ai_west <- akgfmaps::get_base_layers(select.region = "ai.west", set.crs = "auto")
+
+cowplot::plot_grid(
+  ggplot() +
+    geom_sf(data = ai_east$survey.grid,
+            mapping = aes(fill = factor(floor(STRATUM/10)))) +
+    geom_sf(data = ai_east$akland) +
+    geom_point(data = data.frame(y = ai_east$plot.boundary$y,
+                                 x = ai_east$plot.boundary$x),
+               mapping = aes(x = x, 
+                             y = y)) +
+    coord_sf(xlim = ai_east$plot.boundary$x,
+             ylim = ai_east$plot.boundary$y) +
+    scale_x_continuous(breaks = ai_east$lon.breaks) +
+    scale_y_continuous(breaks = ai_east$lat.breaks) +
+    theme(legend.position = "none"),
+  ggplot() +
+    geom_sf(data = ai_central$survey.grid,
+            mapping = aes(fill = factor(floor(STRATUM/10)))) +
+    geom_sf(data = ai_central$akland) +
+    geom_point(data = data.frame(y = ai_central$plot.boundary$y,
+                                 x = ai_central$plot.boundary$x),
+               mapping = aes(x = x, 
+                             y = y)) +
+    coord_sf(xlim = ai_central$plot.boundary$x,
+             ylim = ai_central$plot.boundary$y) +
+    scale_x_continuous(breaks = ai_central$lon.breaks) +
+    scale_y_continuous(breaks = ai_central$lat.breaks) +
+    theme(legend.position = "none"),
+  ggplot() +
+    geom_sf(data = ai_west$survey.grid,
+            mapping = aes(fill = factor(floor(STRATUM/10)))) +
+    geom_sf(data = ai_west$akland) +
+    geom_point(data = data.frame(y = ai_west$plot.boundary$y,
+                                 x = ai_west$plot.boundary$x),
+               mapping = aes(x = x, 
+                             y = y)) +
+    coord_sf(xlim = ai_west$plot.boundary$x,
+             ylim = ai_west$plot.boundary$y) +
+    scale_x_continuous(breaks = ai_west$lon.breaks) +
+    scale_y_continuous(breaks = ai_west$lat.breaks) +
+    theme(legend.position = "none"),
+  nrow = 3)
