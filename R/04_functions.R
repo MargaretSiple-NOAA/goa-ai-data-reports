@@ -2908,5 +2908,19 @@ table_change_pres <- function(dat,
       # ifelse(trimws(unit_word) == "", "", paste0(" ",
       trimws(unit_word)
     )
-  )) # ))
+  )) 
+}
+
+#Save plot as a png (for using lapply with the list of figures)
+
+make_png <- function(fig_list_element,
+                     year, region,
+                     savedir = dir_out_figures) {
+  filename_x <- names(fig_list_element)
+  png(
+    filename = paste0(savedir, filename_x, "_", region, "_", year, ".png"),
+    width = 10, height = 10, units = "in", res = 150
+  )
+  fig_list_element
+  dev.off()
 }

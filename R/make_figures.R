@@ -14,10 +14,10 @@
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
 # get cpue table by station for a species
 sp <- 30060
-yr <- 2017
-POP2017 <- cpue_raw %>% 
-  filter(srvy=="GOA" & species_code == sp & year == yr) 
-colnames(POP2017)
+yr <- 2018
+dat2plot <- cpue_raw %>% 
+  filter(srvy==SRVY & species_code == sp & year == yr) 
+colnames(dat2plot)
 cpue_res <- 0.1 # will take less time
 # example data:
 # head(akgfmaps:::YFS2017)
@@ -25,7 +25,7 @@ cpue_res <- 0.1 # will take less time
 
  figure1 <- plot_idw_xbyx(
    yrs = yr, 
-   dat = POP2017, 
+   dat = dat2plot, 
    lat = "latitude_dd",
    lon = "longitude_dd",
    var = "cpue_kgha",
@@ -38,16 +38,21 @@ cpue_res <- 0.1 # will take less time
    region = "goa") 
  
  list_figures <- list()
- list_figures[[1]] <- figure1 #want to give these figures names so I can save them by filename - how do I do it?
- 
+ list_figures[[1]] <- figure1 
+  names(list_figures)[1] <- "POP" # NOTE: NEED TO MAKE THIS THE WHOLE LIST OF SPECIES
  
 
- 
 # test
 # png(filename = paste0(dir_out_figures,"POP2017.png"), width = 8, height = 4.5,units = 'in',res = 200)
 # figure1
 # dev.off()
+
+
  
+ if(print_figs){
+ lapply(X = list_figures, FUN = make_png, year = YEAR, region = SRVY,
+        savedir = dir_out_figures)
+ }
 
 
  # *** *** Save --------------------------------------------
@@ -57,10 +62,5 @@ cpue_res <- 0.1 # will take less time
  
 
 # (optional) print out figures --------------------------------------------
- # ******find out a way to print all figures in a list into a directory with a certain image file type
-# if(print_figs){
-#   for(i in 1:length(list_figures)){
-#     png(filename = paste0(dir_out_figures,names(list_figures)[i],".png"),)
-#   }
-#} 
+
  
