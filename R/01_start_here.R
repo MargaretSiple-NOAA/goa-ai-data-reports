@@ -61,11 +61,18 @@ if (y) {
 source("R/plot_idx_xbyx.R")
 
 
-# Get CPUE tables from Emily's public-facing data pkg ---------------------
+
+# Data --------------------------------------------------------------------
+# Get species table
+if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+
+# Get CPUE tables from Emily's public-facing data pkg
 # Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. Kind of janky. Should use httr to get FOSS data but queries are weird so I am waiting 4 Em to fix.
 cpue_raw <- read.csv(here::here("../../gap_public_data",
                                 "output/2022-05-25/cpue_station.csv"))
 head(cpue_raw)
+
+
 
 # Create tables and figures -----------------------------------------------
 

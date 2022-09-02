@@ -39,7 +39,9 @@ vignettes/*.pdf
 .Renviron
 
 # Ignore output directories
-data/
+/data/local_nodc
+/data/local_race_data
+/data/local_racebase
 gdrive/
 output/
 
