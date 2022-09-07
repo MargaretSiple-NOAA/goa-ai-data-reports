@@ -8,6 +8,10 @@ if(!"nmfspalette" %in% installed.packages()){
   devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
 }
 
+if(!"nmfspalette" %in% installed.packages()){
+  devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
+}
+
 if(!"coldpool" %in% installed.packages()){
   devtools::install_github("afsc-gap-products/coldpool")
 }
@@ -42,6 +46,8 @@ PKG <- c(
   "ggpubr",
   "nmfspalette",
   "ggridges",
+  "RColorBrewer",
+  "scales",
   
   # Citations
   "knitcitations", # devtools::install_github("cboettig/knitcitations")
@@ -56,6 +62,7 @@ PKG <- c(
   "stringr",
   "readtext",
   "officedown",
+  "janitor",
   
   # RACE-GAP Specific
   "akgfmaps", 
