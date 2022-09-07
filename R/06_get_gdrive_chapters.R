@@ -10,7 +10,7 @@ chaps <- googledrive::drive_ls(path = id_googledrive, type = "document")
 
 # Download chunks of text from google drive as txt
 # The google drive is here:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC
-for (i in 1:length(chaps)) {
+for (i in 1:nrow(chaps)) {
   googledrive::drive_download(
     file = googledrive::as_id(chaps$id[i]), type = "txt",
     overwrite = TRUE,
@@ -31,6 +31,6 @@ for (i in 1:length(txtfiles)) {
       "gdrive",
       gsub(txtfiles[i], pattern = ".txt", replacement = ".Rmd")
     ),
-    citeproc = TRUE
+    citeproc = TRUE # not sure if this is needed
   )
 }
