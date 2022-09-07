@@ -45,6 +45,6 @@ vignettes/*.pdf
 gdrive/
 output/
 
+
 # just any .doc or html outputs
-*.docx
 *.html
