@@ -1,0 +1,38 @@
+---
+title: "GOA-AI Plan Team Slides"
+author: "M Siple"
+date: "2022-09-08"
+output: 
+  powerpoint_presentation:
+    reference_doc: styles_reference.pptx
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+
+
+## Biomass over time
+
+```{r biomass}
+list_biomass_ts[[1]]
+```
+
+## Catch composition
+
+```{r catchcomp}
+p2
+```

@@ -70,8 +70,8 @@ bubbletheme <- theme(
 )
 
 
-linetheme <- theme_bw(base_size = 16)
-bartheme <- theme_classic2(base_size = 16)
+linetheme <- theme_bw(base_size = 10)
+bartheme <- theme_classic2(base_size = 10)
 
 # Palettes!
 # Ghibli Ponyo palette
@@ -108,6 +108,7 @@ speciescolors <- lengthen_pal(
 # 1. Biomass index relative to LT mean ---------------------------------------
 
 if (make_biomass_timeseries) {
+  list_biomass_ts <- list()
   for (i in 1:nrow(report_species)) {
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
@@ -127,6 +128,7 @@ if (make_biomass_timeseries) {
       labs(title = paste0(name_bms)) +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
+    list_biomass_ts[[i]] <- p1
     png(
       filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_ts.png"),
       width = 7, height = 7, units = "in", res = 150
@@ -150,7 +152,7 @@ if (make_catch_comp) {
     levels = c(report_species$spp_name_informal, "Other species")
   )
 
-  p1 <- biomass_total_filtered %>%
+  p2 <- biomass_total_filtered %>%
     ggplot(aes(fill = spp_name_informal, y = TOTAL_BIOMASS / 10e6, x = YEAR)) +
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
@@ -163,7 +165,7 @@ if (make_catch_comp) {
     filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
     width = 7, height = 7, units = "in", res = 150
   )
-  print(p1)
+  print(p2)
   dev.off()
 }
 
@@ -183,7 +185,7 @@ if (make_cpue_bubbles) {
       st_transform(crs = ai_east$crs)
 
     # MAPS
-    p1 <- ggplot() +
+    p3a <- ggplot() +
       geom_sf(
         data = ai_east$survey.grid,
         mapping = aes(
@@ -204,7 +206,7 @@ if (make_cpue_bubbles) {
       labs(subtitle = "Eastern Aleutians") +
       bubbletheme
 
-    p2 <- ggplot() +
+    p3b <- ggplot() +
       geom_sf(
         data = ai_central$survey.grid,
         mapping = aes(
@@ -229,7 +231,7 @@ if (make_cpue_bubbles) {
       labs(subtitle = paste0(namebubble, " - Central Aleutians - ", YEAR)) +
       bubbletheme
 
-    p3 <- ggplot() +
+    p3c <- ggplot() +
       geom_sf(
         data = ai_west$survey.grid,
         mapping = aes(
@@ -254,14 +256,24 @@ if (make_cpue_bubbles) {
       labs(subtitle = "Western Aleutians") +
       bubbletheme
 
-    final_obj <- p2 / (p3 | p1)
+    final_obj <- p3b / (p3c | p3a)
 
     png(
       filename = paste0(dir_out_figures, namebubble, "_2018_bubble_example_Hokusai.png"),
       width = 10, height = 9, units = "in", res = 150
     )
     print(final_obj)
-    # ggsave(filename = paste0(dir_out_figures, namebubble, "_2018_bubble_example_Hokusai.png"), plot = final_obj,width = 10,height = 9,units = "in")
+
     dev.off()
   }
 }
+
+
+# Make the slides! --------------------------------------------------------
+
+
+rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
+                  output_dir = dir_out_chapters,
+                  output_file = paste0("PLAN_TEAM_SLIDES.pptx")
+)
+
