@@ -55,13 +55,6 @@ if (y) {
   source("R/06_get_gdrive_chapters.R")
 }
 
-
-# Get functions from Emily's data reports pkg -----------------------------
-#devtools::source_url("https://github.com/MargaretSiple-NOAA/AFSCDataReport/blob/main/code/functions.R?raw=TRUE")
-source("R/plot_idx_xbyx.R")
-
-
-
 # Data --------------------------------------------------------------------
 # Get species table
 if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
@@ -71,6 +64,22 @@ if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 cpue_raw <- read.csv(here::here("../../gap_public_data",
                                 "output/2022-05-25/cpue_station.csv"))
 head(cpue_raw)
+
+# NOTE: MAY CHANGE TO DRAW FROM ORACLE
+
+
+################################################################################
+################################################################################
+################################################################################
+# EVERYTHING BELOW THIS LINE IS FOR REPORTS -- NO NEED TO USE IT FOR PRESENTATIONS!
+################################################################################
+################################################################################
+################################################################################
+
+# Get functions from Emily's data reports pkg -----------------------------
+#devtools::source_url("https://github.com/MargaretSiple-NOAA/AFSCDataReport/blob/main/code/functions.R?raw=TRUE")
+source("R/plot_idx_xbyx.R")
+
 
 
 
