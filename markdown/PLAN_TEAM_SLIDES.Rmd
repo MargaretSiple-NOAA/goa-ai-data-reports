@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE,dpi=300,fig.width=7)
 ```
 
 ## R Markdown
@@ -17,22 +17,135 @@ This is an R Markdown presentation. Markdown is a simple formatting syntax for a
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
 
+
 ## Slide with Bullets
 
 - Bullet 1
 - Bullet 2
 - Bullet 3
 
-
-
-## Biomass over time
-
-```{r biomass}
-list_biomass_ts[[1]]
-```
+---
 
 ## Catch composition
 
 ```{r catchcomp}
 p2
 ```
+
+---
+
+# Biomass trends
+
+---
+
+
+## Shortraker rockfish
+
+```{r biomass1}
+list_biomass_ts[[1]]
+```
+
+---
+
+## Pacific ocean perch
+
+```{r biomass2}
+list_biomass_ts[[2]]
+```
+
+---
+
+## Blackspotted rockfish
+
+```{r biomass3}
+list_biomass_ts[[3]]
+```
+
+---
+
+## Rougheye rockfish
+
+```{r biomass4}
+list_biomass_ts[[4]]
+```
+
+---
+
+## Atka mackerel
+
+```{r biomass5}
+list_biomass_ts[[5]]
+```
+
+---
+
+## Walleye pollock
+
+```{r biomass6}
+list_biomass_ts[[6]]
+```
+
+---
+
+## Pacific cod
+
+```{r biomass7}
+list_biomass_ts[[7]]
+```
+
+---
+
+## Yellow irish lord
+
+```{r biomass8}
+list_biomass_ts[[8]]
+```
+
+---
+
+## Sablefish
+
+```{r biomass9}
+list_biomass_ts[[9]]
+```
+
+---
+
+## Northern rock sole
+
+```{r biomass10}
+list_biomass_ts[[10]]
+```
+
+---
+
+## Arrowtooth flounder
+
+```{r biomass11}
+list_biomass_ts[[11]]
+```
+
+---
+
+## Whiteblotched skate 
+
+```{r biomass12}
+list_biomass_ts[[12]]
+```
+
+---
+
+## Aleutian skate
+
+```{r biomass13}
+list_biomass_ts[[13]]
+```
+
+---
+
+# CPUE by survey region
+
+---
+
+## Shortraker rockfish
+
