@@ -71,6 +71,7 @@ bubbletheme <- theme(
 
 
 linetheme <- theme_bw(base_size = 16)
+bartheme <- theme_classic2(base_size = 16)
 
 # Palettes!
 # Ghibli Ponyo palette
@@ -98,6 +99,12 @@ stratumpal <- lengthen_pal(
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
+# Palette for species colors and fills
+speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species)+1)
+speciescolors <- lengthen_pal(
+  shortpal = MetBrewer::met.brewer(name = "VanGogh2", type = "discrete",direction = -1),
+  x = 1:(nrow(report_species)+1)
+)
 # 1. Biomass index relative to LT mean ---------------------------------------
 
 if (make_biomass_timeseries) {
@@ -132,10 +139,22 @@ if (make_biomass_timeseries) {
 
 # 2. Catch composition -------------------------------------------------------
 head(biomass_total)
+biomass_total_filtered <- biomass_total %>%
+  left_join(report_species, 
+            by = c('SPECIES_CODE' = 'species_code')) %>%
+  mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal,replace = "Other species"))
 
-biomass_total %>%
-  ggplot(aes(fill=SPECIES_CODE, y=TOTAL_BIOMASS, x=YEAR)) + 
-  geom_bar(position="stack", stat="identity")
+biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
+                                                   levels = c(report_species$spp_name_informal, "Other species"))
+
+biomass_total_filtered %>%
+  ggplot(aes(fill=spp_name_informal, y=TOTAL_BIOMASS/10e6, x=YEAR)) + 
+  geom_bar(position="stack", stat="identity") +
+  scale_fill_manual("",values = speciescolors) +
+  xlab("Year") +
+  ylab(expression(paste('Total estimated biomass (\u00D7 ', 10^6, ')'))) +
+  scale_y_continuous(expand = c(0,0)) +
+  bartheme
 
 
 # 3. CPUE bubble maps ----------------------------------------------------------
