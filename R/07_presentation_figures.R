@@ -4,13 +4,13 @@
 #
 # Table of contents (toggle true/false to make some plots but not others):
 # 1. Biomass indices relative to LT mean
-make_biomass_timeseries <- FALSE
+make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
 # 3. CPUE bubble maps
 make_cpue_bubbles <- FALSE
 # 4. Length frequency plots by region and depth stratum
-make_length_freqs <- TRUE
+make_length_freqs <- FALSE
 
 # Libraries ---------------------------------------------------------------
 library(akgfmaps)
@@ -19,6 +19,7 @@ library(patchwork)
 # Data to plot ------------------------------------------------------------
 # All the species for which we want to make plots
 head(report_species)
+report_species <- report_species %>% arrange(-species_code)
 
 # Total biomass data (currently taking from local copy; download/update new one in 01_start_here.R)
 biomass_total <- read.csv("data/local_ai/biomass_total.csv")
@@ -136,6 +137,7 @@ if (make_biomass_timeseries) {
     print(p1)
     dev.off()
   }
+  #names(list_biomass_ts) <- report_species$species_code # not sure if I want to keep this
 }
 
 
@@ -269,8 +271,27 @@ if (make_cpue_bubbles) {
 }
 
 
-# Make the slides! --------------------------------------------------------
+# Percent changes in biomass since last survey ----------------------------
 
+head(biomass_total)
+
+compare_tab <- biomass_total %>% 
+  filter(YEAR %in% c(maxyr, compareyr) & 
+           SPECIES_CODE %in% report_species$species_code) %>%
+  dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
+  dplyr::arrange(YEAR) %>%
+  tidyr::pivot_wider(names_from = YEAR,
+                     values_from = TOTAL_BIOMASS,
+                     names_prefix = "yr_") 
+
+compare_tab$percent_change <- round((compare_tab[,3] - compare_tab[,2]) / compare_tab[,2] * 100, digits = 1)
+names(compare_tab)
+
+compare_tab <- compare_tab %>%
+  left_join(report_species, by = c("SPECIES_CODE"="species_code")) %>%
+  arrange(-SPECIES_CODE)
+
+# Make the slides! --------------------------------------------------------
 
 rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
                   output_dir = dir_out_chapters,
