@@ -1,6 +1,8 @@
 
 # PRESENTATION FIGURES ----------------------------------------------------
-# Table of contents (toggle true/false to make some but not others):
+# RUN THE FIRST 70 LINES OF THE 01_START_HERE.R SCRIPT BEFORE RUNNING THE CODE BELOW
+#
+# Table of contents (toggle true/false to make some plots but not others):
 # 1. Biomass indices relative to LT mean
 make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
@@ -18,7 +20,8 @@ library(patchwork)
 # All the species for which we want to make plots
 head(report_species)
 
-
+# Total biomass data (currently taking from local copy; download/update new one in 01_start_here.R)
+biomass_total <- read.csv("data/local_ai/biomass_total.csv")
 
 # Base maps ---------------------------------------------------------------
 ai_east <- akgfmaps::get_base_layers(
@@ -33,6 +36,8 @@ ai_west <- akgfmaps::get_base_layers(
   select.region = "ai.west",
   set.crs = "auto"
 )
+
+nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
 
 # Aesthetic settings ------------------------------------------------------
 
@@ -64,11 +69,10 @@ bubbletheme <- theme(
   plot.title = element_text(margin = margin(b = -30))
 )
 
-nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
 
-# Line theme
 linetheme <- theme_bw(base_size = 16)
 
+# Palettes!
 # Ghibli Ponyo palette
 # stratumpal <- lengthen_pal(
 #   shortpal = ghibli::ghibli_palette("PonyoLight"),
@@ -94,9 +98,7 @@ stratumpal <- lengthen_pal(
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
-# 1. BIOMASS INDEX RELATIVE TO LT MEAN ---------------------------------------
-
-biomass_total <- read.csv("data/local_ai/biomass_total.csv")
+# 1. Biomass index relative to LT mean ---------------------------------------
 
 if (make_biomass_timeseries) {
   for (i in 1:nrow(report_species)) {
@@ -126,6 +128,14 @@ if (make_biomass_timeseries) {
     dev.off()
   }
 }
+
+
+# 2. Catch composition -------------------------------------------------------
+head(biomass_total)
+
+biomass_total %>%
+  ggplot(aes(fill=SPECIES_CODE, y=TOTAL_BIOMASS, x=YEAR)) + 
+  geom_bar(position="stack", stat="identity")
 
 
 # 3. CPUE bubble maps ----------------------------------------------------------
