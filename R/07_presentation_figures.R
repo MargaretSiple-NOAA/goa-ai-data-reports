@@ -173,6 +173,7 @@ if (make_catch_comp) {
 
 # 3. CPUE bubble maps ----------------------------------------------------------
 if (make_cpue_bubbles) {
+  list_cpue_bubbles <- list()
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
     namebubble <- report_species$spp_name_informal[i]
@@ -259,7 +260,9 @@ if (make_cpue_bubbles) {
       bubbletheme
 
     final_obj <- p3b / (p3c | p3a)
-
+    
+    list_cpue_bubbles[[i]] <- final_obj
+    
     png(
       filename = paste0(dir_out_figures, namebubble, "_2018_bubble_example_Hokusai.png"),
       width = 10, height = 9, units = "in", res = 150
@@ -267,7 +270,7 @@ if (make_cpue_bubbles) {
     print(final_obj)
 
     dev.off()
-  }
+  } #/end species loop
 }
 
 
@@ -291,7 +294,7 @@ compare_tab <- compare_tab %>%
   left_join(report_species, by = c("SPECIES_CODE"="species_code")) %>%
   arrange(-SPECIES_CODE)
 
-# Make the slides! --------------------------------------------------------
+# Make those slides! --------------------------------------------------------
 
 rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
                   output_dir = dir_out_chapters,
