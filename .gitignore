@@ -42,6 +42,8 @@ vignettes/*.pdf
 /data/local_nodc
 /data/local_race_data
 /data/local_racebase
+/data/length_ADFG.csv
+/data/specimen_ADFG.csv
 gdrive/
 output/
 
