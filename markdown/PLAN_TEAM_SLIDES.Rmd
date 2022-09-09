@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,dpi=300,fig.width=7)
+knitr::opts_chunk$set(echo = FALSE,dpi=300,fig.width=10)
 ```
 
 ## R Markdown
@@ -149,3 +149,102 @@ list_biomass_ts[[13]]
 
 ## Shortraker rockfish
 
+```{r list_cpue_bubbles1}
+list_cpue_bubbles[[1]]
+```
+
+## Pacific ocean perch
+
+```{r list_cpue_bubbles2}
+list_cpue_bubbles[[2]]
+```
+
+---
+
+## Blackspotted rockfish
+
+```{r list_cpue_bubbles3}
+list_cpue_bubbles[[3]]
+```
+
+---
+
+## Rougheye rockfish
+
+```{r list_cpue_bubbles4}
+list_cpue_bubbles[[4]]
+```
+
+---
+
+## Atka mackerel
+
+```{r list_cpue_bubbles5}
+list_cpue_bubbles[[5]]
+```
+
+---
+
+## Walleye pollock
+
+```{r list_cpue_bubbles6}
+list_cpue_bubbles[[6]]
+```
+
+---
+
+## Pacific cod
+
+```{r list_cpue_bubbles7}
+list_cpue_bubbles[[7]]
+```
+
+---
+
+## Yellow irish lord
+
+```{r list_cpue_bubbles8}
+list_cpue_bubbles[[8]]
+```
+
+---
+
+## Sablefish
+
+```{r list_cpue_bubbles9}
+list_cpue_bubbles[[9]]
+```
+
+---
+
+## Northern rock sole
+
+```{r list_cpue_bubbles10}
+list_cpue_bubbles[[10]]
+```
+
+---
+
+## Arrowtooth flounder
+
+```{r list_cpue_bubbles11}
+list_cpue_bubbles[[11]]
+```
+
+---
+
+## Whiteblotched skate 
+
+```{r list_cpue_bubbles12}
+list_cpue_bubbles[[12]]
+```
+
+---
+
+## Aleutian skate
+
+```{r list_cpue_bubbles13}
+list_cpue_bubbles[[13]]
+```
+
+---
