@@ -321,22 +321,31 @@ if (make_length_freqs) {
       SEX == 2 ~ "Female",
       SEX == 3 ~ "Unsexed"
     )) %>%
-    dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH) %>%
-    tidyr::uncount(FREQUENCY) %>% # turn freq column into rows for histogramming
-    group_split(Sex)
+    dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH) 
+  
+  length4 <- length3 %>%
+    tidyr::uncount(FREQUENCY) %>%
+    group_split(Sex) # turn freq column into rows for histogramming
   
   lengthpal <- MetBrewer::met.brewer(name = "Morgenstern")[c(2,5,7)]
-
+  
+  samplesizes <- length3 %>%
+    group_by(INPFC_AREA,`Depth range`) %>%
+    count() %>%
+    ungroup()
+    
+  #TODO : change order of areas to be geographic, add legend, inside plot area, etc
+  
   for (i in 1:nrow(report_species)) {
-    dat2plot <- purrr::map(length3, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
+    dat2plot <- purrr::map(length4, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
 
     lfplot <- ggplot() +
-      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH, y = ..density..), fill = lengthpal[1]) +
-      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH, y = -..density..), fill = lengthpal[2],alpha=0.5) +
-      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH, y = -..density..), fill = lengthpal[3]) +
-      facet_grid(INPFC_AREA ~ `Depth range`) +
+      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[1],alpha=0.7) +
+      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[2],alpha=0.5) +
+      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[3],alpha=0.7) +
+      facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y") +
       labs(title = paste0(YEAR," - ",report_species$spp_name_informal[i])) +
-      xlab("Length") +
+      xlab("Length (cm)") +
       ylab("Density") +
       bartheme +
       theme(legend.position = "bottom")
@@ -344,11 +353,11 @@ if (make_length_freqs) {
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_lengthfreqhist.png"
-    ))
+    ),width = 9, height = 9,units = 'in',res=200)
     print(lfplot)
     dev.off()
 
-    list_length_freq[[i]] <- freqplot
+    list_length_freq[[i]] <- lfplot
   }
 }
 
