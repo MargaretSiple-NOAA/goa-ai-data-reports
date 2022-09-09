@@ -1,7 +1,8 @@
 ---
-title: "GOA-AI Plan Team Slides"
-author: "M Siple"
-date: "2022-09-08"
+title: "2022 Aleutian Islands Biennial Bottom Trawl Survey"
+subtitle: "Groundfish Plan Team Meeting, September 2022"
+author: "Ned Laman, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
+date: "September 8, 2022"
 output: 
   powerpoint_presentation:
     reference_doc: styles_reference.pptx
@@ -11,18 +12,20 @@ output:
 knitr::opts_chunk$set(echo = FALSE,dpi=300,fig.width=10)
 ```
 
-## R Markdown
+## `r maxyr` Aleutian Islands bottom trawl survey
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+The `r maxyr` AI bottom trawl survey took place between `r dates_conducted`. The previous AI survey was in `r compareyr`; the 2020 survey was cancelled because of COVID-19. 
 
 
-## Slide with Bullets
+## Survey Purpose
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+To collect standardized and fishery-independent time series of:
+
+- Relative abundance
+- Distribution
+- Age and biological condition
+
+There are 31 managed species or species groups in the Bering Sea and Aleutian Islands that have stock assessments.
 
 ---
 

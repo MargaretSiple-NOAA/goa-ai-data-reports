@@ -1,12 +1,12 @@
 
 # PRESENTATION FIGURES ----------------------------------------------------
-# RUN THE FIRST 70 LINES OF THE 01_START_HERE.R SCRIPT BEFORE RUNNING THE CODE BELOW
+# RUN THE FIRST 75 LINES OF THE 01_START_HERE.R SCRIPT BEFORE RUNNING THE CODE BELOW
 #
 # Table of contents (toggle true/false to make some plots but not others):
 # 1. Biomass indices relative to LT mean
 make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
-make_catch_comp <- TRUE
+make_catch_comp <- FALSE
 # 3. CPUE bubble maps
 make_cpue_bubbles <- FALSE
 # 4. Length frequency plots by region and depth stratum
@@ -19,7 +19,8 @@ library(patchwork)
 # Data to plot ------------------------------------------------------------
 # All the species for which we want to make plots
 head(report_species)
-report_species <- report_species %>% arrange(-species_code)
+report_species <- report_species %>% 
+  arrange(-species_code)
 
 # Total biomass data (currently taking from local copy; download/update new one in 01_start_here.R)
 biomass_total <- read.csv("data/local_ai/biomass_total.csv")
@@ -72,7 +73,8 @@ bubbletheme <- theme(
 
 
 linetheme <- theme_bw(base_size = 10)
-bartheme <- theme_classic2(base_size = 10)
+bartheme <- theme_classic2(base_size = 10) +
+  theme(strip.background = element_blank())
 
 # Palettes!
 # Ghibli Ponyo palette
@@ -101,7 +103,7 @@ linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for species colors and fills
-speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
+#speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
 speciescolors <- lengthen_pal(
   shortpal = MetBrewer::met.brewer(name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
@@ -293,6 +295,62 @@ names(compare_tab)
 compare_tab <- compare_tab %>%
   left_join(report_species, by = c("SPECIES_CODE"="species_code")) %>%
   arrange(-SPECIES_CODE)
+
+
+# 4. Make length frequency plots by area/depth stratum --------------------
+# Uses only the most recent year (no comparison)
+
+if (make_length_freqs) {
+  list_length_freq <- list()
+  length <- read.csv(here::here("data", "local_racebase", "length.csv"))
+  haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
+
+  length2 <- length %>%
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+    filter(YEAR == maxyr & REGION == SRVY)
+  haul2 <- haul %>%
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+    filter(YEAR == maxyr & REGION == SRVY)
+
+  length3 <- length2 %>%
+    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
+    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
+    left_join(region_lu, by = "STRATUM") %>%
+    mutate(Sex = case_when(
+      SEX == 1 ~ "Male",
+      SEX == 2 ~ "Female",
+      SEX == 3 ~ "Unsexed"
+    )) %>%
+    dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH) %>%
+    tidyr::uncount(FREQUENCY) %>% # turn freq column into rows for histogramming
+    group_split(Sex)
+  
+  lengthpal <- MetBrewer::met.brewer(name = "Morgenstern")[c(2,5,7)]
+
+  for (i in 1:nrow(report_species)) {
+    dat2plot <- purrr::map(length3, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
+
+    lfplot <- ggplot() +
+      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH, y = ..density..), fill = lengthpal[1]) +
+      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH, y = -..density..), fill = lengthpal[2],alpha=0.5) +
+      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH, y = -..density..), fill = lengthpal[3]) +
+      facet_grid(INPFC_AREA ~ `Depth range`) +
+      labs(title = paste0(YEAR," - ",report_species$spp_name_informal[i])) +
+      xlab("Length") +
+      ylab("Density") +
+      bartheme +
+      theme(legend.position = "bottom")
+
+    png(filename = paste0(
+      dir_out_figures, maxyr, "_",
+      report_species$spp_name_informal[i], "_lengthfreqhist.png"
+    ))
+    print(lfplot)
+    dev.off()
+
+    list_length_freq[[i]] <- freqplot
+  }
+}
 
 # Make those slides! --------------------------------------------------------
 
