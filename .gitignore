@@ -48,5 +48,6 @@ gdrive/
 output/
 
 
-# just any .doc or html outputs
+# .doc, .ppt and html output products
 *.html
+markdown/PLAN_TEAM_SLIDES.pptx
