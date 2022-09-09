@@ -59,6 +59,7 @@ PKG <- c(
   "googledrive",
   "readr",
   "tidyr",
+  "purrr",
   
   # Text Management
   "stringr",
@@ -114,9 +115,6 @@ for (p in PKG) {
     install.packages(p)
     require(p,character.only = TRUE)}
 }
-
-
-
 
 
 loadfonts(device = "win")

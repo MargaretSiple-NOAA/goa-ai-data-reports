@@ -327,22 +327,22 @@ if (make_length_freqs) {
     tidyr::uncount(FREQUENCY) %>%
     group_split(Sex) # turn freq column into rows for histogramming
   
-  lengthpal <- MetBrewer::met.brewer(name = "Morgenstern")[c(2,5,7)]
+  lengthpal <- MetBrewer::met.brewer(name = "Nizami",n=8)[c(2,5,7)]
   
   samplesizes <- length3 %>%
     group_by(INPFC_AREA,`Depth range`) %>%
     count() %>%
     ungroup()
     
-  #TODO : change order of areas to be geographic, add legend, inside plot area, etc
+  #TODO : change order of areas to be geographic, add legend, inside plot area, etc. Fix color palette issues to get legend to show up. 
   
   for (i in 1:nrow(report_species)) {
     dat2plot <- purrr::map(length4, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
 
     lfplot <- ggplot() +
-      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[1],alpha=0.7) +
-      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[2],alpha=0.5) +
-      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[3],alpha=0.7) +
+      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[3],alpha=0.6) +
+      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[2],alpha=0.4) +
+      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[1],alpha=0.6) +
       facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y") +
       labs(title = paste0(YEAR," - ",report_species$spp_name_informal[i])) +
       xlab("Length (cm)") +

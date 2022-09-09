@@ -2,8 +2,8 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2022 # Change this for the year!
-compareyr <- 2018 # Change this for the year!
+maxyr <- 2018 # Change this for the year!
+compareyr <- 2016 # Change this for the year!
 print_figs <- FALSE # Do you want to print out PNGs of each figure?
 
 # When did you save the last version of the figures and tables you want to use?
