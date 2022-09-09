@@ -251,3 +251,109 @@ list_cpue_bubbles[[13]]
 ```
 
 ---
+
+# Length frequencies
+
+---
+
+## Shortraker rockfish
+
+```{r list_length_freq1}
+list_length_freq[[1]]
+```
+
+## Pacific ocean perch
+
+```{r list_length_freq2}
+list_length_freq[[2]]
+```
+
+---
+
+## Blackspotted rockfish
+
+```{r list_length_freq3}
+list_length_freq[[3]]
+```
+
+---
+
+## Rougheye rockfish
+
+```{r list_length_freq4}
+list_length_freq[[4]]
+```
+
+---
+
+## Atka mackerel
+
+```{r list_length_freq5}
+list_length_freq[[5]]
+```
+
+---
+
+## Walleye pollock
+
+```{r list_length_freq6}
+list_length_freq[[6]]
+```
+
+---
+
+## Pacific cod
+
+```{r list_length_freq7}
+list_length_freq[[7]]
+```
+
+---
+
+## Yellow irish lord
+
+```{r list_length_freq8}
+list_length_freq[[8]]
+```
+
+---
+
+## Sablefish
+
+```{r list_length_freq9}
+list_length_freq[[9]]
+```
+
+---
+
+## Northern rock sole
+
+```{r list_length_freq10}
+list_length_freq[[10]]
+```
+
+---
+
+## Arrowtooth flounder
+
+```{r list_length_freq11}
+list_length_freq[[11]]
+```
+
+---
+
+## Whiteblotched skate 
+
+```{r list_length_freq12}
+list_length_freq[[12]]
+```
+
+---
+
+## Aleutian skate
+
+```{r list_length_freq13}
+list_length_freq[[13]]
+```
+
+---
