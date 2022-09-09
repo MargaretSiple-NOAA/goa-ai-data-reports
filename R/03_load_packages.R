@@ -8,10 +8,6 @@ if(!"nmfspalette" %in% installed.packages()){
   devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
 }
 
-if(!"nmfspalette" %in% installed.packages()){
-  devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
-}
-
 if(!"coldpool" %in% installed.packages()){
   devtools::install_github("afsc-gap-products/coldpool")
 }
@@ -26,6 +22,10 @@ if(!"knitcitations" %in% installed.packages()){
 
 if(!"NMFSReports" %in% installed.packages()){
   devtools::install_github("EmilyMarkowitz-NOAA/NMFSReports")
+}
+
+if(!"MetBrewer" %in% installed.packages()){
+  devtools::install_github("BlakeRMills/MetBrewer")
 }
 
 # List and load required packages -----------------------------------------
@@ -47,7 +47,9 @@ PKG <- c(
   "nmfspalette",
   "ggridges",
   "RColorBrewer",
+  "MetBrewer",
   "scales",
+  "patchwork",
   
   # Citations
   "knitcitations", # devtools::install_github("cboettig/knitcitations")

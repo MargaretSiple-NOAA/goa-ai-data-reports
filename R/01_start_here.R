@@ -2,17 +2,17 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2018
-compareyr <- 2016
-print_figs <- FALSE # print out PNGs of each figure?
+maxyr <- 2022 # Change this for the year!
+compareyr <- 2018 # Change this for the year!
+print_figs <- FALSE # Do you want to print out PNGs of each figure?
 
 # When did you save the last version of the figures and tables you want to use?
 tabledate <- "2022-08-30"
 figuredate <- "2022-08-30"
 
 # Survey information ------------------------------------------------------
-survnumber <- "49th" # I have no idea if this is right
-dates_conducted <- "June 6th through August 14th, 2018"
+survnumber <- "49th" # Change this for the year!
+dates_conducted <- "June 6th through August 14th, 2018" # Change this for the year!
 SRVY <- "AI" # Options: "GOA", "AI"
 YEAR <- maxyr
 vessel1 <- "FV Ocean Explorer"
@@ -31,7 +31,7 @@ report_title <- paste0(
 report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple"
 report_yr <- maxyr
 
-nfish <- 360 #UPDATE THESE
+nfish <- 360 #UPDATE THESE TODO
 ninverts <- 151
 nstations <- 500
 highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
@@ -104,7 +104,6 @@ if (aa) {
 
 
 # Load figures and tables -------------------------------------------------
-
 
 rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
                   output_dir = dir_out_chapters,
