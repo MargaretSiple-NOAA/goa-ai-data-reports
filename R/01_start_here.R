@@ -61,12 +61,18 @@ if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 
 # Get CPUE tables from Emily's public-facing data pkg
 # Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. Kind of janky. Should use httr to get FOSS data but queries are weird so I am waiting 4 Em to fix.
-cpue_raw <- read.csv(here::here("../../gap_public_data",
-                                "output/2022-05-25/cpue_station.csv"))
+cpue_raw <- read.csv(here::here("data/cpue_station.csv")) # This file can be obtained from Emily's gap_public_data repo here: https://github.com/afsc-gap-products/gap_public_data
 head(cpue_raw)
-
 # NOTE: MAY CHANGE TO DRAW FROM ORACLE
 
+# Get a table of the strata and depths / regions
+dat <- read.csv("data/goa_strata.csv",header= TRUE)
+region_lu <- dat %>% 
+  filter(SURVEY==SRVY) %>%
+  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH) %>%
+  filter(STRATUM >=211 & STRATUM <= 794) %>%
+  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH,sep = " - ",remove = FALSE) %>%
+  mutate(`Depth range` = paste0(`Depth range`, " m"))
 
 ################################################################################
 ################################################################################
@@ -108,47 +114,6 @@ if (aa) {
 rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
                   output_dir = dir_out_chapters,
                   output_file = paste0("PARENT.docx")
-)
-
-
-# *** 01 - Abstract ------------------------
-cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
-cnt_chapt_content <- "001"
-filename0 <- paste0(cnt_chapt, "_abstract_")
-rmarkdown::render(
-  input = paste0(dir_code, "/01_abstract.Rmd"),
-  output_dir = dir_out_chapters,
-  output_file = paste0(filename0, cnt_chapt_content, ".docx")
-)
-
-
-# *** 02 - Introduction ------------------------
-cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
-cnt_chapt_content <- "001"
-filename0 <- paste0(cnt_chapt, "_introduction_")
-rmarkdown::render(paste0(dir_code, "/02_introduction.Rmd"),
-  output_dir = dir_out_chapters,
-  output_file = paste0(filename0, cnt_chapt_content, ".docx")
-)
-
-
-# *** 04 - Methods ------------------------
-cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
-cnt_chapt_content <- "001"
-filename0 <- paste0(cnt_chapt, "_methods_")
-rmarkdown::render(paste0(dir_code, "/04_methods.Rmd"),
-  output_dir = dir_out_chapters,
-  output_file = paste0(filename0, cnt_chapt_content, ".docx")
-)
-
-
-# *** 05 - Results ------------------------
-cnt_chapt <- NMFSReports::auto_counter(cnt_chapt)
-cnt_chapt_content <- "001"
-filename0 <- paste0(cnt_chapt, "_results_")
-rmarkdown::render(paste0(dir_code, "/05_results.Rmd"),
-  output_dir = dir_out_chapters,
-  output_file = paste0(filename0, cnt_chapt_content, ".docx")
 )
 
 
@@ -194,9 +159,6 @@ rmarkdown::render(paste0(dir_code, "/10_endmatter.Rmd"),
   output_dir = dir_out_chapters,
   output_file = paste0(filename0, cnt_chapt_content, ".docx")
 )
-
-
-# *** 11 - Presentation ------------------------
 
 
 # *** *** - Figures and Tables ------------------------
@@ -300,11 +262,6 @@ rmarkdown::render(paste0(dir_code, "/11_presentation.Rmd"),
 save(list_equations,
   file = paste0(dir_out_tables, "/report_equations.rdata")
 )
-
-# MAKE MASTER DOCX -------------------------------------------------------------
-
-# USE GUIDENCE FROM THIS LINK
-# https://support.microsoft.com/en-us/help/2665750/how-to-merge-multiple-word-documents-into-one
 
 # SAVE METADATA ----------------------------------------------------------------
 
