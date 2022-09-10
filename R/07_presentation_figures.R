@@ -233,7 +233,7 @@ if (make_cpue_bubbles) {
       ) +
       scale_x_continuous(breaks = ai_central$lon.breaks) +
       scale_y_continuous(breaks = ai_central$lat.breaks) +
-      labs(subtitle = paste0(namebubble, " - Central Aleutians - ", YEAR)) +
+      labs(subtitle = "Central Aleutians") +
       bubbletheme
 
     p3c <- ggplot() +
@@ -258,16 +258,16 @@ if (make_cpue_bubbles) {
       ) +
       scale_x_continuous(breaks = ai_west$lon.breaks) +
       scale_y_continuous(breaks = ai_west$lat.breaks) +
-      labs(subtitle = "Western Aleutians") +
+      labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
       bubbletheme
 
-    final_obj <- p3b / (p3c | p3a)
-    
-    list_cpue_bubbles[[i]] <- final_obj
+    toprow <- cowplot::plot_grid(p3c,NULL, rel_widths = c(2,1))
+    bottomrow <- cowplot::plot_grid(NULL,p3a,rel_widths = c(1,2))
+    final_obj <- cowplot::plot_grid(toprow,p3b,bottomrow,ncol=1)
     
     png(
       filename = paste0(dir_out_figures, namebubble, "_2018_bubble_example_Hokusai.png"),
-      width = 10, height = 9, units = "in", res = 150
+      width = 10, height = 10, units = "in", res = 200
     )
     print(final_obj)
 
