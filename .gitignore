@@ -46,7 +46,7 @@ vignettes/*.pdf
 /data/specimen_ADFG.csv
 gdrive/
 output/
-
+/data/cpue_station.csv
 
 # .doc, .ppt and html output products
 *.html
