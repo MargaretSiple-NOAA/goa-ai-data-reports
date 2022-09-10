@@ -266,7 +266,7 @@ if (make_cpue_bubbles) {
     final_obj <- cowplot::plot_grid(toprow,p3b,bottomrow,ncol=1)
     
     png(
-      filename = paste0(dir_out_figures, namebubble, "_2018_bubble_example_Hokusai.png"),
+      filename = paste0(dir_out_figures, namebubble, "_",maxyr,"_bubble_example.png"),
       width = 10, height = 10, units = "in", res = 200
     )
     print(final_obj)
