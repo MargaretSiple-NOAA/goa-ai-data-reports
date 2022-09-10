@@ -60,7 +60,15 @@ if (y) {
 if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 
 # Get CPUE tables from Emily's public-facing data pkg
-# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. Kind of janky. Should use httr to get FOSS data but queries are weird so I am waiting 4 Em to fix.
+# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. In order to download this same dataset, use the following:
+# library("httr")
+# library("jsonlite")
+# # link to the API
+# api_link <- "https://origin-tst-ods-st.fisheries.noaa.gov/ods/foss/afsc_groundfish_survey/"
+# res <- httr::GET(url = api_link)
+# # base::rawToChar(res$content) # Test connection
+# data <- jsonlite::fromJSON(base::rawToChar(res$content))
+
 cpue_raw <- read.csv(here::here("data/cpue_station.csv")) # This file can be obtained from Emily's gap_public_data repo here: https://github.com/afsc-gap-products/gap_public_data
 head(cpue_raw)
 # NOTE: MAY CHANGE TO DRAW FROM ORACLE
