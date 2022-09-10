@@ -6,13 +6,13 @@
 # 1. Biomass indices relative to LT mean
 starttime <- Sys.time() # timer in case you want to know how long everything takes
 
-make_biomass_timeseries <- TRUE
+make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
-make_catch_comp <- TRUE
+make_catch_comp <- FALSE
 # 3. CPUE bubble maps
 make_cpue_bubbles <- TRUE
 # 4. Length frequency plots by region and depth stratum
-make_length_freqs <- TRUE
+make_length_freqs <- FALSE
 
 # Libraries ---------------------------------------------------------------
 library(akgfmaps)
@@ -350,6 +350,9 @@ if (make_length_freqs) {
       geom_histogram(data = dat2plot[[1]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[1],alpha=0.6) +
       facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y") +
       labs(title = paste0(YEAR," - ",report_species$spp_name_informal[i])) +
+      scale_color_manual("Sex",breaks = c("Female","Male","Unsexed"), values = c('Female' = lengthpal[3],
+                                                                                 'Male' = lengthpal[1],
+                                                                                 'Unsexed' = lengthpal[2])) +
       xlab("Length (cm)") +
       ylab("Density") +
       bartheme +
@@ -373,4 +376,4 @@ rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
                   output_file = paste0("PLAN_TEAM_SLIDES.pptx")
 )
 
-print(starttime-Sys.time())
+print(Sys.time()-starttime)
