@@ -4,13 +4,15 @@
 #
 # Table of contents (toggle true/false to make some plots but not others):
 # 1. Biomass indices relative to LT mean
+starttime <- Sys.time() # timer in case you want to know how long everything takes
+
 make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
-make_catch_comp <- FALSE
+make_catch_comp <- TRUE
 # 3. CPUE bubble maps
-make_cpue_bubbles <- FALSE
+make_cpue_bubbles <- TRUE
 # 4. Length frequency plots by region and depth stratum
-make_length_freqs <- FALSE
+make_length_freqs <- TRUE
 
 # Libraries ---------------------------------------------------------------
 library(akgfmaps)
@@ -270,8 +272,11 @@ if (make_cpue_bubbles) {
       width = 10, height = 10, units = "in", res = 200
     )
     print(final_obj)
-
+    
     dev.off()
+    
+    list_cpue_bubbles[[i]] <- final_obj # save fig to list
+    
   } #/end species loop
 }
 
@@ -368,3 +373,4 @@ rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
                   output_file = paste0("PLAN_TEAM_SLIDES.pptx")
 )
 
+print(starttime-Sys.time())
