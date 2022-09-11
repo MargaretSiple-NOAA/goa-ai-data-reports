@@ -1,18 +1,103 @@
 
 # PRESENTATION FIGURES ----------------------------------------------------
-# RUN THE FIRST 75 LINES OF THE 01_START_HERE.R SCRIPT BEFORE RUNNING THE CODE BELOW
+# THE CODE BELOW IS THE SAME AS THE FIRST 75 LINES OF 01_START_HERE.R
+
+# Report settings -------------------------------------------------------------
+usePNGPDF <- "png"
+maxyr <- 2018 # Change this for the year!
+compareyr <- 2016 # Change this for the year!
+print_figs <- FALSE # Do you want to print out PNGs of each figure?
+
+# When did you save the last version of the figures and tables you want to use?
+tabledate <- "2022-08-30"
+figuredate <- "2022-08-30"
+
+# Survey information ------------------------------------------------------
+survnumber <- "49th" # Change this for the year!
+dates_conducted <- "June 6th through August 14th, 2018" # Change this for the year!
+SRVY <- "AI" # Options: "GOA", "AI"
+YEAR <- maxyr
+vessel1 <- "FV Ocean Explorer"
+vessel2 <- "FV Alaska Provider"
+ref_compareyr <- "@von_szalay_data_2017"
+if (SRVY == "GOA"){dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"} # Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited.
+if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
+
+
+
+# Report info -------------------------------------------------------------
+report_title <- paste0(
+  "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
+  " Bottom Trawl Survey"
+)
+report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple"
+report_yr <- maxyr
+
+nfish <- 360 #UPDATE THESE TODO
+ninverts <- 151
+nstations <- 500
+highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
+                         Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
+
+# Functions, packages, directories ---------------------------------------------
+source("R/02_directories.R")
+source("R/03_load_packages.R")
+source("R/04_functions.R") # May not need all these functions.
+
+# Get data from RACEBASE --------------------------------------------------
+x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
+if (x) {
+  dir.create("data/local_racebase", recursive = TRUE)
+  source("R/05_download_data_from_oracle.R")
+}
+
+# Get text from Google Drive ----------------------------------------------
+y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
+if (y) {
+  source("R/06_get_gdrive_chapters.R")
+}
+
+# Data --------------------------------------------------------------------
+# Get species table
+if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+
+# Get CPUE tables from Emily's public-facing data pkg
+# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. In order to download this same dataset, use the following:
+# library("httr")
+# library("jsonlite")
+# # link to the API
+# api_link <- "https://origin-tst-ods-st.fisheries.noaa.gov/ods/foss/afsc_groundfish_survey/"
+# res <- httr::GET(url = api_link)
+# # base::rawToChar(res$content) # Test connection
+# data <- jsonlite::fromJSON(base::rawToChar(res$content))
+
+cpue_raw <- read.csv(here::here("data/cpue_station.csv")) # This file can be obtained from Emily's gap_public_data repo here: https://github.com/afsc-gap-products/gap_public_data
+head(cpue_raw)
+# NOTE: MAY CHANGE TO DRAW FROM ORACLE
+
+# Get a table of the strata and depths / regions
+dat <- read.csv("data/goa_strata.csv",header= TRUE)
+region_lu <- dat %>% 
+  filter(SURVEY==SRVY) %>%
+  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH) %>%
+  filter(STRATUM >=211 & STRATUM <= 794) %>%
+  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH,sep = " - ",remove = FALSE) %>%
+  mutate(`Depth range` = paste0(`Depth range`, " m"))
+
+
+# Begin figure creation/report prep ---------------------------------------
 #
 # Table of contents (toggle true/false to make some plots but not others):
 # 1. Biomass indices relative to LT mean
 starttime <- Sys.time() # timer in case you want to know how long everything takes
 
-make_biomass_timeseries <- FALSE
+make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
-make_catch_comp <- FALSE
+make_catch_comp <- TRUE
 # 3. CPUE bubble maps
 make_cpue_bubbles <- TRUE
 # 4. Length frequency plots by region and depth stratum
-make_length_freqs <- FALSE
+make_length_freqs <- TRUE
 
 # Libraries ---------------------------------------------------------------
 library(akgfmaps)
@@ -74,8 +159,8 @@ bubbletheme <- theme(
 )
 
 
-linetheme <- theme_bw(base_size = 10)
-bartheme <- theme_classic2(base_size = 10) +
+linetheme <- theme_bw(base_size = 16)
+bartheme <- theme_classic2(base_size = 16) +
   theme(strip.background = element_blank())
 
 # Palettes!
@@ -355,7 +440,8 @@ if (make_length_freqs) {
                                                                                  'Unsexed' = lengthpal[2])) +
       xlab("Length (cm)") +
       ylab("Density") +
-      bartheme +
+      theme_classic2(base_size = 13) +
+      theme(strip.background = element_blank()) +
       theme(legend.position = "bottom")
 
     png(filename = paste0(
