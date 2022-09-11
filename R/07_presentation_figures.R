@@ -419,7 +419,8 @@ if (make_length_freqs) {
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH) 
   
   length4 <- length3 %>%
-    tidyr::uncount(FREQUENCY) %>%
+    tidyr::uncount(FREQUENCY) %>% 
+    mutate(INPFC_AREA = factor(INPFC_AREA,levels = c("Western Aleutians", "Central Aleutians" ,"Eastern Aleutians", "Southern Bering Sea"))) %>%
     group_split(Sex) # turn freq column into rows for histogramming
   
   lengthpal <- MetBrewer::met.brewer(name = "Nizami",n=8)[c(2,5,7)]
@@ -429,26 +430,38 @@ if (make_length_freqs) {
     count() %>%
     ungroup()
     
-  #TODO : change order of areas to be geographic, add legend, inside plot area, etc. Fix color palette issues to get legend to show up. 
+  #TODO : add legend, inside plot area, etc. Fix color palette issues to get legend to show up. 
   
   for (i in 1:nrow(report_species)) {
     dat2plot <- purrr::map(length4, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
 
     lfplot <- ggplot() +
-      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[3],alpha=0.6) +
-      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[2],alpha=0.4) +
-      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH/10, y = ..density..), fill = lengthpal[1],alpha=0.6) +
+      #MALES
+      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH/10,fill=Sex),fill = lengthpal[3], alpha=0.6) + #
+      # UNSEXED
+      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH/10,fill=Sex),fill = lengthpal[2],alpha=0.4) + # 
+      # FEMALES
+      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH/10,fill=Sex),fill = lengthpal[1],alpha=0.6) + # 
       facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y") +
       labs(title = paste0(YEAR," - ",report_species$spp_name_informal[i])) +
-      scale_color_manual("Sex",breaks = c("Female","Male","Unsexed"), values = c('Female' = lengthpal[3],
-                                                                                 'Male' = lengthpal[1],
-                                                                                 'Unsexed' = lengthpal[2])) +
       xlab("Length (cm)") +
-      ylab("Density") +
+      ylab("Count in length subsample") +
       theme_classic2(base_size = 13) +
       theme(strip.background = element_blank()) +
       theme(legend.position = "bottom")
 
+    legplot <- ggplot(data= length3, aes(x=YEAR,fill=Sex)) + 
+      geom_histogram(stat = "count",show.legend=TRUE,alpha=0.6) + 
+      scale_fill_manual("Sex",values = lengthpal[c(1,3,2)]) + 
+      theme(legend.position = 'right')
+    
+    legplot
+    lfplot
+    legend <- cowplot::get_legend(legplot)
+    ggdraw(plot_grid(plot_grid(lfplot, ncol=1, align='v'),
+                     plot_grid(NULL, legend, ncol=1),
+                     rel_widths=c(1, 0.2)))
+    
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_lengthfreqhist.png"
