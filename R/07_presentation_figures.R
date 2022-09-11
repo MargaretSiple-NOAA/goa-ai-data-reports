@@ -1,5 +1,18 @@
 
 # PRESENTATION FIGURES ----------------------------------------------------
+# Table of contents (toggle true/false to make some plots but not others):
+# 1. Biomass indices relative to LT mean
+starttime <- Sys.time() # timer in case you want to know how long everything takes
+
+make_biomass_timeseries <- TRUE
+# 2. Catch composition plot
+make_catch_comp <- TRUE
+# 3. CPUE bubble maps
+make_cpue_bubbles <- TRUE
+# 4. Length frequency plots by region and depth stratum
+make_length_freqs <- TRUE
+
+
 # THE CODE BELOW IS THE SAME AS THE FIRST 75 LINES OF 01_START_HERE.R
 
 # Report settings -------------------------------------------------------------
@@ -87,17 +100,6 @@ region_lu <- dat %>%
 
 # Begin figure creation/report prep ---------------------------------------
 #
-# Table of contents (toggle true/false to make some plots but not others):
-# 1. Biomass indices relative to LT mean
-starttime <- Sys.time() # timer in case you want to know how long everything takes
-
-make_biomass_timeseries <- TRUE
-# 2. Catch composition plot
-make_catch_comp <- TRUE
-# 3. CPUE bubble maps
-make_cpue_bubbles <- TRUE
-# 4. Length frequency plots by region and depth stratum
-make_length_freqs <- TRUE
 
 # Libraries ---------------------------------------------------------------
 library(akgfmaps)
