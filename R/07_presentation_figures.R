@@ -43,7 +43,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
   " Bottom Trawl Survey"
 )
-report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple"
+report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, A. Dowling, M. Siple"
 report_yr <- maxyr
 
 nfish <- 360 #UPDATE THESE TODO
@@ -98,6 +98,7 @@ region_lu <- dat %>%
   mutate(`Depth range` = paste0(`Depth range`, " m"))
 
 
+
 # Begin figure creation/report prep ---------------------------------------
 #
 
@@ -113,6 +114,9 @@ report_species <- report_species %>%
 
 # Total biomass data (currently taking from local copy; download/update new one in 01_start_here.R)
 biomass_total <- read.csv("data/local_ai/biomass_total.csv")
+
+# Haul data from RACEBASE
+haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
 # Base maps ---------------------------------------------------------------
 ai_east <- akgfmaps::get_base_layers(
@@ -368,6 +372,20 @@ if (make_cpue_bubbles) {
 }
 
 
+
+# Haul summary table ------------------------------------------------------
+  haul2 <- haul %>%
+  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+  filter(YEAR == maxyr & REGION == SRVY)
+
+nstations <- haul2 %>%
+  distinct(STATIONID) %>%
+  nrow()
+
+nsuccessfulhauls <- haul2 %>%
+    filter(ABUNDANCE_HAUL == "Y") %>%
+    nrow() #420 in 2018
+
 # Percent changes in biomass since last survey ----------------------------
 
 head(biomass_total)
@@ -392,18 +410,16 @@ compare_tab2 <- compare_tab %>%
 write.csv(x = compare_tab2,
           file = paste0(dir_out_chapters,"comparison_w_previous_year.csv"))
 
+
 # 4. Make length frequency plots by area/depth stratum --------------------
 # Uses only the most recent year (no comparison)
 
 if (make_length_freqs) {
-  list_length_freq <- list()
   length <- read.csv(here::here("data", "local_racebase", "length.csv"))
-  haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
-
+  
+  list_length_freq <- list()
+  
   length2 <- length %>%
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(YEAR == maxyr & REGION == SRVY)
-  haul2 <- haul %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(YEAR == maxyr & REGION == SRVY)
 
