@@ -379,15 +379,18 @@ compare_tab <- biomass_total %>%
   dplyr::arrange(YEAR) %>%
   tidyr::pivot_wider(names_from = YEAR,
                      values_from = TOTAL_BIOMASS,
-                     names_prefix = "yr_") 
+                     names_prefix = "yr_") %>%
+  as.data.frame()
 
 compare_tab$percent_change <- round((compare_tab[,3] - compare_tab[,2]) / compare_tab[,2] * 100, digits = 1)
 names(compare_tab)
 
-compare_tab <- compare_tab %>%
+compare_tab2 <- compare_tab %>%
   left_join(report_species, by = c("SPECIES_CODE"="species_code")) %>%
-  arrange(-SPECIES_CODE)
+  arrange(-SPECIES_CODE) 
 
+write.csv(x = compare_tab2,
+          file = paste0(dir_out_chapters,"comparison_w_previous_year.csv"))
 
 # 4. Make length frequency plots by area/depth stratum --------------------
 # Uses only the most recent year (no comparison)
