@@ -112,7 +112,7 @@ head(report_species)
 report_species <- report_species %>% 
   arrange(-species_code)
 
-# Total biomass data (currently taking from local copy; download/update new one in 01_start_here.R)
+# Total biomass data (currently taking from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
 biomass_total <- read.csv("data/local_ai/biomass_total.csv")
 
 # Haul data from RACEBASE
@@ -215,15 +215,18 @@ if (make_biomass_timeseries) {
 
     p1 <- dat %>%
       ggplot(aes(x = YEAR, y = TOTAL_BIOMASS)) +
-      geom_hline(yintercept = lta, color = accentline, lwd = 1, lty = 2) +
+      geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
-      geom_line(color = linecolor, lwd = 1) +
-      geom_ribbon(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), alpha = 0.2, fill = linecolor, color = NA) +
+      #geom_line(color = linecolor, lwd = 1) +
+      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),color = linecolor,size=0.9,width=0.7) +
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
       labs(title = paste0(name_bms)) +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
+    p1
+    
+    
     list_biomass_ts[[i]] <- p1
     png(
       filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_ts.png"),
