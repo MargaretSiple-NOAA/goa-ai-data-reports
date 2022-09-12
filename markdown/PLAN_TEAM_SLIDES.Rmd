@@ -1,8 +1,8 @@
 ---
 title: "2022 Aleutian Islands Biennial Bottom Trawl Survey"
-subtitle: "Groundfish Plan Team Meeting, September 2022"
-author: "Ned Laman, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
-date: "September 8, 2022"
+subtitle: "Groundfish Plan Team Meeting"
+author: "Ned Laman, Paul von Szalay, Nate Raring, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
+date: "September 16, 2022"
 output: 
   powerpoint_presentation:
     reference_doc: styles_reference.pptx
@@ -12,24 +12,49 @@ output:
 knitr::opts_chunk$set(echo = FALSE,dpi=300,fig.width=7)
 ```
 
-## `r maxyr` Aleutian Islands bottom trawl survey
+## `r maxyr` AI bottom trawl survey
 
+The `r maxyr` AI bottom trawl survey took place between `r dates_conducted`. The previous AI survey was in `r compareyr` as the 2020 survey was cancelled because of COVID-19.
 
-
-The `r maxyr` AI bottom trawl survey took place between `r dates_conducted`. The previous AI survey was in `r compareyr`; the 2020 survey was cancelled because of COVID-19. 
-
+We surveyed **`r nstations`** stations in total, with a total of **`r nsuccessfulhauls`** successful hauls across the two survey vessels.
 
 ## Survey Purpose
 
 To collect standardized and fishery-independent time series of:
 
-- Relative abundance
-- Distribution
-- Age and biological condition
+-   Relative abundance
+-   Distribution
+-   Age and biological condition
 
 There are 31 managed species or species groups in the Bering Sea and Aleutian Islands that have stock assessments.
 
----
+------------------------------------------------------------------------
+
+## Survey design
+
+-   Stratified random survey
+-   45 strata defined by geography and depth zone (depth ranges are 1-100, 101-200, 201-300, and 301-500 m)
+-   Station allocation based upon abundance, variance, survey area, and economic value
+-   15 minute trawls (usually about 1.5 km distance)
+-   *Poly Nor 'Eastern* net with rollers & bobbins
+
+------------------------------------------------------------------------
+
+## Data status
+
+-   AI data are finalized as of **September 16th**
+-   Age composition will be updated as Age & Growth finish otolith samples
+-   CPUE tables will be available on FOSS in the future
+-   Collaboration with SMART group to improve data pull and processing steps
+
+------------------------------------------------------------------------
+
+## Automated data reports
+
+![Flow of new automated data reports](images/DataReportDiagram.png)
+In progress at the AFSC GAP products [GitHub page](https://www.github.com/afsc-gap-products/goa-ai-data-reports/).
+
+------------------------------------------------------------------------
 
 ## Catch composition
 
@@ -37,12 +62,11 @@ There are 31 managed species or species groups in the Bering Sea and Aleutian Is
 p2
 ```
 
----
+------------------------------------------------------------------------
 
 # Biomass trends
 
----
-
+------------------------------------------------------------------------
 
 ## Shortraker rockfish
 
@@ -50,7 +74,7 @@ p2
 list_biomass_ts[[1]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Pacific ocean perch
 
@@ -58,7 +82,7 @@ list_biomass_ts[[1]]
 list_biomass_ts[[2]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Blackspotted rockfish
 
@@ -66,7 +90,7 @@ list_biomass_ts[[2]]
 list_biomass_ts[[3]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Rougheye rockfish
 
@@ -74,7 +98,7 @@ list_biomass_ts[[3]]
 list_biomass_ts[[4]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Atka mackerel
 
@@ -82,7 +106,7 @@ list_biomass_ts[[4]]
 list_biomass_ts[[5]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Walleye pollock
 
@@ -90,7 +114,7 @@ list_biomass_ts[[5]]
 list_biomass_ts[[6]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Pacific cod
 
@@ -98,7 +122,7 @@ list_biomass_ts[[6]]
 list_biomass_ts[[7]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Yellow irish lord
 
@@ -106,7 +130,7 @@ list_biomass_ts[[7]]
 list_biomass_ts[[8]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Sablefish
 
@@ -114,7 +138,7 @@ list_biomass_ts[[8]]
 list_biomass_ts[[9]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Northern rock sole
 
@@ -122,7 +146,7 @@ list_biomass_ts[[9]]
 list_biomass_ts[[10]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Arrowtooth flounder
 
@@ -130,15 +154,15 @@ list_biomass_ts[[10]]
 list_biomass_ts[[11]]
 ```
 
----
+------------------------------------------------------------------------
 
-## Whiteblotched skate 
+## Whiteblotched skate
 
 ```{r biomass12}
 list_biomass_ts[[12]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Aleutian skate
 
@@ -146,11 +170,11 @@ list_biomass_ts[[12]]
 list_biomass_ts[[13]]
 ```
 
----
+------------------------------------------------------------------------
 
 # CPUE by survey region
 
----
+------------------------------------------------------------------------
 
 ## Shortraker rockfish
 
@@ -164,7 +188,7 @@ list_cpue_bubbles[[1]]
 list_cpue_bubbles[[2]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Blackspotted rockfish
 
@@ -172,7 +196,7 @@ list_cpue_bubbles[[2]]
 list_cpue_bubbles[[3]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Rougheye rockfish
 
@@ -180,7 +204,7 @@ list_cpue_bubbles[[3]]
 list_cpue_bubbles[[4]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Atka mackerel
 
@@ -188,7 +212,7 @@ list_cpue_bubbles[[4]]
 list_cpue_bubbles[[5]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Walleye pollock
 
@@ -196,7 +220,7 @@ list_cpue_bubbles[[5]]
 list_cpue_bubbles[[6]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Pacific cod
 
@@ -204,7 +228,7 @@ list_cpue_bubbles[[6]]
 list_cpue_bubbles[[7]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Yellow irish lord
 
@@ -212,7 +236,7 @@ list_cpue_bubbles[[7]]
 list_cpue_bubbles[[8]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Sablefish
 
@@ -220,7 +244,7 @@ list_cpue_bubbles[[8]]
 list_cpue_bubbles[[9]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Northern rock sole
 
@@ -228,7 +252,7 @@ list_cpue_bubbles[[9]]
 list_cpue_bubbles[[10]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Arrowtooth flounder
 
@@ -236,15 +260,15 @@ list_cpue_bubbles[[10]]
 list_cpue_bubbles[[11]]
 ```
 
----
+------------------------------------------------------------------------
 
-## Whiteblotched skate 
+## Whiteblotched skate
 
 ```{r list_cpue_bubbles12}
 list_cpue_bubbles[[12]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Aleutian skate
 
@@ -252,11 +276,11 @@ list_cpue_bubbles[[12]]
 list_cpue_bubbles[[13]]
 ```
 
----
+------------------------------------------------------------------------
 
 # Length frequencies
 
----
+------------------------------------------------------------------------
 
 ## Shortraker rockfish
 
@@ -270,7 +294,7 @@ list_length_freq[[1]]
 list_length_freq[[2]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Blackspotted rockfish
 
@@ -278,7 +302,7 @@ list_length_freq[[2]]
 list_length_freq[[3]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Rougheye rockfish
 
@@ -286,7 +310,7 @@ list_length_freq[[3]]
 list_length_freq[[4]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Atka mackerel
 
@@ -294,7 +318,7 @@ list_length_freq[[4]]
 list_length_freq[[5]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Walleye pollock
 
@@ -302,7 +326,7 @@ list_length_freq[[5]]
 list_length_freq[[6]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Pacific cod
 
@@ -310,7 +334,7 @@ list_length_freq[[6]]
 list_length_freq[[7]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Yellow irish lord
 
@@ -318,7 +342,7 @@ list_length_freq[[7]]
 list_length_freq[[8]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Sablefish
 
@@ -326,7 +350,7 @@ list_length_freq[[8]]
 list_length_freq[[9]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Northern rock sole
 
@@ -334,7 +358,7 @@ list_length_freq[[9]]
 list_length_freq[[10]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Arrowtooth flounder
 
@@ -342,15 +366,15 @@ list_length_freq[[10]]
 list_length_freq[[11]]
 ```
 
----
+------------------------------------------------------------------------
 
-## Whiteblotched skate 
+## Whiteblotched skate
 
 ```{r list_length_freq12, message=FALSE, warning=FALSE}
 list_length_freq[[12]]
 ```
 
----
+------------------------------------------------------------------------
 
 ## Aleutian skate
 
@@ -358,4 +382,4 @@ list_length_freq[[12]]
 list_length_freq[[13]]
 ```
 
----
+------------------------------------------------------------------------
