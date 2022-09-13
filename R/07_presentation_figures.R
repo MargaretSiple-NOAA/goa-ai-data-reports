@@ -439,7 +439,7 @@ if (make_length_freqs) {
 
   length4 <- length3 %>%
     tidyr::uncount(FREQUENCY) %>%
-    mutate(INPFC_AREA = factor(INPFC_AREA, levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"))) %>%
+    mutate(INPFC_AREA = factor(INPFC_AREA,levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"),labels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "S. Bering Sea"))) %>%
     group_split(Sex) # turn freq column into rows for histogramming
 
   lengthpal <- MetBrewer::met.brewer(name = "Nizami", n = 8)[c(2, 5, 7)] # order: red (females), turquoise (unsexed), blue (males)
