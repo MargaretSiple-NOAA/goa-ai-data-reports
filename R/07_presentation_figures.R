@@ -461,11 +461,11 @@ if (make_length_freqs) {
       geom_histogram(data = dat2plot[[3]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[2], alpha = 0.4) + #
       # FEMALES
       geom_histogram(data = dat2plot[[1]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[1], alpha = 0.6) + #
-      facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y") +
+      facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y", labeller = labeller(groupwrap = label_wrap_gen(10))) +
       labs(title = paste0(YEAR, " - ", report_species$spp_name_informal[i])) +
       xlab("Length (cm)") +
       ylab("Count in length subsample") +
-      theme_classic2(base_size = 13) +
+      theme_classic2(base_size = 10) +
       theme(strip.background = element_blank()) +
       theme(legend.position = "bottom")
 
@@ -473,6 +473,7 @@ if (make_length_freqs) {
       geom_histogram(stat = "count", show.legend = TRUE, alpha = 0.6) +
       scale_fill_manual("Sex", values = lengthpal[c(1, 3, 2)]) +
       theme(legend.position = "right")
+      
 
     legend <- cowplot::get_legend(legplot)
 
