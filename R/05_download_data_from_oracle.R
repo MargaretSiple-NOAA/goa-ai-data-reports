@@ -104,6 +104,8 @@ write.csv(x=a, "./data/goa_strata.csv", row.names = FALSE)
 a<-RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_TOTAL")
 write.csv(x=a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
 
+# a<-RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
+# write.csv(x=a, "./data/local_ai/cpue.csv", row.names = FALSE)
 
 # NODC (Food Habits) ------------------------------------------------------
 a<-RODBC::sqlQuery(channel, "SELECT * FROM FOODLAB.NODC")
