@@ -73,3 +73,4 @@ dir.create(dir_out_gdrive)
 
 # CITATION STYLE ---------------------------------------------------------------
 options("citation_format" = "pandoc")
+
