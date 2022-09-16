@@ -298,6 +298,7 @@ if (make_cpue_bubbles) {
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_east$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
+      scale_size(limits = c(0,max(thisyrshauldata$cpue_kgha))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -319,6 +320,7 @@ if (make_cpue_bubbles) {
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_central$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
+      scale_size(limits = c(0,max(thisyrshauldata$cpue_kgha))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -344,6 +346,7 @@ if (make_cpue_bubbles) {
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_west$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
+      scale_size(limits = c(0,max(thisyrshauldata$cpue_kgha))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
