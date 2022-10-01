@@ -11,7 +11,8 @@ make_catch_comp <- TRUE
 make_cpue_bubbles <- TRUE
 # 4. Length frequency plots by region and depth stratum
 make_length_freqs <- TRUE
-
+# 5. Length frequency plots as joy divison plots
+make_joy_division_length <- TRUE
 
 # THE CODE BELOW IS THE SAME AS THE FIRST 75 LINES OF 01_START_HERE.R
 
@@ -475,7 +476,7 @@ if (make_length_freqs) {
 
 # 5. Length frequency plots - joy division plots -----------------------------
 
-if (joy_division_length) {
+if (make_joy_division_length) {
   list_joy_length <- list()
 
 
