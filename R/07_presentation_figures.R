@@ -39,24 +39,7 @@ if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} # Link t
 
 
 # Report info -------------------------------------------------------------
-report_title <- paste0(
-  "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
-  " Bottom Trawl Survey"
-)
-report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, A. Dowling, M. Siple"
-report_yr <- maxyr
-
-nfish <- 360 #UPDATE THESE TODO
-ninverts <- 151
-nstations <- 500
-highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
-                         Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
-
-# Functions, packages, directories ---------------------------------------------
-source("R/02_directories.R")
-source("R/03_load_packages.R")
-source("R/04_functions.R") # May not need all these functions.
-
+ 
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
 if (x) {
@@ -118,6 +101,22 @@ biomass_total <- read.csv("data/local_ai/biomass_total.csv")
 # Haul data from RACEBASE
 haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
+nyears <- length(unique(filter(haul, REGION==SRVY)$CRUISE))
+
+# Haul summary table 
+haul2 <- haul %>%
+  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+  filter(YEAR == maxyr & REGION == SRVY)
+
+nstations <- haul2 %>%
+  distinct(STATIONID) %>%
+  nrow()
+
+nsuccessfulhauls <- haul2 %>%
+  filter(ABUNDANCE_HAUL == "Y") %>%
+  nrow() #420 in 2018
+
+
 # Base maps ---------------------------------------------------------------
 ai_east <- akgfmaps::get_base_layers(
   select.region = "ai.east",
@@ -170,30 +169,18 @@ bartheme <- theme_classic2(base_size = 16) +
   theme(strip.background = element_blank())
 
 # Palettes!
-# Ghibli Ponyo palette
-# stratumpal <- lengthen_pal(
-#   shortpal = ghibli::ghibli_palette("PonyoLight"),
-#   x = 1:nstrata
-# )
-# ColorBrewer pastels
-# stratumpal <- lengthen_pal(
-#   shortpal = RColorBrewer::brewer.pal(n = 6,name = "Pastel1"),
-#   x = 1:nstrata
-# )
 # MetBrewer (dark colors)
 stratumpal <- lengthen_pal(
   shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
   x = 1:nstrata
 )
-# MetBrewer dark colors, lightened
-# stratumpal <- colorspace::lighten(lengthen_pal(
-#   shortpal = MetBrewer::met.brewer(name = "Hokusai1",type = "continuous"),
-#                                 x = 1:nstrata),amount = 0.6) #
-
 
 # Palette for lines
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
+
+# Palette for joy div plot
+joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9,name = "Blues"),x = 1:nyears)
 
 # Palette for species colors and fills
 #speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
@@ -379,18 +366,6 @@ if (make_cpue_bubbles) {
 
 
 
-# Haul summary table ------------------------------------------------------
-  haul2 <- haul %>%
-  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-  filter(YEAR == maxyr & REGION == SRVY)
-
-nstations <- haul2 %>%
-  distinct(STATIONID) %>%
-  nrow()
-
-nsuccessfulhauls <- haul2 %>%
-    filter(ABUNDANCE_HAUL == "Y") %>%
-    nrow() #420 in 2018
 
 # Percent changes in biomass since last survey ----------------------------
 
@@ -427,7 +402,7 @@ if (make_length_freqs) {
   
   length2 <- length %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(YEAR == maxyr & REGION == SRVY)
+    filter(REGION == SRVY) #YEAR == maxyr & 
 
   length3 <- length2 %>%
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
@@ -495,6 +470,54 @@ if (make_length_freqs) {
 
     list_length_freq[[i]] <- lfplot2
   }
+}
+
+
+# 5. Length frequency plots - joy division plots -----------------------------
+
+if (joy_division_length) {
+  list_joy_length <- list()
+
+
+  length <- read.csv(here::here("data", "local_racebase", "length.csv"))
+
+  length2 <- length %>%
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+    filter(REGION == SRVY)
+
+  length3 <- length2 %>%
+    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
+    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
+    left_join(region_lu, by = "STRATUM") %>%
+    mutate(Sex = case_when(
+      SEX == 1 ~ "Male",
+      SEX == 2 ~ "Female",
+      SEX == 3 ~ "Unsexed"
+    )) %>%
+    dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
+  for (i in 1:nrow(report_species)) {
+    joyplot <- length3 %>%
+      filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = YEAR)) +
+      geom_density_ridges() +
+      scale_y_discrete(limits = rev) +
+      facet_wrap(~Sex) +
+      xlab("Length(mm)") +
+      ylab("Year") +
+      theme_ridges() +
+      scale_fill_manual(values = joypal) +
+      labs(title = paste(report_species$spp_name_informal[i]))
+
+    png(filename = paste0(
+      dir_out_figures, maxyr, "_",
+      report_species$spp_name_informal[i], "_joyfreqhist.png"
+    ), width = 12, height = 8, units = "in", res = 200)
+    print(joyplot)
+    dev.off()
+    
+    list_joy_length[[i]] <- joyplot
+  }
+  
 }
 
 # Make those slides! --------------------------------------------------------

@@ -49,7 +49,7 @@ PKG <- c(
   "RColorBrewer",
   "MetBrewer",
   "scales",
-  "cowplot",
+  "ggridges",
   
   # Citations
   "knitcitations", # devtools::install_github("cboettig/knitcitations")
