@@ -28,6 +28,8 @@ targetn <- data.frame(
                                           "All","All","All","All","All",
                                           "All","All","All","All")
            )
+
+
 sampled_stations <- data.frame(INPFC_area = c("Shumagin","Chirikof", "Kodiak","Yakutat","Southeastern", "All areas"), 
                                Stations_allocated = NA) # there is sql code for this in sql/
 
@@ -58,6 +60,26 @@ make_top_cpue <- function(YEAR, SRVY){ # Gives top 20 spps for each region
 }
 
 top_CPUE <- make_top_cpue(YEAR = YEAR, SRVY = SRVY)
+
+
+# Biomass estimates by area and depth range -------------------------------
+biomass_stratum <- read.csv("data/local_goa/biomass_stratum.csv") #where biomass_total.csv is GOA.BIOMASS_TOTAL downloaded from Oracle as csv - janky but will have to work for now
+
+depth_mgmtarea_summary <- biomass_stratum %>%
+  filter(SPECIES_CODE==10130) %>% #FHS
+  left_join(region_lu, by = c("SURVEY","STRATUM")) %>%
+  dplyr::select(YEAR,REGULATORY_AREA_NAME,`Depth range`,STRATUM_BIOMASS) %>%
+  dplyr::group_by(YEAR,REGULATORY_AREA_NAME,`Depth range`) %>% #
+  dplyr::summarize(total_biomass = sum(STRATUM_BIOMASS,na.rm=TRUE)) %>%
+  dplyr::ungroup()
+
+#write.csv(dat2,file = "FHS_area_depth.csv",row.names = FALSE)
+
+# Check
+# dat2 %>%
+#   group_by(YEAR) %>%
+#   dplyr::summarize(total_biomass=sum(total_biomass))
+
 
 list_tables <- list()
 list_tables[[1]] <- targetn
