@@ -77,18 +77,18 @@ head(cpue_raw)
 dat <- read.csv("data/goa_strata.csv",header= TRUE)
 region_lu <- dat %>% 
   filter(SURVEY==SRVY) %>%
-  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH) %>%
+  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, REGULATORY_AREA_NAME) %>%
   filter(STRATUM <= 794) %>% #STRATUM >=211 & 
   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH,sep = " - ",remove = FALSE) %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
   mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
-if(SRVY=="GOA"){
-region_lu <- region_lu %>%  
-  dplyr::mutate(MGMT_AREA = case_when(INPFC_AREA %in% c("Chirikof","Kodiak") ~ "Central",
-                               INPFC_AREA %in% c("Yakutat","Southeastern") ~ "Eastern",
-                               INPFC_AREA == "Shumagin" ~ "Western"))
-}
+# if(SRVY=="GOA"){
+# region_lu <- region_lu %>%  
+#   dplyr::mutate(MGMT_AREA = case_when(INPFC_AREA %in% c("Chirikof","Kodiak") ~ "Central",
+#                                INPFC_AREA %in% c("Yakutat","Southeastern") ~ "Eastern",
+#                                INPFC_AREA == "Shumagin" ~ "Western"))
+# }
 
 ################################################################################
 ################################################################################
