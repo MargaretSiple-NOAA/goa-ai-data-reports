@@ -108,6 +108,9 @@ write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
 write.csv(x = a, "./data/local_goa/goa_biomass_stratum.csv", row.names = FALSE)
 
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
+write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
+
 # AI ----------------------------------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_TOTAL")
 write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
@@ -115,8 +118,11 @@ write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_STRATUM")
 write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
 
-# a<-RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
-# write.csv(x=a, "./data/local_ai/cpue.csv", row.names = FALSE)
+a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
+write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
+
+a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
+write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
 
 # NODC (Food Habits) ------------------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM FOODLAB.NODC")
