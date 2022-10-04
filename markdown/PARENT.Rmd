@@ -50,15 +50,12 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FA
 ```{r child=here::here("gdrive","Methods.Rmd")}
 ```
 
-```{r echo=FALSE,warning=FALSE}
-#list_tables[[1]]
+# Tables
+```{r sample-sizes, echo=FALSE,warning=FALSE}
+list_tables[[1]]
 ```
 
 ```{r echo=FALSE,warning=FALSE}
 #list_figures[[1]]
 ```
-
-<!-- # Methods -->
-<!-- ```{r child=here::here("gdrive","Methods.Rmd")} -->
-<!-- ``` -->
 
