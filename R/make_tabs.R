@@ -45,27 +45,8 @@ species_names <- common_names %>%
   dplyr::rename(scientific_name = species_name) %>%
   dplyr::select(-year_added)
   
-make_top_cpue <- function(YEAR, SRVY){ # Gives top 20 spps for each region
-  x <- cpue_raw %>% 
-    filter(year==YEAR & srvy==SRVY) %>%
-    dplyr::mutate(taxon = dplyr::case_when(
-      species_code <= 31550 ~ "fish", 
-      species_code >= 40001 ~ "invert")) %>%
-    dplyr::filter(taxon == "fish") %>%
-    dplyr::mutate(common_name = case_when(species_code >= 30050 & species_code<=30052 ~ "Rougheye / blackspotted rockfish complex",
-                 TRUE ~ common_name)) %>%
-    # Old skate check
-    #dplyr::filter(species_code >=400 & species_code<=495) %>%
-    left_join(region_lu, by=c('stratum'='STRATUM')) %>%
-    dplyr::group_by(INPFC_AREA, common_name) %>%
-    dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
-    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
-    dplyr::ungroup() %>%
-    dplyr::left_join(species_names)
-  return(x)
-}
 
-top_CPUE <- make_top_cpue(YEAR = YEAR, SRVY = SRVY)
+top_CPUE <- make_top_cpue(YEAR = YEAR, SRVY = SRVY,cpue_raw = cpue_raw)
 
 
 # Biomass estimates by area and depth range -------------------------------
@@ -95,4 +76,6 @@ list_tables[[3]] <- top_CPUE
 save(list_tables,
      file = paste0(dir_out_tables,"report_tables.rdata")
 )
+
+
 

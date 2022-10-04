@@ -304,6 +304,40 @@ divftform <- 3.28084
 
 # Species -----------------------------------------------
 
+#' Make a list of the top 20 species by CPUE
+#'
+#' @param YEAR numeric - year for which you want the top spps 
+#' @param SRVY character - "GOA" or "AI"
+#' @param cpue_raw dataframe or tibble containing raw CPUE data. Can be from FOSS or GOA/AI schemae.
+#'
+#' @return list of species
+#' @export
+#'
+#' @examples
+make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each region
+  x <- cpue_raw %>%
+    filter(year == YEAR & srvy == SRVY) %>%
+    dplyr::mutate(taxon = dplyr::case_when(
+      species_code <= 31550 ~ "fish",
+      species_code >= 40001 ~ "invert"
+    )) %>%
+    dplyr::filter(taxon == "fish") %>%
+    dplyr::mutate(common_name = case_when(
+      species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
+      TRUE ~ common_name
+    )) %>%
+    # Old skate check
+    # dplyr::filter(species_code >=400 & species_code<=495) %>%
+    left_join(region_lu, by = c("stratum" = "STRATUM")) %>%
+    dplyr::group_by(INPFC_AREA, common_name) %>%
+    dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
+    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::left_join(species_names)
+  return(x)
+}
+
+
 
 findhowmanyspp <- function(spp.tsn.list, ranklvl) {
   a <- rlist::list.search(
