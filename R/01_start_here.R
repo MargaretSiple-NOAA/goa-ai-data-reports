@@ -17,6 +17,9 @@ SRVY <- "AI" # Options: "GOA", "AI"
 YEAR <- maxyr
 vessel1 <- "FV Ocean Explorer"
 vessel2 <- "FV Alaska Provider"
+captain1 <- "Dan Carney"
+captain2 <- "Loren Reynolds"
+
 ref_compareyr <- "@von_szalay_data_2017"
 if (SRVY == "GOA"){dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"} # Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited.
 if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
