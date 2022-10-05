@@ -37,13 +37,14 @@ report_yr <- maxyr
 nfish <- 360 #UPDATE THESE TODO
 ninverts <- 151
 nstations <- 500
-highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
-                         Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
+# highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
+#                          Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
 
 # Functions, packages, directories ---------------------------------------------
 source("R/02_directories.R")
 source("R/03_load_packages.R")
 source("R/04_functions.R") # May not need all these functions.
+#source("R/08_values.R")
 
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
@@ -62,25 +63,12 @@ if (y) {
 # Get species table
 if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 
-# Get CPUE tables from Emily's public-facing data pkg
-# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. In order to download this same dataset, use the following:
-# library("httr")
-# library("jsonlite")
-# # link to the API
-# api_link <- "https://origin-tst-ods-st.fisheries.noaa.gov/ods/foss/afsc_groundfish_survey/"
-# res <- httr::GET(url = api_link)
-# # base::rawToChar(res$content) # Test connection
-# data <- jsonlite::fromJSON(base::rawToChar(res$content))
-
-cpue_raw <- read.csv(here::here("data/cpue_station.csv")) # This file can be obtained from Emily's gap_public_data repo here: https://github.com/afsc-gap-products/gap_public_data
-head(cpue_raw)
-# NOTE: MAY CHANGE TO DRAW FROM ORACLE
 
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv",header= TRUE)
 region_lu <- dat %>% 
   filter(SURVEY==SRVY) %>%
-  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, REGULATORY_AREA_NAME) %>%
+  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, REGULATORY_AREA_NAME, AREA) %>%
   filter(STRATUM <= 794) %>% #STRATUM >=211 & 
   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH,sep = " - ",remove = FALSE) %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
