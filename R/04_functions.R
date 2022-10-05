@@ -199,21 +199,6 @@ url_exists <- function(x, non_2xx_return_value = FALSE, quiet = FALSE, ...) {
 }
 
 
-# c(
-#   "http://content.thief/",
-#   "http://rud.is/this/path/does/not_exist",
-#   "https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=content+theft",
-#   "https://www.google.com/search?num=100&source=hp&ei=xGzMW5TZK6G8ggegv5_QAw&q=don%27t+be+a+content+thief&btnK=Google+Search&oq=don%27t+be+a+content+thief&gs_l=psy-ab.3...934.6243..7114...2.0..0.134.2747.26j6....2..0....1..gws-wiz.....0..0j35i39j0i131j0i20i264j0i131i20i264j0i22i30j0i22i10i30j33i22i29i30j33i160.mY7wCTYy-v0",
-#   "https://rud.is/b/2018/10/10/geojson-version-of-cbc-quebec-ridings-hex-cartograms-with-example-usage-in-r/"
-# ) -> some_urls
-#
-# data.frame(
-#   exists = sapply(some_urls, url_exists, USE.NAMES = FALSE),
-#   some_urls,
-#   stringsAsFactors = FALSE
-# ) %>% dplyr::tbl_df() %>% print()
-
-
 find_units <- function(unit = "", unt = "", dat, divby = NULL) {
 
   # x <- ifelse(unit == "", "s", paste0(" ", unit))
