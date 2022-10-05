@@ -316,7 +316,7 @@ divftform <- 3.28084
 #' @examples
 make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each region
   x <- cpue_raw %>%
-    filter(year == YEAR & srvy == SRVY) %>%
+    filter(year == YEAR & survey == SRVY) %>%
     dplyr::mutate(taxon = dplyr::case_when(
       species_code <= 31550 ~ "fish",
       species_code >= 40001 ~ "invert"
