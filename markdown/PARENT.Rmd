@@ -1,9 +1,8 @@
 ---
 output:
-  officedown::rdocx_document:
+  officedown::rdocx_document: 
+    reference_docx: styles_reference2.docx
     pandoc_args: ["--metadata-file=header.yaml"]
-    reference_docx: styles_reference.docx
-    df_print: kable
 csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
 ---
@@ -12,6 +11,8 @@ This is a test of the cross-refs in this doc (Table \@ref(tab:tab2)).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
+library(officedown)
+library(officer)
 ```
 
 ```{r echo=FALSE}
@@ -52,11 +53,12 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FA
 ```
 
 # Tables
-```{r tab.cap='Stations allocated and sampled this year.', tab.id='tab2', label='tab2',  tab.cap.style = "Table Caption"}
+```{r tab.cap='Stations allocated and sampled this year.', tab.id='tab2',  tab.cap.style = "Table Caption"}
 list_tables[[1]]
 ```
 
-```{r sample-sizes-tab, echo=FALSE, warning=FALSE}
+
+```{r tab.cap='Target numbers of length samples for each managed species.', tab.id='sample_sizes_tab',  tab.cap.style = "Table Caption"}
 list_tables[[2]]
 ```
 
