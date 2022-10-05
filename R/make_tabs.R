@@ -31,8 +31,7 @@ targetn <- data.frame(
                                           "100","100","100","50","50","All",
                                           "All","All","All","All","All",
                                           "All","All","All","All")
-           ) %>%
-  knitr::kable() 
+           )
 
 
 common_names <- read.csv("data/local_racebase/species.csv",header = TRUE)
@@ -86,7 +85,7 @@ attempted <- hauls_maxyr %>%
   ungroup() %>%
   left_join(region_lu) %>%
   group_by(INPFC_AREA,`Depth range`) %>%
-  count(name = "attempted") %>%
+  dplyr::count(name = "attempted") %>%
   ungroup()
 
 succeeded <-  hauls_maxyr %>%
@@ -96,13 +95,13 @@ succeeded <-  hauls_maxyr %>%
   ungroup() %>%
   left_join(region_lu) %>%
   group_by(INPFC_AREA,`Depth range`) %>%
-  count(name = "succeeded") %>%
+  dplyr::count(name = "succeeded") %>%
   ungroup()
 
 region_areas <- region_lu %>%
   distinct(INPFC_AREA, STRATUM, AREA, `Depth range`) %>%
   group_by(INPFC_AREA,`Depth range`) %>%
-  summarize(INPFC_AREA_area = sum(AREA)) %>%
+  #summarize(INPFC_AREA_area = sum(AREA)) %>%
   ungroup()
 
 all_allocation <- read.csv("data/local_ai/ai_station_allocation.csv")
@@ -111,13 +110,14 @@ allocated_sampled <- all_allocation %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
   left_join(region_lu) %>%
   group_by(INPFC_AREA, `Depth range`) %>%
-  count(name = "allocated") %>%
+  dplyr::count(name = "allocated") %>%
   ungroup() %>%
   left_join(attempted) %>%
   left_join(succeeded) %>%
   left_join(region_areas) %>%
-  mutate(stations_per_1000km2 = (succeeded/INPFC_AREA_area) * 1000) %>%
-  knitr::kable(caption = paste("Stations allocated and successfully sampled in",maxyr)) 
+  mutate(stations_per_1000km2 = (succeeded/AREA) * 1000) 
+# %>%
+#   knitr::kable(caption = paste("Stations allocated and successfully sampled in",maxyr)) 
 
 
 list_tables <- list()
