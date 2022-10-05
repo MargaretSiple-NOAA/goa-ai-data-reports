@@ -1,6 +1,4 @@
 # This script should load the necessary data and build PNGs of all the figures for the paper, so they can be accessed in the Markdown part.
-
-
 # Tables ------------------------------------------------------------------
 # Table 1 is the target sample sizes for different species categories
 # Table 2 is the number of stations allocated, attempted, and successfully completed.
@@ -34,19 +32,7 @@ targetn <- data.frame(
            )
 
 
-common_names <- read.csv("data/local_racebase/species.csv",header = TRUE)
-species_names <- common_names %>% 
-  janitor::clean_names() %>%
-  dplyr::rename(scientific_name = species_name) %>%
-  dplyr::select(-year_added)
-  
 
-x <- read.csv(file = here::here("data/local_ai/cpue.csv"),header = TRUE)
-cpue_raw <- x %>%
-  left_join(common_names) %>%
-  dplyr::select(-YEAR_ADDED) %>%
-  janitor::clean_names() %>% # need to add common name lookup
-  dplyr::rename(cpue_kgkm2 = wgtcpue)
   
 top_CPUE <- make_top_cpue(YEAR = YEAR, 
                           SRVY = SRVY,
@@ -54,7 +40,6 @@ top_CPUE <- make_top_cpue(YEAR = YEAR,
 
 
 # Biomass estimates by area and depth range -------------------------------
-biomass_stratum <- read.csv("data/local_goa/biomass_stratum.csv") # where biomass_stratum.csv is GOA.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
 
 # **** TURN INTO FUNCTION
 depth_mgmtarea_summary <- biomass_stratum %>%
@@ -73,8 +58,6 @@ depth_mgmtarea_summary <- biomass_stratum %>%
 
 # Stations allocated, attempted, succeeded --------------------------------
 # This year's hauls
-hauls <- read.csv(here::here("data/local_racebase/haul.csv"))
-
 hauls_maxyr <- hauls %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
   filter(REGION == SRVY & YEAR == maxyr)
@@ -104,7 +87,6 @@ region_areas <- region_lu %>%
   #summarize(INPFC_AREA_area = sum(AREA)) %>%
   ungroup()
 
-all_allocation <- read.csv("data/local_ai/ai_station_allocation.csv")
 
 allocated_sampled <- all_allocation %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
@@ -115,10 +97,11 @@ allocated_sampled <- all_allocation %>%
   left_join(attempted) %>%
   left_join(succeeded) %>%
   left_join(region_areas) %>%
-  mutate(stations_per_1000km2 = (succeeded/AREA) * 1000) 
-# %>%
-#   knitr::kable(caption = paste("Stations allocated and successfully sampled in",maxyr)) 
-
+  mutate(stations_per_1000km2 = (succeeded/AREA) * 1000) %>%
+  mutate(AREA = round(AREA, digits = 1),
+         stations_per_1000km2 = round(stations_per_1000km2, digits = 2)) %>%
+  dplyr::select(-STRATUM)
+colnames(allocated_sampled) <- c("INFPC area","Depth range","Allocated","Attempted","Succeeded","Total area","Stations per 1,000 km^2")
 
 list_tables <- list()
 list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
