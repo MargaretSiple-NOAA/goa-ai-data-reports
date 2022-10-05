@@ -1,20 +1,16 @@
 ---
-output:
-  officedown::rdocx_document:
-    pandoc_args: ["--metadata-file=header.yaml"]
-    reference_docx: styles_reference.docx
-    df_print: kable
-csl: "../cite/citestyle.csl"
-bibliography: "../cite/bibliography.bib"
+output: officedown::rdocx_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(officedown)
+library(officer)
 ```
 
-```{r ft.align="center", tab.cap='airquality dataset', tab.id='tab2', label='tab2'}
-head(airquality)
-```
+This is a reference to table \@ref(tab:tab1).
 
-This is a reference to table \@ref(tab:tab2).
+# Tables
+```{r tab.cap='Stations allocated and sampled this year.', tab.id='tab1', label='tab1',  tab.cap.style = "Table Caption"}
+test_table
+```
