@@ -24,8 +24,6 @@ ref_compareyr <- "@von_szalay_data_2017"
 if (SRVY == "GOA"){dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"} # Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited.
 if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
 
-
-
 # Report info -------------------------------------------------------------
 report_title <- paste0(
   "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
@@ -44,7 +42,7 @@ nstations <- 500
 source("R/02_directories.R")
 source("R/03_load_packages.R")
 source("R/04_functions.R") # May not need all these functions.
-#source("R/08_values.R")
+source("R/08_prep_data.R")
 
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
