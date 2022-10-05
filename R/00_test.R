@@ -2,7 +2,7 @@
 dir_markdown <- here::here("markdown")
 dir_out_chapters <- here::here()
 
-test_table <- knitr::kable(x = head(mtcars))
+test_table <-  head(mtcars)
 
 
 # Render the doc
