@@ -42,6 +42,13 @@ species_names <- common_names %>%
   dplyr::select(-year_added)
   
 
+x <- read.csv(file = here::here("data/local_ai/cpue.csv"),header = TRUE)
+cpue_raw <- x %>%
+  left_join(common_names) %>%
+  dplyr::select(-YEAR_ADDED) %>%
+  janitor::clean_names() %>% # need to add common name lookup
+  dplyr::rename(cpue_kgkm2 = wgtcpue)
+  
 top_CPUE <- make_top_cpue(YEAR = YEAR, 
                           SRVY = SRVY,
                           cpue_raw = cpue_raw)
