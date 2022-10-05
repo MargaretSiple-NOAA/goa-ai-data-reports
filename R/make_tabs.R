@@ -35,10 +35,6 @@ targetn <- data.frame(
   knitr::kable() 
 
 
-sampled_stations <- data.frame(
-  INPFC_area = c("Shumagin","Chirikof", "Kodiak","Yakutat","Southeastern", "All areas"), 
-                               Stations_allocated = NA) # there is sql code for this in sql/
-
 common_names <- read.csv("data/local_racebase/species.csv",header = TRUE)
 species_names <- common_names %>% 
   janitor::clean_names() %>%
@@ -46,12 +42,15 @@ species_names <- common_names %>%
   dplyr::select(-year_added)
   
 
-top_CPUE <- make_top_cpue(YEAR = YEAR, SRVY = SRVY,cpue_raw = cpue_raw)
+top_CPUE <- make_top_cpue(YEAR = YEAR, 
+                          SRVY = SRVY,
+                          cpue_raw = cpue_raw)
 
 
 # Biomass estimates by area and depth range -------------------------------
-biomass_stratum <- read.csv("data/local_goa/biomass_stratum.csv") # where biomass_total.csv is GOA.BIOMASS_TOTAL downloaded from Oracle as csv - janky but will have to work for now
+biomass_stratum <- read.csv("data/local_goa/biomass_stratum.csv") # where biomass_stratum.csv is GOA.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
 
+# **** TURN INTO FUNCTION
 depth_mgmtarea_summary <- biomass_stratum %>%
   filter(SPECIES_CODE == 10130) %>% # FHS
   left_join(region_lu, by = c("SURVEY", "STRATUM")) %>%
@@ -60,17 +59,63 @@ depth_mgmtarea_summary <- biomass_stratum %>%
   dplyr::summarize(total_biomass = sum(STRATUM_BIOMASS, na.rm = TRUE)) %>%
   dplyr::ungroup()
 
-# write.csv(dat2,file = "FHS_area_depth.csv",row.names = FALSE)
-
 # Check
 # dat2 %>%
 #   group_by(YEAR) %>%
 #   dplyr::summarize(total_biomass=sum(total_biomass))
 
 
+# Stations allocated, attempted, succeeded --------------------------------
+# This year's hauls
+hauls <- read.csv(here::here("data/local_racebase/haul.csv"))
+
+hauls_maxyr <- hauls %>%
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
+  filter(REGION == SRVY & YEAR == maxyr)
+
+attempted <- hauls_maxyr %>%
+  group_by(STRATUM) %>%
+  distinct(STATIONID) %>% # how many stations were sampled?
+  ungroup() %>%
+  left_join(region_lu) %>%
+  group_by(INPFC_AREA,`Depth range`) %>%
+  count(name = "attempted") %>%
+  ungroup()
+
+succeeded <-  hauls_maxyr %>%
+  group_by(STRATUM) %>%
+  filter(ABUNDANCE_HAUL=="Y") %>% # filter to successful hauls
+  distinct(STATIONID) %>% # how many stations were sampled?
+  ungroup() %>%
+  left_join(region_lu) %>%
+  group_by(INPFC_AREA,`Depth range`) %>%
+  count(name = "succeeded") %>%
+  ungroup()
+
+region_areas <- region_lu %>%
+  distinct(INPFC_AREA, STRATUM, AREA, `Depth range`) %>%
+  group_by(INPFC_AREA,`Depth range`) %>%
+  summarize(INPFC_AREA_area = sum(AREA)) %>%
+  ungroup()
+
+all_allocation <- read.csv("data/local_ai/ai_station_allocation.csv")
+
+allocated_sampled <- all_allocation %>%
+  filter(YEAR == maxyr & SURVEY == SRVY) %>%
+  left_join(region_lu) %>%
+  group_by(INPFC_AREA, `Depth range`) %>%
+  count(name = "allocated") %>%
+  ungroup() %>%
+  left_join(attempted) %>%
+  left_join(succeeded) %>%
+  left_join(region_areas) %>%
+  mutate(stations_per_1000km2 = (succeeded/INPFC_AREA_area) * 1000) %>%
+  knitr::kable(caption = paste("Stations allocated and successfully sampled in",maxyr)) 
+
+
 list_tables <- list()
-list_tables[[1]] <- targetn # Target sample size for species/species groups
-list_tables[[2]] <- sampled_stations
+list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
+list_tables[[2]] <- targetn  # Target sample size for species/species groups
 list_tables[[3]] <- top_CPUE
 
 save(list_tables,
