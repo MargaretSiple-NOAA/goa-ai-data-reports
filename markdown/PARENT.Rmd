@@ -8,6 +8,7 @@ csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
 ---
 
+This is a test of the cross-refs in this doc (Table \@ref(tab:tab2)).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
@@ -51,7 +52,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FA
 ```
 
 # Tables
-```{r ft.align="center", tab.cap='Stations allocated and sampled this year.', tab.id='tab2', label='tab2'}
+```{r tab.cap='Stations allocated and sampled this year.', tab.id='tab2', label='tab2',  tab.cap.style = "Table Caption"}
 list_tables[[1]]
 ```
 
