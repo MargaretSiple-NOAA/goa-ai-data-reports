@@ -43,6 +43,7 @@ vignettes/*.pdf
 /data/local_race_data
 /data/local_racebase
 /data/local_goa
+/data/local_ai
 /data/length_ADFG.csv
 /data/specimen_ADFG.csv
 gdrive/
