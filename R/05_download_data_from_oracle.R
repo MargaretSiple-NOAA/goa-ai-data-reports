@@ -12,7 +12,7 @@ if (!file.exists("data/local_goa")) dir.create("data/local_goa", recursive = TRU
 
 source("R/setup_channel.R")
 
-# The setup_channel.R script sets up a channel using your Oracle username and pw. 
+# The setup_channel.R script sets up a channel using your Oracle username and pw.
 
 ################## DOWNLOAD TABLES##########################################
 # RACEBASE ----------------------------------------------------------------
@@ -62,6 +62,7 @@ write.csv(x = a, "./data/local_racebase/species_classification.csv", row.names =
 
 print("Finished downloading SPECIMEN, STRATUM, SPECIES, CRUISE and SPECIES_CLASSIFICATION.")
 
+
 # RACE_DATA ---------------------------------------------------------------
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.HAULS")
@@ -98,37 +99,41 @@ print("Finished downloading ADF&G tables.")
 
 # GOA ---------------------------------------------------------------------
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
-write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
+if (SRVY == "GOA") {
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
+  write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
-write.csv(x = a, "./data/local_goa/goa_biomass_stratum.csv", row.names = FALSE)
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
+  write.csv(x = a, "./data/local_goa/goa_biomass_stratum.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
-write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
+  write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
 
-print("Finished downloading GOA schema tables.")
+  print("Finished downloading GOA schema tables.")
+}
 
 
 # AI ----------------------------------------------------------------------
-a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_TOTAL")
-write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
+if (SRVY == "AI") {
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_TOTAL")
+  write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_STRATUM")
-write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_STRATUM")
+  write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
-write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
+  write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
-write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
+  write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
 
-print("Finished downloading AI schema tables.")
+  print("Finished downloading AI schema tables.")
+}
 
 
 # NODC (Food Habits) ------------------------------------------------------
 # a <- RODBC::sqlQuery(channel, "SELECT * FROM FOODLAB.NODC")
 # write.csv(x = a, "./data/local_nodc/nodc.csv", row.names = FALSE)
-# 
 
-print("Finished downloading local tables! Yay.")
+# All done!
+print("Finished downloading local versions of tables! Yay.")
