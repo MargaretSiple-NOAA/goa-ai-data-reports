@@ -1,18 +1,3 @@
-
-# Cite R Packages --------------------------------------------------------
-
-knitr::write_bib(
-  x = PKG,
-  file = paste0(dir_out_rawdata, "bibliography_RPack.bib")
-)
-
-file.copy(
-  from = paste0(dir_out_rawdata, "bibliography_RPack.bib"),
-  to = paste0(dir_cite, "/bibliography_RPack.bib"),
-  overwrite = TRUE
-)
-
-
 # Housekeeping -----------------------------------------------------------------
 
 # Keep chapter content in a proper order

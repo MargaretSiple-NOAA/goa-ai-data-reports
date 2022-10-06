@@ -118,3 +118,11 @@ for (p in PKG) {
 
 
 loadfonts(device = "win")
+
+# Cite R Packages --------------------------------------------------------
+
+knitr::write_bib(
+  x = PKG,
+  file = paste0(dir_cite, "bibliography_RPack.bib")
+)
+
