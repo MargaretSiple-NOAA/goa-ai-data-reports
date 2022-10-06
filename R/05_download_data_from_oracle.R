@@ -99,9 +99,14 @@ print("Finished downloading ADF&G tables.")
 
 # GOA ---------------------------------------------------------------------
 
+# Need goa_strata because it contains both GOA and AI strata
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
+write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
+
+print("Finished downloading strata file.")
+
+
 if (SRVY == "GOA") {
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
-  write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
   write.csv(x = a, "./data/local_goa/goa_biomass_stratum.csv", row.names = FALSE)
