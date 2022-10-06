@@ -107,7 +107,6 @@ print("Finished downloading strata file.")
 
 
 if (SRVY == "GOA") {
-
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
   write.csv(x = a, "./data/local_goa/goa_biomass_stratum.csv", row.names = FALSE)
 
