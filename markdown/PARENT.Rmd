@@ -7,7 +7,7 @@ csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
 ---
 
-This is a test of the cross-refs in this doc (Table \@ref(tab:stations-allocated)).
+This is a test of the cross-refs in this doc (Table \@ref(tab:stations-allocated)). And here is a test for figure cross-referencing (Figure \@ref(fig:area-map)).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
@@ -57,8 +57,13 @@ library(officer)
 list_tables[[1]]
 ```
 
-
-```{r tab.cap='Target numbers of length samples for each managed species.', tab.id='length_sample_sizes',  tab.cap.style = "Table Caption"}
+--
+  
+```{r tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
 list_tables[[2]]
 ```
 
+# Figures
+```{r fig.cap='Map of the Aleutian Islands 2018 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  tab.cap.style = "Figure Caption"}
+list_figures[[1]]
+```
