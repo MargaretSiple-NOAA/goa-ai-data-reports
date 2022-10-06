@@ -20,9 +20,14 @@ vessel2 <- "FV Alaska Provider"
 captain1 <- "Dan Carney"
 captain2 <- "Loren Reynolds"
 
-ref_compareyr <- "@von_szalay_data_2017"
-if (SRVY == "GOA"){dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"} # Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited.
-if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
+ref_compareyr <- "@von_szalay_data_2017" # should be included in cite/bibliography.bib
+
+if (SRVY == "GOA"){dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"} 
+# Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC 
+# This is where all the text files live and are edited.
+
+if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} 
+# Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
 
 # Report info -------------------------------------------------------------
 report_title <- paste0(
@@ -32,22 +37,13 @@ report_title <- paste0(
 report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple"
 report_yr <- maxyr
 
-nfish <- 360 #UPDATE THESE TODO
-ninverts <- 151
-nstations <- 500
-# highest_total_catch <- c("Pacific cod (Gadus chalcogrammus), 
-#                          Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
-
 # Functions, packages, directories ---------------------------------------------
 source("R/01_directories.R")
-source("R/02_load_packages.R")
-source("R/03_prep_data.R")
-source("R/04_functions.R") # May not need all these functions.
+source("R/02_load_packages.R") 
 
-# Get data from RACEBASE --------------------------------------------------
-x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
+# Get data from RACEBASE and AI/GOA schemas ------------------------------------
+x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now?")
 if (x) {
-  dir.create("data/local_racebase", recursive = TRUE)
   source("R/05_download_data_from_oracle.R")
 }
 
@@ -56,6 +52,10 @@ y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
 if (y) {
   source("R/06_get_gdrive_chapters.R")
 }
+
+# Data prep and stuff -----------------------------------------------------
+source("R/03_prep_data.R") # Make all the tables and stuff needed for report and pres.
+source("R/04_functions.R") # May not need all these functions.
 
 
 ################################################################################
