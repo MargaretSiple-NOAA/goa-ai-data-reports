@@ -39,10 +39,10 @@ nstations <- 500
 #                          Arrowtooth flounder (Atherestes stomias)") # character vector. FIX and make list of species
 
 # Functions, packages, directories ---------------------------------------------
-source("R/02_directories.R")
-source("R/03_load_packages.R")
+source("R/01_directories.R")
+source("R/02_load_packages.R")
+source("R/03_prep_data.R")
 source("R/04_functions.R") # May not need all these functions.
-source("R/08_prep_data.R")
 
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
