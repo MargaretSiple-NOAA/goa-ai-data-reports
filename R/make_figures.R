@@ -16,21 +16,21 @@
 sp <- 30060
 yr <- 2018
 dat2plot <- cpue_raw %>% 
-  filter(srvy==SRVY & species_code == sp & year == yr) 
+  filter(survey==SRVY & species_code == sp & year == yr) 
 colnames(dat2plot)
 cpue_res <- 0.1 # will take less time
 # example data:
-# head(akgfmaps:::YFS2017)
+# head(akgfmaps::YFS2017)
 
-
+# This is a dummy figure! Doesn't mean anything because it's for GOA 
  figure1 <- plot_idw_xbyx(
    yrs = yr, 
    dat = dat2plot, 
-   lat = "latitude_dd",
-   lon = "longitude_dd",
-   var = "cpue_kgha",
+   lat = "start_latitude",
+   lon = "start_longitude",
+   var = "cpue_kgkm2",
    year = "year",
-   key.title = "POP (kg/ha)", 
+   key.title = "POP (kg/km2)", 
    grid = "extrapolation.grid",
    extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62), 
    grid.cell = c(cpue_res,cpue_res), 

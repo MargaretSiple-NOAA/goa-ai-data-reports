@@ -24,9 +24,10 @@ x <- read.csv(file = here::here("data/local_ai/cpue.csv"), header = TRUE)
 cpue_raw <- x %>%
   left_join(common_names) %>%
   dplyr::select(-YEAR_ADDED) %>%
+  dplyr::left_join(hauls) %>%
   janitor::clean_names() %>% # need to add common name lookup
   dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
-  dplyr::left_join(hauls)
+  janitor::clean_names()
 
 # Biomass by stratum (source: AI or GOA schema)
 biomass_stratum <- read.csv("data/local_ai/biomass_stratum.csv") 
