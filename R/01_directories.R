@@ -1,9 +1,3 @@
-# LIBRARIES
-
-#library(magrittr)
-
-
-
 # SAVE FILE LOCATIONS ----------------------------------------------------------
 # Just in case you change the base name for any reason, it will change for anytime you load the files inside the folder, too! (e.g., if you have something against "scripts" being the name of the folder, just let the script know in one place aka right here).
 
@@ -21,25 +15,24 @@ for (i in 1:length(dirs)) {
 }
 
 
-# Code folder (where markdown and scripts are stored) ---------------------
+# Code folder (where scripts are stored) ----------------------------------
 dir_code <- paste0(dir_in,"R/")
 
 # Data folder (for storing db tables) -------------------------------------
 dir.create(paste0(dir_in,"data/"))
 
-
-# output folder -----------------------------------------------------------
+# Output folder -----------------------------------------------------------
 dir.output <- paste0(dir_in, "output/")
 dir.create(dir.output)
 
 dir_out_todaysrun <- paste0(dir.output, Sys.Date(), "/")
 dir.create(dir_out_todaysrun)
 
-dirs <- c("chapters", "rawdata", 
-          "documentation", 
+dirs <- c("chapters", 
           "figures", 
-          "markdown", "tables", 
-          "cite", "ref")
+          "markdown", 
+          "tables", 
+          "cite")
 for (i in 1:length(dirs)) {
   if (dir.exists(paste0(dir_out_todaysrun, dirs[i])) == FALSE) {
     dir.create(paste0(dir_out_todaysrun, "/", dirs[i]))
