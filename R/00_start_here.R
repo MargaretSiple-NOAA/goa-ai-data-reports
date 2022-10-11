@@ -53,15 +53,15 @@ if (y) {
   source("R/06_get_gdrive_chapters.R")
 }
 
-# Data prep and stuff -----------------------------------------------------
-source("R/03_prep_data.R") # Make all the tables and stuff needed for report and pres.
+# Functions and data prep -------------------------------------------------
 source("R/04_functions.R") # May not need all these functions.
+source("R/03_prep_data.R") # Make all the tables and stuff needed for report and pres.
 
 
 ################################################################################
 ################################################################################
 ################################################################################
-# EVERYTHING BELOW THIS LINE IS FOR REPORTS -- NO NEED TO USE IT FOR PRESENTATIONS!
+# EVERYTHING BELOW THIS LINE IS FOR REPORTS
 ################################################################################
 ################################################################################
 ################################################################################

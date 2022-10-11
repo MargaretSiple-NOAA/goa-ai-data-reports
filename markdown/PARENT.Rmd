@@ -65,5 +65,9 @@ list_tables[[2]]
 
 # Figures
 ```{r fig.cap='Map of the Aleutian Islands 2018 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  tab.cap.style = "Figure Caption"}
+include_graphics(here::here(img1_path))
+```
+
+```{r fig.cap='Some other figure', fig.id='area-map',  tab.cap.style = "Figure Caption"}
 list_figures[[1]]
 ```

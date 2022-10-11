@@ -7,13 +7,13 @@
 # Fig 4. CPUE map 2
 # Fig 5. size comp plot 2
 
-make_biomass_timeseries <- TRUE
+make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
-make_catch_comp <- TRUE
+make_catch_comp <- FALSE
 # 3. CPUE bubble maps
-make_cpue_bubbles <- TRUE
+make_cpue_bubbles <- FALSE
 # 5. Length frequency plots as joy divison plots
-make_joy_division_length <- TRUE
+make_joy_division_length <- FALSE
 
 
 # Base maps ---------------------------------------------------------------
@@ -90,8 +90,14 @@ speciescolors <- lengthen_pal(
 
 # 0. Static figure: INPFC areas ----------------------------------------------
 #**** TODO: Load png or whatever and put it here. Can I store it in a list?
-#* 
+# Needed to use magick pkg to convert the image to a png, for some reason the usual image reader in Windows does not actually convert the format.
+# error_file = magick::image_read("img/AleutiansMap.png")
+# right_png <- magick::image_convert(image = error_file, "png")
+# magick::image_write(right_png, path = "img/AleutiansMap.png", format = "png")
 
+img1_path <- "img/AleutiansMap.png"
+img1 <- png::readPNG(img1_path)
+#attr(img1, "info")
 
 # 1. Biomass index relative to LT mean ---------------------------------------
 
@@ -383,7 +389,9 @@ cpue_res <- 0.1 # will take less time
         savedir = dir_out_figures)
  }
 
-
+# Check that the figure list is filled out
+length(list_figures)
+  
  # SAVE FIGURES -----------------------------------------------------------
  save(list_figures,
       file = paste0(dir_out_figures, "report_figures.rdata")
