@@ -42,9 +42,14 @@ vignettes/*.pdf
 /data/local_nodc
 /data/local_race_data
 /data/local_racebase
+/data/local_goa
+/data/local_ai
+/data/length_ADFG.csv
+/data/specimen_ADFG.csv
 gdrive/
 output/
+/data/cpue_station.csv
 
-# just any .doc or html outputs
-*.docx
+# .doc, .ppt and html output products
 *.html
+markdown/PLAN_TEAM_SLIDES.pptx

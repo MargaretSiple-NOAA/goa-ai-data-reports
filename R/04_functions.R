@@ -1,18 +1,3 @@
-
-# Cite R Packages --------------------------------------------------------
-
-knitr::write_bib(
-  x = PKG,
-  file = paste0(dir_out_rawdata, "bibliography_RPack.bib")
-)
-
-file.copy(
-  from = paste0(dir_out_rawdata, "bibliography_RPack.bib"),
-  to = paste0(dir_cite, "/bibliography_RPack.bib"),
-  overwrite = TRUE
-)
-
-
 # Housekeeping -----------------------------------------------------------------
 
 # Keep chapter content in a proper order
@@ -27,7 +12,6 @@ list_tables <- list()
 list_figures <- list()
 
 # Functions -------------------------------------------------------------
-
 
 ######### General Stuff ########
 
@@ -199,21 +183,6 @@ url_exists <- function(x, non_2xx_return_value = FALSE, quiet = FALSE, ...) {
 }
 
 
-# c(
-#   "http://content.thief/",
-#   "http://rud.is/this/path/does/not_exist",
-#   "https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=content+theft",
-#   "https://www.google.com/search?num=100&source=hp&ei=xGzMW5TZK6G8ggegv5_QAw&q=don%27t+be+a+content+thief&btnK=Google+Search&oq=don%27t+be+a+content+thief&gs_l=psy-ab.3...934.6243..7114...2.0..0.134.2747.26j6....2..0....1..gws-wiz.....0..0j35i39j0i131j0i20i264j0i131i20i264j0i22i30j0i22i10i30j33i22i29i30j33i160.mY7wCTYy-v0",
-#   "https://rud.is/b/2018/10/10/geojson-version-of-cbc-quebec-ridings-hex-cartograms-with-example-usage-in-r/"
-# ) -> some_urls
-#
-# data.frame(
-#   exists = sapply(some_urls, url_exists, USE.NAMES = FALSE),
-#   some_urls,
-#   stringsAsFactors = FALSE
-# ) %>% dplyr::tbl_df() %>% print()
-
-
 find_units <- function(unit = "", unt = "", dat, divby = NULL) {
 
   # x <- ifelse(unit == "", "s", paste0(" ", unit))
@@ -287,12 +256,7 @@ c2f <- function(T.celsius, round = 2) {
   return(T.fahrenheit)
 }
 
-# divkmfornmi <-
-#
-# divnmiforkm
-#
 divnmi2forkm2 <- 1 / 3.429904
-
 divkm2fornmi2 <- 3.429904
 # divkm2fornmi2 <- 0.291160601164372384405766883164727405629748185875095639378254783272052516569336
 
@@ -303,6 +267,40 @@ divmforft <- 0.3048
 divftform <- 3.28084
 
 # Species -----------------------------------------------
+
+#' Make a list of the top 20 species by CPUE
+#'
+#' @param YEAR numeric - year for which you want the top spps 
+#' @param SRVY character - "GOA" or "AI"
+#' @param cpue_raw dataframe or tibble containing raw CPUE data. Can be from FOSS or GOA/AI schemae.
+#'
+#' @return list of species
+#' @export
+#'
+#' @examples
+make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each region
+  x <- cpue_raw %>%
+    filter(year == YEAR & survey == SRVY) %>%
+    dplyr::mutate(taxon = dplyr::case_when(
+      species_code <= 31550 ~ "fish",
+      species_code >= 40001 ~ "invert"
+    )) %>%
+    dplyr::filter(taxon == "fish") %>%
+    dplyr::mutate(common_name = case_when(
+      species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
+      TRUE ~ common_name
+    )) %>%
+    # Old skate check
+    # dplyr::filter(species_code >=400 & species_code<=495) %>%
+    left_join(region_lu, by = c("stratum" = "STRATUM")) %>%
+    dplyr::group_by(INPFC_AREA, common_name) %>%
+    dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
+    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::left_join(species_names)
+  return(x)
+}
+
 
 
 findhowmanyspp <- function(spp.tsn.list, ranklvl) {

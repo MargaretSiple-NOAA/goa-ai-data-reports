@@ -1,16 +1,18 @@
 ---
 output:
-  officedown::rdocx_document:
+  officedown::rdocx_document: 
+    reference_docx: styles_reference2.docx
     pandoc_args: ["--metadata-file=header.yaml"]
-    reference_docx: styles_reference.docx
-    df_print: kable
 csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
 ---
 
+This is a test of the cross-refs in this doc (Table \@ref(tab:stations-allocated)). And here is a test for figure cross-referencing (Figure \@ref(fig:area-map)).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
+library(officedown)
+library(officer)
 ```
 
 ```{r echo=FALSE}
@@ -46,15 +48,26 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FA
 ```{r child=here::here("gdrive","Introduction.Rmd")}
 ```
 
-```{r echo=FALSE,warning=FALSE}
-#list_tables[[1]]
+# Methods
+```{r child=here::here("gdrive","Methods.Rmd")}
 ```
 
-```{r echo=FALSE,warning=FALSE}
-#list_figures[[1]]
+# Tables
+```{r tab.cap='Stations allocated and sampled this year.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
+list_tables[[1]]
 ```
 
-<!-- # Methods -->
-<!-- ```{r child=here::here("gdrive","Methods.Rmd")} -->
-<!-- ``` -->
+--
+  
+```{r tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
+list_tables[[2]]
+```
 
+# Figures
+```{r fig.cap='Map of the Aleutian Islands 2018 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  tab.cap.style = "Figure Caption"}
+include_graphics(here::here(img1_path))
+```
+
+```{r fig.cap='Some other figure', fig.id='area-map',  tab.cap.style = "Figure Caption"}
+list_figures[[1]]
+```
