@@ -110,6 +110,7 @@ haul2 <- haul %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
 nstations <- haul2 %>%
+  filter(ABUNDANCE_HAUL == "Y") %>%
   distinct(STATIONID) %>%
   nrow()
 

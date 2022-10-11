@@ -13,7 +13,6 @@ list_figures <- list()
 
 # Functions -------------------------------------------------------------
 
-
 ######### General Stuff ########
 
 SameColNames <- function(df.ls) {
@@ -257,12 +256,7 @@ c2f <- function(T.celsius, round = 2) {
   return(T.fahrenheit)
 }
 
-# divkmfornmi <-
-#
-# divnmiforkm
-#
 divnmi2forkm2 <- 1 / 3.429904
-
 divkm2fornmi2 <- 3.429904
 # divkm2fornmi2 <- 0.291160601164372384405766883164727405629748185875095639378254783272052516569336
 
