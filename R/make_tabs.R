@@ -57,14 +57,10 @@ depth_mgmtarea_summary <- biomass_stratum %>%
 
 
 # Stations allocated, attempted, succeeded --------------------------------
-# This year's hauls
-haul_maxyr <- haul %>%
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
-  filter(REGION == SRVY & YEAR == maxyr)
 
 attempted <- haul_maxyr %>%
   group_by(STRATUM) %>%
-  distinct(STATIONID) %>% # how many stations were sampled?
+  distinct(STATIONID) %>% # how many stations were attempted sampled?
   ungroup() %>%
   left_join(region_lu) %>%
   group_by(INPFC_AREA,`Depth range`) %>%

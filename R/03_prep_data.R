@@ -19,6 +19,10 @@ species_names <- common_names %>%
   dplyr::rename(scientific_name = species_name) %>%
   dplyr::select(-year_added)
 
+# This year's haul data
+haul_maxyr <- haul %>%
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
+  filter(REGION == SRVY & YEAR == maxyr)
 
 # Temperature data --------------------------------------------------------
 minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
