@@ -100,7 +100,8 @@ PKG <- c(
   "XML", 
   
   # Oracle
-  "RODBC")
+  "RODBC",
+  "getPass")
 
 
 PKG <- unique(PKG)
