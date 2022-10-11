@@ -31,7 +31,7 @@ if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"}
 
 # Report info -------------------------------------------------------------
 report_title <- paste0(
-  "Data Report: ", maxyr, " ", NMFSReports::TitleCase(SRVY),
+  "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
 report_authors <- "P. von Szalay, N. Raring, W. Palsson, B. Riggle, M. Siple"

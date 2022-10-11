@@ -18,10 +18,6 @@ if(!"knitcitations" %in% installed.packages()){
   devtools::install_github("cboettig/knitcitations")
 }
 
-# if(!"NMFSReports" %in% installed.packages()){
-#   remotes::install_github("EmilyMarkowitz-NOAA/NMFSReports@main")
-# }
-
 if(!"MetBrewer" %in% installed.packages()){
   devtools::install_github("BlakeRMills/MetBrewer")
 }
