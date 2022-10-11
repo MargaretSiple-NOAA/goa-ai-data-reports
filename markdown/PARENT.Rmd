@@ -72,6 +72,9 @@ otos_collected
 include_graphics(here::here(img1_path))
 ```
 
+<!-- NOTE: Figures after this first one are all per species until the appendix. -->
+
 ```{r fig.cap='Some other figure', fig.id='area-map',  tab.cap.style = "Figure Caption"}
 list_figures[[1]]
 ```
+

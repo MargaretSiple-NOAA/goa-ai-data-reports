@@ -1,11 +1,11 @@
 # This script should load the necessary data and build PNGs of all the figures for the paper, so they can be loaded in the Markdown part.
 
-# Figures -----------------------------------------------------------------
+# Figures & their name in the list ----------------------------------------
 # Fig 1: district map
 # Fig 2. CPUE map 1 "cpue_bubbles" - list_cpue_bubbles
-# Fig 3. size comp plot 1 "joy_division_length" - list_joy_length
-# Fig 4. CPUE map 2
-# Fig 5. size comp plot 2
+# Fig 3. CPUE map 2 - raster maps of CPUE - ONLY FOR GOA
+# Fig 4. size comp plot 2 - "joy_division_length" - list_joy_length
+# Fig 5. Historical biomass plots - list_biomass_ts
 
 make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
