@@ -3,7 +3,7 @@
 # Table 1 is the target sample sizes for different species categories
 # Table 2 is the number of stations allocated, attempted, and successfully completed.
 # Table 3 onwards are specific to each species.
-# targetn <- read.csv("data/TargetN.csv",header = TRUE) # csv was corrupted
+
 targetn <- data.frame(
           stringsAsFactors = FALSE,
              `Species or species group` = c("Walleye pollock",
@@ -58,11 +58,11 @@ depth_mgmtarea_summary <- biomass_stratum %>%
 
 # Stations allocated, attempted, succeeded --------------------------------
 # This year's hauls
-hauls_maxyr <- hauls %>%
+haul_maxyr <- haul %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
   filter(REGION == SRVY & YEAR == maxyr)
 
-attempted <- hauls_maxyr %>%
+attempted <- haul_maxyr %>%
   group_by(STRATUM) %>%
   distinct(STATIONID) %>% # how many stations were sampled?
   ungroup() %>%
@@ -71,7 +71,7 @@ attempted <- hauls_maxyr %>%
   dplyr::count(name = "attempted") %>%
   ungroup()
 
-succeeded <-  hauls_maxyr %>%
+succeeded <-  haul_maxyr %>%
   group_by(STRATUM) %>%
   filter(ABUNDANCE_HAUL=="Y") %>% # filter to successful hauls
   distinct(STATIONID) %>% # how many stations were sampled?
@@ -84,7 +84,6 @@ succeeded <-  hauls_maxyr %>%
 region_areas <- region_lu %>%
   distinct(INPFC_AREA, STRATUM, AREA, `Depth range`) %>%
   group_by(INPFC_AREA,`Depth range`) %>%
-  #summarize(INPFC_AREA_area = sum(AREA)) %>%
   ungroup()
 
 
