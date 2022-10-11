@@ -55,6 +55,29 @@ depth_mgmtarea_summary <- biomass_stratum %>%
 #   group_by(YEAR) %>%
 #   dplyr::summarize(total_biomass=sum(total_biomass))
 
+# Percent changes in biomass since last survey ----------------------------
+
+head(biomass_total)
+
+compare_tab <- biomass_total %>% 
+  filter(YEAR %in% c(maxyr, compareyr) & 
+           SPECIES_CODE %in% report_species$species_code) %>%
+  dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
+  dplyr::arrange(YEAR) %>%
+  tidyr::pivot_wider(names_from = YEAR,
+                     values_from = TOTAL_BIOMASS,
+                     names_prefix = "yr_") %>%
+  as.data.frame()
+
+compare_tab$percent_change <- round((compare_tab[,3] - compare_tab[,2]) / compare_tab[,2] * 100, digits = 1)
+names(compare_tab)
+
+compare_tab2 <- compare_tab %>%
+  left_join(report_species, by = c("SPECIES_CODE"="species_code")) %>%
+  arrange(-SPECIES_CODE) 
+
+write.csv(x = compare_tab2,
+          file = paste0(dir_out_chapters,"comparison_w_previous_year.csv"))
 
 # Stations allocated, attempted, succeeded --------------------------------
 
