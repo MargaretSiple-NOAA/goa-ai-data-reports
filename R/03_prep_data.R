@@ -81,6 +81,31 @@ nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow() #420 in 2018
 
+
+# Lengths and notoliths sampled -------------------------------------------
+L <- read.csv(here::here("data/local_racebase/length.csv"))
+L <- L %>%
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
+length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+
+# Number of lengths collected per area
+lengths_collected <- nrow(length_maxyr)
+
+# Number of otoliths sampled per area
+S <- read.csv(here::here("data/local_racebase/specimen.csv"))
+specimen_maxyr <- S %>%
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
+  filter(YEAR == maxyr & REGION == SRVY)
+otos_collected <- specimen_maxyr %>%
+  filter(SPECIMEN_SAMPLE_TYPE==1) %>% # this means it's an oto collection
+  dplyr::left_join(haul_maxyr, by = c("CRUISEJOIN", "HAULJOIN", "HAUL", "REGION", "VESSEL", "YEAR")) %>%
+  dplyr::left_join(region_lu,by = c("STRATUM")) %>%
+  group_by(INPFC_AREA , `Depth range`) %>%
+  dplyr::summarize("Number of otoliths collected"=n()) %>%
+  ungroup()
+  
+total_otos <- sum(otos_collected$`Number of otoliths collected`)
+
 # get number of fish and invert spps
 catch <- read.csv("data/local_racebase/catch.csv",header = TRUE)
 
