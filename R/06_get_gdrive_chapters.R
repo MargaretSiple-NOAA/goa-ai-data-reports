@@ -31,6 +31,6 @@ for (i in 1:length(txtfiles)) {
       "gdrive",
       gsub(txtfiles[i], pattern = ".txt", replacement = ".Rmd")
     ),
-    citeproc = TRUE
+    citeproc = TRUE # not sure if this is needed
   )
 }

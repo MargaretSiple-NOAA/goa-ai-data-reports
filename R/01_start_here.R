@@ -72,7 +72,7 @@ cpue_raw <- read.csv(here::here("../../gap_public_data",
                                 "output/2022-05-25/cpue_station.csv"))
 head(cpue_raw)
 
-
+# NOTE: MAY CHANGE TO DRAW FROM ORACLE
 
 # Create tables and figures -----------------------------------------------
 
