@@ -20,7 +20,7 @@ source("R/setup_channel.R")
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH")
 write.csv(x = a, "./data/local_racebase/catch.csv", row.names = FALSE)
 
-print("Finished downloading CATCH (ᵔᴥᵔ)")
+print("Finished downloading CATCH")
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL")
 a <- RODBC::sqlQuery(
@@ -35,12 +35,12 @@ a <- RODBC::sqlQuery(
 )
 write.csv(x = a, "./data/local_racebase/haul.csv", row.names = FALSE)
 
-print("Finished downloading HAUL ʕ•ᴥ•ʔ")
+print("Finished downloading HAUL")
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH")
 write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
 
-print("Finished downloading LENGTH (ᵔᴥᵔ)")
+print("Finished downloading LENGTH")
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN")
 write.csv(x = a, "./data/local_racebase/specimen.csv", row.names = FALSE)
@@ -60,7 +60,7 @@ write.csv(x = a, "./data/local_racebase/cruise.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIES_CLASSIFICATION")
 write.csv(x = a, "./data/local_racebase/species_classification.csv", row.names = FALSE)
 
-print("Finished downloading SPECIMEN, STRATUM, SPECIES, CRUISE and SPECIES_CLASSIFICATION ʕ•ᴥ•ʔ")
+print("Finished downloading SPECIMEN, STRATUM, SPECIES, CRUISE and SPECIES_CLASSIFICATION")
 
 
 # RACE_DATA ---------------------------------------------------------------
@@ -94,7 +94,7 @@ write.csv(x = a, "./data/length_ADFG.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN_ADFG")
 write.csv(x = a, "./data/specimen_ADFG.csv", row.names = FALSE)
 
-print("Finished downloading ADF&G tables (ᵔᴥᵔ)")
+print("Finished downloading ADF&G tables")
 
 
 # GOA ---------------------------------------------------------------------
@@ -113,7 +113,7 @@ if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
 
-  print("Finished downloading GOA schema tables ʕ•ᴥ•ʔ")
+  print("Finished downloading GOA schema tables")
 }
 
 
@@ -131,7 +131,7 @@ if (SRVY == "AI") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
   write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
 
-  print("Finished downloading AI schema tables ʕ•ᴥ•ʔ")
+  print("Finished downloading AI schema tables")
 }
 
 
@@ -140,4 +140,4 @@ if (SRVY == "AI") {
 # write.csv(x = a, "./data/local_nodc/nodc.csv", row.names = FALSE)
 
 # All done!
-print("Finished downloading local versions of tables! Yay. ~(˘▾˘~)")
+print("Finished downloading local versions of tables! Yay.")

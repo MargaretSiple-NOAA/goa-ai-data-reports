@@ -2937,3 +2937,17 @@ lengthen_pal <- function(x = 1:10, shortpal) {
   newpal <- colorRampPalette(shortpal)(ncolours)
   return(newpal)
 }
+
+#' Format numbers for classic "tons" format
+#'
+#' @param x any number
+#'
+#' @return a string with commas to be used in the Markdown report
+#' @export
+#'
+#' @examples
+#' format_tons(5222.168)
+format_tons <- function(x){
+  y <- prettyNum(round(x), big.mark = ",", scientific = FALSE)
+  return(y)
+}

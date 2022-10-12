@@ -11,7 +11,7 @@ tabledate <- "2022-08-30"
 figuredate <- "2022-08-30"
 
 # Survey information ------------------------------------------------------
-survnumber <- "49th" # Change this for the year!
+survnumber <- "sixteenth" 
 dates_conducted <- "June 6th through August 14th, 2018" # Change this for the year!
 SRVY <- "AI" # Options: "GOA", "AI"
 YEAR <- maxyr
