@@ -17,7 +17,13 @@ common_names <- read.csv("data/local_racebase/species.csv", header = TRUE)
 species_names <- common_names %>%
   janitor::clean_names() %>%
   dplyr::rename(scientific_name = species_name) %>%
-  dplyr::select(-year_added)
+  dplyr::select(-year_added) %>%
+  mutate(major_group = case_when(species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
+                                 species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
+                                 species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
+                                 species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
+                                 species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
+                                )) # add column for species category
 
 # This year's haul data
 haul_maxyr <- haul %>%
@@ -98,7 +104,8 @@ specimen_maxyr <- S %>%
   filter(YEAR == maxyr & REGION == SRVY)
 otos_collected <- specimen_maxyr %>%
   filter(SPECIMEN_SAMPLE_TYPE==1) %>% # this means it's an oto collection
-  dplyr::left_join(haul_maxyr, by = c("CRUISEJOIN", "HAULJOIN", "HAUL", "REGION", "VESSEL", "YEAR")) %>%
+  dplyr::left_join(haul_maxyr, by = c("CRUISEJOIN", "HAULJOIN", "HAUL",
+                                      "REGION", "VESSEL", "YEAR")) %>%
   dplyr::left_join(region_lu,by = c("STRATUM")) %>%
   group_by(INPFC_AREA , `Depth range`) %>%
   dplyr::summarize("Number of otoliths collected"=n()) %>%
@@ -113,10 +120,19 @@ catch <- read.csv("data/local_racebase/catch.csv",header = TRUE)
 # Species with highest est'd biomass --------------------------------------
 highest_biomass <- biomass_total %>%
   filter(YEAR==maxyr & SURVEY==SRVY) %>%
-  dplyr::slice_max(n = 5, order_by = TOTAL_BIOMASS, with_ties = FALSE) %>%
+  dplyr::slice_max(n = 50, order_by = TOTAL_BIOMASS, with_ties = FALSE) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names)
 
+highest_biomass_flatfish <- highest_biomass %>% 
+  filter(major_group=="Flatfish")
+
+highest_skates <- biomass_total %>%
+  filter(YEAR==maxyr & SURVEY==SRVY) %>%
+  janitor::clean_names() %>%
+  dplyr::left_join(species_names) %>%
+  filter(major_group=="Chondrichthyans") %>%
+  dplyr::slice_max(n = 3, order_by = total_biomass, with_ties = FALSE)
 
 # Stats for the species in report_spps ------------------------------------
 head(report_species)
