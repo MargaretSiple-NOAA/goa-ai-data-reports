@@ -70,7 +70,7 @@ bartheme <- theme_classic2(base_size = 12) +
 # Palettes!
 # MetBrewer (dark colors)
 stratumpal <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
+  shortpal = MetBrewer::met.brewer(palette_name = "Hokusai1", type = "continuous"),
   x = 1:nstrata
 )
 
@@ -84,7 +84,7 @@ joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9,name = "Blues")
 # Palette for species colors and fills
 #speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
 speciescolors <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "VanGogh2", type = "discrete", direction = -1),
+  shortpal = MetBrewer::met.brewer(palette_name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
 )
 
