@@ -7,13 +7,13 @@
 # Fig 4. size comp plot 2 - "joy_division_length" - list_joy_length
 # Fig 5. Historical biomass plots - list_biomass_ts
 
-make_biomass_timeseries <- FALSE
+make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
-make_catch_comp <- FALSE
+make_catch_comp <- TRUE
 # 3. CPUE bubble maps
-make_cpue_bubbles <- FALSE
+make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
-make_joy_division_length <- FALSE
+make_joy_division_length <- TRUE
 
 
 # Base maps ---------------------------------------------------------------
@@ -103,7 +103,7 @@ img1 <- png::readPNG(img1_path)
 
 if (make_biomass_timeseries) {
   list_biomass_ts <- list()
-  for (i in 1:2) { # nrow(report_species)
+  for (i in 1: nrow(report_species)) { #
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
 
@@ -168,22 +168,30 @@ if (make_catch_comp) {
   dev.off()
 }
 
-# 3. CPUE bubble maps ----------------------------------------------------------
+# 3. CPUE bubble maps - FIXXXXXXXXXXXXXXXXXX ----------------------------------------------------------
 if (make_cpue_bubbles) {
-  list_cpue_bubbles <- list()
+   list_cpue_bubbles <- list()
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
     namebubble <- report_species$spp_name_informal[i]
 
     # CPUE data
+    # thisyrshauldata <- cpue_raw2 %>%
+    #   filter(year == maxyr & srvy == SRVY & species_code == spbubble) %>%
+    #   st_as_sf(
+    #     coords = c("longitude_dd", "latitude_dd"), #TODO NEED TO CHANGE TO THE RIGHT COORDS
+    #     crs = "EPSG:4326"
+    #   ) %>%
+    #   st_transform(crs = ai_east$crs)
+
     thisyrshauldata <- cpue_raw %>%
-      filter(year == maxyr & srvy == SRVY & species_code == spbubble) %>%
+      filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
-        coords = c("longitude_dd", "latitude_dd"),
+        coords = c("start_longitude", "start_latitude"), #TODO NEED TO CHANGE TO THE RIGHT COORDS
         crs = "EPSG:4326"
       ) %>%
       st_transform(crs = ai_east$crs)
-
+    
     # MAPS
     p3a <- ggplot() +
       geom_sf(
@@ -196,8 +204,8 @@ if (make_cpue_bubbles) {
       scale_fill_manual(values = stratumpal) +
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_east$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 ), alpha = 0.5) + # USED TO BE cpue_kgha
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2 ))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -218,8 +226,8 @@ if (make_cpue_bubbles) {
       scale_fill_manual(values = stratumpal) +
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 ), alpha = 0.5) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2 ))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -244,8 +252,8 @@ if (make_cpue_bubbles) {
       scale_fill_manual(values = stratumpal) +
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 ), alpha = 0.5) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2 ))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -264,7 +272,7 @@ if (make_cpue_bubbles) {
     final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
 
     png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble_example.png"),
+      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
       width = 10, height = 10, units = "in", res = 200
     )
     print(final_obj)
