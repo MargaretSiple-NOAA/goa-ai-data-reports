@@ -50,6 +50,7 @@ cpue_raw <- x %>%
   dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
   janitor::clean_names()
 
+
 # Biomass by stratum (source: AI or GOA schema)
 biomass_stratum <- read.csv(here::here("data","local_ai","biomass_stratum.csv")) 
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now

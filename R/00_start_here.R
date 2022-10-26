@@ -42,7 +42,7 @@ source("R/01_directories.R")
 source("R/02_load_packages.R") 
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
-x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now?")
+x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
 if (x) {
   source("R/05_download_data_from_oracle.R")
 }
