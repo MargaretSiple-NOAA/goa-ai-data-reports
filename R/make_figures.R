@@ -378,6 +378,9 @@ if (print_figs) {
 length(list_figures)
 
 # SAVE FIGURES -----------------------------------------------------------
-save(list_figures,
-  file = paste0(dir_out_figures, "report_figures.rdata")
-)
+# save(list_figures,
+#   file = paste0(dir_out_figures, "report_figures.rdata")
+# )
+save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
+save(list_cpue_bubbles, file = paste0(dir_out_figures, "cpue_bubbles.rdata"))
+save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
