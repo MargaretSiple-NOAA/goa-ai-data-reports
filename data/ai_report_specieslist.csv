@@ -1,14 +1,24 @@
-group,spp_name_informal,species_code,spp_name_scientific
-Sculpins,yellow irish lord,21347,Hemilepidotus jordani
-Roundfishes,sablefish,20510,Anoplopoma fimbria
-Flatfish,arrowtooth flounder,10110,Atheresthes stomias
-Roundfishes,atka mackerel,21921,Pleurogrammus monopterygius
-Roundfishes,Pacific cod,21720,Gadus macrocephalus
-Rockfish,Pacific ocean perch,30060,Sebastes alutus
-Rockfish,walleye pollock,21740,Gadus chalcogrammus
-Rockfish,rougheye rockfish,30051,Sebastes aleutianus
-Rockfish,blackspotted rockfish,30052,Sebastes melanostictus
-Flatfish,Northern rock sole,10262,Lepidopsetta bilineatus
-Rockfish,shortraker rockfish,30576,Sebastes borealis
-Skates,Aleutian skate,472,Bathyraja aleutica
-Skates,white blotched skate,480,Bathyraja maculata
+group,spp_name_informal,species_code,spp_name_scientific,presentation,report
+Sculpins,yellow irish lord,21347,Hemilepidotus jordani,1,1
+Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1
+Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1
+Roundfishes,atka mackerel,21921,Pleurogrammus monopterygius,1,1
+Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1
+Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1
+Rockfishes,walleye pollock,21740,Gadus chalcogrammus,1,1
+Rockfishes,rougheye rockfish,30051,Sebastes aleutianus,1,1
+Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,1,1
+Flatfishes,Northern rock sole,10262,Lepidopsetta bilineatus,1,1
+Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,1
+Skates,Aleutian skate,472,Bathyraja aleutica,1,1
+Skates,white blotched skate,480,Bathyraja maculata,1,1
+Flatfishes,kamchatka flounder,10112,Atheresthes evermanni,,1
+Flatfishes,Southern rock sole,10262,Lepidopsetta bilineata,,1
+Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,,1
+Flatfishes,Greenland turbot,10115,"Reinhardtius
+hippoglossoides",,1
+Flatfishes,flathead sole,10130,Hippoglossoides elassodon,,1
+Flatfishes,rex sole,10200,Glyptocephalus zachirus,,1
+Roundfishes,giant grenadier,21230,Coryphaenoides pectoralis,,1
+Rockfishes,northern rockfish,30420,Sebastes polyspinis,,1
+Rockfishes,shortspine thornyhead,30020,Sebastolobus alascanus,,1
