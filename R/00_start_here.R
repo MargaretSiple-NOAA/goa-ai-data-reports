@@ -2,9 +2,10 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2018 # Change this for the year!
+maxyr <- 2022 # Change this for the year!
 compareyr <- 2016 # Change this for the year!
 print_figs <- FALSE # Do you want to print out PNGs of each figure?
+pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 
 # When did you save the last version of the figures and tables you want to use?
 tabledate <- "2022-08-30"
