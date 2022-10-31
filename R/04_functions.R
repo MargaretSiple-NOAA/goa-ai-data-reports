@@ -279,7 +279,7 @@ divftform <- 3.28084
 #'
 #' @examples
 make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each region
-  x <- cpue_raw %>%
+  x1 <- cpue_raw %>%
     filter(year == YEAR & survey == SRVY) %>%
     dplyr::mutate(taxon = dplyr::case_when(
       species_code <= 31550 ~ "fish",
@@ -292,13 +292,42 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
     )) %>%
     # Old skate check
     # dplyr::filter(species_code >=400 & species_code<=495) %>%
-    left_join(region_lu, by = c("stratum" = "STRATUM")) %>%
+    left_join(region_lu, by = c("stratum" = "STRATUM"))
+  
+  districts <- x1 %>%
     dplyr::group_by(INPFC_AREA, common_name) %>%
     dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
+    dplyr::mutate(mean_cpue_kgha = mean_cpue/100) %>% # convert to kg/ha
     dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(species_names)
-  return(x)
+  
+  aleutian_areas <- x1 %>% 
+    filter(!INPFC_AREA %in% "Southern Bering Sea") %>%
+    dplyr::group_by(common_name) %>%
+    dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
+    dplyr::mutate(mean_cpue_kgha = mean_cpue/100) %>%
+    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::left_join(species_names) %>%
+    dplyr::mutate(INPFC_AREA = "Combined Aleutian districts") 
+  
+  all_areas <- x1 %>%
+    group_by(common_name) %>%
+    dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
+    dplyr::mutate(mean_cpue_kgha = mean_cpue/100) %>%
+    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
+    dplyr::ungroup() %>%
+    dplyr::left_join(species_names) %>%
+    dplyr::mutate(INPFC_AREA = "All districts combined")
+  
+  bigtable <- bind_rows(districts, aleutian_areas, all_areas) %>%
+    dplyr::mutate(scientific_name = case_when(common_name == "Rougheye / blackspotted rockfish complex" ~ "Sebastes aleutianus / Sebastes melanostictus",
+                                              TRUE ~ scientific_name)) %>%
+    dplyr::mutate(major_group = case_when(common_name == "Rougheye / blackspotted rockfish complex" ~ "Rockfishes",
+                                          TRUE ~ major_group))
+  bigtable
+  return(districts)
 }
 
 
