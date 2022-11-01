@@ -279,8 +279,9 @@ divftform <- 3.28084
 #'
 #' @examples
 make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each region
+  # STILL NEED TO FIX AND WEIGHT PROPERLY
   x1 <- cpue_raw %>%
-    filter(year == YEAR & survey == SRVY) %>%
+    filter(year == YEAR & survey == SRVY & abundance_haul=="Y") %>%
     dplyr::mutate(taxon = dplyr::case_when(
       species_code <= 31550 ~ "fish",
       species_code >= 40001 ~ "invert"
@@ -326,8 +327,8 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
                                               TRUE ~ scientific_name)) %>%
     dplyr::mutate(major_group = case_when(common_name == "Rougheye / blackspotted rockfish complex" ~ "Rockfishes",
                                           TRUE ~ major_group))
-  bigtable
-  return(districts)
+  #bigtable
+  return(bigtable)
 }
 
 
