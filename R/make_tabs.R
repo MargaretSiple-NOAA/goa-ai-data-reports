@@ -44,20 +44,8 @@ top_CPUE <- make_top_cpue(YEAR = YEAR,
 write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE","_",maxyr,".csv"),row.names = FALSE)
 
 # Biomass estimates by area and depth range -------------------------------
-
-# **** TURN INTO FUNCTION
-depth_mgmtarea_summary <- biomass_stratum %>%
-  filter(SPECIES_CODE == 10130) %>% # FHS
-  left_join(region_lu, by = c("SURVEY", "STRATUM")) %>%
-  dplyr::select(YEAR, REGULATORY_AREA_NAME, `Depth range`, STRATUM_BIOMASS) %>%
-  dplyr::group_by(YEAR, REGULATORY_AREA_NAME, `Depth range`) %>% #
-  dplyr::summarize(total_biomass = sum(STRATUM_BIOMASS, na.rm = TRUE)) %>%
-  dplyr::ungroup()
-
-# Check
-# dat2 %>%
-#   group_by(YEAR) %>%
-#   dplyr::summarize(total_biomass=sum(total_biomass))
+# Not needed I don't think yet but I did produce this for Maia for 2022 FHS.
+#make_depth_mgmt_area_summary(species_code = 10130)
 
 # Percent changes in biomass since last survey ----------------------------
 
@@ -128,7 +116,7 @@ colnames(allocated_sampled) <- c("INFPC area","Depth range","Allocated","Attempt
 
 # district_depth_effort_sp_list - list of tables that Paul made -----------
 district_depth_effort_sp_list <- list()
-
+names(district_depth_effort_sp_list) <- 
 # Get all the xls files in the folder where they're stored. 
 
 

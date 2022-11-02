@@ -360,7 +360,26 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
   return(bigtable)
 }
 
-
+#' Title
+#'
+#' @param species_code five-digit species code (numeric)
+#'
+#' @return a table with total biomass in Aleutian and non-Aleutian areas by year for a given species.
+#' @export
+#'
+#' @examples
+#' make_depth_mgmt_area_summary(species_code = 10130)
+make_depth_mgmt_area_summary <- function(species_code){
+  depth_mgmtarea_summary <- biomass_stratum %>%
+    filter(SPECIES_CODE == species_code) %>% 
+    left_join(region_lu, by = c("SURVEY", "STRATUM")) %>%
+    dplyr::select(YEAR, REGULATORY_AREA_NAME, `Depth range`, STRATUM_BIOMASS) %>%
+    dplyr::group_by(YEAR, REGULATORY_AREA_NAME, `Depth range`) %>% #
+    dplyr::summarize(total_biomass = sum(STRATUM_BIOMASS, na.rm = TRUE)) %>%
+    dplyr::ungroup()
+  
+  return(depth_mgmtarea_summary)
+}
 
 findhowmanyspp <- function(spp.tsn.list, ranklvl) {
   a <- rlist::list.search(
