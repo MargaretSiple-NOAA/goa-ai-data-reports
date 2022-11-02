@@ -21,6 +21,11 @@ dir_code <- paste0(dir_in,"R/")
 # Data folder (for storing db tables) -------------------------------------
 dir.create(paste0(dir_in,"data/"))
 
+
+# Folder with tables produced by other people -----------------------------
+dir_in_premadetabs <- "G:/ALEUTIAN/AI 2022/DataReport/"
+
+
 # Output folder -----------------------------------------------------------
 dir.output <- paste0(dir_in, "output/")
 dir.create(dir.output)
