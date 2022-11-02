@@ -313,20 +313,21 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
  head(cpue_districts) 
  unique(cpue_stratum$INPFC_AREA) # this is just the district level!
  # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
-test2 <- cpue_districts %>%
+districts <- cpue_districts %>%
   dplyr::group_by(INPFC_AREA,species_code) %>%
   dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2*weight_for_mean)) %>%
   ungroup() %>%
-  mutate(wgted_mean_cpue_kgkm2 = wgted_mean_cpue_kgkm2 /100)
- 
- 
- 
-  districts <- x1 %>%
-    dplyr::group_by(INPFC_AREA, common_name) %>%
-    dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
-    dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
-    dplyr::ungroup() %>%
-    dplyr::left_join(species_names)
+  mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 /100) %>%
+  group_by(INPFC_AREA) %>%
+  dplyr::slice_max(n = 20, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
+  dplyr::ungroup() %>%
+  dplyr::left_join(species_names)
+
+# FIX THIS
+# aleutian_areas <-  cpue_districts %>%
+# filter(!INPFC_AREA %in% "Southern Bering Sea") %>%
+#   dplyr::group_by(common_name) %>%
+#   
   
   aleutian_areas <- x1 %>% 
     filter(!INPFC_AREA %in% "Southern Bering Sea") %>%
