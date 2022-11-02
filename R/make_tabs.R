@@ -1,5 +1,6 @@
 # This script should load the necessary data and build PNGs of all the figures for the paper, so they can be accessed in the Markdown part.
 # Tables ------------------------------------------------------------------
+# Tables are labeled / ordered based on the historical data reports order of tables (currently based on the 2018 AI report, because that's the most recent one I have access to)
 # Table 1 is the target sample sizes for different species categories
 # Table 2 is the number of stations allocated, attempted, and successfully completed.
 # Table 3 onwards are specific to each species.
@@ -33,11 +34,14 @@ targetn <- data.frame(
 
 
 
-  
+
+# Mean CPUE for 20 most abundant groundfish spps --------------------------
+
 top_CPUE <- make_top_cpue(YEAR = YEAR, 
                           SRVY = SRVY,
                           cpue_raw = cpue_raw)
 
+write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE.csv"),row.names = FALSE)
 
 # Biomass estimates by area and depth range -------------------------------
 
@@ -120,6 +124,19 @@ allocated_sampled <- all_allocation %>%
          stations_per_1000km2 = round(stations_per_1000km2, digits = 2)) %>%
   dplyr::select(-STRATUM)
 colnames(allocated_sampled) <- c("INFPC area","Depth range","Allocated","Attempted","Succeeded","Total area","Stations per 1,000 km^2")
+
+
+# district_depth_effort_sp_list - list of tables that Paul made -----------
+district_depth_effort_sp_list <- list()
+
+# Get all the xls files in the folder where they're stored. 
+
+
+
+# district_depth_cpue_sp_list - list of tables that Paul made -------------
+district_depth_cpue_sp_list <- list()
+
+
 
 list_tables <- list()
 list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
