@@ -7,7 +7,12 @@
 # Get species table
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 report_species <- report_species %>%
-  arrange(-species_code)
+  arrange(-species_code) %>%
+  filter(report==1)
+
+pres_species <- report_species %>%
+  arrange(-species_code) %>%
+  filter(presentation==1)
 
 # haul info (source: RACEBASE)
 haul <- read.csv(here::here("data/local_racebase/haul.csv"))
