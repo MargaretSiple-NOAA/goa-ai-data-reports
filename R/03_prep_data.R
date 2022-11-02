@@ -42,7 +42,7 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 # Tables from AI/GOA schemas ----------------------------------------------
 # cpue (source: AI or GOA schema)
 # NOTE: THis does not contain inverts and weird stuff! There are only 76 spps in here.
-x <- read.csv(file = here::here("data/local_ai/cpue.csv"), header = TRUE)
+x <- read.csv(file = here::here("data/local_ai/cpue.csv"), header = TRUE) # This is already 0-filled
 cpue_raw <- x %>%
   left_join(common_names) %>%
   dplyr::select(-YEAR_ADDED) %>%
@@ -50,8 +50,7 @@ cpue_raw <- x %>%
   janitor::clean_names() %>% # need to add common name lookup
   dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
   janitor::clean_names()
-
-
+ 
 # Biomass by stratum (source: AI or GOA schema)
 biomass_stratum <- read.csv(here::here("data", "local_ai", "biomass_stratum.csv"))
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
@@ -72,6 +71,21 @@ region_lu <- dat %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
   mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
+region_lu2 <- region_lu %>%
+  dplyr::group_by(INPFC_AREA) %>%
+  dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) %>%
+  dplyr::ungroup()
+
+# Add Aleutian areas
+INPFC_areas <- region_lu2 %>%
+  tibble::add_row(
+    INPFC_AREA = "All Aleutian Districts",
+    INPFC_AREA_AREA_km2 = sum(filter(region_lu2, INPFC_AREA != "Southern Bering Sea")$INPFC_AREA_AREA_km2)
+  ) %>%
+  tibble::add_row(
+    INPFC_AREA = "All Districts",
+    INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
+  )
 
 # individual values needed for report (e.g., most abundant species) -------
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
@@ -90,7 +104,7 @@ nsuccessfulhauls <- haul2 %>%
   nrow() # 420 in 2018
 
 
-# Lengths and notoliths sampled -------------------------------------------
+# N lengths and otoliths sampled -------------------------------------------
 L <- read.csv(here::here("data/local_racebase/length.csv"))
 L <- L %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))

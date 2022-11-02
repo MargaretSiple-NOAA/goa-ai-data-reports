@@ -183,14 +183,15 @@ url_exists <- function(x, non_2xx_return_value = FALSE, quiet = FALSE, ...) {
 }
 
 
+# Conversions --------------------------------------------
 find_units <- function(unit = "", unt = "", dat, divby = NULL) {
-
+  
   # x <- ifelse(unit == "", "s", paste0(" ", unit))
   x <- unit # ifelse(unit != "", paste0(" ", unit), unit)
   x_ <- ifelse(unt == "", "", unt)
-
+  
   # find appropriate units
-
+  
   if (is.null(divby)) {
     min_val <- min(dat, na.rm = TRUE)
     min_val1 <- xunits(min_val, words = TRUE)
@@ -198,8 +199,8 @@ find_units <- function(unit = "", unt = "", dat, divby = NULL) {
     min_val <- divby
     min_val1 <- xunits(divby, words = TRUE)
   }
-
-
+  
+  
   if (min_val < 1e3) {
     divby <- 1
     unit_word <- ifelse(unit == "", "", paste0(" (", x, ")"))
@@ -237,16 +238,14 @@ find_units <- function(unit = "", unt = "", dat, divby = NULL) {
     )
     unit_wrd <- paste0("T", x_)
   }
-
-
+  
+  
   return(list(
     "divby" = divby,
     "unit_word" = unit_word,
     "unit_wrd" = unit_wrd
   ))
 }
-
-# Converions --------------------------------------------
 
 
 # https://github.com/geanders/weathermetrics/blob/master/R/temperature_conversions.R
@@ -280,6 +279,8 @@ divftform <- 3.28084
 #' @examples
 make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each region
   # STILL NEED TO FIX AND WEIGHT PROPERLY
+  
+  
   x1 <- cpue_raw %>%
     filter(year == YEAR & survey == SRVY & abundance_haul=="Y") %>%
     dplyr::mutate(taxon = dplyr::case_when(
@@ -293,12 +294,36 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
     )) %>%
     # Old skate check
     # dplyr::filter(species_code >=400 & species_code<=495) %>%
-    left_join(region_lu, by = c("stratum" = "STRATUM"))
+    left_join(region_lu, by = c("stratum" = "STRATUM")) # This table has stratum areas, INPFC area names, and more.
   
+  
+ cpue_districts <- x1 %>% 
+   # don't convert cpue units until the end
+   dplyr::group_by(survey, year, stratum, species_code, 
+                   species_name, common_name, taxon, 
+                   SURVEY, INPFC_AREA,`Depth range`,
+                   REGULATORY_AREA_NAME, AREA) %>% # AREA is the area im km^2 of the stratum
+   dplyr::summarize(stratum_cpue_kgkm2 = mean(cpue_kgkm2 ),
+            stratum_cpue_kgkm2_var = var(cpue_kgkm2 )) %>% 
+   # mean cpue by stratum (not yet weighted)
+  ungroup()  %>%
+   dplyr::left_join(INPFC_areas) %>%
+   mutate(weight_for_mean = AREA / INPFC_AREA_AREA_km2)
+ 
+ head(cpue_districts) 
+ unique(cpue_stratum$INPFC_AREA) # this is just the district level!
+ # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
+test2 <- cpue_districts %>%
+  dplyr::group_by(INPFC_AREA,species_code) %>%
+  dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2*weight_for_mean)) %>%
+  ungroup() %>%
+  mutate(wgted_mean_cpue_kgkm2 = wgted_mean_cpue_kgkm2 /100)
+ 
+ 
+ 
   districts <- x1 %>%
     dplyr::group_by(INPFC_AREA, common_name) %>%
     dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
-    dplyr::mutate(mean_cpue_kgha = mean_cpue/100) %>% # convert to kg/ha
     dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(species_names)
@@ -307,7 +332,6 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
     filter(!INPFC_AREA %in% "Southern Bering Sea") %>%
     dplyr::group_by(common_name) %>%
     dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
-    dplyr::mutate(mean_cpue_kgha = mean_cpue/100) %>%
     dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(species_names) %>%
@@ -316,7 +340,6 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
   all_areas <- x1 %>%
     group_by(common_name) %>%
     dplyr::summarize(mean_cpue = mean(cpue_kgkm2)) %>%
-    dplyr::mutate(mean_cpue_kgha = mean_cpue/100) %>%
     dplyr::slice_max(n = 20, order_by = mean_cpue, with_ties = FALSE) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(species_names) %>%
@@ -2573,6 +2596,34 @@ plot_survey_stations <- function(reg_dat,
 }
 
 
+#' Lengthen a color palette
+#'
+#' @param x a vector of 1:n, where n is the number of unique colors you want
+#' @param shortpal a short color palette, e.g., one from RColorBrewer()
+#'
+#' @return a vector of the same length as x, with n unique colors
+#' @export
+#'
+#' @examples
+lengthen_pal <- function(x = 1:10, shortpal) {
+  ncolours <- length(unique(x))
+  newpal <- colorRampPalette(shortpal)(ncolours)
+  return(newpal)
+}
+
+#Save plot as a png (for using lapply with the list of figures)
+
+make_png <- function(fig_list_element,
+                     year, region,
+                     savedir = dir_out_figures) {
+  filename_x <- names(fig_list_element)
+  png(
+    filename = paste0(savedir, filename_x, "_", region, "_", year, ".png"),
+    width = 10, height = 10, units = "in", res = 150
+  )
+  fig_list_element
+  dev.off()
+}
 
 
 # Tables -----------------------------------------------------------------------
@@ -2939,34 +2990,6 @@ table_change_pres <- function(dat,
   )) 
 }
 
-#Save plot as a png (for using lapply with the list of figures)
-
-make_png <- function(fig_list_element,
-                     year, region,
-                     savedir = dir_out_figures) {
-  filename_x <- names(fig_list_element)
-  png(
-    filename = paste0(savedir, filename_x, "_", region, "_", year, ".png"),
-    width = 10, height = 10, units = "in", res = 150
-  )
-  fig_list_element
-  dev.off()
-}
-
-#' Lengthen a color palette
-#'
-#' @param x a vector of 1:n, where n is the number of unique colors you want
-#' @param shortpal a short color palette, e.g., one from RColorBrewer()
-#'
-#' @return a vector of the same length as x, with n unique colors
-#' @export
-#'
-#' @examples
-lengthen_pal <- function(x = 1:10, shortpal) {
-  ncolours <- length(unique(x))
-  newpal <- colorRampPalette(shortpal)(ncolours)
-  return(newpal)
-}
 
 #' Format numbers for classic "tons" format
 #'
