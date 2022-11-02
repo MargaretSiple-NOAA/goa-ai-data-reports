@@ -41,7 +41,7 @@ top_CPUE <- make_top_cpue(YEAR = YEAR,
                           SRVY = SRVY,
                           cpue_raw = cpue_raw)
 
-write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE.csv"),row.names = FALSE)
+write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE","_",maxyr,".csv"),row.names = FALSE)
 
 # Biomass estimates by area and depth range -------------------------------
 
