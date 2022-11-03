@@ -1,7 +1,7 @@
 # goa-ai-data-reports (in progress)
 
 ## Overview
-GOA and AI data reports summarize data from the trawl survey each year. These reports provide detailed survey summaries for a technical audience. This code is adapted from Emily Markowitz's [framework](https://github.com/EmilyMarkowitz-NOAA/gap_bs_data_report) for Eastern Bering Sea data reports. The scripts in this repo pull text from [Google Docs](https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC), turn them into Markdown files, and knit a report in .docx format summarizing survey data and some basic summary information.
+GOA and AI data reports summarize data from the trawl survey each year. These reports provide detailed survey summaries for a technical audience. This code is adapted from Emily Markowitz's [framework](https://github.com/EmilyMarkowitz-NOAA/gap_bs_data_report) for Eastern Bering Sea data reports. The scripts in this repo pull text from [Google Docs](https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC), turn them into Markdown files, and knit a report in .docx format summarizing survey data and some basic summary information. This is a little change.
 
 ![Diagram of report structure](img/DataReportDiagram.png)
 
