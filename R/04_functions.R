@@ -381,6 +381,34 @@ make_depth_mgmt_area_summary <- function(species_code){
   return(depth_mgmtarea_summary)
 }
 
+#' Retrieve Table 3's (biomass per area and depth) for a species
+#'
+#' @param species_code (numeric) 5-digit species code
+#'
+#' @return a nice clean dataframe ready for formatting for the report
+#' @export
+#' @details  This will work with a list of tables that is already subsetted to year and region!
+#'
+#' @examples
+#' prep_tab3(30060)
+prep_tab3 <- function(speciescode){
+  x <- read.csv(paste0(dir_in_premadetabs,"Table 3/",x,"_2022.csv"))
+  cleaned_tab <- x %>% 
+    dplyr::rename(`Survey district` = Survey.District,
+                  `Depth (m)` = Depth..m.,
+                  `Haul count` = Haul.Count,
+                  `Hauls with catch` = Hauls.w.Catch,
+                  `CPUE (kg/ha)` = CPUE..kg.ha.,
+                  `Biomass (t)` = Biomass...t.,
+                  `Lower 95% CI` = X95..LCL..t.,
+                  `Upper 95% CI`= X95..UCL..t.,
+                  `Weight (kg)` = Weight...kg.)
+  return(cleaned_tab)
+}
+
+
+
+
 findhowmanyspp <- function(spp.tsn.list, ranklvl) {
   a <- rlist::list.search(
     .data = lapply(X = spp.tsn.list, "[", 2),
