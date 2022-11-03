@@ -360,7 +360,7 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
   return(bigtable)
 }
 
-#' Title
+#' Make summary table of biomass by depth range and mgmt area (assessment request)
 #'
 #' @param species_code five-digit species code (numeric)
 #'

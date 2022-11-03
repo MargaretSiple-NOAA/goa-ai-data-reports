@@ -113,23 +113,42 @@ allocated_sampled <- all_allocation %>%
   dplyr::select(-STRATUM)
 colnames(allocated_sampled) <- c("INFPC area","Depth range","Allocated","Attempted","Succeeded","Total area","Stations per 1,000 km^2")
 
+# CPUE table by district - formatted by Paul ------------------------------
+#CPUE_table_formatted <- read_xlsx(path = paste0(dir_in_premadetabs,"Table 2/Table 2 AI2022.xlsx"))
 
 # district_depth_effort_sp_list - list of tables that Paul made -----------
+
+
 district_depth_effort_sp_list <- list()
-names(district_depth_effort_sp_list) <- 
+# Load Paul tables
+
+
+#names(district_depth_effort_sp_list) <- report_species$species_code
 # Get all the xls files in the folder where they're stored. 
 
 
-
 # district_depth_cpue_sp_list - list of tables that Paul made -------------
-district_depth_cpue_sp_list <- list()
+#district_depth_cpue_sp_list <- list()
 
 
+#names(district_depth_effort_sp_list) <- report_species$species_code
+atf <- read.csv(paste0(dir_in_premadetabs,"Table 3/","10110_2022.csv"))
+atf <- atf %>% 
+  dplyr::rename(`Survey district` = Survey.District,
+                      `Depth (m)` = Depth..m.,
+                      `Haul count` = Haul.Count,
+                      `Hauls with catch` = Hauls.w.Catch,
+                      `CPUE (kg/ha)` = CPUE..kg.ha.,
+                      `Biomass (t)` = Biomass...t.,
+                      `Lower 95% CI` = X95..LCL..t.,
+                      `Upper 95% CI`= X95..UCL..t.,
+                      `Weight (kg)` = Weight...kg.)
 
 list_tables <- list()
 list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
 list_tables[[2]] <- targetn  # Target sample size for species/species groups
 list_tables[[3]] <- top_CPUE
+list_tables[[4]] <- atf
 
 save(list_tables,
      file = paste0(dir_out_tables,"report_tables.rdata")
