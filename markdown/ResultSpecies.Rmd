@@ -1,0 +1,20 @@
+---
+title: "Species result test - ATF"
+output: word_document
+params:
+    speciescode: 30060
+    year: 2022
+---
+
+```{r, setup, include=FALSE}
+# set this option in the first code chunk in the document
+knitr::opts_chunk$set(echo = params$printcode)
+# RENDER THIS REPORT USING:
+# rmarkdown::render("MyDocument.Rmd", params = list(
+#   year = 2022,
+#   speciescode = 30060
+# ))
+```
+
+## This is a parameterized report
+
