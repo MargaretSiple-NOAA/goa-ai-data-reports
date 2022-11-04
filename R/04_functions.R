@@ -392,7 +392,9 @@ make_depth_mgmt_area_summary <- function(species_code){
 #' @examples
 #' prep_tab3(30060)
 prep_tab3 <- function(speciescode){
-  x <- read.csv(paste0(dir_in_premadetabs,"Table 3/",x,"_2022.csv"))
+  filepath <- paste0(dir_in_premadetabs,"Table 3/",speciescode,"_2022.csv")
+  if(!file.exists(filepath)){stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")}
+  x <- read.csv(file = filepath)
   cleaned_tab <- x %>% 
     dplyr::rename(`Survey district` = Survey.District,
                   `Depth (m)` = Depth..m.,

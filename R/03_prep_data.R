@@ -6,6 +6,7 @@
 # Tables from RACEBASE ----------------------------------------------------
 # Get species table
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+
 report_species <- report_species %>%
   arrange(-species_code) %>%
   filter(report==1)
@@ -163,3 +164,7 @@ biomass_total %>%
   filter(YEAR == maxyr) %>%
   janitor::clean_names() %>%
   right_join(report_species)
+
+
+# List of "table 3's" per species -----------------------------------------
+
