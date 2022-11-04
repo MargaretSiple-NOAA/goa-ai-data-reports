@@ -285,7 +285,7 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
       species_code <= 31550 ~ "fish",
       species_code >= 40001 ~ "invert"
     )) %>%
-    dplyr::filter(taxon == "fish") %>%
+    #dplyr::filter(taxon == "fish") %>%
     dplyr::mutate(common_name = case_when(
       species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
       TRUE ~ common_name
@@ -333,7 +333,8 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
     ungroup() %>%
     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
     dplyr::slice_max(n = 20, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-    dplyr::left_join(species_names)
+    dplyr::left_join(species_names) %>%
+    mutate(INPFC_AREA = "All Aleutian Districts")
 
   total_survey_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
 
@@ -344,7 +345,8 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
     ungroup() %>%
     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
     dplyr::slice_max(n = 20, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-    dplyr::left_join(species_names)
+    dplyr::left_join(species_names) %>%
+    mutate(INPFC_AREA = "All Areas Combined")
  
 
   bigtable <- bind_rows(districts, aleutian_areas, all_areas) %>%

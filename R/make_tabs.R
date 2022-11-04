@@ -128,31 +128,26 @@ district_depth_effort_sp_list <- list()
 
 
 # district_depth_cpue_sp_list - list of tables that Paul made -------------
-#district_depth_cpue_sp_list <- list()
+table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
+toMatch<- report_species$species_code
+matches <- unique (grep(paste(toMatch,collapse="|"), 
+                        list.files(paste0(dir_in_premadetabs,"Table 3/")), value=TRUE))
 
-
-#names(district_depth_effort_sp_list) <- report_species$species_code
-atf <- read.csv(paste0(dir_in_premadetabs,"Table 3/","10110_2022.csv"))
-atf <- atf %>% 
-  dplyr::rename(`Survey district` = Survey.District,
-                      `Depth (m)` = Depth..m.,
-                      `Haul count` = Haul.Count,
-                      `Hauls with catch` = Hauls.w.Catch,
-                      `CPUE (kg/ha)` = CPUE..kg.ha.,
-                      `Biomass (t)` = Biomass...t.,
-                      `Lower 95% CI` = X95..LCL..t.,
-                      `Upper 95% CI`= X95..UCL..t.,
-                      `Weight (kg)` = Weight...kg.)
 
 list_tables <- list()
 list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
 list_tables[[2]] <- targetn  # Target sample size for species/species groups
-list_tables[[3]] <- top_CPUE
-list_tables[[4]] <- atf
+list_tables[[3]] <- top_CPUE #
+list_tables[[4]] <- top_CPUE
+
+
+
 
 save(list_tables,
      file = paste0(dir_out_tables,"report_tables.rdata")
 )
 
-
+save(table3s_list,
+     file = paste0(dir_out_tables,"tables3s_list.rdata")
+)
 

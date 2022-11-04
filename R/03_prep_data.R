@@ -47,7 +47,7 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 
 # Tables from AI/GOA schemas ----------------------------------------------
 # cpue (source: AI or GOA schema)
-# NOTE: THis does not contain inverts and weird stuff! There are only 76 spps in here.
+# NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
 x <- read.csv(file = here::here("data/local_ai/cpue.csv"), header = TRUE) # This is already 0-filled
 cpue_raw <- x %>%
   left_join(common_names) %>%
