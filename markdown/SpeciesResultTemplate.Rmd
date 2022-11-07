@@ -1,0 +1,34 @@
+---
+output:
+  officedown::rdocx_document: 
+    reference_docx: styles_reference2.docx
+    pandoc_args: ["--metadata-file=header.yaml"]
+params:
+    speciescode: 30060
+    commonname: "POP"
+    middlesentences: "THESE ARE BESPOKE SENTENCES PASTED INTO THE MIDDLE OF THE BLURB"
+    year: 2022
+    region: "Aleutian Islands"
+    maptag: "dist-abund-30060"
+    lengthtag: "size-dist-30060"
+---
+
+```{r, setup, include=FALSE}
+# set this option in the first code chunk in the document
+knitr::opts_chunk$set(echo = params$printcode)
+```
+
+## `r paste0(params$commonname)`
+Here is my attempt to make this chapter based on the species code and the year that you put in `rmarkdown::render()`. Plus a few other things. Here I will try to insert the first figure (Figure `r parse(params$maptag)`). And here I will insert the second figure (Figure `r parse(paste0(\@ref(",params$lengthtag,")"))`). 
+
+This is the first sentence. `r paste(params$middlesentences)`
+This is the last sentence.
+
+```{r echo=FALSE,fig.cap=paste('Distribution and relative abundance of',params$commonname,'from the',params$year, params$region,'bottom trawl survey across the a] eastern, b] central, and c] western archipelago.'), fig.id=parse(params$maptag),  tab.cap.style = "Figure Caption"}
+plot(1:20,1:20)
+```
+
+
+```{r echo=FALSE,message=FALSE,fig.cap=paste('Length distribution of',params$commonname,'from the', params$region, 'bottom trawl survey by survey district and year.'), fig.id=parse(params$lengthtag), tab.cap.style = "Figure Caption"}
+list_joy_length[[as.character(params$speciescode)]]
+```
