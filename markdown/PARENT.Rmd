@@ -79,19 +79,24 @@ include_graphics(here::here(img1_path))
 
 # Results
 
-This section contains one chapter for each species. 
+```{r child=here::here("gdrive","Results.Rmd")}
+```
 
 ```{r, echo=FALSE, results='asis'}
 # report_species contains the list of species in the report 
 src <- list()
 
-for(i in 1:6){
+for(i in 1:nrow(report_species)){
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_scientific <- report_species$spp_name_scientific[i]
   middle_sentences <- " THESE ARE THE MIDDLE SENTENCES" #middle_sentences[i]
   year <- maxyr
   region <- survname_long
+  
+  spps_ordered_by_biomass <- biomass_maxyr %>%
+    dplyr::arrange(-TOTAL_BIOMASS)
+  xth <- which(spps_ordered_by_biomass$SPECIES_CODE==species_code)
   
   xx <- filter(top_CPUE,
                      species_code==species_code & INPFC_AREA %in% c("Central Aleutians",
@@ -101,9 +106,11 @@ for(i in 1:6){
     dplyr::top_n(n = 2,wt = wgted_mean_cpue_kgha) %>% 
     dplyr::select(INPFC_AREA)
   
-  top_cpue_vec <- xx[[1]]
+  top_cpue <- xx[[1]][1]
+  second_top_cpue <- xx[[1]][2]
   
-  table3 <- table3s_list[[as.character(species_code)]]
+  
+  #table3 <- table3s_list[[as.character(species_code)]]
   
   src[[i]] <- knitr::knit_expand(here::here('markdown','SpeciesResultTemplate.Rmd'))
 }
