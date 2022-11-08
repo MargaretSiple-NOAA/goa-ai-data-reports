@@ -128,17 +128,39 @@ district_depth_effort_sp_list <- list()
 
 
 # district_depth_cpue_sp_list - list of tables that Paul made -------------
-table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
-toMatch<- report_species$species_code
-matches <- unique (grep(paste(toMatch,collapse="|"), 
-                        list.files(paste0(dir_in_premadetabs,"Table 3/")), value=TRUE))
 
+# Check to see if all the species in the list are in the folder
+toMatch <- report_species$species_code
+matches <- unique(grep(paste(toMatch, collapse = "|"),
+  list.files(paste0(dir_in_premadetabs, "Table 3/")),
+  value = TRUE
+))
+
+print("Checking for tables missing from the G Drive...")
+# which species are there tables for?
+x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
+y <- sub(pattern = "*_2022.csv", replacement = "", x = x)
+
+lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
+
+if (length(lookforme) > 0) {
+  print(paste("Check for species", lookforme))
+}
+
+table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
+names(table3s_list) <- report_species$species_code
+
+
+
+
+# Put together big list...will be edited later ----------------------------
 
 list_tables <- list()
 list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
 list_tables[[2]] <- targetn  # Target sample size for species/species groups
 list_tables[[3]] <- top_CPUE #
-list_tables[[4]] <- top_CPUE
+list_tables[[4]] <- iris[1:6,]
+list_tables[[5]] <- iris[7:12,]
 
 
 
