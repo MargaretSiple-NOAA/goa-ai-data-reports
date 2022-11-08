@@ -411,7 +411,23 @@ prep_tab3 <- function(speciescode){
 }
 
 
-
+prep_tab4 <- function(speciescode){
+  filepath <- paste0(dir_in_premadetabs,"Table 4/Excel files/",speciescode,"_2022_t4.csv")
+  if(!file.exists(filepath)){stop("Species Table 4 file missing from the folder. Check directory and make sure you're on the VPN.")}
+  x <- read.csv(file = filepath)
+  cleaned_tab <- x %>% 
+    dplyr::rename(`INPFC area` = INPFC_AREA,
+                  `Depth range (m)` = DEPTH_RANGE,
+                  `Stratum name` =Stratum.Name,
+                  `Number of hauls` =  Number.of.Hauls,
+                  `Hauls with catch` = Hauls.with.Catch,
+                  
+                  `CPUE (kg/ha)` = CPUE..kg.ha.,
+                  `Biomass (t)` = Biomass..t.,
+                  `Lower 95% CI` = Lower.CI.Biomass,
+                  `Upper 95% CI`= Upper.CI.Biomass)
+  return(cleaned_tab)
+}
 
 findhowmanyspp <- function(spp.tsn.list, ranklvl) {
   a <- rlist::list.search(
