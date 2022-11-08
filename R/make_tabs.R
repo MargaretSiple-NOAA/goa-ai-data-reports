@@ -150,6 +150,8 @@ if (length(lookforme) > 0) {
 table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
 names(table3s_list) <- report_species$species_code
 
+table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
+names(table4s_list) <- report_species$species_code
 
 
 
@@ -159,8 +161,8 @@ list_tables <- list()
 list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
 list_tables[[2]] <- targetn  # Target sample size for species/species groups
 list_tables[[3]] <- top_CPUE #
-list_tables[[4]] <- iris[1:6,]
-list_tables[[5]] <- iris[7:12,]
+# list_tables[[4]] <- iris[1:6,]
+# list_tables[[5]] <- iris[7:12,]
 
 
 
@@ -171,5 +173,9 @@ save(list_tables,
 
 save(table3s_list,
      file = paste0(dir_out_tables,"tables3s_list.rdata")
+)
+
+save(table4s_list,
+     file = paste0(dir_out_tables,"tables4s_list.rdata")
 )
 
