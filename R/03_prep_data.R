@@ -142,8 +142,10 @@ catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
 
 
 # Species with highest est'd biomass --------------------------------------
-highest_biomass <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY == SRVY) %>%
+biomass_maxyr <- biomass_total %>%
+  filter(YEAR == maxyr & SURVEY == SRVY) 
+
+highest_biomass <- biomass_maxyr %>%
   dplyr::slice_max(n = 50, order_by = TOTAL_BIOMASS, with_ties = FALSE) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names)
