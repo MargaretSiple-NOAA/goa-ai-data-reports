@@ -79,7 +79,8 @@ linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for joy div plot
-joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
+#joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
+joypal <- c("#d1eeea","#a8dbd9","#85c4c9","#68abb8","#4f90a6","#3b738f","#2a5674") # Mint palette
 
 # Palette for species colors and fills
 # speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
@@ -305,19 +306,21 @@ if (make_joy_division_length) {
       SEX == 2 ~ "Female",
       SEX == 3 ~ "Unsexed"
     )) %>%
+    dplyr::filter(Sex!="Unsexed") %>%
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
   for (i in 1:nrow(report_species)) {
     joyplot <- length3 %>%
       filter(SPECIES_CODE == report_species$species_code[i]) %>%
-      ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = YEAR)) +
-      geom_density_ridges() +
+      ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = ..x..)) +
+      geom_density_ridges_gradient() +
       scale_y_discrete(limits = rev) +
       facet_wrap(~Sex) +
-      xlab("Length(mm)") +
+      xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges() +
-      scale_fill_manual(values = joypal) +
-      labs(title = paste(report_species$spp_name_informal[i]))
+      theme_ridges(font_size = 11) +
+      scale_fill_gradientn("Length (mm)", colours = joypal) +
+      labs(title = paste(report_species$spp_name_informal[i])) +
+      theme(strip.background = element_blank())
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
