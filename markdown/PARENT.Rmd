@@ -52,7 +52,7 @@ library(officer)
 ```{r child=here::here("gdrive","Methods.Rmd")}
 ```
 
-# Tables
+<!-- Tables -->
 ```{r tab.cap='Stations allocated and sampled this year.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
 list_tables[[1]]
 ```
@@ -63,18 +63,52 @@ list_tables[[1]]
 list_tables[[2]]
 ```
 
+
+
 ```{r tab.cap='Number of otoliths collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
 otos_collected
 ```
 
-# Figures
-```{r fig.cap='Map of the Aleutian Islands 2018 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  tab.cap.style = "Figure Caption"}
+<!-- Figures -->
+```{r fig.cap='Map of the Aleutian Islands 2018 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  fig.cap.style = "Figure Caption"}
 include_graphics(here::here(img1_path))
 ```
 
 <!-- NOTE: Figures after this first one are all per species until the appendix. -->
 
-```{r fig.cap='Some other figure', fig.id='area-map',  tab.cap.style = "Figure Caption"}
-list_figures[[1]]
+
+# Results
+
+This section contains one chapter for each species. 
+
+```{r, echo=FALSE, results='asis'}
+# report_species contains the list of species in the report 
+src <- list()
+
+for(i in 1:6){
+  species_code <- report_species$species_code[i]
+  spp_name_informal <- report_species$spp_name_informal[i]
+  spp_name_scientific <- report_species$spp_name_scientific[i]
+  middle_sentences <- " THESE ARE THE MIDDLE SENTENCES" #middle_sentences[i]
+  year <- maxyr
+  region <- survname_long
+  
+  xx <- filter(top_CPUE,
+                     species_code==species_code & INPFC_AREA %in% c("Central Aleutians",
+                                                                    "Eastern Aleutians",
+                                                                    "Southern Bering Sea",
+                                                                    "Western Aleutians")) %>% # Subset only to the areas
+    dplyr::top_n(n = 2,wt = wgted_mean_cpue_kgha) %>% 
+    dplyr::select(INPFC_AREA)
+  
+  top_cpue_vec <- xx[[1]]
+  
+  table3 <- table3s_list[[as.character(species_code)]]
+  
+  src[[i]] <- knitr::knit_expand(here::here('markdown','SpeciesResultTemplate.Rmd'))
+}
+
+res = knitr::knit_child(text = unlist(src), quiet = TRUE)
+cat(res, sep = '\n')
 ```
 
