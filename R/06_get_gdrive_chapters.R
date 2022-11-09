@@ -19,6 +19,17 @@ for (i in 1:nrow(chaps)) {
 }
 
 
+# Download species blurbs table -------------------------------------------
+blurbs_id_googledrive <- googledrive::as_id(dir_blurbs)
+blurbs <- googledrive::drive_ls(path = blurbs_id_googledrive, type = "spreadsheet")
+if(SRVY=="AI"){
+  googledrive::drive_download(file = googledrive::as_id(blurbs$id[1]),
+                              type = "csv",
+                              overwrite = TRUE,
+                              path = paste0("data", "/", blurbs$name[1]))
+}
+
+
 # Convert text files in gdrive directory into Rmd files -------------------
 
 txtfiles <- list.files(path = paste0(dir_out_gdrive, "/"), pattern = ".txt")

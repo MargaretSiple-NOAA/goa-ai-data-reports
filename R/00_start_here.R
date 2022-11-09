@@ -9,7 +9,7 @@ pres_or_report <- "report" # if "pres" the scripts will only make a subset of th
 
 # When did you save the last version of the figures and tables you want to use?
 tabledate <- "2022-11-03"
-figuredate <- "2022-11-03"
+figuredate <- "2022-11-07"
 
 # Survey information ------------------------------------------------------
 survnumber <- "sixteenth" 
@@ -33,6 +33,7 @@ if (SRVY == "GOA") {
 
 if (SRVY == "AI") {
   dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"
+  dir_blurbs <- "1jl0YXfsUNi-bKRoIKiaa3b0opLbmBTIg"
   survname_long <- "Aleutian Islands"
 }
 # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J

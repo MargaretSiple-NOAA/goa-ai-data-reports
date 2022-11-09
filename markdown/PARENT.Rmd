@@ -92,7 +92,7 @@ for(i in 1:nrow(report_species)){
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_scientific <- report_species$spp_name_scientific[i]
-  middle_sentences <- " THESE ARE THE MIDDLE SENTENCES" #middle_sentences[i]
+  middle_sentences <- blurbs$middle_sentences[which(blurbs$species_code==species_code)]
   year <- maxyr
   region <- survname_long
   

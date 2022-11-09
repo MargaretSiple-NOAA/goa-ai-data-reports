@@ -174,6 +174,6 @@ report_biomasses <- biomass_total %>%
 
 
 # Get species blurb interior sentences ------------------------------------
-
+blurbs <- read.csv(here::here("data","AI2022_SpeciesBlurbMiddleSentences.csv"))
 
 
