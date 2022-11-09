@@ -49,6 +49,7 @@ vignettes/*.pdf
 gdrive/
 output/
 /data/cpue_station.csv
+/data/SpeciesBlurbMiddleStences.csv
 
 # .doc, .ppt and html output products
 *.html
