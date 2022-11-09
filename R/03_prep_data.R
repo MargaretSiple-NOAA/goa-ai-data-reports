@@ -153,20 +153,27 @@ highest_biomass <- biomass_maxyr %>%
 highest_biomass_flatfish <- highest_biomass %>%
   filter(major_group == "Flatfish")
 
-highest_skates <- biomass_total %>%
+highest_biomass_skates <- biomass_total %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%
   filter(major_group == "Chondrichthyans") %>%
   dplyr::slice_max(n = 3, order_by = total_biomass, with_ties = FALSE)
 
-# Stats for the species in report_spps ------------------------------------
+highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[1])
+second_highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[2])
+third_highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[3])
+fourth_highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[4])
+
+# Biomass stats ------------------------------------
 head(report_species)
-biomass_total %>%
+report_biomasses <- biomass_total %>%
   filter(YEAR == maxyr) %>%
   janitor::clean_names() %>%
   right_join(report_species)
 
 
-# List of "table 3's" per species -----------------------------------------
+# Get species blurb interior sentences ------------------------------------
+
+
 
