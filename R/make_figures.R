@@ -15,6 +15,8 @@ make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
 
+# DO you want to load the whole Windows font library? This is useful if you are building all the figures for the first time.
+full_font_import <- TRUE
 
 # Base maps ---------------------------------------------------------------
 ai_east <- akgfmaps::get_base_layers(
@@ -81,6 +83,9 @@ accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 # Palette for joy div plot
 #joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 joypal <- c("#d1eeea","#a8dbd9","#85c4c9","#68abb8","#4f90a6","#3b738f","#2a5674") # Mint palette
+joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#123f5a")
+ # more green palette
+
 
 # Palette for species colors and fills
 # speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
@@ -88,6 +93,14 @@ speciescolors <- lengthen_pal(
   shortpal = MetBrewer::met.brewer(palette_name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
 )
+
+
+# Fonts -------------------------------------------------------------------
+#windowsFonts("Montserrat" = windowsFont("Montserrat"))
+if(full_font_import){
+  extrafont::font_import()
+  loadfonts(device = "win")
+}
 
 # 0. Static figure: INPFC areas ----------------------------------------------
 #**** TODO: Load png or whatever and put it here. Can I store it in a list?
@@ -317,7 +330,7 @@ if (make_joy_division_length) {
       facet_wrap(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges(font_size = 11) +
+      theme_ridges(font_size = 11,font_family = "Montserrat") +
       scale_fill_gradientn("Length (mm)", colours = joypal) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(strip.background = element_blank())
