@@ -1,6 +1,6 @@
 ## {{spp_name_informal}} (*{{spp_name_scientific}}*)
 
-{{spp_name_informal}} was the {{xth}} most abundant species caught in the {{year}} {{region}} survey (Table 2). The highest densities were recorded in the {{top_cpue}} and {{second_top_cpue}} (Figure `r officer::run_reference(paste0("first-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`).  {{middle_sentences}}. 
+{{spp_name_informal}} was the `scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table 2). The highest densities were recorded in the {{top_cpue}} and {{second_top_cpue}} (Figure `r officer::run_reference(paste0("first-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`).  {{middle_sentences}}. 
 
 The largest individuals were found in XXX (INSERT WHERE THESE WERE!) (Figure `r officer::run_reference(paste0("second-",{{species_code}}))`).
 
