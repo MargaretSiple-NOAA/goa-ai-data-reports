@@ -111,8 +111,8 @@ for(i in 1:nrow(report_species)){
   top_cpue <- xx[[1]][1]
   second_top_cpue <- xx[[1]][2]
   
-  
-  #table3 <- table3s_list[[as.character(species_code)]]
+  species_biomass <- format(round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE==species_code)]), big.mark=",")
+  #format(round(as.numeric(1000.64), 1), nsmall=1, big.mark=",")
   
   src[[i]] <- knitr::knit_expand(here::here('markdown','SpeciesResultTemplate.Rmd'))
 }
