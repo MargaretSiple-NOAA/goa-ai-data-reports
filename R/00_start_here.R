@@ -112,12 +112,12 @@ if (aa) {
 
 # Load figures and tables -------------------------------------------------
 
-rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
-                  output_dir = dir_out_chapters,
-                  output_file = "PARENT.docx"
-)
+# rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
+#                   output_dir = dir_out_chapters,
+#                   output_file = "PARENT.docx"
+# )
 
-
+quarto::quarto_render("quarto/PARENT.qmd")
 
 # SAVE METADATA ----------------------------------------------------------------
 

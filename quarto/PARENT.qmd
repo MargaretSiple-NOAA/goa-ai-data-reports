@@ -1,0 +1,53 @@
+---
+title: "AI data reports - quarto version"
+format: docx
+bibliography: "../cite/bibliography.bib"
+csl: "../cite/citestyle.csl"
+---
+
+This is a test of the cross-refs in this doc (@tbl-stations-allocated). And here is a test for figure cross-referencing. This is a test of the citations [@rugolo_examination_2020].
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
+
+# Load tables
+load(file = "C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/2022-11-03/tables/report_tables.rdata")
+
+# Load figures
+img1_path <- here::here("img/AleutiansMap.png")
+  img1 <- png::readPNG(img1_path)
+  
+# where are figs stored?
+dir_in_figures <- "C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/2022-11-07/figures/"
+
+load(file = paste0(
+    dir_in_figures,"cpue_bubbles.rdata")) # object: list_cpue_bubbles
+load(file = paste0(
+    dir_in_figures,"joy_length.rdata")) # object: list_joy_length
+load(file = paste0(
+    dir_in_figures,"biomass_ts.rdata")) # object: list_biomass_ts
+```
+
+
+<!-- Tables -->
+```{r echo=FALSE}
+#| label: tbl-stations-allocated
+#| tbl-cap: 'Stations allocated and sampled this year.'
+#gt::gt(list_tables[[1]])
+kableExtra::kable(list_tables[[1]])
+```
+
+{{< pagebreak >}}
+
+```{r echo=FALSE}
+#| label: tbl-sample-sizes
+#| tbl-cap: 'Target numbers of length samples for each managed species.'
+gt::gt(list_tables[[2]])
+```
+
+<!-- Figures -->
+```{r echo=FALSE}
+#| label: area-map
+#| fig-cap: 'Map of the Aleutian Islands 2018 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).'
+knitr::include_graphics(here::here(img1_path))
+```

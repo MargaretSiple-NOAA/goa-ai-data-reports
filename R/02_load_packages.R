@@ -58,7 +58,7 @@ PKG <- c(
   # Text Management
   "stringr",
   "readtext",
-  "officedown",
+
   "janitor",
   
   # RACE-GAP Specific
@@ -94,7 +94,9 @@ PKG <- c(
   
   # Tables
   "officer", 
+  "officedown",
   "flextable", 
+  "gt",
   
   # For editing XML files
   "XML", 
