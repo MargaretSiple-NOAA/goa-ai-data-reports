@@ -153,7 +153,7 @@ highest_biomass <- biomass_maxyr %>%
 highest_biomass_flatfish <- highest_biomass %>%
   filter(major_group == "Flatfish")
 
-highest_biomass_skates <- biomass_total %>%
+highest_skates <- biomass_total %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%

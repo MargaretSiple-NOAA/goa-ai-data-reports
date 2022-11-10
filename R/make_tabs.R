@@ -161,10 +161,7 @@ list_tables <- list()
 list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
 list_tables[[2]] <- targetn  # Target sample size for species/species groups
 list_tables[[3]] <- top_CPUE #
-# list_tables[[4]] <- iris[1:6,]
-# list_tables[[5]] <- iris[7:12,]
-
-
+names(list_tables) <- c("allocated_sampled","targetn","top_CPUE")
 
 
 save(list_tables,

@@ -65,6 +65,7 @@ if (y) {
 # Functions and data prep -------------------------------------------------
 source("R/04_functions.R") # May not need all these functions.
 source("R/03_prep_data.R") # Make all the tables and stuff needed for report and pres.
+source("R/plot_idx_xbyx.R") # *** move to functions script when ready
 
 
 ################################################################################
@@ -74,12 +75,6 @@ source("R/03_prep_data.R") # Make all the tables and stuff needed for report and
 ################################################################################
 ################################################################################
 ################################################################################
-
-# NOTE: MAY CHANGE TO DRAW FROM ORACLE
-
-# Get functions from Emily's data reports pkg -----------------------------
-#devtools::source_url("https://github.com/MargaretSiple-NOAA/AFSCDataReport/blob/main/code/functions.R?raw=TRUE")
-source("R/plot_idx_xbyx.R") # *** move to functions script when ready
 
 
 # Create tables and figures -----------------------------------------------

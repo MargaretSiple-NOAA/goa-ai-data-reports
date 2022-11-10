@@ -15,26 +15,6 @@ library(officedown)
 library(officer)
 ```
 
-```{r echo=FALSE}
-# THESE STATIC VALUES ARE ALL FOR TESTING
-# library(magrittr)
-# #maxyr <- 2022
-# #nth <- "10th"
-# nfish <- 360 #UPDATE THESE
-# ninverts <- 151
-# nstations <- 390
-# highest_total_catch <- c("Pacific cod (Gadus chalcogrammus),
-#                          Arrowtooth flounder (Atherestes stomias)")
-# # character vector. FIX and make list of species
-# vessel1 <- "F/V Ocean Explorer"
-# vessel2 <- "F/V Sea Storm"
-# dates_conducted <- c("June 16th, 2022", "August 17th, 2022")
-# 
-# output_date <- "2022-08-24"
-# load(here::here("output",paste(output_date),"figures","report_figures.rdata"))
-# load(here::here("output",paste(output_date),"tables","report_tables.rdata"))
-
-```
 
 # Preface
 ```{r child=here::here("gdrive","Preface.Rmd")}
@@ -54,13 +34,13 @@ library(officer)
 
 <!-- Tables -->
 ```{r tab.cap='Stations allocated and sampled this year.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
-list_tables[[1]]
+list_tables["allocated_sampled"]
 ```
 
 <br />
   
 ```{r tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
-list_tables[[2]]
+list_tables["targetn"]
 ```
 
 <br />
