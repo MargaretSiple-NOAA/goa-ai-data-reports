@@ -82,9 +82,19 @@ source("R/plot_idx_xbyx.R") # *** move to functions script when ready
 z <- askYesNo(msg = "Do you want to build all the tables right now? NOTE: This may take a while.")
 if (z) {
   source(here::here("R", "make_tabs.R"))
-}else{
-  load(file = 
-    paste0(dir_in_tables,"report_tables.rdata")) # object: list_tables
+} else {
+  load(
+    file =
+      paste0(dir_in_tables, "report_tables.rdata")
+  ) # object: list_tables
+  load(
+    file =
+      paste0(dir_in_tables, "table3s_list.rdata")
+  ) # object: table3s_list
+  load(
+    file =
+      paste0(dir_in_tables, "table4s_list.rdata")
+  ) # object: table4s_list
 }
 
 

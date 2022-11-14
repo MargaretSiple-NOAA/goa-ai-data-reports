@@ -169,10 +169,10 @@ save(list_tables,
 )
 
 save(table3s_list,
-     file = paste0(dir_out_tables,"tables3s_list.rdata")
+     file = paste0(dir_out_tables,"table3s_list.rdata")
 )
 
 save(table4s_list,
-     file = paste0(dir_out_tables,"tables4s_list.rdata")
+     file = paste0(dir_out_tables,"table4s_list.rdata")
 )
 
