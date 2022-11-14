@@ -226,7 +226,7 @@ if (make_cpue_bubbles) {
       ) +
       scale_x_continuous(breaks = ai_east$lon.breaks) +
       scale_y_continuous(breaks = ai_east$lat.breaks) +
-      labs(subtitle = "Eastern Aleutians") +
+      labs(subtitle = "Eastern Aleutians and Southern Bering Sea") +
       bubbletheme
 
     p3b <- ggplot() +
@@ -319,26 +319,37 @@ if (make_joy_division_length) {
       SEX == 2 ~ "Female",
       SEX == 3 ~ "Unsexed"
     )) %>%
-    dplyr::filter(Sex!="Unsexed") %>%
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
   for (i in 1:nrow(report_species)) {
-    joyplot <- length3 %>%
-      filter(SPECIES_CODE == report_species$species_code[i]) %>%
+    length3_species <- length3 %>%
+      filter(SPECIES_CODE == report_species$species_code[i])
+
+    if (report_species$species_code[i] != 30060) {
+      length3_species <- length3_species %>%
+        filter(Sex != "Unsexed")
+    }
+    length3_species <- length3_species %>%
+      left_join(length3_species %>% dplyr::count(YEAR, Sex)) %>%
+      left_join(length3_species %>% dplyr::group_by(Sex) %>% dplyr::summarize(yloc = median(LENGTH) * 2) %>% ungroup())
+
+    joyplot <- length3_species %>%
       ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = ..x..)) +
       geom_density_ridges_gradient() +
       scale_y_discrete(limits = rev) +
-      facet_wrap(~Sex) +
+      geom_text(aes(label = paste0("n = ",n),x=yloc),nudge_y = 0.5,colour = "grey35", size = 3) +
+      facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges(font_size = 11,font_family = "Montserrat") +
+      theme_ridges(font_size = 11) +
       scale_fill_gradientn("Length (mm)", colours = joypal) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(strip.background = element_blank())
-
+joyplot
+    
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_joyfreqhist.png"
-    ), width = 12, height = 8, units = "in", res = 200)
+    ), width = 7, height = 7, units = "in", res = 200)
     print(joyplot)
     dev.off()
 
