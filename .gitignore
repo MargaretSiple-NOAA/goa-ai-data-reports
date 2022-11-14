@@ -54,3 +54,4 @@ output/
 # .doc, .ppt and html output products
 *.html
 markdown/PLAN_TEAM_SLIDES.pptx
+quarto/*.docx
