@@ -8,10 +8,13 @@ prefer-html: true
 
 This is a test of the cross-refs in this doc (@tbl-stations-allocated). And here is a test for figure cross-referencing. This is a test of the citations [@rugolo_examination_2020]. Here is a citation of the map figure ( @fig-area-map ).
 
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
 library(magrittr)
 
+maxyr <- 2022
 # Load tables
 load(file = "C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/2022-11-03/tables/report_tables.rdata")
 
@@ -30,6 +33,7 @@ load(file = paste0(
     dir_in_figures,"biomass_ts.rdata")) # object: list_biomass_ts
 ```
 
+{{< include ../gdrive/Abstract.qmd >}}
 
 <!-- Tables -->
 
