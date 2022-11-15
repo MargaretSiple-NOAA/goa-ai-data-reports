@@ -324,7 +324,7 @@ if (make_joy_division_length) {
     length3_species <- length3 %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
-    if (report_species$species_code[i] != 30060) {
+    if (report_species$species_code[i] != 30020) {
       length3_species <- length3_species %>%
         filter(Sex != "Unsexed")
     }
@@ -334,7 +334,7 @@ if (make_joy_division_length) {
 
     joyplot <- length3_species %>%
       ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = ..x..)) +
-      geom_density_ridges_gradient() +
+      geom_density_ridges_gradient(colour="grey35") +
       scale_y_discrete(limits = rev) +
       geom_text(aes(label = paste0("n = ",n),x=yloc),nudge_y = 0.5,colour = "grey35", size = 3) +
       facet_grid(~Sex) +
