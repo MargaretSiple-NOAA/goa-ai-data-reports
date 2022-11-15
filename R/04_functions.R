@@ -317,9 +317,6 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps
     ungroup() %>%
     dplyr::left_join(INPFC_areas) %>%
     mutate(weight_for_mean = AREA / INPFC_AREA_AREA_km2)
-
-  #head(cpue_districts)
-  #unique(cpue_stratum$INPFC_AREA) # this is just the district level!
   
   # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
   districts <- cpue_districts %>%
