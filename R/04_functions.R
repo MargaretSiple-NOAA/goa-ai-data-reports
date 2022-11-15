@@ -271,13 +271,22 @@ divftform <- 3.28084
 #'
 #' @param YEAR numeric - year for which you want the top spps 
 #' @param SRVY character - "GOA" or "AI"
-#' @param cpue_raw dataframe or tibble containing raw CPUE data. Can be from FOSS or GOA/AI schemae.
-#'
-#' @return list of species
+#' @param cpue_raw dataframe or tibble containing raw CPUE data. Can be from FOSS or GOA/AI schemae. Columnscurrently include... 
+# c("survey", "year", "catchjoin", "hauljoin", "vessel", "cruise", 
+#   "haul", "stratum", "distance_fished", "net_width", "species_code", 
+#   "weight", "number_fish", "effort", "cpue_kgkm2", "numcpue", "species_name", 
+#   "common_name", "cruisejoin", "region", "haul_type", "performance", 
+#   "duration", "net_measured", "net_height", "start_latitude", "end_latitude", 
+#   "start_longitude", "end_longitude", "stationid", "gear_depth", 
+#   "bottom_depth", "bottom_type", "surface_temperature", "gear_temperature", 
+#   "wire_length", "gear", "accessories", "subsample", "abundance_haul", 
+#   "auditjoin", "start_time")
+#' @param topn how many of the top species do you want? For the report it's the top 20; can be adjusted as needed
+#' @return a tibble with CPUE and some other stuff by species, for the 20 most abundant spps in the survey.
 #' @export
 #'
 #' @examples
-make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each region
+make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps for each region
 
   cpue_districts <- cpue_raw %>%
     filter(year == YEAR & survey == SRVY & abundance_haul == "Y") %>%
@@ -285,7 +294,6 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
       species_code <= 31550 ~ "fish",
       species_code >= 40001 ~ "invert"
     )) %>%
-    #dplyr::filter(taxon == "fish") %>%
     dplyr::mutate(common_name = case_when(
       species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
       TRUE ~ common_name
@@ -316,11 +324,14 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
   # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
   districts <- cpue_districts %>%
     dplyr::group_by(INPFC_AREA, species_code) %>%
-    dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * weight_for_mean)) %>%
+    dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * weight_for_mean)
+                     #,
+                     #var_cpue_kgkm2 = sum(weight_for_mean^2 * stratum_cpue_kgkm2_var,na.rm=TRUE)
+                     ) %>%
     ungroup() %>%
     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
     group_by(INPFC_AREA) %>%
-    dplyr::slice_max(n = 20, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
+    dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(species_names)
 
@@ -332,7 +343,7 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
     dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
     ungroup() %>%
     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-    dplyr::slice_max(n = 20, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
+    dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
     dplyr::left_join(species_names) %>%
     mutate(INPFC_AREA = "All Aleutian Districts")
 
@@ -344,7 +355,7 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
     dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
     ungroup() %>%
     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-    dplyr::slice_max(n = 20, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
+    dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
     dplyr::left_join(species_names) %>%
     mutate(INPFC_AREA = "All Areas Combined")
  
@@ -358,6 +369,13 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw) { # Gives top 20 spps for each r
       common_name == "Rougheye / blackspotted rockfish complex" ~ "Rockfishes",
       TRUE ~ major_group
     ))
+  
+  # may eventually want to return variance in the table
+  # if(!return_var){
+  #   bigtable <- bigtable %>%
+  #     select(-var_cpue_kgkm2)
+  # }
+  
   # bigtable
   return(bigtable)
 }
