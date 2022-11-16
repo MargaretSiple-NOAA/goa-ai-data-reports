@@ -341,7 +341,7 @@ if (make_cpue_bubbles) {
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-  
+
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -357,22 +357,41 @@ if (make_joy_division_length) {
     )) %>%
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
   for (i in 1:nrow(report_species)) {
+    multiplier <- 2
+    if (report_species$species_code[i] %in% c(
+      21921,
+      30060,
+      30051,
+      20510,
+      480,
+      21347
+    )) {
+      multiplier <- 1.7
+    }
+    if (report_species$species_code[i] %in% c(472, 10115)) {
+      multiplier <- 1.5
+    }
+    if (report_species$species_code[i] == 10200) {
+      multiplier <- 1.6
+    }
+
     length3_species <- length3 %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
+    # For SSTH, include unsexed lengths
     if (report_species$species_code[i] != 30020) {
       length3_species <- length3_species %>%
         filter(Sex != "Unsexed")
     }
     length3_species <- length3_species %>%
       left_join(length3_species %>% dplyr::count(YEAR, Sex)) %>%
-      left_join(length3_species %>% dplyr::group_by(Sex) %>% dplyr::summarize(yloc = median(LENGTH) * 2) %>% ungroup())
+      left_join(length3_species %>% dplyr::group_by(Sex) %>% dplyr::summarize(yloc = median(LENGTH) * multiplier) %>% ungroup())
 
     joyplot <- length3_species %>%
       ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = ..x..)) +
-      geom_density_ridges_gradient(colour="grey35") +
+      geom_density_ridges_gradient(colour = "grey35") +
       scale_y_discrete(limits = rev) +
-      geom_text(aes(label = paste0("n = ",n),x=yloc),nudge_y = 0.5,colour = "grey35", size = 3) +
+      geom_text(aes(label = paste0("n = ", n), x = yloc), nudge_y = 0.5, colour = "grey35", size = 3) +
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
@@ -380,8 +399,8 @@ if (make_joy_division_length) {
       scale_fill_gradientn("Length (mm)", colours = joypal) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(strip.background = element_blank())
-joyplot
-    
+    joyplot
+
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_joyfreqhist.png"
