@@ -16,34 +16,34 @@
 #' @export
 #'
 #' @example
- library(magrittr)
- reg_dat_ai <- akgfmaps::get_base_layers(select.region = "ai", set.crs = "auto") #
-# auto is set here under set_crs because the scale bar will be incorrect if it's set to a fixed crs (EPSG:3338)
-reg_dat_ai$survey.area <- reg_dat_ai$survey.area %>%
-  dplyr::mutate(
-    SRVY = "AI",
-    color = scales::alpha(colour = "grey80", 0.7),
-    SURVEY = "Aleutian Islands"
-  )
-reg_dat <- reg_dat_ai
-# cpue_raw is generated in prep_data.R and is a summary of cpue by species and station
-spcode <- 21921
-thisyrshauldata <- cpue_raw %>%
-  mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
-  filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
-  st_as_sf(
-    coords = c("start_longitude", "start_latitude"),
-    crs = "EPSG:4326"
-  ) %>%
-  st_transform(crs = reg_dat_ai$crs)
-fig <- plot_pa_xbyx(
-  spcode = spcode, dat = thisyrshauldata, yrs = c(2022), key.title = "",
-  row0 = 2, reg_dat = reg_dat_ai, dist_unit = "nm", # nautical miles
-  col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
-)
-png("Atka_bubble_2022.png", width = 8, height = 5.5, units = "in", res = 200)
-fig
-dev.off()
+#  library(magrittr)
+#  reg_dat_ai <- akgfmaps::get_base_layers(select.region = "ai", set.crs = "auto") #
+# # auto is set here under set_crs because the scale bar will be incorrect if it's set to a fixed crs (EPSG:3338)
+# reg_dat_ai$survey.area <- reg_dat_ai$survey.area %>%
+#   dplyr::mutate(
+#     SRVY = "AI",
+#     color = scales::alpha(colour = "grey80", 0.7),
+#     SURVEY = "Aleutian Islands"
+#   )
+# reg_dat <- reg_dat_ai
+# # cpue_raw is generated in prep_data.R and is a summary of cpue by species and station
+# spcode <- 21921 #atka
+# thisyrshauldata <- cpue_raw %>%
+#   mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
+#   filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
+#   st_as_sf(
+#     coords = c("start_longitude", "start_latitude"),
+#     crs = "EPSG:4326"
+#   ) %>%
+#   st_transform(crs = reg_dat_ai$crs)
+# fig <- plot_pa_xbyx(
+#   spcode = spcode, dat = thisyrshauldata, yrs = c(2022), key.title = "",
+#   row0 = 2, reg_dat = reg_dat_ai, dist_unit = "nm", # nautical miles
+#   col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
+# )
+# png("Atka_bubble_2022.png", width = 8, height = 5.5, units = "in", res = 200)
+# fig
+# dev.off()
 
 #############################################################################
 plot_pa_xbyx <- function(spcode, # speciescode

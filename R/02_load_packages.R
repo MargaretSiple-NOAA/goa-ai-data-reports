@@ -36,7 +36,7 @@ PKG <- c(
   "ggplot2", 
   "cowplot",
   "png",
-  "extrafont",
+  #"extrafont", # ADD BACK IN IF NEEDED
   "ggpubr",
   "nmfspalette",
   "ggridges",
