@@ -30,12 +30,13 @@
 #'   mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
 #'   filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
 #'   st_as_sf(
-#'     coords = c("start_longitude", "start_latitude"), # TODO NEED TO CHANGE TO THE RIGHT #' COORDS
+#'     coords = c("start_longitude", "start_latitude"),
 #'     crs = "EPSG:4326"
 #'   ) %>%
 #'   st_transform(crs = reg_dat_ai$crs)
 #'   fig <- plot_pa_xbyx(spcode=21921,dat = thisyrshauldata,yrs = c(2022),key.title = "",
-#'   row0 = 2,reg_dat = reg_dat_ai,dist_unit = "nm", # nautical milescol_viridis = "mako
+#'   row0 = 2,reg_dat = reg_dat_ai,dist_unit = "nm", # nautical miles
+#'   col_viridis = "mako
 #'   ,plot_coldpool = FALSE,plot_stratum = FALSE)
 #'  png("Atka_bubble_2022.png",width = 8,height = 5.5,units = 'in',res = 200)
 #'  fig 

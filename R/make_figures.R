@@ -10,7 +10,9 @@
 make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
-# 3. CPUE bubble maps
+# 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022 
+make_cpue_bubbles_strata <- FALSE 
+# 3b. CPUE bubble maps, Emily M edition - strata not shown. Bubbles are purple. Scale bar and legend with CPUE scale are shown clearly.
 make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
@@ -182,21 +184,12 @@ if (make_catch_comp) {
   dev.off()
 }
 
-# 3. CPUE bubble maps - FIXXXXXXXXXXXXXXXXXX ----------------------------------------------------------
-if (make_cpue_bubbles) {
-   list_cpue_bubbles <- list()
+# 3. CPUE bubble maps - strata colored in (presented at GPT 2022) ----------------------------------------------------------
+if (make_cpue_bubbles_strata) {
+   list_cpue_bubbles_strata <- list()
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
     namebubble <- report_species$spp_name_informal[i]
-
-    # CPUE data
-    # thisyrshauldata <- cpue_raw2 %>%
-    #   filter(year == maxyr & srvy == SRVY & species_code == spbubble) %>%
-    #   st_as_sf(
-    #     coords = c("longitude_dd", "latitude_dd"), #TODO NEED TO CHANGE TO THE RIGHT COORDS
-    #     crs = "EPSG:4326"
-    #   ) %>%
-    #   st_transform(crs = ai_east$crs)
 
     thisyrshauldata <- cpue_raw %>%
       filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
@@ -293,19 +286,64 @@ if (make_cpue_bubbles) {
 
     dev.off()
 
-    list_cpue_bubbles[[i]] <- final_obj # save fig to list
+    list_cpue_bubbles_strata[[i]] <- final_obj # save fig to list
   } # /end species loop
+  names(list_cpue_bubbles_strata) <- report_species$species_code
+}
+# 3b. CPUE bubble maps - b&w Emily M style bubble plots ----------------------------------------------------------
+if (make_cpue_bubbles) {
+  list_cpue_bubbles <- list()
+
+  reg_dat_ai <- akgfmaps::get_base_layers(
+    select.region = "ai",
+    set.crs = "EPSG:3338"
+  )
+  reg_dat_ai$survey.area <- reg_dat_ai$survey.area %>%
+    dplyr::mutate(
+      SRVY = "AI",
+      color = scales::alpha(colour = "grey80", 0.7),
+      SURVEY = "Aleutian Islands"
+    )
+
+  for (i in 1:nrow(report_species)) {
+    spbubble <- report_species$species_code[i]
+
+    # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
+    thisyrshauldata <- cpue_raw %>%
+      mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
+      filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
+      st_as_sf(
+        coords = c("start_longitude", "start_latitude"),
+        crs = "EPSG:4326"
+      ) %>%
+      st_transform(crs = reg_dat_ai$crs)
+
+    fig <- plot_pa_xbyx(
+      spcode = spbubble,
+      dat = thisyrshauldata,
+      yrs = c(2022),
+      key.title = "",
+      row0 = 2, reg_dat = reg_dat_ai, dist_unit = "nm", # nautical miles
+      col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
+    )
+    list_cpue_bubbles[[i]] <- fig
+    
+    png(filename = paste0(
+      dir_out_figures, maxyr, "_",
+      report_species$spp_name_informal[i], "_CPUE_markobubble.png"
+    ), width = 8, height = 5.5, units = "in", res = 200)
+    print(joyplot)
+    dev.off()
+    
+  }
   names(list_cpue_bubbles) <- report_species$species_code
 }
-
 
 # 5. Length frequency plots - joy division plots -----------------------------
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-
-  # length <- read.csv(here::here("data", "local_racebase", "length.csv"))
-
+  
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -408,6 +446,8 @@ length(list_figures)
 # save(list_figures,
 #   file = paste0(dir_out_figures, "report_figures.rdata")
 # )
+
 save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
+save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
 save(list_cpue_bubbles, file = paste0(dir_out_figures, "cpue_bubbles.rdata"))
 save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
