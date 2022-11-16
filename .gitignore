@@ -54,3 +54,7 @@ output/
 # .doc, .ppt and html output products
 *.html
 markdown/PLAN_TEAM_SLIDES.pptx
+
+# Experimental/onetime outputs stuff
+/R/degree_error_demo.R
+/R/atkasummary_for_ned.R
