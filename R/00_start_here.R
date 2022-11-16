@@ -66,6 +66,7 @@ if (y) {
 source("R/04_functions.R") # May not need all these functions.
 source("R/03_prep_data.R") # Make all the tables and stuff needed for report and pres.
 source("R/plot_idx_xbyx.R") # *** move to functions script when ready
+source("R/markobubble.R") # Emily M rendition of bubble map. *** move to functions script when ready 
 
 
 ################################################################################
@@ -107,7 +108,9 @@ if (aa) {
   img1 <- png::readPNG(img1_path)
   
   load(file = paste0(
-    dir_in_figures,"cpue_bubbles.rdata")) # object: list_cpue_bubbles
+    dir_in_figures,"cpue_bubbles.rdata")) # object: list_cpue_bubbles 
+  load(file = paste0(
+    dir_in_figures,"cpue_bubbles_strata.rdata")) # object: list_cpue_bubbles_strata 
   load(file = paste0(
     dir_in_figures,"joy_length.rdata")) # object: list_joy_length
   load(file = paste0(
