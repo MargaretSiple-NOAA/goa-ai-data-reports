@@ -7,7 +7,7 @@
 # Fig 4. size comp plot 2 - "joy_division_length" - list_joy_length
 # Fig 5. Historical biomass plots - list_biomass_ts
 
-make_biomass_timeseries <- TRUE
+make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
 # 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022 
@@ -309,7 +309,7 @@ if (make_cpue_bubbles) {
     # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
     thisyrshauldata <- cpue_raw %>%
       mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
-      filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
+      filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
         coords = c("start_longitude", "start_latitude"),
         crs = "EPSG:4326"
@@ -330,7 +330,7 @@ if (make_cpue_bubbles) {
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_CPUE_markobubble.png"
     ), width = 8, height = 5.5, units = "in", res = 200)
-    print(joyplot)
+    print(fig)
     dev.off()
     
   }
@@ -398,47 +398,47 @@ joyplot
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
 # THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
 # get cpue table by station for a species
-sp <- 30060
-yr <- 2018
-dat2plot <- cpue_raw %>%
-  filter(survey == SRVY & species_code == sp & year == yr)
-colnames(dat2plot)
-cpue_res <- 0.1 # will take less time
-# example data:
-# head(akgfmaps::YFS2017)
-
-# This is a dummy figure! Doesn't mean anything because it's for GOA
-figure1 <- plot_idw_xbyx(
-  yrs = yr,
-  dat = dat2plot,
-  lat = "start_latitude",
-  lon = "start_longitude",
-  var = "cpue_kgkm2",
-  year = "year",
-  key.title = "POP (kg/km2)",
-  grid = "extrapolation.grid",
-  extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
-  grid.cell = c(cpue_res, cpue_res),
-  row0 = 1,
-  region = "goa"
-)
-
-list_figures <- list()
-list_figures[[1]] <- figure1
-names(list_figures)[1] <- "POP" # NOTE: NEED TO MAKE THIS THE WHOLE LIST OF SPECIES
-
-
-
-
-if (print_figs) {
-  lapply(
-    X = list_figures, FUN = make_png, year = YEAR, region = SRVY,
-    savedir = dir_out_figures
-  )
-}
-
-# Check that the figure list is filled out
-length(list_figures)
+# sp <- 30060
+# yr <- 2018
+# dat2plot <- cpue_raw %>%
+#   filter(survey == SRVY & species_code == sp & year == yr)
+# colnames(dat2plot)
+# cpue_res <- 0.1 # will take less time
+# # example data:
+# # head(akgfmaps::YFS2017)
+# 
+# # This is a dummy figure! Doesn't mean anything because it's for GOA
+# figure1 <- plot_idw_xbyx(
+#   yrs = yr,
+#   dat = dat2plot,
+#   lat = "start_latitude",
+#   lon = "start_longitude",
+#   var = "cpue_kgkm2",
+#   year = "year",
+#   key.title = "POP (kg/km2)",
+#   grid = "extrapolation.grid",
+#   extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
+#   grid.cell = c(cpue_res, cpue_res),
+#   row0 = 1,
+#   region = "goa"
+# )
+# 
+# list_figures <- list()
+# list_figures[[1]] <- figure1
+# names(list_figures)[1] <- "POP" # NOTE: NEED TO MAKE THIS THE WHOLE LIST OF SPECIES
+# 
+# 
+# 
+# 
+# if (print_figs) {
+#   lapply(
+#     X = list_figures, FUN = make_png, year = YEAR, region = SRVY,
+#     savedir = dir_out_figures
+#   )
+# }
+# 
+# # Check that the figure list is filled out
+# length(list_figures)
 
 # SAVE FIGURES -----------------------------------------------------------
 # save(list_figures,
