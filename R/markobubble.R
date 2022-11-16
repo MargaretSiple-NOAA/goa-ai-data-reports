@@ -16,31 +16,34 @@
 #' @export
 #'
 #' @example
-#' library(magrittr)
-#' reg_dat_ai <- akgfmaps::get_base_layers(select.region = "ai", set.crs = "EPSG:3338")
-#' reg_dat_ai$survey.area <- reg_dat_ai$survey.area %>%
-#'   dplyr::mutate(
-#'     SRVY = "AI",
-#'     color = scales::alpha(colour = "grey80", 0.7),
-#'     SURVEY = "Aleutian Islands"
-#'   )
-#' reg_dat <- reg_dat_ai
-#' # cpue_raw is generated in prep_data.R and is a summary of cpue by species and station
-#' thisyrshauldata <- cpue_raw %>%
-#'   mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
-#'   filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
-#'   st_as_sf(
-#'     coords = c("start_longitude", "start_latitude"),
-#'     crs = "EPSG:4326"
-#'   ) %>%
-#'   st_transform(crs = reg_dat_ai$crs)
-#'   fig <- plot_pa_xbyx(spcode=21921,dat = thisyrshauldata,yrs = c(2022),key.title = "",
-#'   row0 = 2,reg_dat = reg_dat_ai,dist_unit = "nm", # nautical miles
-#'   col_viridis = "mako
-#'   ,plot_coldpool = FALSE,plot_stratum = FALSE)
-#'  png("Atka_bubble_2022.png",width = 8,height = 5.5,units = 'in',res = 200)
-#'  fig 
-#'  dev.off()
+ library(magrittr)
+ reg_dat_ai <- akgfmaps::get_base_layers(select.region = "ai", set.crs = "auto") #
+# auto is set here under set_crs because the scale bar will be incorrect if it's set to a fixed crs (EPSG:3338)
+reg_dat_ai$survey.area <- reg_dat_ai$survey.area %>%
+  dplyr::mutate(
+    SRVY = "AI",
+    color = scales::alpha(colour = "grey80", 0.7),
+    SURVEY = "Aleutian Islands"
+  )
+reg_dat <- reg_dat_ai
+# cpue_raw is generated in prep_data.R and is a summary of cpue by species and station
+spcode <- 21921
+thisyrshauldata <- cpue_raw %>%
+  mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
+  filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
+  st_as_sf(
+    coords = c("start_longitude", "start_latitude"),
+    crs = "EPSG:4326"
+  ) %>%
+  st_transform(crs = reg_dat_ai$crs)
+fig <- plot_pa_xbyx(
+  spcode = spcode, dat = thisyrshauldata, yrs = c(2022), key.title = "",
+  row0 = 2, reg_dat = reg_dat_ai, dist_unit = "nm", # nautical miles
+  col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
+)
+png("Atka_bubble_2022.png", width = 8, height = 5.5, units = "in", res = 200)
+fig
+dev.off()
 
 #############################################################################
 plot_pa_xbyx <- function(spcode, # speciescode
@@ -77,7 +80,8 @@ plot_pa_xbyx <- function(spcode, # speciescode
     ) +
     scale_size_area(
       name = legendtitle,max_size = 10
-    )
+    ) +
+    scale_x_continuous(name = expression(degree)) # there is an issue with the degree symbol!
 
   f2 <- f1 +
     geom_sf(
@@ -117,31 +121,32 @@ plot_pa_xbyx <- function(spcode, # speciescode
       name = "", # "Longitude",
       limits = reg_dat$plot.boundary$x,
       breaks = reg_dat$lon.breaks
-    ) +
-    ggsn::scalebar(
-      data = reg_dat$survey.grid,
-      location = "bottomleft",
-      dist = 100,
-      dist_unit = dist_unit,
-      transform = FALSE,
-      st.dist = dplyr::case_when(
-        row0 == 1 & length(yrs) > 4 ~ 0.07,
-        row0 == 1 ~ 0.04,
-        row0 == 2 ~ 0.06,
-        TRUE ~ 0.05
-      ),
-      height = ifelse(row0 == 1, 0.02,
-        ifelse(row0 == 2, 0.04, 0.04)
-      ),
-      st.bottom = FALSE,
-      st.size = dplyr::case_when(
-        row0 == 1 & length(yrs) > 4 ~ 1.5,
-        row0 == 1 & length(yrs) > 3 ~ 2,
-        row0 == 1 ~ 3,
-        row0 == 2 ~ 2.25,
-        TRUE ~ 2
-      )
-    )
+    ) 
+  # +
+  #   ggsn::scalebar(
+  #     data = reg_dat$survey.grid,
+  #     location = "bottomleft",
+  #     dist = 100,
+  #     dist_unit = dist_unit,
+  #     transform = FALSE,
+  #     st.dist = dplyr::case_when(
+  #       row0 == 1 & length(yrs) > 4 ~ 0.07,
+  #       row0 == 1 ~ 0.04,
+  #       row0 == 2 ~ 0.06,
+  #       TRUE ~ 0.05
+  #     ),
+  #     height = ifelse(row0 == 1, 0.02,
+  #       ifelse(row0 == 2, 0.04, 0.04)
+  #     ),
+  #     st.bottom = FALSE,
+  #     st.size = dplyr::case_when(
+  #       row0 == 1 & length(yrs) > 4 ~ 1.5,
+  #       row0 == 1 & length(yrs) > 3 ~ 2,
+  #       row0 == 1 ~ 3,
+  #       row0 == 2 ~ 2.25,
+  #       TRUE ~ 2
+  #     )
+  #   )
 
   f4 <- f3 +
     guides(

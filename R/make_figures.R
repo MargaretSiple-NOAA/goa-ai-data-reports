@@ -17,8 +17,6 @@ make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
 
-# DO you want to load the whole Windows font library? This is useful if you are building all the figures for the first time.
-full_font_import <- TRUE
 
 # Base maps ---------------------------------------------------------------
 ai_east <- akgfmaps::get_base_layers(
@@ -99,10 +97,10 @@ speciescolors <- lengthen_pal(
 
 # Fonts -------------------------------------------------------------------
 #windowsFonts("Montserrat" = windowsFont("Montserrat"))
-if(full_font_import){
-  extrafont::font_import()
-  loadfonts(device = "win")
-}
+# if(full_font_import){
+#   extrafont::font_import()
+#   loadfonts(device = "win")
+# }
 
 # 0. Static figure: INPFC areas ----------------------------------------------
 #**** TODO: Load png or whatever and put it here. Can I store it in a list?

@@ -112,7 +112,7 @@ for (p in PKG) {
 }
 
 
-loadfonts(device = "win")
+#loadfonts(device = "win")
 
 # Cite R Packages --------------------------------------------------------
 
