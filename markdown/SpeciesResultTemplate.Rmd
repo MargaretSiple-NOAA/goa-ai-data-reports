@@ -1,8 +1,8 @@
 ## {{spp_name_informal}} (*{{spp_name_scientific}}*)
 
-{{spp_name_informal}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table 2). The highest densities were recorded in the {{top_cpue}} and {{second_top_cpue}} (Figure `r officer::run_reference(paste0("first-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). {{middle_sentences}}. 
+{{spp_name_informal}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table 2). The highest densities were recorded in the {{top_cpue}} and {{second_top_cpue}} (Figure `r officer::run_reference(paste0("first-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). {{middle_sentences}} 
 
-The largest individuals were found in XXX (INSERT WHERE THESE WERE!) (Figure `r officer::run_reference(paste0("second-",{{species_code}}))`). The total biomass of {{spp_name_informal}} was estimated to be `r `
+The largest individuals were found in XXX (INSERT WHERE THESE WERE!) (Figure `r officer::run_reference(paste0("second-",{{species_code}}))`). The total biomass of {{spp_name_informal}} was estimated to be XXXX.
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table Caption"}
@@ -17,13 +17,13 @@ table4s_list[[as.character({{species_code}})]]
 
 
 \newpage
-```{r echo=FALSE,fig.width=6.5,fig.cap='Distribution and relative abundance of {{spp_name_informal}} from the {{year}} {{region}} bottom trawl survey across the a) eastern, b) central, and c) western archipelago.', fig.id=paste0("first-",{{species_code}}),  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Distribution and relative abundance of {{spp_name_informal}} from the {{year}} {{region}} bottom trawl survey across the a) eastern, b) central, and c) western archipelago.', fig.id=paste0("first-",{{species_code}}),  tab.cap.style = "Figure Caption"}
 list_cpue_bubbles[[as.character({{species_code}})]]
 ```
 
 <br />
 
-```{r echo=FALSE,fig.width=6.5,fig.cap='Population length composition of {{spp_name_informal}} by survey district and depth interval in the {{year}} {{region}} bottom trawl survey, since the start of the survey.', fig.id=paste0("second-",{{species_code}}),  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} by survey district and depth interval in the {{year}} {{region}} bottom trawl survey, since the start of the survey.', fig.id=paste0("second-",{{species_code}}),  tab.cap.style = "Figure Caption"}
 list_joy_length[[as.character({{species_code}})]]
 ```
 
