@@ -8,8 +8,8 @@ print_figs <- FALSE # Do you want to print out PNGs of each figure?
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2022-11-14"
-figuredate <- "2022-11-14"
+tabledate <- "2022-11-16"
+figuredate <- "2022-11-16"
 
 # Survey information ------------------------------------------------------
 survnumber <- "sixteenth" 
@@ -96,6 +96,9 @@ if (z) {
     file =
       paste0(dir_in_tables, "table4s_list.rdata")
   ) # object: table4s_list
+  top_CPUE <- read.csv(file = 
+                         paste0(dir_in_tables,"top_CPUE_",maxyr,".csv")
+                       ) #/topcpue
 }
 
 
@@ -118,13 +121,14 @@ if (aa) {
 }
 
 
-# Load figures and tables -------------------------------------------------
+# Render the markdown doc! -----------------------------------------------------
 
+starttime <- Sys.time()
 rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
                   output_dir = dir_out_chapters,
                   output_file = "PARENT.docx"
 )
-
+Sys.time() - starttime
 
 
 # SAVE METADATA ----------------------------------------------------------------
