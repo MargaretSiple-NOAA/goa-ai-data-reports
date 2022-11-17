@@ -33,20 +33,32 @@ library(officer)
 ```
 
 <!-- Tables -->
-```{r tab.cap='Stations allocated and sampled this year.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
-list_tables["allocated_sampled"]
+```{r echo=FALSE,tab.cap='Stations allocated and sampled this year.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
+list_tables[["allocated_sampled"]] %>% 
+  flextable() %>% 
+  theme_vanilla() %>%
+  fontsize(size = 8,part = 'all') %>% 
+  width(j = 1, width = 1, unit = "in")
 ```
 
 <br />
   
-```{r tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
-list_tables["targetn"]
+```{r echo=FALSE,tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
+list_tables[["targetn"]] %>% 
+  dplyr::rename(`Species or species group` = Species.or.species.group,
+                `Target sample size (n)` = Target.sample.size) %>%
+  flextable() %>%  
+  theme_vanilla() %>%
+  fontsize(size = 8,part = 'all') %>% 
+  width(j = 1, width = 4, unit = "in")
 ```
 
 <br />
 
-```{r tab.cap='Number of otoliths collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
-otos_collected
+```{r echo=FALSE,tab.cap='Number of otoliths collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
+otos_collected  %>% 
+  flextable() %>%  
+  theme_vanilla()
 ```
 
 <br />
@@ -68,7 +80,7 @@ include_graphics(here::here(img1_path))
 # report_species contains the list of species in the report 
 src <- list()
 
-for(i in 1:nrow(report_species)){
+for(i in 1:4){ #nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_scientific <- report_species$spp_name_scientific[i]
@@ -93,6 +105,8 @@ for(i in 1:nrow(report_species)){
   
   species_biomass <- format(round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE==species_code)]), big.mark=",")
   #format(round(as.numeric(1000.64), 1), nsmall=1, big.mark=",")
+  
+  middle_sentences <- blurbs[which(blurbs$species_code==species_code),'middle_sentences']
   
   src[[i]] <- knitr::knit_expand(here::here('markdown','SpeciesResultTemplate.Rmd'))
 }
