@@ -10,8 +10,8 @@
 make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
-# 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022 
-make_cpue_bubbles_strata <- FALSE 
+# 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022
+make_cpue_bubbles_strata <- FALSE
 # 3b. CPUE bubble maps, Emily M edition - strata not shown. Bubbles are purple. Scale bar and legend with CPUE scale are shown clearly.
 make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
@@ -81,10 +81,10 @@ linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for joy div plot
-#joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
-joypal <- c("#d1eeea","#a8dbd9","#85c4c9","#68abb8","#4f90a6","#3b738f","#2a5674") # Mint palette
+# joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
+joypal <- c("#d1eeea", "#a8dbd9", "#85c4c9", "#68abb8", "#4f90a6", "#3b738f", "#2a5674") # Mint palette
 joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#123f5a")
- # more green palette
+# more green palette
 
 
 # Palette for species colors and fills
@@ -96,7 +96,7 @@ speciescolors <- lengthen_pal(
 
 
 # Fonts -------------------------------------------------------------------
-#windowsFonts("Montserrat" = windowsFont("Montserrat"))
+# windowsFonts("Montserrat" = windowsFont("Montserrat"))
 # if(full_font_import){
 #   extrafont::font_import()
 #   loadfonts(device = "win")
@@ -117,7 +117,7 @@ img1 <- png::readPNG(img1_path)
 
 if (make_biomass_timeseries) {
   list_biomass_ts <- list()
-  for (i in 1: nrow(report_species)) { #
+  for (i in 1:nrow(report_species)) { #
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
 
@@ -149,6 +149,7 @@ if (make_biomass_timeseries) {
     dev.off()
   } # /end species loop
   names(list_biomass_ts) <- report_species$species_code
+  save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
 }
 
 
@@ -184,7 +185,7 @@ if (make_catch_comp) {
 
 # 3. CPUE bubble maps - strata colored in (presented at GPT 2022) ----------------------------------------------------------
 if (make_cpue_bubbles_strata) {
-   list_cpue_bubbles_strata <- list()
+  list_cpue_bubbles_strata <- list()
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
     namebubble <- report_species$spp_name_informal[i]
@@ -192,11 +193,11 @@ if (make_cpue_bubbles_strata) {
     thisyrshauldata <- cpue_raw %>%
       filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
-        coords = c("start_longitude", "start_latitude"), #TODO NEED TO CHANGE TO THE RIGHT COORDS
+        coords = c("start_longitude", "start_latitude"), # TODO NEED TO CHANGE TO THE RIGHT COORDS
         crs = "EPSG:4326"
       ) %>%
       st_transform(crs = ai_east$crs)
-    
+
     # MAPS
     p3a <- ggplot() +
       geom_sf(
@@ -209,8 +210,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal) +
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_east$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 ), alpha = 0.5) + # USED TO BE cpue_kgha
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2 ))) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -231,8 +232,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal) +
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 ), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2 ))) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -257,8 +258,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal) +
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 ), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2 ))) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -287,6 +288,7 @@ if (make_cpue_bubbles_strata) {
     list_cpue_bubbles_strata[[i]] <- final_obj # save fig to list
   } # /end species loop
   names(list_cpue_bubbles_strata) <- report_species$species_code
+  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
 }
 # 3b. CPUE bubble maps - b&w Emily M style bubble plots ----------------------------------------------------------
 if (make_cpue_bubbles) {
@@ -325,16 +327,16 @@ if (make_cpue_bubbles) {
       col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
     )
     list_cpue_bubbles[[i]] <- fig
-    
+
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_CPUE_markobubble.png"
     ), width = 8, height = 5.5, units = "in", res = 200)
     print(fig)
     dev.off()
-    
   }
   names(list_cpue_bubbles) <- report_species$species_code
+  save(list_cpue_bubbles, file = paste0(dir_out_figures, "cpue_bubbles.rdata"))
 }
 
 # 5. Length frequency plots - joy division plots -----------------------------
@@ -368,7 +370,10 @@ if (make_joy_division_length) {
     )) {
       multiplier <- 1.7
     }
-    if (report_species$species_code[i] %in% c(472, 10115)) {
+    if (report_species$species_code[i] %in% c(
+      472,
+      10115
+    )) {
       multiplier <- 1.5
     }
     if (report_species$species_code[i] == 10200) {
@@ -411,9 +416,11 @@ if (make_joy_division_length) {
     list_joy_length[[i]] <- joyplot
   }
   names(list_joy_length) <- report_species$species_code
+
+  save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
 }
 
-# CPUE map ----------------------------------------------------------------
+# (6.) GOA CPUE map ----------------------------------------------------------------
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
 # THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
 # get cpue table by station for a species
@@ -425,7 +432,7 @@ if (make_joy_division_length) {
 # cpue_res <- 0.1 # will take less time
 # # example data:
 # # head(akgfmaps::YFS2017)
-# 
+#
 # # This is a dummy figure! Doesn't mean anything because it's for GOA
 # figure1 <- plot_idw_xbyx(
 #   yrs = yr,
@@ -441,30 +448,20 @@ if (make_joy_division_length) {
 #   row0 = 1,
 #   region = "goa"
 # )
-# 
+#
 # list_figures <- list()
 # list_figures[[1]] <- figure1
 # names(list_figures)[1] <- "POP" # NOTE: NEED TO MAKE THIS THE WHOLE LIST OF SPECIES
-# 
-# 
-# 
-# 
+#
+#
+#
+#
 # if (print_figs) {
 #   lapply(
 #     X = list_figures, FUN = make_png, year = YEAR, region = SRVY,
 #     savedir = dir_out_figures
 #   )
 # }
-# 
+#
 # # Check that the figure list is filled out
 # length(list_figures)
-
-# SAVE FIGURES -----------------------------------------------------------
-# save(list_figures,
-#   file = paste0(dir_out_figures, "report_figures.rdata")
-# )
-
-save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
-save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
-save(list_cpue_bubbles, file = paste0(dir_out_figures, "cpue_bubbles.rdata"))
-save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
