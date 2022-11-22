@@ -57,8 +57,11 @@ list_tables[["targetn"]] %>%
 
 ```{r echo=FALSE,tab.cap='Number of otoliths collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
 otos_collected  %>% 
+  dplyr::rename("INPFC Area" = "INPFC_AREA") %>%
   flextable() %>%  
-  theme_vanilla()
+  theme_vanilla() %>%
+  fontsize(size = 8,part = 'all') %>% 
+  width(j = 1, width = 4, unit = "in")
 ```
 
 <br />
@@ -80,38 +83,48 @@ include_graphics(here::here(img1_path))
 # report_species contains the list of species in the report 
 src <- list()
 
-for(i in 1:4){ #nrow(report_species)
+for (i in 1:4) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_scientific <- report_species$spp_name_scientific[i]
-  middle_sentences <- blurbs$middle_sentences[which(blurbs$species_code==species_code)]
+  middle_sentences <- blurbs$middle_sentences[which(blurbs$species_code == species_code)]
   year <- maxyr
   region <- survname_long
-  
+
   spps_ordered_by_biomass <- biomass_maxyr %>%
     dplyr::arrange(-TOTAL_BIOMASS)
-  xth <- which(spps_ordered_by_biomass$SPECIES_CODE==species_code)
-  
-  xx <- filter(top_CPUE,
-                     species_code==species_code & INPFC_AREA %in% c("Central Aleutians",
-                                                                    "Eastern Aleutians",
-                                                                    "Southern Bering Sea",
-                                                                    "Western Aleutians")) %>% # Subset only to the areas
-    dplyr::top_n(n = 2,wt = wgted_mean_cpue_kgha) %>% 
+  xth <- which(spps_ordered_by_biomass$SPECIES_CODE == species_code)
+
+  xx <- filter(
+    top_CPUE,
+    species_code == species_code & INPFC_AREA %in% c(
+      "Central Aleutians",
+      "Eastern Aleutians",
+      "Southern Bering Sea",
+      "Western Aleutians"
+    )
+  ) %>% # Subset only to the areas
+    dplyr::top_n(n = 2, wt = wgted_mean_cpue_kgha) %>%
     dplyr::select(INPFC_AREA)
-  
+
   top_cpue <- xx[[1]][1]
   second_top_cpue <- xx[[1]][2]
-  
-  species_biomass <- format(round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE==species_code)]), big.mark=",")
-  #format(round(as.numeric(1000.64), 1), nsmall=1, big.mark=",")
-  
-  middle_sentences <- blurbs[which(blurbs$species_code==species_code),'middle_sentences']
-  
-  src[[i]] <- knitr::knit_expand(here::here('markdown','SpeciesResultTemplate.Rmd'))
+
+  species_biomass <- format(round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]), big.mark = ",")
+  # format(round(as.numeric(1000.64), 1), nsmall=1, big.mark=",")
+
+  middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
+
+  region_largest <- meanlengths_area %>%
+    dplyr::filter(SPECIES_CODE == species_code) %>%
+    top_n(1, `Mean length`) %>%
+    dplyr::select(INPFC_AREA) %>%
+    as.character()
+
+  src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesResultTemplate.Rmd"))
 }
 
-res = knitr::knit_child(text = unlist(src), quiet = TRUE)
-cat(res, sep = '\n')
+res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
+cat(res, sep = "\n")
 ```
 
