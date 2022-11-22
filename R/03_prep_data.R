@@ -135,6 +135,17 @@ otos_collected <- specimen_maxyr %>%
   dplyr::summarize("Number of otoliths collected" = n()) %>%
   ungroup()
 
+meanlengths_area <- specimen_maxyr %>%
+  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+  dplyr::left_join(haul_maxyr, by = c(
+    "CRUISEJOIN", "HAULJOIN", "HAUL",
+    "REGION", "VESSEL", "YEAR"
+  )) %>%
+  dplyr::left_join(region_lu, by = c("STRATUM")) %>%
+  group_by(SPECIES_CODE, INPFC_AREA) %>% #, `Depth range`
+  dplyr::summarize("Mean length" = mean(LENGTH)) %>%
+  ungroup()
+
 total_otos <- sum(otos_collected$`Number of otoliths collected`)
 
 # get number of fish and invert spps
