@@ -396,11 +396,12 @@ if (make_joy_division_length) {
       ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = ..x..)) +
       geom_density_ridges_gradient(colour = "grey35") +
       scale_y_discrete(limits = rev) +
-      geom_text(aes(label = paste0("n = ", n), x = yloc), nudge_y = 0.5, colour = "grey35", size = 3) +
+      geom_text(aes(label = paste0("n = ", n), x = yloc), 
+                nudge_y = 0.5, colour = "grey35", size = 2.2) + # used to be 4 or something
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges(font_size = 11) +
+      theme_ridges(font_size = 8) + # changed from 11
       scale_fill_gradientn("Length (mm)", colours = joypal) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(strip.background = element_blank())
