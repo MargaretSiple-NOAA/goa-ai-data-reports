@@ -13,8 +13,9 @@ figuredate <- "2022-11-16"
 
 # Survey information ------------------------------------------------------
 survnumber <- "sixteenth" 
-dates_conducted <- "June 6th through August 14th, 2018" # Change this for the year!
+dates_conducted <- "June 6th through August 14th, 2022" # Change this for the year!
 SRVY <- "AI" # Options: "GOA", "AI"
+nstationsassigned <- 420
 
 YEAR <- maxyr
 vessel1 <- "FV Ocean Explorer"
