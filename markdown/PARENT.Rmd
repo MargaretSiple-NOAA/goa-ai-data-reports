@@ -1,7 +1,7 @@
 ---
 output:
   officedown::rdocx_document: 
-    reference_docx: styles_reference2.docx
+    reference_docx: styles_reference3.docx
     pandoc_args: ["--metadata-file=header.yaml"]
 csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
@@ -37,7 +37,7 @@ library(officer)
 list_tables[["allocated_sampled"]] %>% 
   flextable() %>% 
   theme_vanilla() %>%
-  fontsize(size = 8,part = 'all') %>% 
+  fontsize(size = 7,part = 'all') %>% 
   width(j = 1, width = 1, unit = "in")
 ```
 
@@ -49,7 +49,7 @@ list_tables[["targetn"]] %>%
                 `Target sample size (n)` = Target.sample.size) %>%
   flextable() %>%  
   theme_vanilla() %>%
-  fontsize(size = 8,part = 'all') %>% 
+  fontsize(size = 7,part = 'all') %>% 
   width(j = 1, width = 4, unit = "in")
 ```
 
@@ -84,7 +84,7 @@ include_graphics(here::here(img1_path))
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:4) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # 
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_scientific <- report_species$spp_name_scientific[i]

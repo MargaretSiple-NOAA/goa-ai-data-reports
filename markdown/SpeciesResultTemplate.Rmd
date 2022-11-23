@@ -7,10 +7,12 @@
 table3s_list[[as.character({{species_code}})]]  %>% 
   flextable() %>% 
   theme_vanilla() %>%
-  fontsize(size = 8,part = 'all') %>% 
-  # width(j = 1, width = 2, unit = "in") %>%
-  # width(j = 3, width = 2, unit = "in") %>%
-  fit_to_width(max_width = 7,unit = 'in')
+  fontsize(size = 6,part = 'all') %>% 
+  fit_to_width(max_width = 8,unit = 'in') %>%
+  set_caption(
+    as_paragraph(
+      as_chunk("Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.",props = fp_text_default(font.family = "Times New Roman",font.size = 10))
+    ), word_stylename = "Table Caption")
 ```
 
 
@@ -19,10 +21,12 @@ table3s_list[[as.character({{species_code}})]]  %>%
 table4s_list[[as.character({{species_code}})]]  %>% 
   flextable() %>% 
   theme_vanilla() %>%
-  fontsize(size = 8,part = 'all') %>% 
-  # width(j = 1, width = 2, unit = "in") %>%
-  # width(j = 3, width = 2, unit = "in") %>%
-  fit_to_width(max_width = 7,unit = 'in')
+  fontsize(size = 6, part = 'all') %>% # 6 works but I want them denser lines instead
+  fit_to_width(max_width = 8,unit = 'in') %>%
+  set_caption(
+    as_paragraph(
+      as_chunk("Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.",props = fp_text_default(font.family = "Times New Roman",font.size = 10))
+    ), word_stylename = "Table Caption")
 ```
 
 
