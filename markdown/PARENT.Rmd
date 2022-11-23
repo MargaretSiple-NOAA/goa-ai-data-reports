@@ -61,7 +61,8 @@ otos_collected  %>%
   flextable() %>%  
   theme_vanilla() %>%
   fontsize(size = 8,part = 'all') %>% 
-  width(j = 1, width = 4, unit = "in")
+  width(j = 1, width = 3, unit = "in") %>%
+  width(j = 3, width = 3, unit = "in")
 ```
 
 <br />
