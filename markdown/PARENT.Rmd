@@ -44,13 +44,20 @@ list_tables[["allocated_sampled"]] %>%
 <br />
   
 ```{r echo=FALSE,tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
-list_tables[["targetn"]] %>% 
-  dplyr::rename(`Species or species group` = Species.or.species.group,
-                `Target sample size (n)` = Target.sample.size) %>%
-  flextable() %>%  
+list_tables[["targetn"]] targetn %>%
+  flextable(col_keys = c("dummy_col", "Target.sample.size")) %>%
+  flextable::mk_par(
+    j = "dummy_col",
+    value = as_paragraph(Species.or.species.group, " (", as_i(sci.name), sci.name.addendum, ")")
+  ) %>%
+  set_header_labels(
+    dummy_col = "Species or species group",
+    Target.sample.size = "Target sample size"
+  ) %>%
   theme_vanilla() %>%
-  fontsize(size = 7,part = 'all') %>% 
+  fontsize(size = 7, part = "all") %>%
   width(j = 1, width = 4, unit = "in")
+
 ```
 
 <br />
@@ -84,7 +91,7 @@ include_graphics(here::here(img1_path))
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # 
+for (i in 1:4) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_scientific <- report_species$spp_name_scientific[i]

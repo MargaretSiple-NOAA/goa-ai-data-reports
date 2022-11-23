@@ -5,34 +5,7 @@
 # Table 2 is the number of stations allocated, attempted, and successfully completed.
 # Table 3 onwards are specific to each species.
 
-targetn <- data.frame(
-          stringsAsFactors = FALSE,
-             `Species or species group` = c("Walleye pollock",
-                                          "Pacific cod",
-                                          "Arrowtooth flounder (ATF)",
-                                          "All rockfish species",
-                                          "Sablefish",
-                                          "Atka mackerel",
-                                          "All species of flatfish (except ATF)",
-                                          "Skates and Sharks (total length)",
-                                          "Grenadiers (tip of snout to insertion of first anal ray)",
-                                          "Prowfish",
-                                          "Lingcod",
-                                          "Salmon",
-                                          "Yellow Irish lord (*Hemilepidotus jordani*)",
-                                          "Bigmouth sculpin (*Hemilepidotus bolini*)",
-                                          "Great sculpin (*Myoxocephalus polyacnthocephalus*)",
-                                          "Plain sculpin (*Myoxocephalus jaok*)",
-                                          "Warty sculpin (*Myoxocephalus verrucosus*)",
-                                          "Forage fish (herring, eulachon, capelin, sand lance)",
-                                          "Commander squid (*Berryteuthis magister*)"),
-                   `Target sample size` = c("100","100","150","100",
-                                          "100","100","100","50","50","All",
-                                          "All","All","All","All","All",
-                                          "All","All","All","All")
-           )
-
-
+targetn <- read.csv(here::here("data","target_n.csv"))
 
 
 # Mean CPUE for 20 most abundant groundfish spps --------------------------
