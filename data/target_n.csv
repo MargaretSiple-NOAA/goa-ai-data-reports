@@ -1,0 +1,20 @@
+Species.or.species.group,sci.name,sci.name.addendum,Target.sample.size
+Walleye pollock,Gadus chalcogrammus,,100
+Pacific cod,Gadus macrocephalus,,100
+Arrowtooth flounder (ATF),Atheresthes stomias,,150
+All rockfish species,Sebastes,spp.,100
+Sablefish,Anoplopoma fimbria,,100
+Atka mackerel,Pleurogrammus monopterygius,,100
+All species of flatfish (except ATF),,Order Pleuronectiformes,100
+Skates and Sharks (total length),,Class Chondrichthyes,50
+Grenadiers (tip of snout to insertion of first anal ray),,Subfamily Macrourinae,50
+Prowfish,Zaprora silenus,,All
+Lingcod,Ophiodon elongatus,,All
+Salmon,,Family Salmonidae,All
+Yellow Irish lord,Hemilepidotus jordani,,All
+Bigmouth sculpin,Hemilepidotus bolini,,All
+Great sculpin,Myoxocephalus polyacnthocephalus,,All
+Plain sculpin,Myoxocephalus jaok,,All
+Warty sculpin,Myoxocephalus verrucosus,,All
+"Forage fish (herring, eulachon, capelin, sand lance)",,Several families,All
+Commander squid,Berryteuthis magister,,All
