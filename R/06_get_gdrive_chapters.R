@@ -21,12 +21,12 @@ for (i in 1:nrow(chaps)) {
 
 # Download species blurbs table -------------------------------------------
 blurbs_id_googledrive <- googledrive::as_id(dir_blurbs)
-blurbs <- googledrive::drive_ls(path = blurbs_id_googledrive, type = "spreadsheet")
+blurbsheet <- googledrive::drive_ls(path = blurbs_id_googledrive, type = "spreadsheet")
 if(SRVY=="AI"){
-  googledrive::drive_download(file = googledrive::as_id(blurbs$id[1]),
+  googledrive::drive_download(file = googledrive::as_id(blurbsheet$id[1]),
                               type = "csv",
                               overwrite = TRUE,
-                              path = paste0("data", "/", blurbs$name[1]))
+                              path = paste0("data", "/", blurbsheet$name[1]))
 }
 
 

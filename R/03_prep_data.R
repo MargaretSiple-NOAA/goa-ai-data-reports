@@ -105,10 +105,20 @@ nstations <- haul2 %>%
   distinct(STATIONID) %>%
   nrow()
 
+nstations_w_marport_data <- nstations
+
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow() # 420 in 2018
 
+nattemptedhauls <- haul2 %>% 
+  nrow()
+
+if(any(is.na(haul2$NET_WIDTH))){
+  marportpredsentence <- "For the ~1% of trawl hauls without net width, net spread was predicted from a generalized additive model (GAM) parameterized with successful trawl hauls of similar depth and wire out."
+  }else{
+  marportpredsentence <- "Net width data were collected for all hauls using a Marport net spread sensors."
+  }
 
 # N lengths and otoliths sampled -------------------------------------------
 L <- read.csv(here::here("data/local_racebase/length.csv"))
@@ -117,7 +127,8 @@ L <- L %>%
 length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
 # Number of lengths collected per area
-lengths_collected <- nrow(length_maxyr)
+lengths_collected <- nrow(length_maxyr) %>%
+  format(big.mark = ",")
 
 # Number of otoliths sampled per area
 S <- read.csv(here::here("data/local_racebase/specimen.csv"))
@@ -146,7 +157,8 @@ meanlengths_area <- specimen_maxyr %>%
   dplyr::summarize("Mean length" = mean(LENGTH)) %>%
   ungroup()
 
-total_otos <- sum(otos_collected$`Number of otoliths collected`)
+total_otos <- sum(otos_collected$`Number of otoliths collected`) %>%
+  format(big.mark=",")
 
 # get number of fish and invert spps
 catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
