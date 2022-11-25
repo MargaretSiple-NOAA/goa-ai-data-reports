@@ -150,6 +150,7 @@ if (make_biomass_timeseries) {
   } # /end species loop
   names(list_biomass_ts) <- report_species$species_code
   save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
+  print("Done making biomass time series plots.")
 }
 
 
@@ -289,7 +290,9 @@ if (make_cpue_bubbles_strata) {
   } # /end species loop
   names(list_cpue_bubbles_strata) <- report_species$species_code
   save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
+  print("Done with CPUE bubble maps showing stratum areas.")
 }
+
 # 3b. CPUE bubble maps - b&w Emily M style bubble plots ----------------------------------------------------------
 if (make_cpue_bubbles) {
   list_cpue_bubbles <- list()
@@ -337,6 +340,7 @@ if (make_cpue_bubbles) {
   }
   names(list_cpue_bubbles) <- report_species$species_code
   save(list_cpue_bubbles, file = paste0(dir_out_figures, "cpue_bubbles.rdata"))
+  print("Done with bubble maps of CPUE.")
 }
 
 # 5. Length frequency plots - joy division plots -----------------------------
@@ -419,6 +423,7 @@ if (make_joy_division_length) {
   names(list_joy_length) <- report_species$species_code
 
   save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
+  print("Done with joy division plots for length comp.")
 }
 
 # (6.) GOA CPUE map ----------------------------------------------------------------
