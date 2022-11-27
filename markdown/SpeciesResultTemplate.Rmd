@@ -4,29 +4,60 @@
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table Caption"}
-table3s_list[[as.character({{species_code}})]]  %>% 
-  flextable() %>% 
+table3s_list[[as.character({{ species_code }})]] %>%
+  #table3s_list[[as.character(30060)]] %>%
+  
+  flextable() %>%
   theme_vanilla() %>%
-  fontsize(size = 6,part = 'all') %>% 
-  fit_to_width(max_width = 8,unit = 'in') %>%
+  fontsize(size = 8, part = "all") %>%
+  fit_to_width(max_width = 8, unit = "in") %>%
   set_caption(
     as_paragraph(
-      as_chunk("Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.",props = fp_text_default(font.family = "Times New Roman",font.size = 10))
-    ), word_stylename = "Table Caption")
+      as_chunk("Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
+    ),
+    word_stylename = "Table Caption"
+  ) %>%
+  width(j = 1, width = 1.75, unit = "in") %>%
+  width(j = 2, width = 1, unit = "in") %>%
+  width(j = 3, width = 0.7, unit = "in") %>%
+  width(j = 4, width = 0.7, unit = "in") %>%
+  width(j = 5, width = 0.7, unit = "in") %>%
+  width(j = 6, width = 0.7, unit = "in") %>%
+  width(j = 7, width = 0.7, unit = "in") %>%
+  width(j = 8, width = 0.7, unit = "in") %>%
+  width(j = 9, width = 0.7, unit = "in") %>%
+  line_spacing(space = 0.5)
 ```
 
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.', tab.id=paste0("table2-",{{species_code}}),  tab.cap.style = "Table Caption"}
-table4s_list[[as.character({{species_code}})]]  %>% 
-  flextable() %>% 
+table4s_list[[as.character({{ species_code }})]] %>%
+# table4s_list[[as.character(30060)]] %>%
+  # mutate(`CPUE (kg/ha)`= round(`CPUE (kg/ha)`,digits = 1)) %>%
+  # mutate(`Biomass (t)`= round(`Biomass (t)`,digits = 0)) %>% #
+  # mutate(`Lower 95% CI`= round(`Lower 95% CI`,digits = 0)) %>%
+  # mutate(`Upper 95% CI`= round(`Upper 95% CI`,digits = 0)) %>%
+  flextable() %>%
   theme_vanilla() %>%
-  fontsize(size = 6, part = 'all') %>% # 6 works but I want them denser lines instead
-  fit_to_width(max_width = 8,unit = 'in') %>%
+  fontsize(size = 7.5, part = "all") %>%
+  fit_to_width(max_width = 8, unit = "in") %>%
   set_caption(
     as_paragraph(
-      as_chunk("Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.",props = fp_text_default(font.family = "Times New Roman",font.size = 10))
-    ), word_stylename = "Table Caption")
+      as_chunk("Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
+    ),
+    word_stylename = "Table Caption"
+  ) %>%
+  width(j = 1, width = 1.3, unit = "in") %>%
+  width(j = 2, width = 0.7, unit = "in") %>%
+  width(j = 3, width = 2, unit = "in") %>%
+  width(j = 4, width = 0.6, unit = "in") %>%
+  width(j = 5, width = 0.5, unit = "in") %>%
+  width(j = 6, width = 0.5, unit = "in") %>%
+  width(j = 7, width = 0.5, unit = "in") %>%
+  width(j = 8, width = 0.5, unit = "in") %>%
+  width(j = 9, width = 0.5, unit = "in") %>%
+  line_spacing(space = 0.5)
 ```
 
 
