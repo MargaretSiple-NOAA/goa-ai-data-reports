@@ -100,7 +100,7 @@ include_graphics(here::here(img1_path))
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:2) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # 
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_scientific <- report_species$spp_name_scientific[i]
