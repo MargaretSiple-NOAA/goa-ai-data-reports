@@ -9,11 +9,11 @@ if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 
 report_species <- report_species %>%
   arrange(-species_code) %>%
-  filter(report==1)
+  filter(report == 1)
 
 pres_species <- report_species %>%
   arrange(-species_code) %>%
-  filter(presentation==1)
+  filter(presentation == 1)
 
 # haul info (source: RACEBASE)
 haul <- read.csv(here::here("data/local_racebase/haul.csv"))
@@ -56,7 +56,7 @@ cpue_raw <- x %>%
   janitor::clean_names() %>% # need to add common name lookup
   dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
   janitor::clean_names()
- 
+
 # Biomass by stratum (source: AI or GOA schema)
 biomass_stratum <- read.csv(here::here("data", "local_ai", "biomass_stratum.csv"))
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
@@ -100,25 +100,49 @@ haul2 <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
+# Number of stations "successfully sampled"
+# Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
 nstations <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   distinct(STATIONID) %>%
   nrow()
 
-nstations_w_marport_data <- nstations
-
+# Number of "successful hauls":
+#   Subset 2022 HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow() # 420 in 2018
 
-nattemptedhauls <- haul2 %>% 
+# Number of attempted tows:
+nattemptedhauls <- haul2 %>%
+  filter(HAUL_TYPE == 3) %>%
   nrow()
 
-if(any(is.na(haul2$NET_WIDTH))){
+# Number of stations attempted:
+nattemptedstations <- haul2 %>%
+  filter(HAUL_TYPE == 3) %>%
+  distinct(STATIONID) %>%
+  nrow()
+
+# Number of stations for which Marport net spread was successfully recorded:
+nstations_w_marport_data <- haul2 %>%
+  filter(HAUL_TYPE == 3 & NET_MEASURED == "Y") %>%
+  nrow()
+
+# Number of "failed tows":
+nfailedtows <- haul2 %>%
+  filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
+  nrow()
+
+
+
+
+
+if (any(is.na(haul2$NET_WIDTH))) {
   marportpredsentence <- "For the ~1% of trawl hauls without net width, net spread was predicted from a generalized additive model (GAM) parameterized with successful trawl hauls of similar depth and wire out."
-  }else{
-  marportpredsentence <- "Net width data were collected for all hauls using a Marport net spread sensors."
-  }
+} else {
+  marportpredsentence <- "Net width data were collected for all hauls using a Marport net spread sensor."
+}
 
 # N lengths and otoliths sampled -------------------------------------------
 L <- read.csv(here::here("data/local_racebase/length.csv"))
@@ -153,12 +177,12 @@ meanlengths_area <- specimen_maxyr %>%
     "REGION", "VESSEL", "YEAR"
   )) %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
-  group_by(SPECIES_CODE, INPFC_AREA) %>% #, `Depth range`
+  group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
   dplyr::summarize("Mean length" = mean(LENGTH)) %>%
   ungroup()
 
 total_otos <- sum(otos_collected$`Number of otoliths collected`) %>%
-  format(big.mark=",")
+  format(big.mark = ",")
 
 # get number of fish and invert spps
 catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
@@ -166,7 +190,7 @@ catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
 
 # Species with highest est'd biomass --------------------------------------
 biomass_maxyr <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY == SRVY) 
+  filter(YEAR == maxyr & SURVEY == SRVY)
 
 highest_biomass <- biomass_maxyr %>%
   dplyr::slice_max(n = 50, order_by = TOTAL_BIOMASS, with_ties = FALSE) %>%
@@ -197,6 +221,4 @@ report_biomasses <- biomass_total %>%
 
 
 # Get species blurb interior sentences ------------------------------------
-blurbs <- read.csv(here::here("data","AI2022_SpeciesBlurbMiddleSentences.csv"))
-
-
+blurbs <- read.csv(here::here("data", "AI2022_SpeciesBlurbMiddleSentences.csv"))
