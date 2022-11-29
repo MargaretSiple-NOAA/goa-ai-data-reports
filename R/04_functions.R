@@ -437,10 +437,6 @@ prep_tab4 <- function(speciescode){
   if(!file.exists(filepath)){stop("Species Table 4 file missing from the folder. Check directory and make sure you're on the VPN.")}
   x <- read.csv(file = filepath)
   cleaned_tab <- x %>% 
-    # mutate(`CPUE (kg/ha)`= round(`CPUE (kg/ha)`,digits = 1)) %>%
-    # mutate(`Biomass (t)`= round(`Biomass (t)`,digits = 0)) %>% #
-    # mutate(`Lower 95% CI`= round(`Lower 95% CI`,digits = 0)) %>%
-    # mutate(`Upper 95% CI`= round(`Upper 95% CI`,digits = 0)) %>%
     mutate(CPUE..kg.ha. = round(CPUE..kg.ha.,digits = 1),
            Biomass..t. = round(Biomass..t.,digits = 0),
            Lower.CI.Biomass = round(Lower.CI.Biomass,digits = 0),
