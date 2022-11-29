@@ -413,6 +413,12 @@ prep_tab3 <- function(speciescode){
   if(!file.exists(filepath)){stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")}
   x <- read.csv(file = filepath)
   cleaned_tab <- x %>% 
+    # want to eventually fix these so they are the right number of digits but... not urgent for now.
+    # dplyr::mutate(CPUE..kg.ha. = case_when(CPUE..kg.ha. != "---" & 
+    #                                          CPUE..kg.ha. != "< 0.01" ~ round(as.numeric(CPUE..kg.ha.),digits = 1),
+    #                                        TRUE ~ as.character(CPUE..kg.ha.))
+    #                           ),
+    #      dplyr::mutate(Weight...kg. = round(Weight...kg.,digits = 2))
     dplyr::rename(`Survey district` = Survey.District,
                   `Depth (m)` = Depth..m.,
                   `Haul count` = Haul.Count,
@@ -425,12 +431,20 @@ prep_tab3 <- function(speciescode){
   return(cleaned_tab)
 }
 
-
+# NOTE: If this breaks in the future, it may be because this table contains character values.
 prep_tab4 <- function(speciescode){
   filepath <- paste0(dir_in_premadetabs,"Table 4/Excel files/",speciescode,"_2022_t4.csv")
   if(!file.exists(filepath)){stop("Species Table 4 file missing from the folder. Check directory and make sure you're on the VPN.")}
   x <- read.csv(file = filepath)
   cleaned_tab <- x %>% 
+    # mutate(`CPUE (kg/ha)`= round(`CPUE (kg/ha)`,digits = 1)) %>%
+    # mutate(`Biomass (t)`= round(`Biomass (t)`,digits = 0)) %>% #
+    # mutate(`Lower 95% CI`= round(`Lower 95% CI`,digits = 0)) %>%
+    # mutate(`Upper 95% CI`= round(`Upper 95% CI`,digits = 0)) %>%
+    mutate(CPUE..kg.ha. = round(CPUE..kg.ha.,digits = 1),
+           Biomass..t. = round(Biomass..t.,digits = 0),
+           Lower.CI.Biomass = round(Lower.CI.Biomass,digits = 0),
+           Upper.CI.Biomass = round(Upper.CI.Biomass,digits = 0)) %>%
     dplyr::rename(`INPFC area` = INPFC_AREA,
                   `Depth range (m)` = DEPTH_RANGE,
                   `Stratum name` =Stratum.Name,
