@@ -32,12 +32,12 @@ table3s_list[[as.character({{ species_code }})]] %>%
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.', tab.id=paste0("table2-",{{species_code}}),  tab.cap.style = "Table Caption"}
+biomass_round <- function(x){round(x,digits = 0)}
+
 table4s_list[[as.character({{ species_code }})]] %>%
 # table4s_list[[as.character(30060)]] %>%
-  # mutate(`CPUE (kg/ha)`= round(`CPUE (kg/ha)`,digits = 1)) %>%
-  # mutate(`Biomass (t)`= round(`Biomass (t)`,digits = 0)) %>% #
-  # mutate(`Lower 95% CI`= round(`Lower 95% CI`,digits = 0)) %>%
-  # mutate(`Upper 95% CI`= round(`Upper 95% CI`,digits = 0)) %>%
+  dplyr::mutate_at(.vars = c("Biomass (t)","Lower 95% CI","Upper 95% CI"), biomass_round,
+                ) %>%
   flextable() %>%
   theme_vanilla() %>%
   fontsize(size = 7.5, part = "all") %>%
@@ -50,13 +50,13 @@ table4s_list[[as.character({{ species_code }})]] %>%
   ) %>%
   width(j = 1, width = 1.3, unit = "in") %>%
   width(j = 2, width = 0.7, unit = "in") %>%
-  width(j = 3, width = 2, unit = "in") %>%
+  width(j = 3, width = 1.9, unit = "in") %>%
   width(j = 4, width = 0.6, unit = "in") %>%
   width(j = 5, width = 0.5, unit = "in") %>%
-  width(j = 6, width = 0.5, unit = "in") %>%
-  width(j = 7, width = 0.5, unit = "in") %>%
+  width(j = 6, width = 0.6, unit = "in") %>%
+  width(j = 7, width = 0.6, unit = "in") %>%
   width(j = 8, width = 0.5, unit = "in") %>%
-  width(j = 9, width = 0.5, unit = "in") %>%
+  width(j = 9, width = 0.6, unit = "in") %>%
   line_spacing(space = 0.5)
 ```
 
