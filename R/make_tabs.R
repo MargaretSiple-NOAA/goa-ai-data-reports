@@ -89,19 +89,7 @@ colnames(allocated_sampled) <- c("INFPC area","Depth range","Allocated","Attempt
 # CPUE table by district - formatted by Paul ------------------------------
 #CPUE_table_formatted <- read_xlsx(path = paste0(dir_in_premadetabs,"Table 2/Table 2 AI2022.xlsx"))
 
-# district_depth_effort_sp_list - list of tables that Paul made -----------
-
-
-district_depth_effort_sp_list <- list()
-# Load Paul tables
-
-
-#names(district_depth_effort_sp_list) <- report_species$species_code
-# Get all the xls files in the folder where they're stored. 
-
-
 # district_depth_cpue_sp_list - list of tables that Paul made -------------
-
 # Check to see if all the species in the list are in the folder
 toMatch <- report_species$species_code
 matches <- unique(grep(paste(toMatch, collapse = "|"),
