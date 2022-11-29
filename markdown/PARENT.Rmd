@@ -35,7 +35,7 @@ library(officer)
 <!-- Tables -->
 ```{r echo=FALSE,tab.cap='Stations allocated and sampled this year.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
 list_tables[["allocated_sampled"]] %>% 
-  mutate(`Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`,digits = 1)) %>%
+  #mutate(`Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`,digits = 1)) %>%
   flextable() %>% 
   theme_vanilla() %>%
   fontsize(size = 8.5,part = 'all') %>% 
