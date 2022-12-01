@@ -134,8 +134,8 @@ nfailedtows <- haul2 %>%
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
   nrow()
 
-
-
+#Save for Alex
+#save(nstations, nsuccessfulhauls, nattemptedhauls,nattemptedstations,nstations_w_marport_data, file = "stationinfo2022.RData")
 
 
 if (any(is.na(haul2$NET_WIDTH))) {
