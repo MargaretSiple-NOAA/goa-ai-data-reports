@@ -85,7 +85,7 @@ otos_collected  %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap='Map of the Aleutian Islands 2018 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  fig.cap.style = "Figure Caption"}
+```{r fig.cap='Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  fig.cap.style = "Figure Caption"}
 include_graphics(here::here(img1_path))
 ```
 
@@ -104,6 +104,7 @@ src <- list()
 for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
+  spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
   middle_sentences <- blurbs$middle_sentences[which(blurbs$species_code == species_code)]
   year <- maxyr
@@ -128,8 +129,10 @@ for (i in 1:3) { # nrow(report_species)
   top_cpue <- xx[[1]][1]
   second_top_cpue <- xx[[1]][2]
 
-  species_biomass <- format(round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]), big.mark = ",")
-  # format(round(as.numeric(1000.64), 1), nsmall=1, big.mark=",")
+  species_biomass <- format(
+    round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
+    big.mark = ",")
+  
 
   middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
 
