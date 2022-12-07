@@ -1,10 +1,15 @@
 # This script should load the necessary data and build PNGs of all the figures for the paper, so they can be accessed in the Markdown part.
-# Tables ------------------------------------------------------------------
+
 # Tables are labeled / ordered based on the historical data reports order of tables (currently based on the 2018 AI report, because that's the most recent one I have access to)
 # Table 1 is the target sample sizes for different species categories
 # Table 2 is the number of stations allocated, attempted, and successfully completed.
 # Table 3 onwards are specific to each species.
 
+# Aesthetic settings ------------------------------------------------------
+# Color of thick border between subdistrict areas
+cl <- fp_border(color = "#5A5A5A", width = 3)
+
+# Tables ------------------------------------------------------------------
 targetn <- read.csv(here::here("data","target_n.csv"))
 
 
@@ -84,7 +89,7 @@ allocated_sampled <- all_allocation %>%
   mutate(AREA = round(AREA, digits = 1),
          stations_per_1000km2 = round(stations_per_1000km2, digits = 2)) %>%
   dplyr::select(-STRATUM)
-colnames(allocated_sampled) <- c("INFPC area","Depth range","Allocated","Attempted","Succeeded","Total area","Stations per 1,000 km^2")
+colnames(allocated_sampled) <- c("INPFC area","Depth range","Allocated","Attempted","Succeeded","Total area","Stations per 1,000 km^2")
 
 # CPUE table by district - formatted by Paul ------------------------------
 #CPUE_table_formatted <- read_xlsx(path = paste0(dir_in_premadetabs,"Table 2/Table 2 AI2022.xlsx"))
@@ -119,10 +124,10 @@ names(table4s_list) <- report_species$species_code
 # Put together big list...will be edited later ----------------------------
 
 list_tables <- list()
-list_tables[[1]] <- allocated_sampled # Stations allocated and successfully sampled
-list_tables[[2]] <- targetn  # Target sample size for species/species groups
-list_tables[[3]] <- top_CPUE #
-names(list_tables) <- c("allocated_sampled","targetn","top_CPUE")
+list_tables[["allocated_sampled"]] <- allocated_sampled # Stations allocated and successfully sampled
+list_tables[["length-sample-sizes"]] <- targetn  # Target sample size for species/species groups
+list_tables[["top_CPUE"]] <- top_CPUE #
+#names(list_tables) <- c("allocated_sampled","targetn","top_CPUE")
 
 
 save(list_tables,
