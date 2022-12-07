@@ -1,12 +1,10 @@
 ## {{spp_name_informal}} (*{{spp_name_scientific}}*)
 
-{{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table 2). The highest densities were recorded in the {{top_cpue}} and {{second_top_cpue}} (Figure `r officer::run_reference(paste0("first-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). {{middle_sentences}} On average, the largest individuals were found in the {{region_largest}} (Figure `r officer::run_reference(paste0("second-",{{species_code}}))`). The estimated total biomass of {{spp_name_informal}} in the `r survname_long` bottom trawl survey was estimated to be {{species_biomass}} t.
+{{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table \@ref(tab:top-cpue)). The highest densities were recorded in the {{top_cpue}} and {{second_top_cpue}} (Figure `r officer::run_reference(paste0("first-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). {{middle_sentences}} On average, the largest individuals were found in the {{region_largest}} (Figure `r officer::run_reference(paste0("second-",{{species_code}}))`). The estimated total biomass of {{spp_name_informal}} in the `r survname_long` bottom trawl survey was estimated to be {{species_biomass}} t.
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table Caption"}
 table3s_list[[as.character({{ species_code }})]] %>%
-  #table3s_list[[as.character(30060)]] %>%
-  
   flextable() %>%
   theme_vanilla() %>%
   fontsize(size = 8, part = "all") %>%
@@ -26,7 +24,7 @@ table3s_list[[as.character({{ species_code }})]] %>%
   width(j = 7, width = 0.7, unit = "in") %>%
   width(j = 8, width = 0.7, unit = "in") %>%
   width(j = 9, width = 0.7, unit = "in") %>%
-  line_spacing(space = 0.5)
+  line_spacing(space = 0.5) 
 ```
 
 
@@ -38,7 +36,10 @@ table4s_list[[as.character({{ species_code }})]] %>%
 # table4s_list[[as.character(30060)]] %>%
   dplyr::mutate_at(.vars = c("Biomass (t)","Lower 95% CI","Upper 95% CI"), biomass_round,
                 ) %>%
+  dplyr::arrange(`INPFC area`,`Stratum name`,`Depth range (m)`) %>%
   flextable() %>%
+  merge_v(j = ~`INPFC area`) %>%
+  fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 7.5, part = "all") %>%
   fit_to_width(max_width = 8, unit = "in") %>%
@@ -57,7 +58,8 @@ table4s_list[[as.character({{ species_code }})]] %>%
   width(j = 7, width = 0.6, unit = "in") %>%
   width(j = 8, width = 0.5, unit = "in") %>%
   width(j = 9, width = 0.6, unit = "in") %>%
-  line_spacing(space = 0.5)
+  line_spacing(space = 0.5) %>%
+  hline(i = ~ break_position(`INPFC area`), border = cl) 
 ```
 
 
