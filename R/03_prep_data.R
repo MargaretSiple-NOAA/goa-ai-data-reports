@@ -9,7 +9,10 @@ if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 
 report_species <- report_species %>%
   arrange(-species_code) %>%
-  filter(report == 1)
+  filter(report == 1) 
+
+# Reorder based on specified spps order
+report_species <- report_species[order(report_species$reportorder),]
 
 pres_species <- report_species %>%
   arrange(-species_code) %>%
