@@ -1,23 +1,29 @@
-group,spp_name_informal,species_code,spp_name_scientific,presentation,report
-Sculpins,yellow irish lord,21347,Hemilepidotus jordani,1,1
-Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1
-Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1
-Roundfishes,atka mackerel,21921,Pleurogrammus monopterygius,1,1
-Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1
-Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1
-Rockfishes,walleye pollock,21740,Gadus chalcogrammus,1,1
-Rockfishes,rougheye rockfish,30051,Sebastes aleutianus,1,1
-Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,1,1
-Flatfishes,Northern rock sole,10261,Lepidopsetta bilineatus,1,1
-Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,1
-Skates,Aleutian skate,472,Bathyraja aleutica,1,1
-Skates,white blotched skate,480,Bathyraja maculata,1,1
-Flatfishes,kamchatka flounder,10112,Atheresthes evermanni,,1
-Flatfishes,Southern rock sole,10262,Lepidopsetta bilineata,,1
-Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,,1
-Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,,1
-Flatfishes,flathead sole,10130,Hippoglossoides elassodon,,1
-Flatfishes,rex sole,10200,Glyptocephalus zachirus,,1
-Roundfishes,giant grenadier,21230,Coryphaenoides pectoralis,,1
-Rockfishes,northern rockfish,30420,Sebastes polyspinis,,1
-Rockfishes,shortspine thornyhead,30020,Sebastolobus alascanus,,1
+group,spp_name_informal,species_code,spp_name_scientific,presentation,report,reportorder
+Sculpins,yellow irish lord,21347,Hemilepidotus jordani,1,1,14
+Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1,12
+Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1,1
+Roundfishes,atka mackerel,21921,Pleurogrammus monopterygius,1,1,9
+Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1,10
+Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1,17
+Rockfishes,walleye pollock,21740,Gadus chalcogrammus,1,1,11
+Rockfishes,rougheye rockfish,30051,Sebastes aleutianus,1,1,20
+Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,1,1,21
+Flatfishes,Northern rock sole,10261,Lepidopsetta bilineatus,1,1,3
+Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,1,19
+Skates,Aleutian skate,472,Bathyraja aleutica,1,1,27
+Skates,white blotched skate,480,Bathyraja maculata,1,1,25
+Flatfishes,kamchatka flounder,10112,Atheresthes evermanni,,1,2
+Flatfishes,Southern rock sole,10262,Lepidopsetta bilineata,,1,4
+Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,,1,5
+Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,,1,6
+Flatfishes,flathead sole,10130,Hippoglossoides elassodon,,1,7
+Flatfishes,rex sole,10200,Glyptocephalus zachirus,,1,8
+Roundfishes,giant grenadier,21230,Coryphaenoides pectoralis,,1,13
+Rockfishes,northern rockfish,30420,Sebastes polyspinis,,1,18
+Rockfishes,shortspine thornyhead,30020,Sebastolobus alascanus,,1,22
+Sculpins,darkfin sculpin,21341,Malacocottus zonurus,,1,15
+Sculpins,great sculpin,21370,Myoxocephalus polyacanthocephalus,,1,16
+Rockfishes,dusky rockfish,30152,Sebastes variabilis,,1,23
+Rockfishes,dark rockfish,30151,Sebastes ciliatus,,1,24
+Skates,leopard skate,477,Bathyraja panthera,,1,26
+Skates,Alaska skate,471,Bathyraja parmifera,,1,28
