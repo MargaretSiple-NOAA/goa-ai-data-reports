@@ -2,29 +2,31 @@
 
 {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table \@ref(tab:top-cpue)). The highest densities were recorded in the {{top_cpue}} and {{second_top_cpue}} (Figure `r officer::run_reference(paste0("first-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). {{middle_sentences}} On average, the largest individuals were found in the {{region_largest}} (Figure `r officer::run_reference(paste0("second-",{{species_code}}))`). The estimated total biomass of {{spp_name_informal}} in the `r survname_long` bottom trawl survey was estimated to be {{species_biomass}} t.
 
+
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table Caption"}
-table3s_list[[as.character({{ species_code }})]] %>%
+table3s_list[[as.character({{ species_code }})]][,1:9] %>%
+  #table3s_list[[as.character(10112)]][,1:9] %>%
   flextable() %>%
   theme_vanilla() %>%
-  fontsize(size = 8, part = "all") %>%
+  fontsize(size = 9, part = "all") %>%
   fit_to_width(max_width = 8, unit = "in") %>%
   set_caption(
     as_paragraph(
       as_chunk("Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
     ),
     word_stylename = "Table Caption"
-  ) %>%
-  width(j = 1, width = 1.75, unit = "in") %>%
-  width(j = 2, width = 1, unit = "in") %>%
-  width(j = 3, width = 0.7, unit = "in") %>%
-  width(j = 4, width = 0.7, unit = "in") %>%
-  width(j = 5, width = 0.7, unit = "in") %>%
-  width(j = 6, width = 0.7, unit = "in") %>%
-  width(j = 7, width = 0.7, unit = "in") %>%
-  width(j = 8, width = 0.7, unit = "in") %>%
-  width(j = 9, width = 0.7, unit = "in") %>%
-  line_spacing(space = 0.5) 
+  ) 
+  # width(j = 1, width = 1.75, unit = "in") %>%
+  # width(j = 2, width = 1, unit = "in") %>%
+  # width(j = 3, width = 0.7, unit = "in") %>%
+  # width(j = 4, width = 0.7, unit = "in") %>%
+  # width(j = 5, width = 0.7, unit = "in") %>%
+  # width(j = 6, width = 0.7, unit = "in") %>%
+  # width(j = 7, width = 0.7, unit = "in") %>%
+  # width(j = 8, width = 0.7, unit = "in") %>%
+  # width(j = 9, width = 0.7, unit = "in") %>%
+  # line_spacing(space = 0.7) 
 ```
 
 
@@ -41,7 +43,7 @@ table4s_list[[as.character({{ species_code }})]] %>%
   merge_v(j = ~`INPFC area`) %>%
   fix_border_issues() %>%
   theme_vanilla() %>%
-  fontsize(size = 7.5, part = "all") %>%
+  fontsize(size = 9, part = "all") %>%
   fit_to_width(max_width = 8, unit = "in") %>%
   set_caption(
     as_paragraph(
@@ -49,29 +51,25 @@ table4s_list[[as.character({{ species_code }})]] %>%
     ),
     word_stylename = "Table Caption"
   ) %>%
-  width(j = 1, width = 1.3, unit = "in") %>%
-  width(j = 2, width = 0.7, unit = "in") %>%
-  width(j = 3, width = 1.9, unit = "in") %>%
-  width(j = 4, width = 0.6, unit = "in") %>%
-  width(j = 5, width = 0.5, unit = "in") %>%
-  width(j = 6, width = 0.6, unit = "in") %>%
-  width(j = 7, width = 0.6, unit = "in") %>%
-  width(j = 8, width = 0.5, unit = "in") %>%
-  width(j = 9, width = 0.6, unit = "in") %>%
-  line_spacing(space = 0.5) %>%
+  # width(j = 1, width = 1.3, unit = "in") %>%
+  # width(j = 2, width = 0.7, unit = "in") %>%
+  # width(j = 3, width = 1.9, unit = "in") %>%
+  # width(j = 4, width = 0.6, unit = "in") %>%
+  # width(j = 5, width = 0.5, unit = "in") %>%
+  # width(j = 6, width = 0.6, unit = "in") %>%
+  # width(j = 7, width = 0.6, unit = "in") %>%
+  # width(j = 8, width = 0.5, unit = "in") %>%
+  # width(j = 9, width = 0.6, unit = "in") %>%
+  # line_spacing(space = 0.5) %>%
   hline(i = ~ break_position(`INPFC area`), border = cl) 
 ```
-
 
 \newpage
 ```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Distribution and relative abundance of {{spp_name_informal}} from the {{year}} {{region}} bottom trawl survey across the a) eastern, b) central, and c) western archipelago.', fig.id=paste0("first-",{{species_code}}),  tab.cap.style = "Figure Caption"}
 list_cpue_bubbles[[as.character({{species_code}})]]
 ```
 
-<br />
-
+\newpage
 ```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} by survey district and depth interval in the {{year}} {{region}} bottom trawl survey, since the start of the survey.', fig.id=paste0("second-",{{species_code}}),  tab.cap.style = "Figure Caption"}
 list_joy_length[[as.character({{species_code}})]]
 ```
-
-
