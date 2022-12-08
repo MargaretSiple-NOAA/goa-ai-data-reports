@@ -457,6 +457,32 @@ prep_tab4 <- function(speciescode){
   return(cleaned_tab)
 }
 
+# format appendix b contents so they will fit easily in a flextable
+prep_appendix_b <- function(df){
+  df2 <- df %>%
+    separate(SPECIES_NAME, c("species", "species_suffix"),
+             sep = "(?= sp.)", extra = "merge", remove = FALSE
+    ) %>%
+    mutate(species_suffix = case_when(
+      stringr::str_count(species, "\\w+") == 1 & is.na(species_suffix) ~ species,
+      TRUE ~ species_suffix
+    )) %>%
+    separate(species, c("species_2", "egg_case"), sep = "(?= egg case)", remove = TRUE) %>%
+    mutate(new_suffix = coalesce(species_suffix, egg_case)) %>%
+    dplyr::select(-species_suffix, -egg_case)
+  
+  
+  for (i in 1:nrow(df2)) {
+    if (!is.na(df2$new_suffix[i])) {
+      if (df2$species_2[i] == df2$new_suffix[i]) {
+        df2$species_2[i] <- ""
+      }
+    }
+  }
+  return(df2)
+}
+
+
 findhowmanyspp <- function(spp.tsn.list, ranklvl) {
   a <- rlist::list.search(
     .data = lapply(X = spp.tsn.list, "[", 2),
