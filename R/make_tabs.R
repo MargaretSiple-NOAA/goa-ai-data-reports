@@ -100,7 +100,7 @@ allocated_sampled <- piece1 %>%
   mutate(stations_per_1000km2 = (succeeded/AREA) * 1000) %>%
   mutate(AREA = round(AREA, digits = 1),
          stations_per_1000km2 = round(stations_per_1000km2, digits = 2)) 
-colnames(allocated_sampled) <- c("INPFC area","Depth range","Allocated","Attempted","Succeeded","Total area","Stations per 1,000 km^2")
+colnames(allocated_sampled) <- c("INPFC area","Depth range","Allocated","Attempted","Succeeded","Stratum","Total area","Stations per 1,000 km^2")
 
 # CPUE table by district - formatted by Paul ------------------------------
 #CPUE_table_formatted <- read_xlsx(path = paste0(dir_in_premadetabs,"Table 2/Table 2 AI2022.xlsx"))
