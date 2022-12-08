@@ -392,12 +392,13 @@ if (make_joy_division_length) {
       length3_species <- length3_species %>%
         filter(Sex != "Unsexed")
     }
+    
     length3_species <- length3_species %>%
       left_join(length3_species %>% dplyr::count(YEAR, Sex)) %>%
       left_join(length3_species %>% dplyr::group_by(Sex) %>% dplyr::summarize(yloc = median(LENGTH) * multiplier) %>% ungroup())
 
     joyplot <- length3_species %>%
-      ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = ..x..)) +
+      ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       geom_density_ridges_gradient(colour = "grey35") +
       scale_y_discrete(limits = rev) +
       geom_text(aes(label = paste0("n = ", n), x = yloc), 
