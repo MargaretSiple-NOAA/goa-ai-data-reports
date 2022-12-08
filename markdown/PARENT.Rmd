@@ -38,6 +38,8 @@ library(officer)
 list_tables[["allocated_sampled"]] %>% 
   #mutate(`Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`,digits = 1)) %>%
   flextable() %>% 
+   merge_v(j = ~ `INPFC area`) %>%
+  fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 8.5,part = 'all') %>% 
   line_spacing(space = 0.5) %>%
@@ -45,13 +47,37 @@ list_tables[["allocated_sampled"]] %>%
   width(j = 2, width = 1.2, unit = "in") %>%
   compose(part = "header", i = 1, j = 7,
          value = as_paragraph("Stations per 1,000 km",
-                              as_sup("2")))
+                              as_sup("2"))) %>%
+  hline(i = ~ break_position(`INPFC area`), border = cl) 
+```
+<br />
+
+```{r echo=FALSE,tab.cap='Mean CPUE (kg/ha) for the 20 most abundant groundfish species in each survey district during the 2018 Aleutian Islands bottom trawl survey.', tab.id='top-cpue',  tab.cap.style = "Table Caption"}
+
+list_tables[["top_CPUE"]] %>%
+  dplyr::select(INPFC_AREA,common_name, wgted_mean_cpue_kgha) %>%
+  dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha,digits = 1)) %>%
+  dplyr::rename(`INPFC area` = INPFC_AREA, 
+                Species = common_name,
+                `CPUE (kg/ha)` = wgted_mean_cpue_kgha) %>%
+  flextable() %>%
+  merge_v(j = ~`INPFC area`) %>%
+  fix_border_issues() %>%
+  theme_vanilla() %>%
+  fontsize(size = 9, part = "all") %>%
+  fit_to_width(max_width = 8, unit = "in") %>%
+  width(j = 1, width = 2, unit = "in") %>%
+  width(j = 2, width = 2, unit = "in") %>%
+  width(j = 3, width = 2, unit = "in") %>%
+  line_spacing(space = 0.5) %>% 
+  hline(i = ~ break_position(`INPFC area`), border = cl) 
+
 ```
 
 <br />
   
 ```{r echo=FALSE,tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
-list_tables[["targetn"]]%>%
+list_tables[["length-sample-sizes"]]%>%
   flextable(col_keys = c("dummy_col", "Target.sample.size")) %>%
   flextable::mk_par(
     j = "dummy_col",
@@ -72,14 +98,17 @@ list_tables[["targetn"]]%>%
 
 ```{r echo=FALSE,tab.cap='Number of otoliths collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
 otos_collected  %>% 
-  dplyr::rename("INPFC Area" = "INPFC_AREA") %>%
+  dplyr::rename("INPFC area" = "INPFC_AREA") %>%
   flextable() %>%  
+  merge_v(j = ~`INPFC area`) %>%
+  fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 8.5,part = 'all') %>% 
   width(j = 1, width = 2.5, unit = "in") %>%
   width(j = 2, width = 1.2, unit = "in") %>%
   width(j = 3, width = 2.5, unit = "in") %>%
-  line_spacing(space = 0.5)
+  line_spacing(space = 0.5) %>%
+  hline(i = ~ break_position(`INPFC area`), border = cl) 
 ```
 
 <br />
