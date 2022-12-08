@@ -107,7 +107,7 @@ haul2 <- haul %>%
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
 nstations <- haul2 %>%
   filter(HAUL_TYPE == 3) %>%
-  distinct(STATIONID) %>%
+  distinct(STATIONID,STRATUM) %>%
   nrow()
 
 # Number of "successful hauls":
@@ -123,14 +123,13 @@ nattemptedhauls <- haul2 %>%
 
 # Number of stations attempted:
 nattemptedstations <- haul2 %>%
-  filter(HAUL_TYPE == 3) %>%
-  distinct(STATIONID) %>%
+  distinct(STATIONID,STRATUM) %>%
   nrow()
 
 # Number of stations for which Marport net spread was successfully recorded:
 nstations_w_marport_data <- haul2 %>%
   filter(HAUL_TYPE == 3 & NET_MEASURED == "Y") %>%
-  distinct(STATIONID) %>%
+  distinct(STATIONID,STRATUM) %>%
   nrow()
 
 # Number of "failed tows":
