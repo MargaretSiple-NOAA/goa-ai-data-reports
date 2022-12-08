@@ -29,7 +29,7 @@ PKG <- c(
   "devtools",
   
   # Markdown
-  "knitr", # A general-purpose tool for dynamic report generation in R
+  "knitr", 
   "rmarkdown", 
   
   # Graphics
@@ -110,6 +110,7 @@ for (p in PKG) {
     install.packages(p)
     require(p,character.only = TRUE)}
 }
+
 
 
 #loadfonts(device = "win")
