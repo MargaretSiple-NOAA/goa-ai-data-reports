@@ -2755,6 +2755,13 @@ make_png <- function(fig_list_element,
 
 # Tables -----------------------------------------------------------------------
 
+
+# Allow breaks between sections in flextables
+break_position <- function(x) {
+  z <- data.table::rleidv(x)
+  c(z[-length(z)] != z[-1], FALSE)
+}
+
 table_change <- function(dat,
                          yrs,
                          maxyr,
