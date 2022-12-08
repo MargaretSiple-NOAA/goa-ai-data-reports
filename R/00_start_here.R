@@ -8,8 +8,8 @@ print_figs <- FALSE # Do you want to print out PNGs of each figure?
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2022-12-07"
-figuredate <- "2022-12-07"
+tabledate <- "2022-12-08"
+figuredate <- "2022-12-08"
 
 # Survey information ------------------------------------------------------
 survnumber <- "sixteenth" 
@@ -113,12 +113,12 @@ if (aa) {
   
   load(file = paste0(
     dir_in_figures,"cpue_bubbles.rdata")) # object: list_cpue_bubbles 
-  load(file = paste0(
-    dir_in_figures,"cpue_bubbles_strata.rdata")) # object: list_cpue_bubbles_strata 
+  # load(file = paste0(
+  #   dir_in_figures,"cpue_bubbles_strata.rdata")) # object: list_cpue_bubbles_strata 
   load(file = paste0(
     dir_in_figures,"joy_length.rdata")) # object: list_joy_length
-  load(file = paste0(
-    dir_in_figures,"biomass_ts.rdata")) # object: list_biomass_ts
+  # load(file = paste0(
+  #   dir_in_figures,"biomass_ts.rdata")) # object: list_biomass_ts
 }
 
 
@@ -187,7 +187,7 @@ fullreport <- body_add_docx(fullreport,
 
 
 
-print(fullreport, target = paste0(dir_out_chapters,"Final-Output.docx"))
+print(fullreport, target = paste0(dir_out_chapters,"Parent&Appendices.docx"))
 
 
 
