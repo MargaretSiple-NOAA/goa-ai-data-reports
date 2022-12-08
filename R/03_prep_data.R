@@ -106,7 +106,7 @@ haul2 <- haul %>%
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
 nstations <- haul2 %>%
-  filter(ABUNDANCE_HAUL == "Y") %>%
+  filter(HAUL_TYPE == 3) %>%
   distinct(STATIONID) %>%
   nrow()
 
@@ -114,7 +114,7 @@ nstations <- haul2 %>%
 #   Subset 2022 HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
-  nrow() # 420 in 2018
+  nrow() 
 
 # Number of attempted tows:
 nattemptedhauls <- haul2 %>%
@@ -130,12 +130,17 @@ nattemptedstations <- haul2 %>%
 # Number of stations for which Marport net spread was successfully recorded:
 nstations_w_marport_data <- haul2 %>%
   filter(HAUL_TYPE == 3 & NET_MEASURED == "Y") %>%
+  distinct(STATIONID) %>%
   nrow()
 
 # Number of "failed tows":
 nfailedtows <- haul2 %>%
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
   nrow()
+
+if(nstations_w_marport_data > nstations){
+  print("Yikes, more net mensuration stations than stations successfully sampled. Check the haul table and try not to cry.")
+}
 
 #Save for Alex
 #save(nstations, nsuccessfulhauls, nattemptedhauls,nattemptedstations,nstations_w_marport_data, file = "stationinfo2022.RData")
