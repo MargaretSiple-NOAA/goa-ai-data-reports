@@ -21,10 +21,11 @@ dir_code <- paste0(dir_in,"R/")
 # Data folder (for storing db tables) -------------------------------------
 dir.create(paste0(dir_in,"data/"))
 
-
 # Folder with tables produced by other people -----------------------------
 dir_in_premadetabs <- "G:/ALEUTIAN/AI 2022/DataReport/"
 
+# Folder containing appendices --------------------------------------------
+appendix_dir <- "G:/ALEUTIAN/AI 2022/DataReport/Appendices/"
 
 # Output folder -----------------------------------------------------------
 dir.output <- paste0(dir_in, "output/")
@@ -65,7 +66,6 @@ if(!file.exists(paste0(dir_in_figures,"report_figures.rdata"))){
 }
 
 # Folder with google drive snippets ---------------------------------------
-
 dir_out_gdrive <- "gdrive"
 dir.create(dir_out_gdrive)
 

@@ -133,10 +133,62 @@ Sys.time() - starttime
 
 #  time for 4 species: about 40-50 seconds
 #  for all species: about 5 mins
-# SAVE METADATA ----------------------------------------------------------------
 
-con <- file(paste0(dir_out_todaysrun, "metadata.log"))
-sink(con, append = TRUE)
-sessionInfo()
-sink() # Restore output to console
-# cat(readLines("notes.log"), sep="\n") # Look at the log
+
+# Append the appendices using officer -------------------------------------
+
+maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "PARENT.docx"))) %>%
+  body_add_break()
+
+fullreport <- body_add_docx(
+  x = maindoc,
+  src = paste0(appendix_dir, "AppendixA/Appendix Figure A-1.docx")
+) %>%
+  body_add_break()
+
+fullreport <- body_add_docx(fullreport,
+  src =  paste0(appendix_dir, "AppendixA/Appendix Figure A-2.docx")
+) %>%
+  body_add_break()
+
+fullreport <- body_add_docx(fullreport,
+  src =  paste0(appendix_dir, "AppendixA/Appendix Figure A-3.docx")
+) %>%
+  body_add_break()
+
+fullreport <- body_add_docx(fullreport,
+  src =  paste0(appendix_dir, "AppendixA/Appendix Figure A-4.docx")
+) %>%
+  body_add_break()
+
+# Make appendix B
+source(here::here("R","make_appendices.R"))
+fullreport <- body_add_docx(fullreport,
+                            src =  (paste0(dir_out_chapters, "AppendixB.docx"))
+) %>%
+  body_add_break()
+
+# Add Appendix C
+fullreport <- body_add_docx(fullreport,
+                            src =  paste0(appendix_dir, "Appendix C/APPENDIX C_2022.docx")
+) %>%
+  body_add_break()
+
+# Add Appendix D
+fullreport <- body_add_docx(fullreport,
+                            src =  paste0(appendix_dir, "AppendixD/Figure D1 AI2022 BottomTemp.docx")
+) %>%
+  body_add_break()
+
+fullreport <- body_add_docx(fullreport,
+                            src =  paste0(appendix_dir, "AppendixD/Figure D2 AI2022 Surface Temp.docx")
+) %>%
+  body_add_break()
+
+
+
+print(fullreport, target = paste0(dir_out_chapters,"Final-Output.docx"))
+
+
+
+
