@@ -106,9 +106,10 @@ haul2 <- haul %>%
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
 nstations <- haul2 %>%
-  filter(HAUL_TYPE == 3) %>%
+  #filter(HAUL_TYPE == 3) %>%
+  filter(ABUNDANCE_HAUL=="Y") %>%
   distinct(STATIONID,STRATUM) %>%
-  nrow() # for 2022: 417
+  nrow() # for 2022: 398
 
 # Number of "successful hauls":
 #   Subset 2022 HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
@@ -119,7 +120,7 @@ nsuccessfulhauls <- haul2 %>%
 # Number of attempted tows:
 nattemptedhauls <- haul2 %>%
   filter(HAUL_TYPE == 3) %>%
-  nrow() # for 2022: 451
+  nrow() # for 2022: 451 # 455 if you include test tows
 
 # Number of stations attempted:
 nattemptedstations <- haul2 %>%
