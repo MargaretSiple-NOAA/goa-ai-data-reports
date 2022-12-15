@@ -17,16 +17,6 @@ table3s_list[[as.character({{ species_code }})]][,1:9] %>%
     ),
     word_stylename = "Table Caption"
   ) 
-  # width(j = 1, width = 1.75, unit = "in") %>%
-  # width(j = 2, width = 1, unit = "in") %>%
-  # width(j = 3, width = 0.7, unit = "in") %>%
-  # width(j = 4, width = 0.7, unit = "in") %>%
-  # width(j = 5, width = 0.7, unit = "in") %>%
-  # width(j = 6, width = 0.7, unit = "in") %>%
-  # width(j = 7, width = 0.7, unit = "in") %>%
-  # width(j = 8, width = 0.7, unit = "in") %>%
-  # width(j = 9, width = 0.7, unit = "in") %>%
-  # line_spacing(space = 0.7) 
 ```
 
 
@@ -51,16 +41,6 @@ table4s_list[[as.character({{ species_code }})]] %>%
     ),
     word_stylename = "Table Caption"
   ) %>%
-  # width(j = 1, width = 1.3, unit = "in") %>%
-  # width(j = 2, width = 0.7, unit = "in") %>%
-  # width(j = 3, width = 1.9, unit = "in") %>%
-  # width(j = 4, width = 0.6, unit = "in") %>%
-  # width(j = 5, width = 0.5, unit = "in") %>%
-  # width(j = 6, width = 0.6, unit = "in") %>%
-  # width(j = 7, width = 0.6, unit = "in") %>%
-  # width(j = 8, width = 0.5, unit = "in") %>%
-  # width(j = 9, width = 0.6, unit = "in") %>%
-  # line_spacing(space = 0.5) %>%
   hline(i = ~ break_position(`INPFC area`), border = cl) 
 ```
 
