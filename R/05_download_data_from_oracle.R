@@ -113,6 +113,12 @@ if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
 
+  survnumber <- RODBC::sqlQuery(channel, "select count(distinct cruise) survnumber
+from race_data.cruises a, race_data.survey_definitions b, race_data.surveys c
+where b.survey_name = 'Aleutian Islands Bottom Trawl Survey'
+and a.survey_id = c.survey_id
+and b.survey_definition_id = c.survey_definition_id")
+  
   print("Finished downloading GOA schema tables")
 }
 
@@ -130,14 +136,10 @@ if (SRVY == "AI") {
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
   write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
-
+  
   print("Finished downloading AI schema tables")
 }
 
-
-# NODC (Food Habits) ------------------------------------------------------
-# a <- RODBC::sqlQuery(channel, "SELECT * FROM FOODLAB.NODC")
-# write.csv(x = a, "./data/local_nodc/nodc.csv", row.names = FALSE)
 
 # All done!
 print("Finished downloading local versions of tables! Yay.")

@@ -40,6 +40,15 @@ haul_maxyr <- haul %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
   filter(REGION == SRVY & YEAR == maxyr)
 
+# This year's survey number
+cruises <- read.csv("data/local_race_data/cruises.csv")
+
+survnumber <- cruises %>%
+  filter(SURVEY_NAME == "Aleutian Islands Bottom Trawl Survey") %>%
+  distinct(CRUISE) %>%
+  nrow() %>%
+  scales::ordinal()
+
 # Temperature data --------------------------------------------------------
 minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
 maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
@@ -106,7 +115,6 @@ haul2 <- haul %>%
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
 nstations <- haul2 %>%
-  #filter(HAUL_TYPE == 3) %>%
   filter(ABUNDANCE_HAUL=="Y") %>%
   distinct(STATIONID,STRATUM) %>%
   nrow() # for 2022: 398

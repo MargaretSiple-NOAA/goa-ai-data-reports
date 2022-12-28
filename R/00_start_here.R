@@ -12,7 +12,7 @@ tabledate <- "2022-12-08"
 figuredate <- "2022-12-08"
 
 # Survey information ------------------------------------------------------
-survnumber <- "sixteenth" 
+#survnumber <- "twentieth" 
 dates_conducted <- "June 6th through August 14th, 2022" # Change this for the year!
 SRVY <- "AI" # Options: "GOA", "AI"
 nstationsassigned <- 420
