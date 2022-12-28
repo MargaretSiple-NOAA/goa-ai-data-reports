@@ -1,0 +1,51 @@
+---
+title: "Check values against SQL queries used in the past"
+author: "M Siple"
+date: "2022-12-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Setup channel to connect to Oracle --------------------------------------
+source("R/setup_channel.R")
+# The setup_channel.R script sets up a channel using your Oracle username and pw.
+
+# Which survey number is it?
+(survnumber)
+survnumber_sql <- RODBC::sqlQuery(channel, "select count(distinct cruise) survnumber
+from race_data.cruises a, race_data.survey_definitions b, race_data.surveys c
+where b.survey_name = 'Aleutian Islands Bottom Trawl Survey'
+and a.survey_id = c.survey_id
+and b.survey_definition_id = c.survey_definition_id")
+
+# What is the number of successfully sampled stations?
+(nstations)
+nstations_sql <- RODBC::sqlQuery(channel, "select count(distinct hauljoin) nstations
+from racebase.haul
+where region = 'AI'
+and cruise = 202201
+and abundance_haul = 'Y'")
+
+```
+
+
+
+## Checks
+
+This script produces an easy-to-read table that compares the values produced in R to the ones produced by SQL queries, which used to be used to produce the data reports. 
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
