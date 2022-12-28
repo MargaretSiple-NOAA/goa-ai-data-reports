@@ -13,3 +13,10 @@ from race_data.cruises a, race_data.survey_definitions b, race_data.surveys c
 where b.survey_name = 'Aleutian Islands Bottom Trawl Survey'
 and a.survey_id = c.survey_id
 and b.survey_definition_id = c.survey_definition_id")
+
+# What is the number of successfully sampled stations?
+nstations_sql <- RODBC::sqlQuery(channel, "select count(distinct hauljoin) nstations
+from racebase.haul
+where region = 'AI'
+and cruise = 202201
+and abundance_haul = 'Y'")
