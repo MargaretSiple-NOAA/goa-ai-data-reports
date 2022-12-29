@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 # Setup channel to connect to Oracle --------------------------------------
-source("R/setup_channel.R")
+source(here::here("R/setup_channel.R"))
 # The setup_channel.R script sets up a channel using your Oracle username and pw.
 
 # Which survey number is it?
@@ -36,16 +36,10 @@ and abundance_haul = 'Y'")
 
 This script produces an easy-to-read table that compares the values produced in R to the ones produced by SQL queries, which used to be used to produce the data reports. 
 
-```{r cars}
-summary(cars)
+```{r}
+indiv_values <- data.frame("Variable name" = c("survnumber","nstations"),
+                           "Description" = c("description 1","description 2")) %>%
+  "Value in previous report year" = c(NA,NA),
+"Value this year from R" = c(survnumber,nstations)
+  kableExtra::kable()
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
