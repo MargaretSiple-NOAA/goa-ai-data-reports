@@ -14,10 +14,6 @@ for (i in 1:length(dirs)) {
   )
 }
 
-
-# Code folder (where scripts are stored) ----------------------------------
-dir_code <- paste0(dir_in,"R/")
-
 # Data folder (for storing db tables) -------------------------------------
 dir.create(paste0(dir_in,"data/"))
 
@@ -56,6 +52,7 @@ if(is.na(tabledate) | is.na(figuredate)){
 
 dir_in_tables <- paste0(dir.output,tabledate,"/tables/")
 dir_in_figures <- paste0(dir.output,figuredate, "/figures/")
+dir_in_reportvalues <- paste0(dir.output,reportvaluesdate)
 
 if(!file.exists(paste0(dir_in_tables,"report_tables.rdata"))){
   print(paste("Tables file does not exist. Make sure you generated tables on", tabledate))
