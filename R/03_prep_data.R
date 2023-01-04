@@ -5,24 +5,24 @@
 
 # Tables from RACEBASE ----------------------------------------------------
 # Get species table
-if (SRVY == "AI") report_species <- read.csv(here::here("data","ai_report_specieslist.csv"))
+if (SRVY == "AI") report_species <- read.csv(here::here("data", "ai_report_specieslist.csv"))
 
 report_species <- report_species %>%
   arrange(-species_code) %>%
-  filter(report == 1) 
+  filter(report == 1)
 
 # Reorder based on specified spps order
-report_species <- report_species[order(report_species$reportorder),]
+report_species <- report_species[order(report_species$reportorder), ]
 
 pres_species <- report_species %>%
   arrange(-species_code) %>%
   filter(presentation == 1)
 
 # haul info (source: RACEBASE)
-haul <- read.csv(here::here("data","local_racebase","haul.csv"))
+haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
 # species ID info (source: RACEBASE)
-common_names <- read.csv(here::here("data","local_racebase","species.csv"), header = TRUE)
+common_names <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
 species_names <- common_names %>%
   janitor::clean_names() %>%
   dplyr::rename(scientific_name = species_name) %>%
@@ -41,7 +41,7 @@ haul_maxyr <- haul %>%
   filter(REGION == SRVY & YEAR == maxyr)
 
 # This year's survey number
-cruises <- read.csv(here::here("data","local_race_data","cruises.csv"))
+cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
 
 survnumber <- cruises %>%
   filter(SURVEY_NAME == "Aleutian Islands Bottom Trawl Survey") %>%
@@ -77,10 +77,10 @@ biomass_stratum <- read.csv(here::here("data", "local_ai", "biomass_stratum.csv"
 biomass_total <- read.csv(here::here("data", "local_ai", "biomass_total.csv"))
 
 # Station allocation table (source: AI or GOA schema)
-all_allocation <- read.csv(here::here("data","local_ai","ai_station_allocation.csv"))
+all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
-dat <- read.csv(here::here("data","goa_strata.csv"), header = TRUE)
+dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
 region_lu <- dat %>%
   filter(SURVEY == SRVY) %>%
   dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, REGULATORY_AREA_NAME, AREA) %>%
@@ -112,18 +112,30 @@ haul2 <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
+avg_net_height <- haul %>%
+  filter(REGION == SRVY, CRUISE >= 199101 & ABUNDANCE_HAUL == "Y") %>%
+  summarize(mean(NET_HEIGHT, na.rm = T)) %>%
+  round(digits = 1) %>%
+  as.numeric()
+
+avg_net_width <- haul %>%
+  filter(REGION == SRVY, CRUISE >= 199101 & ABUNDANCE_HAUL == "Y") %>%
+  summarize(mean(NET_WIDTH, na.rm = T)) %>%
+  round(digits = 1) %>%
+  as.numeric()
+
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
 nstations <- haul2 %>%
-  filter(ABUNDANCE_HAUL=="Y") %>%
-  distinct(STATIONID,STRATUM) %>%
+  filter(ABUNDANCE_HAUL == "Y") %>%
+  distinct(STATIONID, STRATUM) %>%
   nrow() # for 2022: 398
 
 # Number of "successful hauls":
 #   Subset 2022 HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
-  nrow()  # for 2022: 398
+  nrow() # for 2022: 398
 
 # Number of attempted tows:
 nattemptedhauls <- haul2 %>%
@@ -132,13 +144,13 @@ nattemptedhauls <- haul2 %>%
 
 # Number of stations attempted:
 nattemptedstations <- haul2 %>%
-  distinct(STATIONID,STRATUM) %>%
+  distinct(STATIONID, STRATUM) %>%
   nrow() # for 2022: 420
 
 # Number of stations for which Marport net spread was successfully recorded:
 nstations_w_marport_data <- haul2 %>%
   filter(HAUL_TYPE == 3 & NET_MEASURED == "Y") %>%
-  distinct(STATIONID,STRATUM) %>%
+  distinct(STATIONID, STRATUM) %>%
   nrow() # for 2022: 397
 
 # Number of "failed tows":
@@ -146,12 +158,12 @@ nfailedtows <- haul2 %>%
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
   nrow()
 
-if(nstations_w_marport_data > nstations){
+if (nstations_w_marport_data > nstations) {
   print("Yikes, more net mensuration stations than stations successfully sampled. Check the haul table and try not to cry.")
 }
 
-#Save for Alex
-#save(nstations, nsuccessfulhauls, nattemptedhauls,nattemptedstations,nstations_w_marport_data, file = "stationinfo2022.RData")
+# Save for Alex
+# save(nstations, nsuccessfulhauls, nattemptedhauls,nattemptedstations,nstations_w_marport_data, file = "stationinfo2022.RData")
 
 
 if (any(is.na(haul2$NET_WIDTH))) {
@@ -171,7 +183,7 @@ lengths_collected <- nrow(length_maxyr) %>%
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
-S <- read.csv(here::here("data","local_racebase","specimen.csv"))
+S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
 specimen_maxyr <- S %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
   filter(YEAR == maxyr & REGION == SRVY)
