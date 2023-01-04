@@ -93,7 +93,7 @@ list_tables[["length-sample-sizes"]] %>%
 
 <br />
 
-```{r echo=FALSE,tab.cap='Number of otoliths collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap='Otolith samples collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
 otos_collected  %>% 
   dplyr::rename("INPFC area" = "INPFC_AREA") %>%
   flextable() %>%  
