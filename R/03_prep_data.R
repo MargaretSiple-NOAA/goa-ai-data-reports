@@ -5,7 +5,7 @@
 
 # Tables from RACEBASE ----------------------------------------------------
 # Get species table
-if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+if (SRVY == "AI") report_species <- read.csv(here::here("data","ai_report_specieslist.csv"))
 
 report_species <- report_species %>%
   arrange(-species_code) %>%
@@ -19,10 +19,10 @@ pres_species <- report_species %>%
   filter(presentation == 1)
 
 # haul info (source: RACEBASE)
-haul <- read.csv(here::here("data/local_racebase/haul.csv"))
+haul <- read.csv(here::here("data","local_racebase","haul.csv"))
 
 # species ID info (source: RACEBASE)
-common_names <- read.csv("data/local_racebase/species.csv", header = TRUE)
+common_names <- read.csv(here::here("data","local_racebase","species.csv"), header = TRUE)
 species_names <- common_names %>%
   janitor::clean_names() %>%
   dplyr::rename(scientific_name = species_name) %>%
@@ -41,7 +41,7 @@ haul_maxyr <- haul %>%
   filter(REGION == SRVY & YEAR == maxyr)
 
 # This year's survey number
-cruises <- read.csv("data/local_race_data/cruises.csv")
+cruises <- read.csv(here::here("data","local_race_data","cruises.csv"))
 
 survnumber <- cruises %>%
   filter(SURVEY_NAME == "Aleutian Islands Bottom Trawl Survey") %>%
@@ -77,10 +77,10 @@ biomass_stratum <- read.csv(here::here("data", "local_ai", "biomass_stratum.csv"
 biomass_total <- read.csv(here::here("data", "local_ai", "biomass_total.csv"))
 
 # Station allocation table (source: AI or GOA schema)
-all_allocation <- read.csv("data/local_ai/ai_station_allocation.csv")
+all_allocation <- read.csv(here::here("data","local_ai","ai_station_allocation.csv"))
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
-dat <- read.csv("data/goa_strata.csv", header = TRUE)
+dat <- read.csv(here::here("data","goa_strata.csv"), header = TRUE)
 region_lu <- dat %>%
   filter(SURVEY == SRVY) %>%
   dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, REGULATORY_AREA_NAME, AREA) %>%
@@ -171,7 +171,7 @@ lengths_collected <- nrow(length_maxyr) %>%
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
-S <- read.csv(here::here("data/local_racebase/specimen.csv"))
+S <- read.csv(here::here("data","local_racebase","specimen.csv"))
 specimen_maxyr <- S %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
   filter(YEAR == maxyr & REGION == SRVY)
