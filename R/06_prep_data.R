@@ -56,11 +56,18 @@ maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
 minsurfacetemp <- min(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 
+
+
+# Econ info ---------------------------------------------------------------
+#sp_prices <- read.csv(here::here("data",""))
+
+
 # Tables from AI/GOA schemas ----------------------------------------------
 # cpue (source: AI or GOA schema)
 # NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
 x <- read.csv(file = here::here("data", "local_ai","cpue.csv"), header = TRUE) 
 # This is already 0-filled
+
 cpue_raw <- x %>%
   left_join(common_names) %>%
   dplyr::select(-YEAR_ADDED) %>%
@@ -158,6 +165,9 @@ nstations_w_marport_data <- haul2 %>%
 nfailedtows <- haul2 %>%
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
   nrow()
+
+# Number of stations with no marport data
+no_marport_data <- nsuccessfulhauls - nstations_w_marport_data
 
 if (nstations_w_marport_data > nstations) {
   print("Yikes, more net mensuration stations than stations successfully sampled. Check the haul table and try not to cry.")
