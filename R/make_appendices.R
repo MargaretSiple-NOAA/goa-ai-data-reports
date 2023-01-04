@@ -43,3 +43,10 @@ rmarkdown::render(paste0(dir_markdown, "/APPENDIXB.Rmd"),
 # Appendix D --------------------------------------------------------------
 # Bottom and surface temps
 # This file is created by Paul in 2022; will take more work to automate because it contains materials from ArcGIS and we'll have to turn them into maps in R.
+
+
+# Appendix E --------------------------------------------------------------
+# Ops manual
+# Get Word doc from G:/ALEUTIAN/AI 2022/Ops Plan/2022 AI Scientific Operations Plan.docx
+file.copy(from = "G:/ALEUTIAN/AI 2022/Ops Plan/2022 AI Scientific Operations Plan.docx",
+          to = paste0(appendix_dir,"Appendix E.docx"))
