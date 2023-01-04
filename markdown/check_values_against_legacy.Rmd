@@ -29,7 +29,16 @@ and cruise = 202201
 and abundance_haul = 'Y'")
 
 ```
+# How many stations don't have Marport spread data?
 
+```{r}
+no_marport_data_sql <- RODBC::sqlQuery(channel, "select count(*) spread_measured
+from racebase.haul
+where region = 'AI'
+and cruise = 202201
+and net_measured = 'Y' -- always and only refers to net spread and indicates whether we modeled it (N) or measured it (Y)
+and abundance_haul = 'Y'")
+```
 
 
 ## Checks
