@@ -56,11 +56,11 @@ maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
 minsurfacetemp <- min(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 
-
 # Tables from AI/GOA schemas ----------------------------------------------
 # cpue (source: AI or GOA schema)
 # NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
-x <- read.csv(file = here::here("data/local_ai/cpue.csv"), header = TRUE) # This is already 0-filled
+x <- read.csv(file = here::here("data", "local_ai","cpue.csv"), header = TRUE) 
+# This is already 0-filled
 cpue_raw <- x %>%
   left_join(common_names) %>%
   dplyr::select(-YEAR_ADDED) %>%
@@ -83,8 +83,9 @@ all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation
 dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
 region_lu <- dat %>%
   filter(SURVEY == SRVY) %>%
-  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, REGULATORY_AREA_NAME, AREA) %>%
-  filter(STRATUM <= 794) %>% # STRATUM >=211 &
+  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, 
+                REGULATORY_AREA_NAME, AREA) %>%
+  filter(STRATUM <= 794) %>% 
   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
   mutate(INPFC_AREA = str_trim(INPFC_AREA))
@@ -246,7 +247,6 @@ report_biomasses <- biomass_total %>%
   filter(YEAR == maxyr) %>%
   janitor::clean_names() %>%
   right_join(report_species)
-
 
 # Get species blurb interior sentences ------------------------------------
 blurbs <- read.csv(here::here("data", "AI2022_SpeciesBlurbMiddleSentences.csv"))

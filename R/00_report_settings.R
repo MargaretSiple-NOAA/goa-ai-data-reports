@@ -8,9 +8,9 @@ print_figs <- FALSE # Do you want to print out PNGs of each figure?
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2022-12-08"
-figuredate <- "2022-12-08"
-reportvaluesdate <- "2022-12-08"
+tabledate <- "2023-01-03"
+figuredate <- "2023-01-03"
+reportvaluesdate <- "2023-01-03"
 
 # Survey information ------------------------------------------------------
 #survnumber <- "twentieth" 
@@ -51,5 +51,5 @@ report_yr <- maxyr
 
 
 # Vessel specs ------------------------------------------------------------
-vessel_spec_chunk <-  "The Alaska Provider is 53.6 m in overall length (LOA) and is powered by two main engines with 2,200 continuous horsepower (HP). The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine.  The Alaska Provider is equipped with two forward and one stern net reel, but only the aft reel was used during the AI `r maxyr` bottom trawl survey. The Ocean Explorer is equipped with two forward net reels, both of which were used during the AI `r maxyr` bottom trawl survey."  
+vessel_spec_chunk <- paste("The Alaska Provider is 53.6 m in overall length (LOA) and is powered by two main engines with 2,200 continuous horsepower (HP). The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine. The Alaska Provider is equipped with two forward and one stern net reel, but only the aft reel was used during the AI", maxyr, "bottom trawl survey. The Ocean Explorer is equipped with two forward net reels, both of which were used during the AI", maxyr, "bottom trawl survey.")
 

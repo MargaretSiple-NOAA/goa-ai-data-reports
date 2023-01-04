@@ -28,15 +28,17 @@ source("R/03_prep_data.R") # Make all the tables and stuff needed for report and
 # Do you want to build all the tables right now? NOTE: This may take a while.
 source(here::here("R", "make_tabs.R"))
 
-# Do you want to build all the figures right now? NOTE: This may take a while.
-source(here::here("R", "make_figures.R"))
+# Run this if you want to build all the figures right now? NOTE: This may take a while.
+z <- askYesNo(msg = "Do you want to create all the figures right now? Note: this may take a while.")
+if(z) {source(here::here("R", "make_figures.R"))}
+
 
 # Save all the values needed to make the report so you can easily load later --
 # clean up global env before saving. Can add to this when I find more stuff that we don't actually need in the report Markdown file.
 rm(list = c(
   "ai_central", "ai_east", "ai_west", "bartheme", "bubbletheme", "catch", "fig", "haul",
-  "joyplot", "L", "length2", "length3", "linetheme", "list_cpue_bubbles", "list_joy_length", "list_tables", "S",
-  "table3s_list", "table4s_list"
+  "joyplot", "L", "length2", "length3", "linetheme", "list_cpue_bubbles", "list_joy_length", 
+  "list_tables", "S", "table3s_list", "table4s_list"
 ))
 
 save(list = ls(), file = paste0(dir_out_todaysrun, "reportvalues.rdata"))
