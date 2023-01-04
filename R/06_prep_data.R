@@ -59,8 +59,14 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 
 
 # Econ info ---------------------------------------------------------------
-#sp_prices <- read.csv(here::here("data",""))
-
+dat <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
+sp_prices <- dat %>%
+  dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) %>%
+  dplyr::rename(`Scientific name`=species.name,
+                `Common name` = common.name,
+                `Included in design` = include,
+                `Ex-vessel price` = ex.vessel.price,
+                `Source` = source) 
 
 # Tables from AI/GOA schemas ----------------------------------------------
 # cpue (source: AI or GOA schema)
