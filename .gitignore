@@ -48,6 +48,7 @@ vignettes/*.pdf
 /data/specimen_ADFG.csv
 gdrive/
 output/
+bonus/
 /data/cpue_station.csv
 /data/SpeciesBlurbMiddleStences.csv
 
