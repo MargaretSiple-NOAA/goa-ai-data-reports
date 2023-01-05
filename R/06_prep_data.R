@@ -153,6 +153,9 @@ nnewstations <- all_allocation %>%
   filter(YEAR == maxyr & is.na(STATIONID)) %>% 
   nrow()
 
+if (nnewstations == 0) {
+  "Code says no new stations were sampled this year. Is this correct?"
+}
 
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.

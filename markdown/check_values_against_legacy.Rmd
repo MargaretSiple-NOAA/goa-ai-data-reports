@@ -28,6 +28,9 @@ where region = 'AI'
 and cruise = 202201
 and abundance_haul = 'Y'")
 
+# How many stations were assigned?
+nstationsassigned_sql <- RODBC::sqlQuery(channel, "select count(*) new_stations from ai.station_allocation where year = 2022 and stationid is null")
+
 ```
 # How many stations don't have Marport spread data?
 
