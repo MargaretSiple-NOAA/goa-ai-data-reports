@@ -1,6 +1,6 @@
-# 03_prep_data
+# 06_prep_data
 # Read in local copies of all the "stuff" needed for making tables and figs.
-# This takes a while because a lot of these are big tables.
+# This takes a while because a lot of these are big tables/files/etc.
 # Note: if you've downloaded all the local versions of the tables, you should be able to run this script without internet access or anything. If it fails, make an issue!
 
 # Tables from RACEBASE ----------------------------------------------------
@@ -56,7 +56,10 @@ maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
 minsurfacetemp <- min(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
 
-
+head(haul_maxyr)
+haul_maxyr %>% 
+  filter(!is.na(GEAR_TEMPERATURE)) %>% 
+  nrow()
 
 # Econ info ---------------------------------------------------------------
 dat <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
@@ -122,6 +125,10 @@ INPFC_areas <- region_lu2 %>%
 # individual values needed for report (e.g., most abundant species) -------
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
+
+# Station allocation, counts, etc. ----------------------------------------
+#maxyr_allocation <- 
+
 haul2 <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
   filter(YEAR == maxyr & REGION == SRVY)
@@ -137,6 +144,15 @@ avg_net_width <- haul %>%
   summarize(mean(NET_WIDTH, na.rm = T)) %>%
   round(digits = 1) %>%
   as.numeric()
+
+nstationsassigned <- all_allocation %>%
+  filter(YEAR == maxyr) %>% 
+  nrow()
+
+nnewstations <- all_allocation %>%
+  filter(YEAR == maxyr & is.na(STATIONID)) %>% 
+  nrow()
+
 
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
@@ -172,6 +188,7 @@ nfailedtows <- haul2 %>%
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
   nrow()
 
+
 # Number of stations with no marport data
 no_marport_data <- nsuccessfulhauls - nstations_w_marport_data
 
@@ -188,6 +205,7 @@ if (any(is.na(haul2$NET_WIDTH))) {
 } else {
   marportpredsentence <- "Net width data were collected for all hauls using a Marport net spread sensor."
 }
+
 
 # N lengths and otoliths sampled -------------------------------------------
 L <- read.csv(here::here("data/local_racebase/length.csv"))
@@ -245,7 +263,7 @@ highest_biomass <- biomass_maxyr %>%
 highest_biomass_flatfish <- highest_biomass %>%
   filter(major_group == "Flatfish")
 
-highest_skates <- biomass_total %>%
+highest_elasmos <- biomass_total %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%
@@ -266,3 +284,6 @@ report_biomasses <- biomass_total %>%
 
 # Get species blurb interior sentences ------------------------------------
 blurbs <- read.csv(here::here("data", "AI2022_SpeciesBlurbMiddleSentences.csv"))
+
+
+#Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
