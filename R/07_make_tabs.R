@@ -1,4 +1,5 @@
-# This script should load the necessary data and build PNGs of all the figures for the paper, so they can be accessed in the Markdown part.
+# This script builds all the tables needed for the report. It is intended to be run after all the preceding files (00 thru 06) so don't try to run it on its own.
+if(!maxyr){print("This script requires objects that aren't in the environment yet - make sure you run all the preceding files (00_report-settings.R thru 06_prep_data.R).")}
 
 # Tables are labeled / ordered based on the historical data reports order of tables (currently based on the 2018 AI report, because that's the most recent one I have access to)
 # Table 1 is the target sample sizes for different species categories
@@ -19,7 +20,8 @@ top_CPUE <- make_top_cpue(YEAR = YEAR,
                           SRVY = SRVY,
                           cpue_raw = cpue_raw)
 
-write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE","_",maxyr,".csv"),row.names = FALSE)
+write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE","_",maxyr,".csv"),
+          row.names = FALSE)
 
 # Biomass estimates by area and depth range -------------------------------
 # Not needed I don't think yet but I did produce this for Maia for 2022 FHS.

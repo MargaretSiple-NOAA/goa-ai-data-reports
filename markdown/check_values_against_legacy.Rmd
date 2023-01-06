@@ -31,6 +31,18 @@ and abundance_haul = 'Y'")
 # How many stations were assigned?
 nstationsassigned_sql <- RODBC::sqlQuery(channel, "select count(*) new_stations from ai.station_allocation where year = 2022 and stationid is null")
 
+nfishlengths_sql <- RODBC::sqlQuery(channel, "select count(*)
+from racebase.length
+where region = 'AI'
+and cruise = 202201
+and length_type in (1,5,11)")
+
+nsquidlengths <- RODBC::sqlQuery(channel, "select count(*)
+from racebase.length
+where region = 'AI'
+and cruise = 202201
+and length_type=12")
+
 ```
 # How many stations don't have Marport spread data?
 
@@ -44,14 +56,18 @@ and abundance_haul = 'Y'")
 ```
 
 
+
+
 ## Checks
 
 This script produces an easy-to-read table that compares the values produced in R to the ones produced by SQL queries, which used to be used to produce the data reports. 
 
 ```{r}
 indiv_values <- data.frame("Variable name" = c("survnumber","nstations"),
-                           "Description" = c("description 1","description 2")) %>%
+                           "Description" = c("description 1","description 2"),
   "Value in previous report year" = c(NA,NA),
-"Value this year from R" = c(survnumber,nstations)
+"Value this year from R" = c(survnumber,nstations)) %>%
   kableExtra::kable()
 ```
+
+
