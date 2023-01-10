@@ -20,8 +20,8 @@ SRVY <- "AI" # Options: "GOA", "AI"
 nstationsassigned <- 420
 
 YEAR <- maxyr
-vessel1 <- "FV Ocean Explorer"
-vessel2 <- "FV Alaska Provider"
+vessel1 <- "Ocean Explorer"
+vessel2 <- "Alaska Provider"
 captain1 <- "Dan Carney"
 captain2 <- "Loren Reynolds"
 
