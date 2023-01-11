@@ -10,7 +10,7 @@ bibliography: "../cite/bibliography.bib"
 This is a test of the cross-refs in this doc (Table \@ref(tab:stations-allocated)). And here is a test for figure cross-referencing (Figure \@ref(fig:area-map)).
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE, dev = "ragg_png")
 library(officedown)
 library(officer)
 ```
