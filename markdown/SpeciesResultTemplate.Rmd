@@ -11,6 +11,7 @@ table3s_list[[as.character({{ species_code }})]][,1:9] %>%
   theme_vanilla() %>%
   fontsize(size = 9, part = "all") %>%
   fit_to_width(max_width = 8, unit = "in") %>%
+  align(i = 1, align = "center",part = 'header') %>%
   set_caption(
     as_paragraph(
       as_chunk("Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
@@ -22,7 +23,6 @@ table3s_list[[as.character({{ species_code }})]][,1:9] %>%
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.', tab.id=paste0("table2-",{{species_code}}),  tab.cap.style = "Table Caption"}
-biomass_round <- function(x){round(x,digits = 0)}
 
 table4s_list[[as.character({{ species_code }})]] %>%
 # table4s_list[[as.character(30060)]] %>%
@@ -35,6 +35,7 @@ table4s_list[[as.character({{ species_code }})]] %>%
   theme_vanilla() %>%
   fontsize(size = 9, part = "all") %>%
   fit_to_width(max_width = 8, unit = "in") %>%
+  align(i = 1, align = "center",part = 'header') %>%
   set_caption(
     as_paragraph(
       as_chunk("Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))

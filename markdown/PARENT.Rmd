@@ -59,6 +59,7 @@ list_tables[["allocated_sampled"]] %>%
   compose(part = "header", i = 1, j = 7,
          value = as_paragraph("Stations per 1,000 km",
                               as_sup("2"))) %>%
+  align(i = 1, align = "center",part = 'header') %>%
   hline(i = ~ break_position(`INPFC area`), border = cl)
 ```
 <br />
@@ -98,6 +99,7 @@ list_tables[["length-sample-sizes"]] %>%
   theme_vanilla() %>%
   fontsize(size = 8.5, part = "all") %>%
   #width(j = 1, width = 4, unit = "in") %>%
+  align(i=1,j=2, align = "center",part = 'header') %>%
   autofit() %>%
   line_spacing(space = 0.75)
 
