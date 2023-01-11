@@ -1,7 +1,7 @@
 ---
-title: "Check values against SQL queries used in the past"
+title: "Check values against SQL query versions of the same thing"
 author: "M Siple"
-date: "2022-12-28"
+date: "2023-01-10"
 output: html_document
 ---
 
@@ -55,7 +55,17 @@ and net_measured = 'Y' -- always and only refers to net spread and indicates whe
 and abundance_haul = 'Y'")
 ```
 
+# Check summary of trawl effort for a given species - NEED TO TURN THIS INTO A FUNCTION
+```{r}
+atf_check_second_table_sql <- RODBC::sqlQuery(channel, "select distinct inpfc_area, min_depth||'-'||max_depth depth_range, haul_count, catch_count, mean_wgt_cpue/100 cpue_kg_ha, area_biomass, min_biomass, max_biomass
+from goa.goa_strata a, ai.biomass_inpfc_depth b
+where a.survey = 'AI'
+and b.year = 2022
+and b.species_code = 10110
+and a.summary_area_depth = b.summary_area_depth
+order by inpfc_area desc, depth_range")
 
+```
 
 
 ## Checks
