@@ -15,6 +15,9 @@ list_figures <- list()
 
 ######### General Stuff ########
 
+biomass_round <- function(x){round(x,digits = 0)}
+
+
 SameColNames <- function(df.ls) {
   # All column names
   colnames0 <- c()
