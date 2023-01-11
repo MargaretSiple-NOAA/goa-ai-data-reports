@@ -3,7 +3,7 @@
 # This takes a while because a lot of these are big tables/files/etc.
 # Note: if you've downloaded all the local versions of the tables, you should be able to run this script without internet access or anything. If it fails, make an issue!
 
-# Tables from RACEBASE ----------------------------------------------------
+# RACEBASE tables ----------------------------------------------------
 # Get species table
 if (SRVY == "AI") report_species <- read.csv(here::here("data", "ai_report_specieslist.csv"))
 
@@ -49,17 +49,26 @@ survnumber <- cruises %>%
   nrow() %>%
   scales::ordinal()
 
-# Temperature data --------------------------------------------------------
-minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
-maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE, na.rm = T)
+# Temp data --------------------------------------------------------
+# length(which(is.na(haul_maxyr$GEAR_TEMPERATURE)))
+# length(which(is.na(haul_maxyr$SURFACE_TEMPERATURE)))
 
-minsurfacetemp <- min(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
-maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, na.rm = T)
-
-head(haul_maxyr)
 haul_maxyr %>% 
-  filter(!is.na(GEAR_TEMPERATURE)) %>% 
-  nrow()
+  filter(GEAR_TEMPERATURE ==0)
+
+minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE>0)], 
+                     na.rm = T)
+maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE, 
+                     na.rm = T)
+
+minsurfacetemp <-min(haul_maxyr$SURFACE_TEMPERATURE[which(haul_maxyr$SURFACE_TEMPERATURE>0)],
+                     na.rm = T)
+maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, 
+                      na.rm = T)
+
+nhauls_no_stemp <- haul_maxyr %>% filter(is.na(SURFACE_TEMPERATURE)) %>% nrow()
+nhauls_no_btemp <- haul_maxyr %>% filter(is.na(GEAR_TEMPERATURE)) %>% nrow()
+
 
 # Econ info ---------------------------------------------------------------
 dat <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
@@ -71,7 +80,7 @@ sp_prices <- dat %>%
                 `Ex-vessel price` = ex.vessel.price,
                 `Source` = source) 
 
-# Tables from AI/GOA schemas ----------------------------------------------
+# AI/GOA tables    ----------------------------------------------
 # cpue (source: AI or GOA schema)
 # NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
 x <- read.csv(file = here::here("data", "local_ai","cpue.csv"), header = TRUE) 
@@ -122,12 +131,11 @@ INPFC_areas <- region_lu2 %>%
     INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
   )
 
-# individual values needed for report (e.g., most abundant species) -------
+
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
 
 # Station allocation, counts, etc. ----------------------------------------
-#maxyr_allocation <- 
 
 haul2 <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
@@ -210,14 +218,25 @@ if (any(is.na(haul2$NET_WIDTH))) {
 }
 
 
-# N lengths and otoliths sampled -------------------------------------------
+# Lengths and otos sampled -------------------------------------------
 L <- read.csv(here::here("data/local_racebase/length.csv"))
 L <- L %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
 length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
 # Number of lengths collected per area
-lengths_collected <- nrow(length_maxyr) %>%
+lengths_collected <- length_maxyr %>%
+  nrow() %>%
+  format(big.mark = ",")
+
+nfishlengths <- length_maxyr %>%
+  filter(LENGTH_TYPE %in% c(1,5,11)) %>%
+  nrow() %>%
+  format(big.mark = ",")
+
+nsquidlengths <- length_maxyr %>%
+  filter(LENGTH_TYPE == 12) %>%
+  nrow() %>%
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
@@ -250,8 +269,10 @@ meanlengths_area <- specimen_maxyr %>%
 total_otos <- sum(otos_collected$`Number of otoliths collected`) %>%
   format(big.mark = ",")
 
+# Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps
 catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
+# x <- read.csv(here::here("data","local_race_data","species_taxonomics.csv"))
 
 
 # Species with highest est'd biomass --------------------------------------
