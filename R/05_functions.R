@@ -3256,3 +3256,52 @@ format_tons <- function(x){
   y <- prettyNum(round(x), big.mark = ",", scientific = FALSE)
   return(y)
 }
+
+
+
+
+# function to identify outliers in speices IDs for each year
+check_outlier <- function(species_code, year, catch_data, plot = FALSE){
+  sp_catch <- catch_data %>%
+    filter(SPECIES_CODE == species_code) %>%
+    dplyr::select(SPECIES_NAME, START_LONGITUDE, START_LATITUDE, YEAR)
+  
+  clustering <- dbscan(sp_catch[,2:3], eps = 0.9, minPts = 2, borderPoints = FALSE)
+  
+ 
+  # outliers from this year
+  tmp <- sp_catch %>% 
+    mutate(cluster = clustering$cluster,
+           outlier = ifelse(cluster == 0, "flag", "")) %>%
+    filter(YEAR == year)
+  
+  
+  # vector to plot
+  o <- tmp[tmp$outlier != "", ]
+  
+  out <- tmp %>%
+    dplyr::select(-cluster) %>%
+    filter(outlier != "")
+
+  
+  if(plot & length(o) > 0){
+    world <- map_data('world2', wrap=c(40,400)) %>%
+      filter(region %in% c("Russia", "USA", "Canada"))
+    sp <- sp_catch$SPECIES_NAME[1]
+    
+    p <- ggplot() +
+      geom_polygon(data = world, aes(x = long, y = lat, group = group),
+                   col = "grey60", fill = "grey90", lwd = 0) + 
+      coord_map(ylim = c(45, 70), xlim = c(150, 250)) +
+      theme_bw() +
+      labs( x = "Longitude", y = "Latitude" ) +
+      geom_point(data = sp_catch,
+                 aes(x = START_LONGITUDE, y = START_LATITUDE), cex = 1) +
+      geom_point(data = o, aes(x = START_LONGITUDE, y = START_LATITUDE), 
+                 col = "red", cex = 1.5) +
+      ggtitle(label = sp)
+    print(p)
+  }
+  
+  return(out)
+}
