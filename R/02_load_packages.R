@@ -87,6 +87,7 @@ PKG <- c(
   "reshape", 
   "stars",
   "grid", 
+  "dbscan",
   
   # check website links
   "pingr",
