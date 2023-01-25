@@ -69,6 +69,8 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
 nhauls_no_stemp <- haul_maxyr %>% filter(is.na(SURFACE_TEMPERATURE)) %>% nrow()
 nhauls_no_btemp <- haul_maxyr %>% filter(is.na(GEAR_TEMPERATURE)) %>% nrow()
 
+# write.csv(file = "hauls_no_stemp.csv",x = hauls_no_stemp)
+# write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
 
 # Econ info ---------------------------------------------------------------
 dat <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")

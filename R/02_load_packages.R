@@ -25,7 +25,7 @@ if(!"MetBrewer" %in% installed.packages()){
 # List and load required packages -----------------------------------------
 
 PKG <- c(
-  #"plyr", # laod plyr first to avoid errors
+  #"plyr", # load plyr first to avoid errors
   "devtools",
   
   # Markdown
