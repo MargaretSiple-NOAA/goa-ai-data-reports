@@ -8,26 +8,7 @@
 
 # Appendix B --------------------------------------------------------------
 # Species encountered
-# This appendix comes from a csv table. This year it was made by Nate, but in the future we want to automate the checking process. See issue https://github.com/MargaretSiple-NOAA/goa-ai-data-reports/issues/11
-fish <- read.csv(file = paste0(appendix_dir, "Appendix B/2022DataReportAppendixB_fish.csv"))
-# fish <- fish %>%
-#   rename(
-#     Family = FAMILY,
-#     `Species name` = SPECIES_NAME,
-#     `Common name` = COMMON_NAME
-#   )
-# 
-
-inverts <- read.csv(file = paste0(appendix_dir, "Appendix B/2022DataReportAppendixB_inverts.csv"))
-# inverts <- inverts %>%
-#   rename(
-#     Phylum = PHYLUM,
-#     `Species name` = SPECIES_NAME,
-#     `Common name` = COMMON_NAME
-#   )
-
-fish2 <- prep_appendix_b(fish)
-inverts2 <- prep_appendix_b(inverts)
+source("R/06a_appendix_b.R") #makes the table appB
 
 # Now just put in the flextable so that species_2 is in italics and new_suffix is not in italics. It should work for pretty much all the cases!
 rmarkdown::render(paste0(dir_markdown, "/APPENDIXB.Rmd"),

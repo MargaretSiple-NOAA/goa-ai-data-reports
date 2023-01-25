@@ -463,8 +463,8 @@ prep_tab4 <- function(speciescode){
 # format appendix b contents so they will fit easily in a flextable
 prep_appendix_b <- function(df){
   df2 <- df %>%
-    separate(SPECIES_NAME, c("species", "species_suffix"),
-             sep = "(?= sp.)", extra = "merge", remove = FALSE
+    separate(species_name, c("species", "species_suffix"),
+             sep = "(?= sp\\.)", extra = "merge", remove = FALSE
     ) %>%
     mutate(species_suffix = case_when(
       stringr::str_count(species, "\\w+") == 1 & is.na(species_suffix) ~ species,
