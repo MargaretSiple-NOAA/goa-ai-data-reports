@@ -14,6 +14,16 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 targetn <- read.csv(here::here("data","target_n.csv"))
 
 
+# Species richness by subregion and family --------------------------------
+subregion_fam_div <- appB %>%
+  group_by(inpfc_area, family) %>%
+  tally(name = "nsp") %>%
+  pivot_wider(names_from = inpfc_area, values_from = nsp) %>%
+  dplyr::rename(Family = family) %>%
+  ungroup() %>%
+  mutate_at(2:5, ~replace_na(.,0))
+
+
 # Mean CPUE for 20 most abundant groundfish spps --------------------------
 
 top_CPUE <- make_top_cpue(YEAR = YEAR, 

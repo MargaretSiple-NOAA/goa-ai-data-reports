@@ -107,6 +107,17 @@ list_tables[["length-sample-sizes"]] %>%
 
 <br />
 
+```{r echo=FALSE,tab.cap='Otolith samples collected by INPFC area and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
+subregion_fam_div %>%
+  flextable() %>%
+  fix_border_issues() %>%
+  theme_vanilla() %>%
+  fontsize(size = 8.5, part = "all") %>%
+  line_spacing(space = 0.5) %>%
+  autofit()
+```
+<br />
+
 ```{r echo=FALSE,tab.cap='Otolith samples collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
 otos_collected  %>% 
   dplyr::rename("INPFC area" = "INPFC_AREA") %>%
