@@ -34,6 +34,9 @@ vignettes/*.pdf
 /data/local_ai
 /data/length_ADFG.csv
 /data/specimen_ADFG.csv
+/data/ai2022_missing_temp_data_filled.csv
+/data/Catch_Summary_All.csv
+
 gdrive/
 output/
 bonus/
