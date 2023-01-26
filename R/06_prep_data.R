@@ -111,7 +111,7 @@ dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
 region_lu <- dat %>%
   filter(SURVEY == SRVY) %>%
   dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, 
-                REGULATORY_AREA_NAME, AREA) %>%
+                REGULATORY_AREA_NAME, AREA, DESCRIPTION) %>%
   filter(STRATUM <= 794) %>% 
   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
