@@ -102,6 +102,15 @@ ggplot(x, aes(x = CRUISE, y = ELASMO_TAXON_RICHNESS, color = AREA_NAME)) +
   geom_line()
 ```
 
+```{r}
+# NOTE: THIS DOESN'T WORK!
+# cpue_table_gdrive <- RODBC::sqlQuery(channel, "select survey_district, common_name species_name, round(cpue,1) cpue
+# from SURVEY_DISTRICTS where rn <= 20 -- top 20 is hardcoded and dependent on cpue in descending order but doesn't need to be dynamic
+# order by summary_area, cpue desc
+# /")
+
+```
+
 ## Checks
 
 This script produces an easy-to-read table that compares the values produced in R to the ones produced by SQL queries, which used to be used to produce the data reports. 
