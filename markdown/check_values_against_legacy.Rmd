@@ -102,14 +102,18 @@ ggplot(x, aes(x = CRUISE, y = ELASMO_TAXON_RICHNESS, color = AREA_NAME)) +
   geom_line()
 ```
 
+# Check table 4 outputs
+This is what Ned uses to produce "table 4" (CPUE and biomass by INPFC area and depth, with CIs):
 ```{r}
-# NOTE: THIS DOESN'T WORK!
-# cpue_table_gdrive <- RODBC::sqlQuery(channel, "select survey_district, common_name species_name, round(cpue,1) cpue
-# from SURVEY_DISTRICTS where rn <= 20 -- top 20 is hardcoded and dependent on cpue in descending order but doesn't need to be dynamic
-# order by summary_area, cpue desc
-# /")
-
+ x <- RODBC::sqlQuery(channel, "select a.inpfc_area, a.description, a.min_depth, a.max_depth, b.haul_count, b.catch_count, b.mean_wgt_cpue, b.stratum_biomass, b.min_biomass, b.max_biomass
+  from goa.goa_strata a, ai.biomass_Stratum b
+  where a.survey = 'AI'
+  and a.stratum = b.stratum
+  and b.species_code = 10110
+  and b.year = 2022
+  order by a.description, a.min_depth")
 ```
+
 
 ## Checks
 
