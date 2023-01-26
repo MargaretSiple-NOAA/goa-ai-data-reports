@@ -2874,6 +2874,37 @@ plot_idw_xbyx <- function(
 
 
 # Tables -----------------------------------------------------------------------
+make_table_4 <- function(biomass_stratum = biomass_stratum,
+                         region_lu = region_lu, # This is a modified goa_strata
+                         species_code) {
+  x <- region_lu %>%
+    dplyr::select(SURVEY, INPFC_AREA, STRATUM, DESCRIPTION, MIN_DEPTH, MAX_DEPTH) %>%
+    left_join(biomass_stratum, by = c("SURVEY", "STRATUM")) %>%
+    filter(YEAR == maxyr & SPECIES_CODE == species_code) %>%
+    dplyr::select(
+      INPFC_AREA, MIN_DEPTH, MAX_DEPTH, DESCRIPTION, HAUL_COUNT,
+      CATCH_COUNT, MEAN_WGT_CPUE,
+      STRATUM_BIOMASS, MIN_BIOMASS, MAX_BIOMASS
+    ) %>%
+    arrange(desc(MEAN_WGT_CPUE))
+
+  # Format and rename columns
+  xx <- x %>%
+    tidyr::unite("Depth (m)", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
+    mutate(MEAN_WGT_CPUE_KGHA = MEAN_WGT_CPUE / 100) %>% # convert CPUE from  kg/km2 to kg/ha
+    dplyr::rename(
+      `Number of hauls` = HAUL_COUNT,
+      `Survey district` = INPFC_AREA,
+      `Hauls with catch` = CATCH_COUNT,
+      `Mean CPUE (kg/ha)` = MEAN_WGT_CPUE_KGHA,
+      `Biomass (t)` = STRATUM_BIOMASS,
+      `LCL (t)` = MIN_BIOMASS,
+      `UCL (t)` = MAX_BIOMASS
+    ) %>%
+    dplyr::select(-MIN_DEPTH, -MAX_DEPTH)
+
+  return(xx)
+}
 
 
 # Allow breaks between sections in flextables
