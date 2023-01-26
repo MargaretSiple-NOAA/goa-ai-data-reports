@@ -23,6 +23,7 @@ if (y) {
 # Functions and data prep -------------------------------------------------
 source("R/05_functions.R") # May not need all these functions.
 source("R/06_prep_data.R") # Make all the tables and stuff needed for report and pres.
+source("R/06a_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
 
 # Create tables and figures -----------------------------------------------
 # Do you want to build all the tables right now? NOTE: This may take a while.
