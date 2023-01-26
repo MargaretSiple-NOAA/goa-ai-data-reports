@@ -7,10 +7,23 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
 
+```{r}
 # Setup channel to connect to Oracle --------------------------------------
 source(here::here("R/setup_channel.R"))
 # The setup_channel.R script sets up a channel using your Oracle username and pw.
+
+# Get report settings -----------------------------------------------------
+source("R/00_report_settings.R")
+
+# Functions, packages, directories ---------------------------------------------
+source("R/01_directories.R")
+source("R/02_load_packages.R") 
+```
+
+
+```{r}
 
 # Which survey number is it?
 (survnumber)
@@ -67,8 +80,27 @@ order by inpfc_area desc, depth_range")
 
 ```
 
-# Check the CPUE of the top 20 species
-
+# Check species richness with Sarah table
+```{r}
+x <- RODBC::sqlQuery(channel, "select a.cruise, decode(c.inpfc_area, 'Southern Bering Sea','Eastern Aleutians',c.inpfc_area) area_name, count(distinct b.species_code) elasmo_taxon_richness
+from racebase.haul a, racebase.catch b, goa.goa_strata c
+where a.region = 'AI'
+and a.cruise >= 199101
+and a.abundance_haul = 'Y'
+and a.hauljoin = b.hauljoin
+and b.species_code in (
+select species_code
+from racebase.species
+where species_code between 150 and 711 -- sharks and skates
+and species_name not like ('%egg%') -- eliminates records of egg cases
+)
+and a.region = c.survey
+and a.stratum = c.stratum
+group by a.cruise, decode(c.inpfc_area,'Southern Bering Sea','Eastern Aleutians',c.inpfc_area)
+order by a.cruise, elasmo_taxon_richness desc")
+ggplot(x, aes(x = CRUISE, y = ELASMO_TAXON_RICHNESS, color = AREA_NAME)) +
+  geom_line()
+```
 
 ## Checks
 
