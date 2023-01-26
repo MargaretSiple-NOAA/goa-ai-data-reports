@@ -82,10 +82,9 @@ outlier_spp <- species_maxyr %>%
 
 
 
-# Generating tables/stats ----------------------------------------------------
+# Generate tables/stats ----------------------------------------------------
 
-
-# table for appendix B
+# Table for Appendix B
 appB <- species_maxyr %>%
   left_join(taxonomy, by = "SPECIES_CODE") %>%
   left_join(species_codes) %>%

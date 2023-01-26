@@ -290,7 +290,9 @@ divftform <- 3.28084
 #'
 #' @examples
 make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps for each region
-
+  # INPFC_areas2 <- INPFC_areas
+  # INPFC_areas2$INPFC_AREA_AREA_km2 <- c(16542, 25201, 7482, 15188, 56931, 64413)
+  # 
   cpue_districts <- cpue_raw %>%
     filter(year == YEAR & survey == SRVY & abundance_haul == "Y") %>%
     dplyr::mutate(taxon = dplyr::case_when(
@@ -317,7 +319,7 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps
       stratum_cpue_kgkm2_var = var(cpue_kgkm2)
     ) %>%
     # mean cpue by stratum (not yet weighted)
-    ungroup() %>%
+    ungroup() %>% 
     dplyr::left_join(INPFC_areas) %>%
     mutate(weight_for_mean = AREA / INPFC_AREA_AREA_km2)
   

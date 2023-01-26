@@ -67,6 +67,8 @@ order by inpfc_area desc, depth_range")
 
 ```
 
+# Check the CPUE of the top 20 species
+
 
 ## Checks
 
