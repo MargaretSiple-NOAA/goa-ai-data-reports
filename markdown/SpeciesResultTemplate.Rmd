@@ -30,9 +30,7 @@ table4s_list[[as.character({{ species_code }})]] %>%
 # table4s_list[[as.character(30060)]] %>%
   dplyr::mutate_at(.vars = c("Biomass (t)","Lower 95% CI","Upper 95% CI"), biomass_round,
                 ) %>%
-  dplyr::arrange(`INPFC area`,`Stratum name`,`Depth range (m)`) %>%
   flextable() %>%
-  merge_v(j = ~`INPFC area`) %>%
   fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 9, part = "all") %>%
@@ -40,11 +38,11 @@ table4s_list[[as.character({{ species_code }})]] %>%
   align(i = 1, align = "center",part = 'header') %>%
   set_caption(
     as_paragraph(
-      as_chunk("Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence limits (LCL and UCL, respectively) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
+      as_chunk("Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence intervals (CI) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
     ),
     word_stylename = "Table Caption"
   ) %>%
-  hline(i = ~ break_position(`INPFC area`), border = cl) 
+  hline(i = ~ break_position(`INPFC area`), border = cl)
 ```
 
 \newpage
