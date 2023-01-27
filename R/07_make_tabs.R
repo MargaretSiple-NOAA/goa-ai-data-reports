@@ -68,24 +68,26 @@ attempted <- haul_maxyr %>%
   distinct(STATIONID) %>% # how many stations were attempted sampled?
   ungroup() %>%
   left_join(region_lu) %>%
-  group_by(INPFC_AREA,`Depth range`) %>%
+  group_by(INPFC_AREA, `Depth range`) %>%
   dplyr::count(name = "attempted") %>%
   ungroup()
 
-succeeded <-  haul_maxyr %>%
+succeeded <- haul_maxyr %>%
   group_by(STRATUM) %>%
-  filter(ABUNDANCE_HAUL=="Y") %>% # filter to successful hauls
+  filter(ABUNDANCE_HAUL == "Y") %>% # filter to successful hauls
   distinct(STATIONID) %>% # how many stations were sampled?
   ungroup() %>%
   left_join(region_lu) %>%
-  group_by(INPFC_AREA,`Depth range`) %>%
+  group_by(INPFC_AREA, `Depth range`) %>%
   dplyr::count(name = "succeeded") %>%
   ungroup()
 
-stratum_areas <- region_lu %>%
+inpfc_depth_areas <- region_lu %>%
   distinct(INPFC_AREA, STRATUM, AREA, `Depth range`) %>%
-  group_by(INPFC_AREA,`Depth range`) %>%
+  group_by(INPFC_AREA, `Depth range`) %>%
+  dplyr::summarize(AREA = sum(AREA)) %>%
   ungroup()
+
 
 piece1 <- all_allocation %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
@@ -95,24 +97,54 @@ piece1 <- all_allocation %>%
   ungroup() %>%
   left_join(attempted) %>%
   left_join(succeeded) %>%
-  left_join(stratum_areas)
+  left_join(inpfc_depth_areas)
 
 depth_areas <- piece1 %>%
   group_by(INPFC_AREA) %>%
-  dplyr::summarize(AREA = sum(AREA),
-                   allocated = sum(allocated),
-                   attempted = sum(attempted),
-                   succeeded = sum(succeeded)) %>%
+  dplyr::summarize(
+    AREA = sum(AREA),
+    allocated = sum(allocated),
+    attempted = sum(attempted),
+    succeeded = sum(succeeded)
+  ) %>%
   ungroup() %>%
   mutate(`Depth range` = "All depths")
 
-allocated_sampled <- piece1 %>%
+allocated_prep <- piece1 %>%
   bind_rows(depth_areas) %>%
-  arrange(INPFC_AREA,`Depth range`) %>%
-  mutate(stations_per_1000km2 = (succeeded/AREA) * 1000) %>%
-  mutate(AREA = round(AREA, digits = 1),
-         stations_per_1000km2 = round(stations_per_1000km2, digits = 2)) 
-colnames(allocated_sampled) <- c("INPFC area","Depth range","Allocated","Attempted","Succeeded","Stratum","Total area","Stations per 1,000 km^2")
+  arrange(INPFC_AREA, `Depth range`) %>%
+  mutate(stations_per_1000km2 = (succeeded / AREA) * 1000) %>%
+  mutate(
+    AREA = round(AREA, digits = 1),
+    stations_per_1000km2 = round(stations_per_1000km2, digits = 2)
+  )
+
+
+all_areas <- allocated_prep %>%
+  filter(`Depth range` != "All depths") %>%
+  group_by(`Depth range`) %>%
+  dplyr::summarize(
+    allocated = sum(allocated),
+    attempted = sum(attempted),
+    succeeded = sum(succeeded),
+    AREA = sum(AREA)
+  ) %>%
+  dplyr::mutate(stations_per_1000km2 = round((succeeded / AREA) * 1000, digits = 2)) %>%
+  ungroup() %>%
+  tibble::add_column(INPFC_AREA = "All areas", .before = "Depth range")
+
+all_areas_depths <- all_areas %>%
+  dplyr::summarize(across(allocated:AREA, sum)) %>%
+  tibble::add_column(`Depth range` = "All depths", .before = "allocated") %>%
+  ungroup() %>%
+  mutate(stations_per_1000km2 = succeeded / AREA) %>%
+  tibble::add_column(INPFC_AREA = "All areas", .before = "Depth range")
+
+allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths)
+
+colnames(allocated_sampled) <- c("INPFC area", "Depth range", 
+                                 "Allocated", "Attempted", "Succeeded", 
+                                 "Total area", "Stations per 1,000 km^2")
 
 # CPUE table by district - formatted by Paul ------------------------------
 #CPUE_table_formatted <- read_xlsx(path = paste0(dir_in_premadetabs,"Table 2/Table 2 AI2022.xlsx"))
