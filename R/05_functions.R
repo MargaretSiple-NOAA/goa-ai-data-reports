@@ -454,7 +454,6 @@ prep_tab4 <- function(speciescode){
                   `Stratum name` =Stratum.Name,
                   `Number of hauls` =  Number.of.Hauls,
                   `Hauls with catch` = Hauls.with.Catch,
-                  
                   `CPUE (kg/ha)` = CPUE..kg.ha.,
                   `Biomass (t)` = Biomass..t.,
                   `Lower 95% CI` = Lower.CI.Biomass,
