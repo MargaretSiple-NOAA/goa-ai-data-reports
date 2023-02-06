@@ -16,7 +16,8 @@ make_cpue_bubbles_strata <- FALSE
 make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
-
+# 6. Plot of surface and bottom SST with long term avg
+make_temp_plot <- TRUE
 
 # Base maps ---------------------------------------------------------------
 ai_east <- akgfmaps::get_base_layers(
@@ -427,7 +428,55 @@ if (make_joy_division_length) {
   print("Done with joy division plots for length comp.")
 }
 
-# (6.) GOA CPUE map ----------------------------------------------------------------
+
+# 6. Surface and bottom SST -----------------------------------------------
+
+sstdat <- haul %>%
+  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+  filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
+  group_by(YEAR) %>%
+  dplyr::summarize(
+    bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
+    surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  as.data.frame() %>%
+  mutate(YEAR = as.numeric(YEAR))
+
+sst_summary <- sstdat %>%
+  mutate(
+    bottom_stz = bottom - mean(bottom, na.rm = T),
+    surface_stz = surface - mean(surface, na.rm = T)
+  ) %>%
+  pivot_longer(cols = bottom:surface_stz)
+
+sst_summary %>%
+  filter(grepl("_stz", name)) %>%
+  ggplot(aes(YEAR, value, color = name)) +
+  geom_point(size = 2) +
+  scale_color_manual(values = c("purple", "orange"))
+
+library(ggdist)
+
+plotdat <- haul %>%
+  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+  filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997)
+
+bottom_temp_plot <- plotdat %>%
+  ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
+  stat_interval() +
+  stat_halfeye(fill = "tan", alpha = 0.3) +
+  geom_point(size = 0.5,color = 'gray5') +
+  rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
+  scale_fill_ramp_discrete(na.translate = FALSE) +
+  labs(x = "Year", y = "Bottom temperature (deg C)") +
+  theme_light()
+
+# png("bottomtempexample.png",width = 6,height = 4,units = 'in',res=200)
+# bottom_temp_plot
+# dev.off()
+
+# (7.) GOA CPUE map ----------------------------------------------------------------
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
 # THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
 # get cpue table by station for a species
