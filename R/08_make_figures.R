@@ -450,17 +450,20 @@ sst_summary <- sstdat %>%
   ) %>%
   pivot_longer(cols = bottom:surface_stz)
 
-sst_summary %>%
-  filter(grepl("_stz", name)) %>%
-  ggplot(aes(YEAR, value, color = name)) +
-  geom_point(size = 2) +
-  scale_color_manual(values = c("purple", "orange"))
+# sst_summary %>%
+#   filter(grepl("_stz", name)) %>%
+#   ggplot(aes(YEAR, value, color = name)) +
+#   geom_point(size = 2) +
+#   scale_color_manual(values = c("purple", "orange"))
 
 #library(ggdist)
 
 plotdat <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-  filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997)
+  filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
+  filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
+  filter(HAULJOIN!=-17737) # Filter out the situation with BT=0 in 2018 
+  
 
 bottom_temp_plot <- plotdat %>%
   ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
@@ -470,6 +473,16 @@ bottom_temp_plot <- plotdat %>%
   rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
   scale_fill_ramp_discrete(na.translate = FALSE) +
   labs(x = "Year", y = "Bottom temperature (deg C)") +
+  theme_light()
+
+surface_temp_plot <- plotdat %>%
+  ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
+  ggdist::stat_interval() +
+  ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
+  geom_point(size = 0.5,color = 'gray5') +
+  rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
+  scale_fill_ramp_discrete(na.translate = FALSE) +
+  labs(x = "Year", y = "Surface temperature (deg C)") +
   theme_light()
 
 # png("bottomtempexample.png",width = 6,height = 4,units = 'in',res=200)

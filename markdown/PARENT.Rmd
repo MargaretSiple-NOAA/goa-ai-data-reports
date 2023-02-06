@@ -146,6 +146,14 @@ include_graphics(here::here(img1_path))
 
 # Results
 
+```{r fig.cap='Bottom temperatures as measured by survey gear.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption"}
+bottom_temp_plot
+```
+
+```{r fig.cap='Surface temperatures as measured by survey gear.', fig.id='surface-temp',  fig.cap.style = "Figure Caption"}
+surface_temp_plot
+```
+
 ```{r child=here::here("gdrive","Results.Rmd")}
 ```
 
