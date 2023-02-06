@@ -44,6 +44,8 @@ PKG <- c(
   "MetBrewer",
   "scales",
   "ggridges",
+  "rcartocolor",
+  "ggdist",
   
   # Citations
   "knitcitations", # devtools::install_github("cboettig/knitcitations")

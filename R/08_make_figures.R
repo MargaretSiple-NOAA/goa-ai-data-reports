@@ -456,7 +456,7 @@ sst_summary %>%
   geom_point(size = 2) +
   scale_color_manual(values = c("purple", "orange"))
 
-library(ggdist)
+#library(ggdist)
 
 plotdat <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
@@ -464,8 +464,8 @@ plotdat <- haul %>%
 
 bottom_temp_plot <- plotdat %>%
   ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
-  stat_interval() +
-  stat_halfeye(fill = "tan", alpha = 0.3) +
+  ggdist::stat_interval() +
+  ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
   geom_point(size = 0.5,color = 'gray5') +
   rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
   scale_fill_ramp_discrete(na.translate = FALSE) +
