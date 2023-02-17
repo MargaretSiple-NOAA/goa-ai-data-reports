@@ -84,7 +84,8 @@ fullreport <- body_add_docx(fullreport,
   body_add_break()
 
 # Make appendix B
-source(here::here("R","make_appendices.R"))
+source(here::here("R","11_make_appendices.R"))
+
 fullreport <- body_add_docx(fullreport,
                             src =  (paste0(dir_out_chapters, "AppendixB.docx"))
 ) %>%
