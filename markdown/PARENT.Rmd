@@ -7,7 +7,6 @@ csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
 ---
 
-This is a test of the cross-refs in this doc (Table \@ref(tab:stations-allocated)). And here is a test for figure cross-referencing (Figure \@ref(fig:area-map)).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE, dev = "ragg_png")
@@ -172,7 +171,7 @@ surface_temp_plot
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
@@ -185,25 +184,61 @@ for (i in 1:3) { # nrow(report_species)
     dplyr::arrange(-TOTAL_BIOMASS)
   xth <- which(spps_ordered_by_biomass$SPECIES_CODE == species_code)
 
-  xx <- filter(
-    top_CPUE,
-    species_code == species_code & INPFC_AREA %in% c(
-      "Central Aleutians",
-      "Eastern Aleutians",
-      "Southern Bering Sea",
-      "Western Aleutians"
-    )
-  ) %>% # Subset only to the areas
-    dplyr::top_n(n = 2, wt = wgted_mean_cpue_kgha) %>%
-    dplyr::select(INPFC_AREA)
-
-  top_cpue <- xx[[1]][1]
-  second_top_cpue <- xx[[1]][2]
+  # xx <- filter(
+  #   top_CPUE,
+  #   species_code == species_code & INPFC_AREA %in% c(
+  #     "Central Aleutians",
+  #     "Eastern Aleutians",
+  #     "Southern Bering Sea",
+  #     "Western Aleutians"
+  #   )
+  # ) %>% # Subset only to the areas
+  #   dplyr::top_n(n = 2, wt = wgted_mean_cpue_kgha) %>%
+  #   dplyr::select(INPFC_AREA)
+  # 
+  # top_cpue <- xx[[1]][1]
+  # second_top_cpue <- xx[[1]][2]
 
   species_biomass <- format(
     round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
-    big.mark = ",")
-  
+    big.mark = ","
+  )
+
+  inpfc_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
+    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
+    tidyr::fill(`Survey district`, .direction = "down") %>%
+    filter(`Depth (m)` == "All depths") %>%
+    filter(`Survey district` != "Combined Aleutian Districts") %>%
+    filter(`Biomass (t)` == max(`Biomass (t)`)) %>%
+    dplyr::select(`Survey district`) %>%
+    left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
+    dplyr::select(INPFC_AREA_ABBREV) %>%
+    as.character()
+
+  inpfc_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
+    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
+    tidyr::fill(`Survey district`, .direction = "down") %>%
+    filter(`Depth (m)` == "All depths") %>%
+    filter(`Survey district` != "Combined Aleutian Districts") %>%
+    filter(`CPUE (kg/ha)` == max(`CPUE (kg/ha)`)) %>%
+    dplyr::select(`Survey district`) %>%
+    dplyr::select(`Survey district`) %>%
+    left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
+    dplyr::select(INPFC_AREA_ABBREV) %>%
+    as.character()
+
+  inpfc_2nd_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
+    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
+    tidyr::fill(`Survey district`, .direction = "down") %>%
+    filter(`Depth (m)` == "All depths") %>%
+    filter(`Survey district` != "Combined Aleutian Districts") %>%
+    filter(`CPUE (kg/ha)` != max(`CPUE (kg/ha)`)) %>% # janky but this is how I take out the highest CPUE, the next highest will be selected below
+    filter(`CPUE (kg/ha)` == max(`CPUE (kg/ha)`)) %>%
+    dplyr::select(`Survey district`) %>%
+    dplyr::select(`Survey district`) %>%
+    left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
+    dplyr::select(INPFC_AREA_ABBREV) %>%
+    as.character()
 
   middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
 
