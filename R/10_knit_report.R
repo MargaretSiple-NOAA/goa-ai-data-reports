@@ -15,7 +15,7 @@ cat("Using report data from",tabledate,"for tables. \n",
 load(file = paste0(dir_in_reportvalues,"/reportvalues.rdata"))
 
 
-# Load all the tables  ---------------------------------------------------------
+# Load tables  ------------------------------------------------------------
 load(file = paste0(dir_in_tables, "report_tables.rdata")) # object: list_tables
 load(file = paste0(dir_in_tables, "table3s_list.rdata")) # object: table3s_list
 load(file = paste0(dir_in_tables, "table4s_list.rdata")) # object: table4s_list
@@ -34,6 +34,9 @@ load(file = paste0(
 
 load(file = paste0(
   dir_in_figures,"joy_length.rdata")) # object: list_joy_length
+
+load(file = paste0(
+  dir_in_figures,"list_temperature.rdata")) # object: list_temperature
 
 # Figures used for presentation
 # load(file = paste0(
