@@ -45,6 +45,7 @@ sp_prices %>%
   fit_to_width(max_width = 8, unit = "in")
 ```
 
+\newpage
 
 ```{r echo=FALSE,tab.cap='Stations allocated and sampled during the 2022 AI bottom trawl survey.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
 list_tables[["allocated_sampled"]] %>% 
@@ -66,7 +67,7 @@ list_tables[["allocated_sampled"]] %>%
   align(i = 1, align = "center",part = 'header') %>%
   hline(i = ~ break_position(`INPFC area`), border = cl)
 ```
-<br />
+\newpage
 
 ```{r echo=FALSE,tab.cap='Mean CPUE (kg/ha) for the 20 most abundant groundfish species in each survey district during the 2022 Aleutian Islands bottom trawl survey.', tab.id='top-cpue',  tab.cap.style = "Table Caption"}
 
@@ -109,9 +110,9 @@ list_tables[["length-sample-sizes"]] %>%
 
 ```
 
-<br />
+\newpage
 
-```{r echo=FALSE,tab.cap='Otolith samples collected by INPFC area and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap='Otolith samples collected by family, INPFC area and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
 subregion_fam_div %>%
   flextable() %>%
   fix_border_issues() %>%
@@ -146,6 +147,9 @@ include_graphics(here::here(img1_path))
 
 # Results
 
+```{r child=here::here("gdrive","Results_part1.Rmd")}
+```
+
 ```{r fig.cap='Bottom temperatures as measured by survey gear.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption"}
 bottom_temp_plot
 ```
@@ -154,7 +158,7 @@ bottom_temp_plot
 surface_temp_plot
 ```
 
-```{r child=here::here("gdrive","Results.Rmd")}
+```{r child=here::here("gdrive","Results_part2.Rmd")}
 ```
 
 
@@ -162,7 +166,7 @@ surface_temp_plot
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # 
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
@@ -210,4 +214,5 @@ res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
 cat(res, sep = "\n")
 ```
 
-
+```{r child=here::here("markdown","APPENDIXB.Rmd")}
+```
