@@ -8,6 +8,7 @@
 
 # Appendix B --------------------------------------------------------------
 # Species encountered
+source("R/06_prep_data.R")
 source("R/06a_appendix_b.R") #makes the table appB
 
 # Now just put in the flextable so that species_2 is in italics and new_suffix is not in italics. It should work for pretty much all the cases!
