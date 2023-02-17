@@ -1,16 +1,4 @@
----
-  output:
-  officedown::rdocx_document: 
-    reference_docx: styles_reference3.docx
-    pandoc_args: ["--metadata-file=header.yaml"]
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
-library(officedown)
-library(officer)
-# objects used: fish2, inverts2
-```
 
 ```{r echo=FALSE,tab.cap='Appendix Table B. Fish and invertebrate species encountered and identified during the 2022 Aleutian Islands bottom trawl survey.', tab.id='b-specieslist',  tab.cap.style = "Table Caption"}
 appB %>% 
