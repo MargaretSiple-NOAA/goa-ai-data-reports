@@ -1,7 +1,7 @@
 ---
 output:
   officedown::rdocx_document: 
-    reference_docx: styles_reference4.docx
+    reference_docx: styles_reference3.docx
     pandoc_args: ["--metadata-file=header.yaml"]
 csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
@@ -150,9 +150,15 @@ include_graphics(here::here(img1_path))
 ```{r child=here::here("gdrive","Results_part1.Rmd")}
 ```
 
+<br />
+<br />
+
 ```{r fig.cap='Bottom temperatures as measured by survey gear.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption"}
 bottom_temp_plot
 ```
+
+<br />
+<br />
 
 ```{r fig.cap='Surface temperatures as measured by survey gear.', fig.id='surface-temp',  fig.cap.style = "Figure Caption"}
 surface_temp_plot
@@ -214,5 +220,4 @@ res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
 cat(res, sep = "\n")
 ```
 
-```{r child=here::here("markdown","APPENDIXB.Rmd")}
-```
+# Appendices
