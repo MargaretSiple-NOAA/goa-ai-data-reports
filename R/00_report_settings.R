@@ -8,9 +8,9 @@ print_figs <- FALSE # Do you want to print out PNGs of each figure?
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2023-01-10" # also have results from 2023-01-03
-figuredate <- "2023-01-10"
-reportvaluesdate <- "2023-01-10"
+tabledate <- "2023-02-17" 
+figuredate <- "2023-02-17"
+reportvaluesdate <- "2023-02-17"
 
 # Survey information ------------------------------------------------------
 #survnumber <- "twentieth" 
