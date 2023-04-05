@@ -21,9 +21,45 @@ source("R/00_report_settings.R")
 source("R/01_directories.R")
 source("R/02_load_packages.R") 
 ```
+# Check Table 1
 
+Insert script here for checking between my table and others!
 
 ```{r}
+# NOTE: THESE DON'T CURRENTLY WORK; i THINK IT'S A SQL IN R THING, UGH
+table2_districts <- RODBC::sqlQuery(channel, "with SURVEY_DISTRICTS as (
+select a.*, row_number () over (
+partition by survey_district
+order by cpue desc) rn
+from (select distinct l.inpfc_area survey_district, i.summary_area, s.common_name, (i.mean_wgt_cpue/100) cpue from AI.BIOMASS_INPFC i, RACEBASE.SPECIES s, GOA.GOA_STRATA l
+where i.species_code = s.species_code and i.summary_area = l.summary_area and year = 2022 and l.survey = 'AI')) select survey_district, common_name species_name, round(cpue,1) cpue
+from SURVEY_DISTRICTS where rn <= 20
+order by summary_area, cpue desc
+/")
+
+table2_aleutian_districts <- RODBC::sqlQuery(channel, "select * from (
+select regulatory_area_name, common_name species_name, round(mean_wgt_cpue/100,1) cpue
+from ai.biomass_area a, racebase.species b
+where year = 2022 -- year hardcoded should be dynamic
+and regulatory_area_name = 'ALEUTIANS' -- regulatory_area_name hardcoded
+and a.species_code = b.species_code
+order by mean_wgt_cpue desc
+)
+where rownum <= 20
+order by cpue desc
+/")
+
+table2_bsai_or_all <- RODBC::sqlQuery(channel, "select * from (
+select 'BSAI' area, common_name species_name, round(mean_wgt_cpue/100,1) cpue
+from ai.biomass_total a, racebase.species b
+where year = 2022 -- year hardcoded should be dynamic
+and a.species_code = b.species_code
+order by mean_wgt_cpue desc
+)
+where rownum <= 20
+order by cpue desc
+/")
+
 # table2_sql <- RODBC::sqlQuery(channel, "select * from table_1_data;
 # select distinct 
 #     c.inpfc_area, 
