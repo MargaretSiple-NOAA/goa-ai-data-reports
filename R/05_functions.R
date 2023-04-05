@@ -225,6 +225,43 @@ make_depth_mgmt_area_summary <- function(species_code) {
   return(x)
 }
 
+
+#' Using a spreadsheet fromn the old methodology, make a list of the top 20 species by CPUE.
+#'
+#' @details Currently this is our chosen method becaus eit eliminates the weird tiny discrepancies that we get when calculating CPUEs by hand vs. using summary tables from the AI schema.
+#' @param filepath The path of the file containing the CPUE table. Currently, Paul produces this using SQL plus some excel wizardry.
+#'
+#' @return a formatted table of top 20 CPUEs by area, analogous to the one produced by make_top_cpue()
+#' @export
+#'
+#' @examples
+prep_tab2 <- function(filepath = paste0(dir_in_premadetabs,"Table 2/","Table 2_AI2022_makeitlooklikethisplease.xlsx")){
+  if (!file.exists(filepath)) {
+    stop("Species Table 2 file missing from the folder. Check directory and make sure you're on the VPN and the filename you've specified is correct, including the year, region, and folder.")
+  }
+  raw <- readxl::read_excel(filepath)
+  # not_all_na <- function(x) any(!is.na(x))
+  # raw2 <- raw %>% 
+  #   dplyr::select(where(not_all_na)) 
+  
+  haulcounts <- raw %>%
+    dplyr::filter(species=="Number of hauls") %>%
+    dplyr::rename("nhauls" = CPUE) %>%
+    dplyr::select(-species)
+  
+  raw2 <- raw %>%
+    dplyr::filter(species!="Number of hauls") %>%
+    fuzzyjoin::regex_left_join(species_codes,by = c("species" = "COMMON_NAME")) %>%
+    dplyr::select(-species) %>%
+    dplyr::rename("wgted_mean_cpue_kgha"="CPUE",
+                  "INPFC_AREA"="INPFC area",
+                  "species_code" ="SPECIES_CODE",
+                  "common_name"="COMMON_NAME",
+                  "scientific_name"="SPECIES_NAME")
+  
+  return(raw2)
+}
+
 #' Retrieve Table 3's (biomass per area and depth) for a species
 #'
 #' @param species_code (numeric) 5-digit species code

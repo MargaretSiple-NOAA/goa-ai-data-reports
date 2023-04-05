@@ -98,6 +98,7 @@ PKG <- c(
   # Tables
   "officer", 
   "flextable", 
+  "fuzzjoin",
   
   # For editing XML files
   "XML", 

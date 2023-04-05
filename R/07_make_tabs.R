@@ -25,10 +25,15 @@ subregion_fam_div <- appB %>%
 
 
 # Mean CPUE for 20 most abundant groundfish spps --------------------------
-
-top_CPUE <- make_top_cpue(YEAR = YEAR, 
-                          SRVY = SRVY,
-                          cpue_raw = cpue_raw)
+#NOTE: This table is different if you produce it using the standard SQL script vs if you produce it by hand or in R. We don't know exactly why these values are very slightly different, but they are! So if we want to reproduce the report in the exact same way, at least for the Aleutians, we have to use a SQL script to produce the table of the top CPUEs by region. 
+if(use_sql_cpue){
+#colnames should be: c("INPFC_AREA", "species_code", "wgted_mean_cpue_kgkm2", "wgted_mean_cpue_kgha", "scientific_name", "common_name", "major_group")
+  top_CPUE <- prep_tab2() # STILL NEED TO TEST!
+}else{
+  top_CPUE <- make_top_cpue(YEAR = YEAR, 
+                            SRVY = SRVY,
+                            cpue_raw = cpue_raw)
+}
 
 write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE","_",maxyr,".csv"),
           row.names = FALSE)
