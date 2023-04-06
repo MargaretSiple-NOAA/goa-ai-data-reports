@@ -26,6 +26,110 @@ source("R/02_load_packages.R")
 Insert script here for checking between my table and others!
 
 ```{r}
+# FROM NED ISSUE #24. ALSO LOOK AT R/Tbl1Fxn.R which Ned sent and I modified.
+# -- SQLPlus for Table 1 (historic)
+# create or replace view DATA_REPORT_TABLE_1 as
+# select a.INPFC_AREA,
+# a.DEPTH_RANGE,
+# STATIONS_ALLOCATED,
+# STATION_COUNT STATIONS_ATTEMPTED,
+# HAUL_COUNT STATIONS_COMPLETED,
+# AREA,
+# round(((HAUL_COUNT/AREA)1000),2) SAMPLING_DENSITY,
+# A.SUMMARY_AREA_DEPTH
+# from (
+# select INPFC_AREA,
+# DEPTH_RANGE,
+# round(sum(AREA),0) AREA,
+# SUMMARY_AREA_DEPTH -- sum by stratum within a fishing area and depth range
+# from (
+# select INPFC_AREA,
+# MIN_DEPTH|| ' - ' ||MAX_DEPTH DEPTH_RANGE,
+# AREA,
+# SUMMARY_AREA_DEPTH
+# from GOA.GOA_STRATA
+# where SURVEY = 'AI'
+# )
+# group by INPFC_AREA, DEPTH_RANGE, SUMMARY_AREA_DEPTH
+# ) a,
+# (
+# select INPFC_AREA,
+# DEPTH_RANGE,
+# SUMMARY_AREA_DEPTH,
+# count() HAUL_COUNT -- count of hauls successfully completed during survey
+# from (
+# select INPFC_AREA,
+# MIN_DEPTH|| ' - ' ||MAX_DEPTH DEPTH_RANGE,
+# SUMMARY_AREA_DEPTH,
+# VESSEL,
+# CRUISE,
+# HAUL
+# from GOA.GOA_STRATA A,
+# RACEBASE.HAUL B
+# where B.REGION = 'AI' and
+# B.REGION = A.SURVEY and
+# CRUISE = 202201 and
+# VESSEL in (176,148) and
+# A.STRATUM = B.STRATUM and
+# B.ABUNDANCE_HAUL = 'Y' -- with this constraint it is not possible to accidentally double count a station in common across vessels which is a sampling error in itself
+# )
+# group by INPFC_AREA,DEPTH_RANGE,SUMMARY_AREA_DEPTH
+# ) b,
+# (
+# select INPFC_AREA,
+# SUMMARY_AREA_DEPTH,
+# DEPTH_RANGE,
+# count() STATION_COUNT --count of all "stations" (composite stationid/stratum identities) attempted
+# from (
+# select INPFC_AREA,
+# SUMMARY_AREA_DEPTH,
+# MIN_DEPTH|| ' - ' ||MAX_DEPTH DEPTH_RANGE
+# from GOA.GOA_STRATA a, (
+# select distinct REGION, -- returns all stations sampled regardless of success but does not count repeated attempts at same station
+# CRUISE,
+# STATIONID,
+# STRATUM
+# from RACEBASE.HAUL
+# where REGION = 'AI' and
+# CRUISE = 202201 and
+# VESSEL in (176,148) and
+# HAUL_TYPE = 3
+# ) b
+# where B.REGION = A.SURVEY and
+# A.STRATUM = B.STRATUM
+# )
+# group by INPFC_AREA,DEPTH_RANGE,SUMMARY_AREA_DEPTH
+# ) c,
+# (
+# select INPFC_AREA,
+# SUMMARY_AREA_DEPTH,
+# DEPTH_RANGE,
+# count() STATIONS_ALLOCATED -- from initial station allocation undertaken during survey planning phase
+# from (
+# select INPFC_AREA,
+# SUMMARY_AREA_DEPTH,
+# MIN_DEPTH|| ' - ' ||MAX_DEPTH DEPTH_RANGE
+# from GOA.GOA_STRATA a,
+# AI.STATION_ALLOCATION b -- in AI because new stations assigned are id'd by stratum only, this will return new and prev successful stations allocated
+# where B.SURVEY = 'AI'
+# and B.SURVEY = A.SURVEY
+# and A.STRATUM = B.STRATUM
+# and B.YEAR = 2022
+# )
+# group by INPFC_AREA,DEPTH_RANGE,SUMMARY_AREA_DEPTH
+# ) d
+# where A.INPFC_AREA = B.INPFC_AREA and B.INPFC_AREA = C.INPFC_AREA and C.INPFC_AREA = D.INPFC_AREA and
+# A.DEPTH_RANGE = B.DEPTH_RANGE and B.DEPTH_RANGE = C.DEPTH_RANGE and C.DEPTH_RANGE = D.DEPTH_RANGE and
+# A.SUMMARY_AREA_DEPTH = B.SUMMARY_AREA_DEPTH and B.SUMMARY_AREA_DEPTH = C.SUMMARY_AREA_DEPTH and
+# C.SUMMARY_AREA_DEPTH = D.SUMMARY_AREA_DEPTH
+# order by A.SUMMARY_AREA_DEPTH,A.DEPTH_RANGE
+# /
+```
+
+
+
+# Check Table 2 
+```{r}
 # NOTE: THESE DON'T CURRENTLY WORK; i THINK IT'S A SQL IN R THING, UGH
 table2_districts <- RODBC::sqlQuery(channel, "with SURVEY_DISTRICTS as (
 select a.*, row_number () over (
