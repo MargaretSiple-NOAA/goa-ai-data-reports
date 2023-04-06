@@ -257,7 +257,8 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs,"Table 2/","Table 2_A
                   "INPFC_AREA"="INPFC area",
                   "species_code" ="SPECIES_CODE",
                   "common_name"="COMMON_NAME",
-                  "scientific_name"="SPECIES_NAME")
+                  "scientific_name"="SPECIES_NAME") %>%
+    dplyr::arrange(factor(INPFC_AREA,levels=district_order))
   
   return(raw2)
 }
@@ -295,7 +296,11 @@ prep_tab3 <- function(speciescode) {
       `Lower 95% CI` = X95..LCL..t.,
       `Upper 95% CI` = X95..UCL..t.,
       `Weight (kg)` = Weight...kg.
-    )
+    ) %>%
+    dplyr::slice(21:25, 1:20) #sloppy way to slice off the SBS and move it to the top
+  
+  
+
   return(cleaned_tab)
 }
 
@@ -325,7 +330,9 @@ prep_tab4 <- function(speciescode) {
       `Biomass (t)` = Biomass..t.,
       `Lower 95% CI` = Lower.CI.Biomass,
       `Upper 95% CI` = Upper.CI.Biomass
-    )
+    ) %>%
+    arrange(factor(`INPFC area`,levels = district_order),`Depth range (m)`)
+  
   return(cleaned_tab)
 }
 

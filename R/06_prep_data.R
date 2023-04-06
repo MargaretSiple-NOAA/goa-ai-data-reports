@@ -250,6 +250,7 @@ S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
 specimen_maxyr <- S %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
   filter(YEAR == maxyr & REGION == SRVY)
+
 otos_collected <- specimen_maxyr %>%
   filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
@@ -259,7 +260,8 @@ otos_collected <- specimen_maxyr %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(INPFC_AREA, `Depth range`) %>%
   dplyr::summarize("Number of otoliths collected" = n()) %>%
-  ungroup()
+  ungroup() %>%
+  arrange(factor(INPFC_AREA, levels= district_order))
 
 meanlengths_area <- specimen_maxyr %>%
   filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
