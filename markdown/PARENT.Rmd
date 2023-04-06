@@ -71,6 +71,7 @@ list_tables[["allocated_sampled"]] %>%
 ```{r echo=FALSE,tab.cap='Mean CPUE (kg/ha) for the 20 most abundant groundfish species in each survey district during the 2022 Aleutian Islands bottom trawl survey.', tab.id='top-cpue',  tab.cap.style = "Table Caption"}
 
 list_tables[["top_CPUE"]] %>%
+ # top_CPUE %>%
   dplyr::select(INPFC_AREA,common_name, wgted_mean_cpue_kgha) %>%
   dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha,digits = 1)) %>%
   dplyr::rename(`INPFC area` = INPFC_AREA, 
@@ -111,7 +112,7 @@ list_tables[["length-sample-sizes"]] %>%
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Otolith samples collected by family, INPFC area and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap='Species richness in survey by family, INPFC area and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
 subregion_fam_div %>%
   flextable() %>%
   fix_border_issues() %>%
@@ -183,21 +184,6 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
   spps_ordered_by_biomass <- biomass_maxyr %>%
     dplyr::arrange(-TOTAL_BIOMASS)
   xth <- which(spps_ordered_by_biomass$SPECIES_CODE == species_code)
-
-  # xx <- filter(
-  #   top_CPUE,
-  #   species_code == species_code & INPFC_AREA %in% c(
-  #     "Central Aleutians",
-  #     "Eastern Aleutians",
-  #     "Southern Bering Sea",
-  #     "Western Aleutians"
-  #   )
-  # ) %>% # Subset only to the areas
-  #   dplyr::top_n(n = 2, wt = wgted_mean_cpue_kgha) %>%
-  #   dplyr::select(INPFC_AREA)
-  # 
-  # top_cpue <- xx[[1]][1]
-  # second_top_cpue <- xx[[1]][2]
 
   species_biomass <- format(
     round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
