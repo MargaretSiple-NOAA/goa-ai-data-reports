@@ -48,10 +48,11 @@ sp_prices %>%
 
 ```{r echo=FALSE,tab.cap='Stations allocated and sampled during the 2022 AI bottom trawl survey.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
 list_tables[["allocated_sampled"]] %>% 
+  #allocated_sampled %>%
   mutate(`Total area` = round(`Total area`,digits = 0),
          `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`,digits=2)) %>%
   flextable() %>% 
-  merge_v(j = ~ `INPFC area`) %>%
+  merge_v(j = ~ `Survey District`) %>%
   fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 8.5,part = 'all') %>% 
@@ -64,7 +65,7 @@ list_tables[["allocated_sampled"]] %>%
          value = as_paragraph("Total area (km",
                               as_sup("2"),")")) %>%
   align(i = 1, align = "center",part = 'header') %>%
-  hline(i = ~ break_position(`INPFC area`), border = cl)
+  hline(i = ~ break_position(`Survey District`), border = cl)
 ```
 \newpage
 
