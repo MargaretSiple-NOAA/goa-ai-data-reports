@@ -15,7 +15,7 @@ if (x) {
 }
 
 # Get text from Google Drive ----------------------------------------------
-y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
+y <- askYesNo(msg = "Do you want to re-download Google Drive files now?",default = FALSE)
 if (y) {
   source("R/04_get_gdrive_chapters.R")
 }
