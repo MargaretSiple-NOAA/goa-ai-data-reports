@@ -36,6 +36,9 @@ library(officer)
 
 ```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the 2022 AI bottom trawl survey. The prices used for station allocation in 2022 were from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
 sp_prices %>% 
+  dplyr::rename("Ex-vessel price (USD)" = "Ex-vessel price") %>%
+  dplyr::filter(`Included in design`=="Y") %>%
+  dplyr::select(-`Included in design`) %>%
   flextable() %>% 
   fix_border_issues() %>%
   theme_vanilla() %>%
