@@ -34,7 +34,7 @@ library(officer)
 \newpage
 <!-- Tables -->
 
-```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the 2022 AI bottom trawl survey.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the 2022 AI bottom trawl survey. The prices used for station allocation in 2022 were from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
 sp_prices %>% 
   flextable() %>% 
   fix_border_issues() %>%
@@ -69,6 +69,28 @@ list_tables[["allocated_sampled"]] %>%
 ```
 \newpage
 
+```{r echo=FALSE,tab.cap='Target numbers of sexed length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
+list_tables[["length-sample-sizes"]] %>%
+  flextable(col_keys = c("dummy_col", "Target.sample.size")) %>%
+  flextable::mk_par(
+    j = "dummy_col",
+    value = as_paragraph(Species.or.species.group, " (", as_i(sci.name), sci.name.addendum, ")")
+  ) %>%
+  set_header_labels(
+    dummy_col = "Species or species group",
+    Target.sample.size = "Target sample size"
+  ) %>%
+  theme_vanilla() %>%
+  fontsize(size = 8.5, part = "all") %>%
+  #width(j = 1, width = 4, unit = "in") %>%
+  align(i=1,j=2, align = "center",part = 'header') %>%
+  autofit() %>%
+  line_spacing(space = 0.75)
+
+```
+
+\newpage
+
 ```{r echo=FALSE,tab.cap='Mean CPUE (kg/ha) for the 20 most abundant groundfish species in each survey district during the 2022 Aleutian Islands bottom trawl survey.', tab.id='top-cpue',  tab.cap.style = "Table Caption"}
 
 list_tables[["top_CPUE"]] %>%
@@ -90,28 +112,7 @@ list_tables[["top_CPUE"]] %>%
 ```
 
 <br />
-  
-```{r echo=FALSE,tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table Caption"}
-list_tables[["length-sample-sizes"]] %>%
-  flextable(col_keys = c("dummy_col", "Target.sample.size")) %>%
-  flextable::mk_par(
-    j = "dummy_col",
-    value = as_paragraph(Species.or.species.group, " (", as_i(sci.name), sci.name.addendum, ")")
-  ) %>%
-  set_header_labels(
-    dummy_col = "Species or species group",
-    Target.sample.size = "Target sample size"
-  ) %>%
-  theme_vanilla() %>%
-  fontsize(size = 8.5, part = "all") %>%
-  #width(j = 1, width = 4, unit = "in") %>%
-  align(i=1,j=2, align = "center",part = 'header') %>%
-  autofit() %>%
-  line_spacing(space = 0.75)
 
-```
-
-\newpage
 
 ```{r echo=FALSE,tab.cap='Species richness in survey by family, INPFC area and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
 subregion_fam_div %>%
