@@ -220,18 +220,23 @@ nstations_w_marport_data <- haul2 %>%
   distinct(STATIONID, STRATUM) %>%
   nrow() # for 2022: 397
 
+nestimatedspreads <- haul2 %>%
+  filter(ABUNDANCE_HAUL =="Y" & NET_MEASURED=="N") %>%
+  distinct(STATIONID, STRATUM) %>%
+  nrow()
+  
+
 # Number of "failed tows":
 nfailedtows <- haul2 %>%
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
   nrow()
 
 
-# Number of stations with no marport data
-no_marport_data <- nsuccessfulhauls - nstations_w_marport_data
-
-if (nstations_w_marport_data > nstations) {
-  print("Yikes, more net mensuration stations than stations successfully sampled. Check the haul table and try not to cry.")
-}
+# Number of stations with no marport data - this is a phrase
+no_marport_data <- paste(
+  nestimatedspreads,
+  ifelse(nestimatedspreads == 1, "station", "stations")
+)
 
 # Save for Alex
 # save(nstations, nsuccessfulhauls, nattemptedhauls,nattemptedstations,nstations_w_marport_data, file = "stationinfo2022.RData")
