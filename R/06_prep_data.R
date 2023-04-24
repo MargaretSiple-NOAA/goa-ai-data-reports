@@ -73,6 +73,7 @@ nhauls_no_btemp <- haul_maxyr %>% filter(is.na(GEAR_TEMPERATURE)) %>% nrow()
 # write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
 
 # Econ info ---------------------------------------------------------------
+
 dat <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
 sp_prices <- dat %>%
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) %>%
@@ -170,6 +171,25 @@ nnewstations <- all_allocation %>%
 if (nnewstations == 0) {
   "Code says no new stations were sampled this year. Is this correct?"
 }
+
+# Of the new stations allocated to the different vessels, which ones were successfully sampled? 
+hist_stations <- haul %>% 
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
+  filter(REGION == SRVY) %>%
+  filter(YEAR != maxyr) %>%
+  distinct(STATIONID) %>%
+  as.vector()
+hist_stations <- hist_stations$STATIONID
+
+test <- haul_maxyr %>%
+  mutate(newstation = ifelse(STATIONID %in% hist_stations, "no", "yes")) %>%
+  filter(newstation=="yes")
+
+new_successfully_sampled <- test %>% 
+  filter(ABUNDANCE_HAUL=="Y") %>%
+  nrow()
+  
+newstationsentence <- paste("Among the", nnewstations, "total new stations assigned,",new_successfully_sampled, "were successfully found and trawled.")
 
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
