@@ -328,9 +328,9 @@ highest_elasmos <- biomass_total %>%
   dplyr::slice_max(n = 3, order_by = total_biomass, with_ties = FALSE)
 
 highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[1])
-second_highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[2])
-third_highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[3])
-fourth_highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[4])
+second_highest_biomass_overall <- highest_biomass$common_name[2]
+third_highest_biomass_overall <- highest_biomass$common_name[3]
+fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 
 # Biomass stats ------------------------------------
 head(report_species)
