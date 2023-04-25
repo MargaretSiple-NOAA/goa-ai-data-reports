@@ -21,6 +21,21 @@ source("R/00_report_settings.R")
 source("R/01_directories.R")
 source("R/02_load_packages.R") 
 ```
+# Check species richness
+```{r}
+#FROM NED
+# select distinct inpfc_area,a.species_code, common_name, species_name
+# from racebase.catch a, goa.goa_strata b, racebase.haul c, racebase.species d
+# where a.region = 'AI'
+# and a.cruise = 202201
+# and a.region = survey
+# and b.stratum = c.stratum
+# and a.hauljoin = c.hauljoin
+# and a.species_code < 39099
+# and a.species_code = d.species_code
+
+```
+
 # Check Table 1
 
 Insert script here for checking between my table and others!
