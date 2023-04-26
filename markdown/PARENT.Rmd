@@ -55,7 +55,7 @@ list_tables[["allocated_sampled"]] %>%
   mutate(`Total area` = round(`Total area`,digits = 0),
          `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`,digits=2)) %>%
   flextable() %>% 
-  merge_v(j = ~ `Survey District`) %>%
+  merge_v(j = ~ `INPFC area`) %>%
   fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 8.5,part = 'all') %>% 
@@ -68,7 +68,7 @@ list_tables[["allocated_sampled"]] %>%
          value = as_paragraph("Total area (km",
                               as_sup("2"),")")) %>%
   align(i = 1, align = "center",part = 'header') %>%
-  hline(i = ~ break_position(`Survey District`), border = cl)
+  hline(i = ~ break_position(`INPFC area`), border = cl)
 ```
 \newpage
 
@@ -203,7 +203,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     filter(`Biomass (t)` == max(`Biomass (t)`)) %>%
     dplyr::select(`Survey district`) %>%
     left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
-    dplyr::select(INPFC_AREA_ABBREV) %>%
+    dplyr::select(`Survey district`) %>%
     as.character()
 
   inpfc_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
@@ -215,7 +215,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     dplyr::select(`Survey district`) %>%
     dplyr::select(`Survey district`) %>%
     left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
-    dplyr::select(INPFC_AREA_ABBREV) %>%
+    dplyr::select(`Survey district`) %>%
     as.character()
 
   inpfc_2nd_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
@@ -228,7 +228,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     dplyr::select(`Survey district`) %>%
     dplyr::select(`Survey district`) %>%
     left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
-    dplyr::select(INPFC_AREA_ABBREV) %>%
+    dplyr::select(`Survey district`) %>%
     as.character()
 
   middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
