@@ -58,9 +58,6 @@ if(!file.exists(paste0(dir_in_tables,"report_tables.rdata"))){
   print(paste("Report tables file does not exist. If you haven't made tables for the report yet, ignore this message. If you are trying to build a report, make sure you generated tables on", tabledate, "or select a new date."))
 }
 
-if(!file.exists(paste0(dir_in_figures,"report_figures.rdata"))){
-  print(paste("Figures file does not exist.  If you haven't made figures for the report yet, ignore this message. If you are trying to build a report, make sure you generated figures on", figuredate))
-}
 
 # Folder with google drive snippets ---------------------------------------
 dir_out_gdrive <- "gdrive"
