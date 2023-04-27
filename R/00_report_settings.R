@@ -13,9 +13,9 @@ district_order <- c("Southern Bering Sea",
                     "Western Aleutians")
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2023-02-17" 
-figuredate <- "2023-02-17"
-reportvaluesdate <- "2023-02-17"
+tabledate <- "2023-04-25" 
+figuredate <- "2023-04-25"
+reportvaluesdate <- "2023-04-25"
 
 # Survey information ------------------------------------------------------
 #survnumber <- "twentieth" 
