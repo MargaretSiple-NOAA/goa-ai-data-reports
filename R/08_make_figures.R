@@ -294,7 +294,7 @@ if (make_cpue_bubbles_strata) {
   print("Done with CPUE bubble maps showing stratum areas.")
 }
 
-# 3b. CPUE bubble maps - b&w Emily M style bubble plots ----------------------------------------------------------
+# 3b. CPUE bubble maps for AI - b&w Emily M style bubble plots ----------------------------------------------------------
 if (make_cpue_bubbles) {
   list_cpue_bubbles <- list()
 
@@ -314,8 +314,8 @@ if (make_cpue_bubbles) {
 
     # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
     thisyrshauldata <- cpue_raw %>%
-      mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
-      filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
+      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
         coords = c("start_longitude", "start_latitude"),
         crs = "EPSG:4326"
