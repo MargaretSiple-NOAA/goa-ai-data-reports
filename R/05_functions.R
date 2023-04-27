@@ -264,6 +264,40 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs,"Table 2/","Table 2_A
   return(raw2)
 }
 
+
+#' Create CPUE table formatted like the one in the AI 2018 report
+#'
+#' @param top_CPUE A dataframe created by either prep_tab2() or make_top_cpue() (still valid but minorly different from the historical cpue tables to we revert to the former in order to be consistent)
+#'
+#' @return a list of dataframes, each of which should be formatted as a flextable.
+#' @export
+#'
+#' @examples
+top_CPUE_formatted <- function(top_CPUE) {
+  x <- top_CPUE %>%
+    # existing changes in markdown file:
+    dplyr::select(INPFC_AREA, common_name, wgted_mean_cpue_kgha) %>%
+    dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha, digits = 1)) %>%
+    dplyr::rename(
+      `INPFC area` = INPFC_AREA,
+      Species = common_name,
+      `CPUE (kg/ha)` = wgted_mean_cpue_kgha
+    ) #%>%
+    #group_split(`INPFC area`)
+  
+  # y <- lapply(x, pivot_wider, names_from = `INPFC area`, values_from = `CPUE (kg/ha)`)
+  # for (i in 1:length(y)) {
+  #   names(y)[i] <- names(y[[i]][2])
+  #   colnames(y[[i]])[2] <- "CPUE (kg/ha)"
+  # }
+  # tophalf <- cbind(y$`Southern Bering Sea`, y$`Eastern Aleutians`, y$`Central Aleutians`)
+  # colnames(tophalf) <- c("Species", "CPUE (kg/ha)","Species ", "CPUE (kg/ha) ","Species  ", "CPUE (kg/ha)  ")
+  # bottomhalf <- cbind(y$`Western Aleutians`, y$`Combined Aleutian Districts`, y$`All Districts Combined`)
+  # colnames(bottomhalf) <- colnames(tophalf)
+  # uglydf <- rbind(tophalf,bottomhalf)
+  return(x)
+}
+
 #' Retrieve Table 3's (biomass per area and depth) for a species
 #'
 #' @param species_code (numeric) 5-digit species code
