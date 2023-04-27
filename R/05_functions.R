@@ -122,6 +122,7 @@ make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps
     )) %>%
     dplyr::mutate(common_name = case_when(
       species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
+      species_code == 405 ~ "Bathyraja sp.",
       TRUE ~ common_name
     )) %>%
     # Old skate check
