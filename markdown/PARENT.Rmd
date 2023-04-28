@@ -34,7 +34,7 @@ library(officer)
 \newpage
 <!-- Tables -->
 
-```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the 2022 AI bottom trawl survey. The prices used for station allocation in 2022 were from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the 2022 AI bottom trawl survey. The prices used for station allocation in 2022 are from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
 sp_prices %>% 
   dplyr::rename("Ex-vessel price (USD)" = "Ex-vessel price") %>%
   dplyr::filter(`Included in design`=="Y") %>%
@@ -56,7 +56,7 @@ list_tables[["allocated_sampled"]] %>%
   mutate(`Total area` = round(`Total area`,digits = 0),
          `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`,digits=2)) %>%
   flextable() %>% 
-  merge_v(j = ~ `Survey District`) %>%
+  merge_v(j = ~ `Survey district`) %>%
   fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 8.5,part = 'all') %>% 
@@ -69,7 +69,7 @@ list_tables[["allocated_sampled"]] %>%
          value = as_paragraph("Total area (km",
                               as_sup("2"),")")) %>%
   align(i = 1, align = "center",part = 'header') %>%
-  hline(i = ~ break_position(`Survey District`), border = cl) #%>%
+  hline(i = ~ break_position(`Survey district`), border = cl) #%>%
   #autofit() #change back if it's still janky
 ```
 \newpage
@@ -98,13 +98,12 @@ list_tables[["length-sample-sizes"]] %>%
 
 <!---BLOCK_MULTICOL_START--->
 ```{r echo=FALSE,tab.cap='Mean CPUE (kg/ha) for the 20 most abundant groundfish species in each survey district during the 2022 Aleutian Islands bottom trawl survey.', tab.id='top-cpue',  tab.cap.style = "Table Caption"}
-
- top_CPUE_formatted(top_CPUE = top_CPUE)%>%
+top_CPUE_formatted(top_CPUE = top_CPUE) %>%
   as_grouped_data(groups = "INPFC area") %>%
-  as_flextable(hide_grouplabel=TRUE) %>%
-  set_header_labels(`INPFC area`="") %>%
-  bold( bold = TRUE, part="header") %>% 
-  align(i = ~ !is.na(`INPFC area`), align = "center") %>% 
+  as_flextable(hide_grouplabel = TRUE) %>%
+  set_header_labels(`INPFC area` = "") %>%
+  bold(bold = TRUE, part = "header") %>%
+  align(i = ~ !is.na(`INPFC area`), align = "center") %>%
   bold(i = ~ !is.na(`INPFC area`)) %>%
   fit_to_width(max_width = 2, unit = "in") %>%
   padding(padding.bottom = 0, padding.top = 0) %>%
@@ -178,7 +177,7 @@ surface_temp_plot
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)

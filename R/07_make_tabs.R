@@ -152,8 +152,8 @@ all_areas_depths <- all_areas %>%
 allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths) %>%
   dplyr::arrange(factor(INPFC_AREA,levels = c(district_order,"All areas")))
 
-colnames(allocated_sampled) <- c("Survey District", "Depth range", 
-                                 "Stations Allocated", "Stations Attempted", "Stations Completed", 
+colnames(allocated_sampled) <- c("Survey district", "Depth range", 
+                                 "Stations allocated", "Stations attempted", "Stations completed", 
                                  "Total area", "Stations per 1,000 km^2")
 
 # CPUE table by district - formatted by Paul ------------------------------
