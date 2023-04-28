@@ -6,16 +6,18 @@ source("R/00_report_settings.R")
 
 # Functions, packages, directories ---------------------------------------------
 source("R/01_directories.R")
-source("R/02_load_packages.R") 
+source("R/02_load_packages.R")
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
-x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
+# x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
+x <- FALSE
 if (x) {
   source("R/03_download_data_from_oracle.R")
 }
 
 # Get text from Google Drive ----------------------------------------------
-y <- askYesNo(msg = "Do you want to re-download Google Drive files now?",default = FALSE)
+# y <- askYesNo(msg = "Do you want to re-download Google Drive files now?",default = FALSE)
+y <- FALSE
 if (y) {
   source("R/04_get_gdrive_chapters.R")
 }
@@ -26,12 +28,14 @@ source("R/06_prep_data.R") # Make all the tables and stuff needed for report and
 source("R/06a_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
 
 # Create tables and figures -----------------------------------------------
-# Do you want to build all the tables right now? 
+# Do you want to build all the tables right now?
 source(here::here("R", "07_make_tabs.R"))
 
 # Run this if you want to build all the figures right now? NOTE: This may take a while.
 z <- askYesNo(msg = "Do you want to create all the figures right now? Note: this may take a while.")
-if(z) {source(here::here("R", "08_make_figures.R"))}
+if (z) {
+  source(here::here("R", "08_make_figures.R"))
+}
 
 
 # Save all the values needed to make the report so you can easily load later --
@@ -39,9 +43,8 @@ if(z) {source(here::here("R", "08_make_figures.R"))}
 # The items present in this list are either intermediary (i.e., not objects used in the final report, like ai_central) or they are saved as rdata objects separately (e.g., list_cpue_bubbles)
 rm(list = c(
   "ai_central", "ai_east", "ai_west", "bartheme", "bubbletheme", "catch", "fig", "haul",
-  "joyplot", "L", "length2", "length3", "linetheme", "list_cpue_bubbles", "list_joy_length", 
-  "list_tables", "S", "table3s_list", "table4s_list", "list_temperature"
+  "joyplot", "L", "length2", "length3", "linetheme", "list_cpue_bubbles", "list_joy_length",
+  "list_tables", "S", "table3s_list", "table4s_list", "list_temperature", "tabledate", "figuredate", "reportvaluesdate"
 ))
 
 save(list = ls(), file = paste0(dir_out_todaysrun, "reportvalues.rdata"))
-
