@@ -100,7 +100,11 @@ appB <- species_maxyr %>%
     species_code <= 31550 ~ "fish",
     species_code >= 40001 ~ "invert"
   )) %>%
-  dplyr::select(inpfc_area, species_name, common_name, family = family_taxon, phylum = phylum_taxon, major_group, tax_group) %>%
+  dplyr::mutate(family_taxon = case_when(
+    species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon)) %>%
+  dplyr::select(inpfc_area, species_name, common_name, 
+                family = family_taxon, phylum = phylum_taxon, 
+                major_group, tax_group) %>%
   unique() %>%
   arrange(inpfc_area, tax_group, major_group, species_name)
 
