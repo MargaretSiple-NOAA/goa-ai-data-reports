@@ -56,5 +56,6 @@ report_yr <- maxyr
 
 
 # Vessel specs ------------------------------------------------------------
-vessel_spec_chunk <- paste("The Alaska Provider is 53.6 m in overall length (LOA) and is powered by two main engines with 2,200 continuous horsepower (HP). The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine. The Alaska Provider is equipped with two forward and one stern net reel, but only the aft reel was used during the AI", maxyr, "bottom trawl survey. The Ocean Explorer is equipped with two forward net reels, both of which were used during the AI", maxyr, "bottom trawl survey.")
+vessel1_spec_chunk <- paste("The Alaska Provider is 53.6 m in overall length (LOA) and is powered by two main engines with 2,200 continuous horsepower (HP). It is equipped with two forward and one stern net reel, but only the aft reel was used during the AI", maxyr, "bottom trawl survey.")
 
+vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine. The Ocean Explorer is equipped with two forward net reels, both of which were used during the AI", maxyr, "bottom trawl survey.")
