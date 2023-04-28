@@ -17,7 +17,7 @@ if (x) {
 
 # Get text from Google Drive ----------------------------------------------
 # y <- askYesNo(msg = "Do you want to re-download Google Drive files now?",default = FALSE)
-y <- FALSE
+y <- TRUE
 if (y) {
   source("R/04_get_gdrive_chapters.R")
 }
@@ -32,7 +32,8 @@ source("R/06a_appendix_b.R") # Make the table for Appendix B (also used in main 
 source(here::here("R", "07_make_tabs.R"))
 
 # Run this if you want to build all the figures right now? NOTE: This may take a while.
-z <- askYesNo(msg = "Do you want to create all the figures right now? Note: this may take a while.")
+# z <- askYesNo(msg = "Do you want to create all the figures right now? Note: this may take a while.")
+z <- TRUE
 if (z) {
   source(here::here("R", "08_make_figures.R"))
 }
