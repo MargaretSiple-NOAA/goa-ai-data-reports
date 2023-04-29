@@ -116,7 +116,7 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 <br />
 
 
-```{r echo=FALSE,tab.cap='Species richness in survey by family, INPFC area and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap='Species richness in survey by family, INPFC area, and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
 subregion_fam_div %>%
   flextable() %>%
   fix_border_issues() %>%
@@ -144,7 +144,7 @@ otos_collected  %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap='Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, and SBS = Southern Bering Sea), isobaths from 100–500 m and stations sampled (black dots).', fig.id='area-map',  fig.cap.style = "Figure Caption"}
+```{r fig.cap='Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', fig.id='area-map',  fig.cap.style = "Figure Caption"}
 include_graphics(here::here(img1_path))
 ```
 

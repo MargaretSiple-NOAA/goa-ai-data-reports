@@ -13,15 +13,16 @@ table3s_list[[as.character({{ species_code }})]][,1:9] %>%
   theme_vanilla() %>%
   fontsize(size = 9, part = "all") %>%
   fit_to_width(max_width = 8, unit = "in") %>%
-  align(i = 1, align = "center",part = 'header') %>%
   align(align = "right", part = "all") %>%
+  align(i = 1, align = "center",part = 'header') %>%
+  align(j = 1, align = "left",part = 'body') %>%
+  padding(padding = 0, part = "all") %>%
   set_caption(
     as_paragraph(
       as_chunk("Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (LCL and UCL, respectively), and average fish weight.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
     ),
     word_stylename = "Table Caption"
-  ) %>%
-  padding(padding = 0, part = "all")
+  ) 
 ```
 
 
