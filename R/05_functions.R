@@ -74,6 +74,7 @@ find_units <- function(unit = "", unt = "", dat, divby = NULL) {
   ))
 }
 
+biomass_round <- function(x){round(x,digits = 0)}
 
 # https://github.com/geanders/weathermetrics/blob/master/R/temperature_conversions.R
 c2f <- function(T.celsius, round = 2) {
@@ -603,6 +604,20 @@ lengthen_pal <- function(x = 1:10, shortpal) {
   ncolours <- length(unique(x))
   newpal <- colorRampPalette(shortpal)(ncolours)
   return(newpal)
+}
+
+#' Format numbers for classic "tons" format
+#'
+#' @param x any number
+#'
+#' @return a string with commas to be used in the Markdown report
+#' @export
+#'
+#' @examples
+#' format_tons(5222.168)
+format_tons <- function(x){
+  y <- prettyNum(round(x), big.mark = ",", scientific = FALSE)
+  return(y)
 }
 
 # Save plot as a png (for using lapply with the list of figures)
