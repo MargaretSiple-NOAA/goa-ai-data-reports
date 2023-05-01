@@ -10,13 +10,13 @@ To create the full report:
 - When you're ready to build the full report in .docx, check the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`, and run `10_knit_report.R`. This will produce one .docx for the body of the report, and will draw in appendices from their sources.
 - A smidge of post-processing is needed in Word: check table widths, order of appendices, and the headers (in navigation pane) to confirm that the scripts have run and the report draft is ready.
 
-![Diagram of report structure](img/DataReportDiagram.png)
+![Diagram of report structure](img/DataReportDiagram2.png)
 
 > This document is for informational purposes only and does not necessarily represent the views or official position of the Department of Commerce, the National Oceanic and Atmospheric Administration, or the National Marine Fisheries Service. Not to be cited without permission from the authors.
 
 ### Structure
 
-As of February 2023, the sections of the report are as follows:
+As of April 2023, the sections of the report are as follows:
 
 - Preface - drawn straight from google drive
 - Abstract - drawn straight from google drive
@@ -24,7 +24,7 @@ As of February 2023, the sections of the report are as follows:
 - Methods - drawn straight from google drive
 - Results 
   - Results by Area - drawn straight from google drive
-  - Results by Species - drawn from RMarkdown and mixed with text sentences from google drive
+  - Results by Species - drawn from RMarkdown and mixed with text sentences ("Species blurbs") from google drive
 
 - Citations
 - Appendix A: strata specifications and locations
