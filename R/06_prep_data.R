@@ -122,9 +122,9 @@ region_lu2 <- region_lu %>%
   dplyr::group_by(INPFC_AREA) %>%
   dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) %>%
   dplyr::ungroup() %>%
-  mutate(INPFC_AREA_ABBREV = case_when(INPFC_AREA == "Central Aleutians" ~ "Central AI",
-                                       INPFC_AREA == "Eastern Aleutians" ~ "Eastern AI",
-                                       INPFC_AREA == "Western Aleutians" ~ "Western AI",
+  mutate(INPFC_AREA_ABBREV = case_when(INPFC_AREA == "Central Aleutians" ~ "CAI",
+                                       INPFC_AREA == "Eastern Aleutians" ~ "EAI",
+                                       INPFC_AREA == "Western Aleutians" ~ "WAI",
                                        INPFC_AREA == "Southern Bering Sea" ~ "SBS"))
 
 # Add Aleutian areas
