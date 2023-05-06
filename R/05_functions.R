@@ -690,7 +690,7 @@ plot_pa_xbyx <- function(spcode, # speciescode
                          col_viridis = "mako",
                          plot_coldpool = FALSE,
                          plot_stratum = FALSE) {
-  legendtitle <- bquote(CPUE(kg / km^2))
+  legendtitle <- bquote(CPUE(kg / ha))
 
   f1 <- ggplot() +
     geom_sf(
@@ -699,13 +699,13 @@ plot_pa_xbyx <- function(spcode, # speciescode
       fill = "grey40"
     ) +
     geom_sf(
-      data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-      aes(size = cpue_kgkm2),
+      data = filter(thisyrshauldata, cpue_kgha > 0),
+      aes(size = cpue_kgha),
       alpha = 0.5,
       color = mako(n = 1, begin = .25, end = .75)
     ) +
     geom_sf( # x's for places where we sampled but didn't catch any of that species
-      data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+      data = filter(thisyrshauldata, cpue_kgha == 0),
       alpha = 0.5,
       color = "grey5",
       shape = 4,
