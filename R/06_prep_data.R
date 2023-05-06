@@ -288,16 +288,41 @@ otos_collected <- specimen_maxyr %>%
   ungroup() %>%
   arrange(factor(INPFC_AREA, levels= district_order))
 
-meanlengths_area <- specimen_maxyr %>%
-  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+# meanlengths_area <- specimen_maxyr %>%
+#   filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+#   dplyr::left_join(haul_maxyr, by = c(
+#     "CRUISEJOIN", "HAULJOIN", "HAUL",
+#     "REGION", "VESSEL", "YEAR"
+#   )) %>%
+#   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
+#   group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
+#   dplyr::summarize("Mean length" = mean(LENGTH, na.rm = TRUE)) %>%
+#   ungroup()
+# A tibble: 62 × 3
+# SPECIES_CODE INPFC_AREA          `Mean length`
+# <int> <chr>                       <dbl>
+#   1        10110 Central Aleutians            431.
+# 2        10110 Eastern Aleutians            441.
+# 3        10110 Southern Bering Sea          439.
+# 4        10110 Western Aleutians            414.
+# 5        10112 Central Aleutians            384.
+# 6        10112 Eastern Aleutians            330.
+# 7        10112 Southern Bering Sea          360.
+# 8        10112 Western Aleutians            392.
+# 9        10115 Central Aleutians            710 
+# 10        10115 Eastern Aleutians            730 
+L_maxyr <- L %>%
+  filter(YEAR == maxyr & REGION == SRVY)
+meanlengths_area <- L_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
-    "CRUISEJOIN", "HAULJOIN", "HAUL",
-    "REGION", "VESSEL", "YEAR"
+    "CRUISEJOIN", "HAULJOIN",
+    "REGION", "VESSEL", "CRUISE"
   )) %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
-  dplyr::summarize("Mean length" = mean(LENGTH)) %>%
-  ungroup()
+  dplyr::summarize("Mean length" = mean(LENGTH, na.rm = TRUE)) %>%
+  ungroup() %>%
+  dplyr::left_join(region_lu2)
 
 total_otos <- sum(otos_collected$`Number of otoliths collected`) %>%
   format(big.mark = ",")
