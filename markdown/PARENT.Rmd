@@ -238,7 +238,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
   region_largest <- meanlengths_area %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     top_n(1, `Mean length`) %>%
-    dplyr::select(INPFC_AREA) %>%
+    dplyr::select(INPFC_AREA_ABBREV) %>%
     as.character()
 
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesResultTemplate.Rmd"))
