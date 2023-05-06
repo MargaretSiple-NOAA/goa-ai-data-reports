@@ -475,7 +475,7 @@ if (make_temp_plot) {
     geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
-    labs(x = "Year", y = "Bottom temperature (deg C)") +
+    labs(x = "Year", y = expression("Bottom temperature " ( degree*C))) + #
     theme_light()
 
   surface_temp_plot <- plotdat %>%
@@ -485,7 +485,7 @@ if (make_temp_plot) {
     geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
-    labs(x = "Year", y = "Surface temperature (deg C)") +
+    labs(x = "Year", y = expression("Surface temperature " ( degree*C))) +
     theme_light()
 
   png(
