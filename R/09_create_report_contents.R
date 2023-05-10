@@ -44,8 +44,10 @@ if (z) {
 # The items present in this list are either intermediary (i.e., not objects used in the final report, like ai_central) or they are saved as rdata objects separately (e.g., list_cpue_bubbles)
 rm(list = c(
   "ai_central", "ai_east", "ai_west", "bartheme", "bubbletheme", "catch", "fig", "haul",
-  "joyplot", "L", "length2", "length3", "linetheme", "list_cpue_bubbles", "list_joy_length",
-  "list_tables", "S", "table3s_list", "table4s_list", "list_temperature", "tabledate", "figuredate", "reportvaluesdate"
+  "joyplot", "L", "length2", "length3", "linetheme", 
+  "list_cpue_bubbles", "list_joy_length","list_temperature", "list_ldscatter",
+  "list_tables", "S", "table3s_list", "table4s_list",  "tabledate", 
+  "figuredate", "reportvaluesdate"
 ))
 
 save(list = ls(), file = paste0(dir_out_todaysrun, "reportvalues.rdata"))

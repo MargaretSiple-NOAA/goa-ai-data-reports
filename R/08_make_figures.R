@@ -16,8 +16,11 @@ make_cpue_bubbles_strata <- FALSE
 make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
+# 5b. Length vs. depth, facetted by district
+make_ldscatter <- TRUE
 # 6. Plot of surface and bottom SST with long term avg
 make_temp_plot <- TRUE
+
 
 # Base maps ---------------------------------------------------------------
 ai_east <- akgfmaps::get_base_layers(
@@ -67,6 +70,7 @@ bubbletheme <- theme(
 
 
 linetheme <- theme_bw(base_size = 12)
+
 bartheme <- theme_classic2(base_size = 12) +
   theme(strip.background = element_blank())
 
@@ -84,12 +88,17 @@ accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 # Palette for joy div plot
 # joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 joypal <- c("#d1eeea", "#a8dbd9", "#85c4c9", "#68abb8", "#4f90a6", "#3b738f", "#2a5674") # Mint palette
-joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#123f5a")
-# more green palette
+joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#123f5a") # more green palette
+
+# Palette for survey regions
+dispal <- c(met.brewer(
+  palette_name = "Nizami", type = "discrete", n = 4,
+  direction = -1
+), "black")
+
 
 
 # Palette for species colors and fills
-# speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
 speciescolors <- lengthen_pal(
   shortpal = MetBrewer::met.brewer(palette_name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
@@ -363,7 +372,9 @@ if (make_joy_division_length) {
       SEX == 3 ~ "Unsexed"
     )) %>%
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
+  
   for (i in 1:nrow(report_species)) {
+    # These are multipliers for where the sample size geom_text falls on the y axis
     multiplier <- 2
     if (report_species$species_code[i] %in% c(
       21921,
@@ -394,24 +405,42 @@ if (make_joy_division_length) {
         filter(Sex != "Unsexed")
     }
     
+    medlines <- length3_species %>%
+      group_by(YEAR, Sex) %>%
+      dplyr::summarize(medlength = median(LENGTH,na.rm=T)) %>%
+      ungroup()
+    
+    write.csv(x = medlines,file = paste0(dir_out_tables,"median_lengths", "_", report_species$spp_name_informal[i],"_", maxyr, ".csv"),
+              row.names = FALSE)
+    
     length3_species <- length3_species %>%
-      left_join(length3_species %>% dplyr::count(YEAR, Sex)) %>%
-      left_join(length3_species %>% dplyr::group_by(Sex) %>% dplyr::summarize(yloc = median(LENGTH) * multiplier) %>% ungroup())
+      left_join(length3_species %>% 
+                  dplyr::count(YEAR, Sex)) %>%
+      left_join(length3_species %>% 
+                  dplyr::group_by(Sex) %>% 
+                  dplyr::summarize(yloc = median(LENGTH) * multiplier) %>% 
+                  ungroup()) %>%
+      left_join(medlines)
 
     joyplot <- length3_species %>%
       ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
-      geom_density_ridges_gradient(colour = "grey35") +
+      geom_density_ridges_gradient(colour = "grey35",
+                                   quantile_lines = T, quantile_fun = median, 
+                                   vline_color="lightgrey",vline_size = 1, 
+                                   vline_linetype = "dotted") +
       scale_y_discrete(limits = rev) +
-      geom_text(aes(label = paste0("n = ", n), x = yloc), 
-                nudge_y = 0.5, colour = "grey35", size = 2.2) + # used to be 4 or something
+      scale_linetype_manual(values = c("solid","dashed")) +
+      geom_text(aes(label = paste0("n = ", n), x = yloc),
+        nudge_y = 0.5, colour = "grey35", size = 2.2
+      ) + 
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges(font_size = 8) + # changed from 11
+      theme_ridges(font_size = 8) + 
       scale_fill_gradientn("Length (mm)", colours = joypal) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(strip.background = element_blank())
-    joyplot
+    #joyplot
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
@@ -429,11 +458,63 @@ if (make_joy_division_length) {
 }
 
 
+# 5b. Scatter plots of length by depth by region --------------------------
+
+if (make_ldscatter) {
+  list_ldscatter <- list()
+  for (i in 1:nrow(report_species)) {
+    ltoplot <- L_maxyr %>%
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      dplyr::left_join(haul2, by = c(
+        "CRUISEJOIN", "HAULJOIN",
+        "REGION", "VESSEL", "CRUISE"
+      )) %>%
+      dplyr::left_join(region_lu) %>%
+      dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
+      dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
+
+    ltoplot2 <- ltoplot %>%
+      mutate(INPFC_AREA = "All districts") %>%
+      bind_rows(ltoplot)
+
+    ltoplot2$INPFC_AREA <- factor(ltoplot2$INPFC_AREA, levels = c(district_order, "All districts"))
+
+    ldscatter <- ltoplot2 %>%
+      ggplot(aes(x = BOTTOM_DEPTH, y = LENGTH / 10, color = INPFC_AREA)) +
+      geom_point(alpha = 0.2, size = 1.5, pch = 20) +
+      facet_grid(. ~ INPFC_AREA) +
+      scale_color_manual(values = dispal) +
+      geom_smooth(method = "loess") +
+      xlab("Bottom depth (m)") +
+      ylab("Length (cm)") +
+      theme_light() +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "none"
+      )
+
+    png(filename = paste0(
+      dir_out_figures, maxyr, "_",
+      report_species$spp_name_informal[i], "_ldscatter.png"
+    ), width = 8, height = 3, units = "in", res = 200)
+    print(ldscatter)
+    dev.off()
+
+    list_ldscatter[[i]] <- ldscatter
+    print(paste("Done with length by depth scatter plot of", report_species$spp_name_informal[i]))
+  }
+  names(list_ldscatter) <- report_species$species_code
+  save(list_ldscatter, file = paste0(dir_out_figures, "list_ldscatter.rdata"))
+  print("Done with length by depth scatter plots.")
+}
+
+
 # 6. Surface and bottom SST -----------------------------------------------
 
 if (make_temp_plot) {
   list_temperature <- list()
-  
+
   sstdat <- haul %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
@@ -475,7 +556,7 @@ if (make_temp_plot) {
     geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
-    labs(x = "Year", y = expression("Bottom temperature " ( degree*C))) + #
+    labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
     theme_light()
 
   surface_temp_plot <- plotdat %>%
@@ -485,7 +566,7 @@ if (make_temp_plot) {
     geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
-    labs(x = "Year", y = expression("Surface temperature " ( degree*C))) +
+    labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
     theme_light()
 
   png(
@@ -505,15 +586,14 @@ if (make_temp_plot) {
   )
   print(surface_temp_plot)
   dev.off()
-  
- list_temperature[[1]] <- bottom_temp_plot
- list_temperature[[2]] <- surface_temp_plot
- 
- names(list_temperature) <- c('bottomtemp','surfacetemp')
- 
- save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
- print("Done with joy division plots for length comp.")
- 
+
+  list_temperature[[1]] <- bottom_temp_plot
+  list_temperature[[2]] <- surface_temp_plot
+
+  names(list_temperature) <- c("bottomtemp", "surfacetemp")
+
+  save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
+  print("Done with joy division plots for length comp.")
 }
 
 

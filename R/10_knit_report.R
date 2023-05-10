@@ -42,6 +42,11 @@ load(file = paste0(
   dir_in_figures, "list_temperature.rdata"
 )) # object: list_temperature
 
+load(file = paste0(
+  dir_in_figures, "list_ldscatter.rdata"
+)) # object: list_ldscatter
+
+
 # Figures used for presentation
 # load(file = paste0(
 #   dir_in_figures,"biomass_ts.rdata")) # object: list_biomass_ts
