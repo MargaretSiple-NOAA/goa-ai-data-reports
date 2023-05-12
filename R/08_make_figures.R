@@ -410,7 +410,8 @@ if (make_joy_division_length) {
       dplyr::summarize(medlength = median(LENGTH,na.rm=T)) %>%
       ungroup()
     
-    write.csv(x = medlines,file = paste0(dir_out_tables,"median_lengths", "_", report_species$spp_name_informal[i],"_", maxyr, ".csv"),
+    write.csv(x = medlines,
+              file = paste0(dir_out_tables, maxyr,"_", report_species$spp_name_informal[i],"_median_lengths", ".csv"),
               row.names = FALSE)
     
     length3_species <- length3_species %>%
@@ -426,8 +427,8 @@ if (make_joy_division_length) {
       ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       geom_density_ridges_gradient(colour = "grey35",
                                    quantile_lines = T, quantile_fun = median, 
-                                   vline_color="lightgrey",vline_size = 1, 
-                                   vline_linetype = "dotted") +
+                                   vline_color="lightgrey",vline_size = 0.6, 
+                                   vline_linetype = "A1") +
       scale_y_discrete(limits = rev) +
       scale_linetype_manual(values = c("solid","dashed")) +
       geom_text(aes(label = paste0("n = ", n), x = yloc),
@@ -439,7 +440,10 @@ if (make_joy_division_length) {
       theme_ridges(font_size = 8) + 
       scale_fill_gradientn("Length (mm)", colours = joypal) +
       labs(title = paste(report_species$spp_name_informal[i])) +
-      theme(strip.background = element_blank())
+      theme(strip.background = element_blank(),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank()
+            )
     #joyplot
 
     png(filename = paste0(
