@@ -357,9 +357,9 @@ prep_tab4 <- function(speciescode) {
       Upper.CI.Biomass = round(Upper.CI.Biomass, digits = 0)
     ) %>%
     dplyr::rename(
-      `INPFC area` = INPFC_AREA,
+      `Survey district` = INPFC_AREA,
       `Depth range (m)` = DEPTH_RANGE,
-      `Stratum name` = Stratum.Name,
+      `Subdistrict` = Stratum.Name,
       `Number of hauls` = Number.of.Hauls,
       `Hauls with catch` = Hauls.with.Catch,
       `CPUE (kg/ha)` = CPUE..kg.ha.,
@@ -367,7 +367,7 @@ prep_tab4 <- function(speciescode) {
       `Lower 95% CI` = Lower.CI.Biomass,
       `Upper 95% CI` = Upper.CI.Biomass
     ) %>%
-    arrange(factor(`INPFC area`,levels = district_order),`Depth range (m)`)
+    arrange(factor(`Survey district`,levels = district_order),`Depth range (m)`)
   
   return(cleaned_tab)
 }
