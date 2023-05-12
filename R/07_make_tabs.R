@@ -185,6 +185,14 @@ table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
 names(table4s_list) <- report_species$species_code
 
 
+# for(i in 1:nrow(report_species)){
+#   tab4_sp <- table4s_list[[as.character(report_species$species_code[i])]]
+#   tab4_sp <- tab4_sp %>% arrange(desc(`Number of hauls`))
+#   write.csv(tab4_sp,file = paste0("C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/2023-05-09/tables/",maxyr,"_",report_species$spp_name_informal[i],"_Table4.csv"))
+#   
+#   tab3_sp <- table3s_list[[as.character(report_species$species_code[i])]]
+#   write.csv(tab3_sp,file = paste0("C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/2023-05-09/tables/",maxyr,"_",report_species$spp_name_informal[i],"_Table3.csv"))
+# }
 
 # Put together big list...will be edited later ----------------------------
 
