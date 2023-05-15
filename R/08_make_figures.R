@@ -89,6 +89,7 @@ accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 # joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 joypal <- c("#d1eeea", "#a8dbd9", "#85c4c9", "#68abb8", "#4f90a6", "#3b738f", "#2a5674") # Mint palette
 joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#123f5a") # more green palette
+joypal_grey <- grey.colors(n = 7)
 
 # Palette for survey regions
 dispal <- c(met.brewer(
@@ -395,24 +396,25 @@ if (make_joy_division_length) {
     if (report_species$species_code[i] == 10200) {
       multiplier <- 1.6
     }
-
+    
     length3_species <- length3 %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
-    # For SSTH, include unsexed lengths
+    # Only sexed lengths included, unless it's SSTH
     if (report_species$species_code[i] != 30020) {
       length3_species <- length3_species %>%
         filter(Sex != "Unsexed")
     }
     
+    # Save median lengths by year and sex
     medlines <- length3_species %>%
       group_by(YEAR, Sex) %>%
       dplyr::summarize(medlength = median(LENGTH,na.rm=T)) %>%
       ungroup()
     
-    write.csv(x = medlines,
-              file = paste0(dir_out_tables, maxyr,"_", report_species$spp_name_informal[i],"_median_lengths", ".csv"),
-              row.names = FALSE)
+    # write.csv(x = medlines,
+    #           file = paste0(dir_out_tables, maxyr,"_", report_species$spp_name_informal[i],"_median_lengths", ".csv"),
+    #           row.names = FALSE)
     
     length3_species <- length3_species %>%
       left_join(length3_species %>% 
@@ -424,13 +426,16 @@ if (make_joy_division_length) {
       left_join(medlines)
 
     joyplot <- length3_species %>%
-      ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
+      ggplot(aes(x = LENGTH, y = YEAR, 
+                 group = YEAR, fill = after_stat(x))) +
       geom_density_ridges_gradient(colour = "grey35",
-                                   quantile_lines = T, quantile_fun = median, 
-                                   vline_color="lightgrey",vline_size = 0.6, 
+                                   quantile_lines = T, 
+                                   quantile_fun = median, 
+                                   vline_color = "lightgrey",
+                                   vline_size = 0.6, 
                                    vline_linetype = "A1") +
       scale_y_discrete(limits = rev) +
-      scale_linetype_manual(values = c("solid","dashed")) +
+      scale_linetype_manual(values = c("solid", "dashed")) +
       geom_text(aes(label = paste0("n = ", n), x = yloc),
         nudge_y = 0.5, colour = "grey35", size = 2.2
       ) + 
@@ -442,9 +447,70 @@ if (make_joy_division_length) {
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(strip.background = element_blank(),
             panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank()
+            panel.grid.minor = element_blank(),
+            legend.position = "none"
             )
-    #joyplot
+    
+    #NRS/SRS complex: create a lumped plot with the full complex.
+    spps_lookup <- tibble(
+     complex = c("nrs_srs", "kam_atf", "rebs"),
+     names = c("Northern and southern rock sole", 
+               "Kamchatka flounder and arrowtooth flounder", 
+               "Rougheye/blackspotted rockfish")) %>%
+     tibble::add_column(tibble::as_tibble_col(
+                         list(
+                           c(10260, 10261, 10262, 10263),
+                           c(10110, 10112),
+                           c(30050, 30051, 30052)
+                         ),
+                         column_name = "codes"
+                     ))
+    # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
+    if(report_species$species_code[i] %in% unlist(spps_lookup$codes)){
+      
+      length3_species <- length3 %>%
+        filter(SPECIES_CODE %in% c(10260, 10261, 10262, 10263)) %>%
+        filter(Sex != "Unsexed")
+      medlines <- length3_species %>%
+        group_by(YEAR, Sex) %>%
+        dplyr::summarize(medlength = median(LENGTH,na.rm=T)) %>%
+        ungroup()
+      
+      length3_species <- length3_species %>%
+        left_join(length3_species %>% 
+                    dplyr::count(YEAR, Sex)) %>%
+        left_join(length3_species %>% 
+                    dplyr::group_by(Sex) %>% 
+                    dplyr::summarize(yloc = median(LENGTH) * multiplier) %>% 
+                    ungroup()) %>%
+        left_join(medlines)
+      
+      joyplot2 <- length3_species %>%
+        ggplot(aes(x = LENGTH, y = YEAR, group = YEAR)) + #Not sure why fill=after_stat(x)
+         geom_density_ridges(colour = "grey35",
+                                     quantile_lines = T, quantile_fun = median,
+                                     vline_color="black",vline_size = 0.6,
+                                     vline_linetype = "A1") +
+        scale_y_discrete(limits = rev) +
+        scale_linetype_manual(values = c("solid","dashed")) +
+        geom_text(aes(label = paste0("n = ", n), x = yloc),
+                  nudge_y = 0.5, colour = "grey35", size = 2.2
+        ) + 
+        facet_grid(~Sex) +
+        xlab("Length (mm)") +
+        ylab("Year") +
+        theme_ridges(font_size = 8) + 
+        scale_fill_gradientn("Length (mm)", colours = joypal_grey) +
+        labs(title = "Northern and southern rock sole") +
+        theme(strip.background = element_blank(),
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank()
+        )
+      joyplot <- joyplot + joyplot2
+    }
+    
+   
+   
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
