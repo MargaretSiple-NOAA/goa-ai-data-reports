@@ -398,7 +398,8 @@ if (make_joy_division_length) {
     }
     
     length3_species <- length3 %>%
-      filter(SPECIES_CODE == report_species$species_code[i])
+      filter(SPECIES_CODE == report_species$species_code[i] & 
+               YEAR > minyr)
 
     # Only sexed lengths included, unless it's SSTH
     if (report_species$species_code[i] != 30020) {
@@ -452,24 +453,33 @@ if (make_joy_division_length) {
             )
     
     #NRS/SRS complex: create a lumped plot with the full complex.
-    spps_lookup <- tibble(
-     complex = c("nrs_srs", "kam_atf", "rebs"),
-     names = c("Northern and southern rock sole", 
-               "Kamchatka flounder and arrowtooth flounder", 
-               "Rougheye/blackspotted rockfish")) %>%
-     tibble::add_column(tibble::as_tibble_col(
-                         list(
-                           c(10260, 10261, 10262, 10263),
-                           c(10110, 10112),
-                           c(30050, 30051, 30052)
-                         ),
-                         column_name = "codes"
-                     ))
+    spps_lookup <- data.frame(
+      polycode = c(
+        c(10260, 10261, 10262, 10263),
+        c(10110, 10112),
+        c(30050, 30051, 30052)
+      ),
+      complex = c(
+        rep("nrs_srs", times = 4),
+        rep("kam_atf", times = 2),
+        rep("rebs", times = 3)
+      )
+    ) %>%
+      mutate(complex_name = case_when(
+        complex == "nrs_srs" ~ "Northern and southern rock sole",
+        complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
+        complex == "rebs" ~ "Rougheye/blackspotted rockfish"
+      ))
+      
+ 
     # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
-    if(report_species$species_code[i] %in% unlist(spps_lookup$codes)){
+    if(report_species$species_code[i] %in% spps_lookup$polycode){
+      plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode==report_species$species_code[i])]
+      complex_sp <- spps_lookup$complex[which(spps_lookup$polycode==report_species$species_code[i])]
+      polycode_vec <- spps_lookup$polycode[which(spps_lookup$complex == complex_sp)]
       
       length3_species <- length3 %>%
-        filter(SPECIES_CODE %in% c(10260, 10261, 10262, 10263)) %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
         filter(Sex != "Unsexed")
       medlines <- length3_species %>%
         group_by(YEAR, Sex) %>%
@@ -488,8 +498,10 @@ if (make_joy_division_length) {
       joyplot2 <- length3_species %>%
         ggplot(aes(x = LENGTH, y = YEAR, group = YEAR)) + #Not sure why fill=after_stat(x)
          geom_density_ridges(colour = "grey35",
-                                     quantile_lines = T, quantile_fun = median,
-                                     vline_color="black",vline_size = 0.6,
+                                     quantile_lines = T,
+                                     quantile_fun = median,
+                                     vline_color="black",
+                                     vline_size = 0.6,
                                      vline_linetype = "A1") +
         scale_y_discrete(limits = rev) +
         scale_linetype_manual(values = c("solid","dashed")) +
@@ -500,8 +512,9 @@ if (make_joy_division_length) {
         xlab("Length (mm)") +
         ylab("Year") +
         theme_ridges(font_size = 8) + 
-        scale_fill_gradientn("Length (mm)", colours = joypal_grey) +
-        labs(title = "Northern and southern rock sole") +
+        scale_fill_gradientn("Length (mm)", 
+                             colours = joypal_grey) +
+        labs(title = plot_title) +
         theme(strip.background = element_blank(),
               panel.grid.major = element_blank(), 
               panel.grid.minor = element_blank()
@@ -668,9 +681,6 @@ if (make_temp_plot) {
 
 
 
-
-
-
 # (7.) GOA CPUE map ----------------------------------------------------------------
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
 # THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
@@ -703,16 +713,6 @@ if (make_temp_plot) {
 # list_figures <- list()
 # list_figures[[1]] <- figure1
 # names(list_figures)[1] <- "POP" # NOTE: NEED TO MAKE THIS THE WHOLE LIST OF SPECIES
-#
-#
-#
-#
-# if (print_figs) {
-#   lapply(
-#     X = list_figures, FUN = make_png, year = YEAR, region = SRVY,
-#     savedir = dir_out_figures
-#   )
-# }
 #
 # # Check that the figure list is filled out
 # length(list_figures)
