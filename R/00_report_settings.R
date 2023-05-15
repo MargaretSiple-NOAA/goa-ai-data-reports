@@ -3,19 +3,19 @@
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
 maxyr <- 2022 # Change this for the year!
+minyr <- 1991 # This is the min year for the "data stanza" that has the 
 compareyr <- 2016 # Change this for the year!
-print_figs <- FALSE # Do you want to print out PNGs of each figure?
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
-use_sql_cpue <- TRUE # Do we want to use CPUE values from BIOMASS_TOTAL or "build our own" from RACEBASE catch, haul, etc tables? This should default to TRUE.
+use_sql_cpue <- TRUE # Do we want to use CPUE values from BIOMASS_TOTAL or "build our own" from RACEBASE catch, haul, etc tables? The default, TRUE, uses CPUE values from BIOMASS_TOTAL.
 district_order <- c("Southern Bering Sea",
                     "Eastern Aleutians",
                     "Central Aleutians",
-                    "Western Aleutians")
+                    "Western Aleutians") # order of districts in the results
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2023-05-09" 
-figuredate <- "2023-05-09"
-reportvaluesdate <- "2023-05-09"
+tabledate <- "2023-05-11" 
+figuredate <- "2023-05-11"
+reportvaluesdate <- "2023-05-11"
 
 # Survey information ------------------------------------------------------
 #survnumber <- "twentieth" 
