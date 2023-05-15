@@ -34,7 +34,7 @@ PKG <- c(
   
   # Graphics
   "ggplot2", 
-  "cowplot",
+  "patchwork",
   "png",
   #"extrafont", # ADD BACK IN IF NEEDED
   "ggpubr",
