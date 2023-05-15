@@ -477,9 +477,12 @@ if (make_joy_division_length) {
       plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode==report_species$species_code[i])]
       complex_sp <- spps_lookup$complex[which(spps_lookup$polycode==report_species$species_code[i])]
       polycode_vec <- spps_lookup$polycode[which(spps_lookup$complex == complex_sp)]
+      star_yrs <- switch(complex_sp, nrs_srs = 1996,
+                         kam_atf = 1992,
+                         rebs = 2006)
       
       length3_species <- length3 %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
+        filter(SPECIES_CODE %in% polycode_vec & YEAR > minyr) %>%
         filter(Sex != "Unsexed")
       medlines <- length3_species %>%
         group_by(YEAR, Sex) %>%
