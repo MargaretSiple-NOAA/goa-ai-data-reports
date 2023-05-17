@@ -330,7 +330,7 @@ total_otos <- sum(otos_collected$`Number of otoliths collected`) %>%
 
 # Length comps from size comp table ---------------------------------------
 sizecomp <- read.csv("data/local_ai/sizecomp_total.csv",header = TRUE) %>% 
-  filter(SURVEY==SRVY & YEAR>minyr)
+  filter(SURVEY==SRVY & YEAR>=minyr)
 
 # Janky but I am in a rush so will have to deal.
 report_pseudolengths <- data.frame()
