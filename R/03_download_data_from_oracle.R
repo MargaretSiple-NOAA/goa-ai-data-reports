@@ -137,6 +137,9 @@ if (SRVY == "AI") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
   write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
   
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.SIZECOMP_TOTAL")
+  write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
+  
   print("Finished downloading AI schema tables")
 }
 
