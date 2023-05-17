@@ -359,6 +359,9 @@ if (make_cpue_bubbles) {
 if (make_joy_division_length) {
   list_joy_length <- list()
 
+  # report_pseudolengths <- read.csv(paste0(dir_in_tables, "report_pseudolengths.csv"))
+  yrbreaks <- unique(report_pseudolengths$YEAR)
+
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -373,7 +376,36 @@ if (make_joy_division_length) {
       SEX == 3 ~ "Unsexed"
     )) %>%
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
-  
+
+  sample_sizes <- length3 %>%
+    filter(YEAR >= minyr) %>%
+    dplyr::group_by(YEAR, SPECIES_CODE, Sex) %>%
+    dplyr::summarize(n = sum(FREQUENCY)) %>%
+    ungroup() %>%
+    mutate(YEAR = as.integer(YEAR))
+
+  # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
+  spps_lookup <- data.frame(
+    polycode = c(
+      c(10260, 10261, 10262, 10263),
+      c(10110, 10112),
+      c(30050, 30051, 30052)
+    ),
+    complex = c(
+      rep("nrs_srs", times = 4),
+      rep("kam_atf", times = 2),
+      rep("rebs", times = 3)
+    )
+  ) %>%
+    mutate(complex_name = case_when(
+      complex == "nrs_srs" ~ "Northern and southern rock sole",
+      complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
+      complex == "rebs" ~ "Rougheye/blackspotted rockfish"
+    ))
+
+
+
+  # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
     multiplier <- 2
@@ -396,137 +428,138 @@ if (make_joy_division_length) {
     if (report_species$species_code[i] == 10200) {
       multiplier <- 1.6
     }
-    
-    length3_species <- length3 %>%
-      filter(SPECIES_CODE == report_species$species_code[i] & 
-               YEAR > minyr)
+
+    len2plot <- report_pseudolengths %>%
+      filter(SPECIES_CODE == report_species$species_code[i])
 
     # Only sexed lengths included, unless it's SSTH
     if (report_species$species_code[i] != 30020) {
-      length3_species <- length3_species %>%
+      len2plot <- len2plot %>%
         filter(Sex != "Unsexed")
     }
-    
-    # Save median lengths by year and sex
-    medlines <- length3_species %>%
-      group_by(YEAR, Sex) %>%
-      dplyr::summarize(medlength = median(LENGTH,na.rm=T)) %>%
-      ungroup()
-    
-    # write.csv(x = medlines,
-    #           file = paste0(dir_out_tables, maxyr,"_", report_species$spp_name_informal[i],"_median_lengths", ".csv"),
-    #           row.names = FALSE)
-    
-    length3_species <- length3_species %>%
-      left_join(length3_species %>% 
-                  dplyr::count(YEAR, Sex)) %>%
-      left_join(length3_species %>% 
-                  dplyr::group_by(Sex) %>% 
-                  dplyr::summarize(yloc = median(LENGTH) * multiplier) %>% 
-                  ungroup()) %>%
-      left_join(medlines)
 
-    joyplot <- length3_species %>%
-      ggplot(aes(x = LENGTH, y = YEAR, 
-                 group = YEAR, fill = after_stat(x))) +
-      geom_density_ridges_gradient(colour = "grey35",
-                                   quantile_lines = T, 
-                                   quantile_fun = median, 
-                                   vline_color = "lightgrey",
-                                   vline_size = 0.6, 
-                                   vline_linetype = "A1") +
-      scale_y_discrete(limits = rev) +
+    # Save median lengths by year and sex for species i
+    medlines_sp <- report_pseudolengths %>%
+      filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      group_by(YEAR, Sex) %>%
+      dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+      dplyr::mutate(yloc = medlength * multiplier) %>%
+      ungroup()
+
+    ylocs <- medlines_sp %>%
+      filter(YEAR == maxyr) %>%
+      dplyr::select(-YEAR)
+
+    write.csv(
+      x = medlines_sp,
+      file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
+      row.names = FALSE
+    )
+
+    len2plot2 <- len2plot %>%
+      left_join(sample_sizes %>% filter(SPECIES_CODE == report_species$species_code[i])) %>%
+      left_join(ylocs)
+
+    joyplot <- len2plot2 %>%
+      ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
+      ggridges::geom_density_ridges_gradient(
+        bandwidth = 5,
+        rel_min_height = 0,
+        quantile_lines = T,
+        quantile_fun = median,
+        vline_color = "white",
+        vline_size = 0.6,
+        vline_linetype = "dotted" # "A1"
+      ) +
+      scale_y_reverse(breaks = yrbreaks) +
       scale_linetype_manual(values = c("solid", "dashed")) +
       geom_text(aes(label = paste0("n = ", n), x = yloc),
-        nudge_y = 0.5, colour = "grey35", size = 2.2
-      ) + 
+        nudge_y = 1, colour = "grey35", size = 2.2
+      ) +
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges(font_size = 8) + 
-      scale_fill_gradientn("Length (mm)", colours = joypal) +
+      theme_ridges(font_size = 8) +
+      scale_fill_gradientn(colours = joypal) +
       labs(title = paste(report_species$spp_name_informal[i])) +
-      theme(strip.background = element_blank(),
-            panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank(),
-            legend.position = "none"
-            )
-    
-    #NRS/SRS complex: create a lumped plot with the full complex.
-    spps_lookup <- data.frame(
-      polycode = c(
-        c(10260, 10261, 10262, 10263),
-        c(10110, 10112),
-        c(30050, 30051, 30052)
-      ),
-      complex = c(
-        rep("nrs_srs", times = 4),
-        rep("kam_atf", times = 2),
-        rep("rebs", times = 3)
+      theme(
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "none"
       )
-    ) %>%
-      mutate(complex_name = case_when(
-        complex == "nrs_srs" ~ "Northern and southern rock sole",
-        complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
-        complex == "rebs" ~ "Rougheye/blackspotted rockfish"
-      ))
-      
- 
+
+
+    # lookup table is referenced below
+
     # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
-    if(report_species$species_code[i] %in% spps_lookup$polycode){
-      plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode==report_species$species_code[i])]
-      complex_sp <- spps_lookup$complex[which(spps_lookup$polycode==report_species$species_code[i])]
+    if (report_species$species_code[i] %in% spps_lookup$polycode) {
+      plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode == report_species$species_code[i])]
+      complex_sp <- spps_lookup$complex[which(spps_lookup$polycode == report_species$species_code[i])]
       polycode_vec <- spps_lookup$polycode[which(spps_lookup$complex == complex_sp)]
-      star_yrs <- switch(complex_sp, nrs_srs = 1996,
-                         kam_atf = 1992,
-                         rebs = 2006)
-      
-      length3_species <- length3 %>%
-        filter(SPECIES_CODE %in% polycode_vec & YEAR > minyr) %>%
-        filter(Sex != "Unsexed")
-      medlines <- length3_species %>%
+      star_yr <- switch(complex_sp,
+        nrs_srs = 1996,
+        kam_atf = 1992,
+        rebs = 2006
+      )
+      yrlabels <- yrbreaks
+      yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
+      yrlabels <- as.character(yrlabels)
+
+      medlines_sp <- report_pseudolengths %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
         group_by(YEAR, Sex) %>%
-        dplyr::summarize(medlength = median(LENGTH,na.rm=T)) %>%
+        dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+        dplyr::mutate(yloc = medlength * multiplier) %>%
         ungroup()
-      
-      length3_species <- length3_species %>%
-        left_join(length3_species %>% 
-                    dplyr::count(YEAR, Sex)) %>%
-        left_join(length3_species %>% 
-                    dplyr::group_by(Sex) %>% 
-                    dplyr::summarize(yloc = median(LENGTH) * multiplier) %>% 
-                    ungroup()) %>%
-        left_join(medlines)
-      
-      joyplot2 <- length3_species %>%
-        ggplot(aes(x = LENGTH, y = YEAR, group = YEAR)) + #Not sure why fill=after_stat(x)
-         geom_density_ridges(colour = "grey35",
-                                     quantile_lines = T,
-                                     quantile_fun = median,
-                                     vline_color="black",
-                                     vline_size = 0.6,
-                                     vline_linetype = "A1") +
-        scale_y_discrete(limits = rev) +
-        scale_linetype_manual(values = c("solid","dashed")) +
+
+      ylocs <- medlines_sp %>%
+        filter(YEAR == maxyr) %>%
+        dplyr::select(-YEAR)
+
+      sample_sizes_comb <- sample_sizes %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
+        group_by(YEAR, Sex) %>%
+        dplyr::summarize(n = sum(n)) %>%
+        ungroup()
+
+      len2plot_comb <- report_pseudolengths %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
+        filter(Sex != "Unsexed") %>%
+        left_join(sample_sizes_comb) %>%
+        left_join(ylocs)
+
+      joyplot2 <- len2plot_comb %>%
+        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR), fill = "grey") +
+        ggridges::geom_density_ridges_gradient(
+          bandwidth = 5,
+          rel_min_height = 0,
+          quantile_lines = T,
+          quantile_fun = median,
+          vline_color = "white",
+          vline_size = 0.6,
+          vline_linetype = "dotted" # "A1"
+        ) +
+        scale_y_reverse(breaks = yrbreaks, labels = yrlabels) +
+        scale_linetype_manual(values = c("solid", "dashed")) +
         geom_text(aes(label = paste0("n = ", n), x = yloc),
-                  nudge_y = 0.5, colour = "grey35", size = 2.2
-        ) + 
+          nudge_y = 1, colour = "grey35", size = 2.2
+        ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
         ylab("Year") +
-        theme_ridges(font_size = 8) + 
-        scale_fill_gradientn("Length (mm)", 
-                             colours = joypal_grey) +
+        theme_ridges(font_size = 8) +
         labs(title = plot_title) +
-        theme(strip.background = element_blank(),
-              panel.grid.major = element_blank(), 
-              panel.grid.minor = element_blank()
+        theme(
+          strip.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = "none"
         )
+
       joyplot <- joyplot + joyplot2
     }
-    
-   
-   
+
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
