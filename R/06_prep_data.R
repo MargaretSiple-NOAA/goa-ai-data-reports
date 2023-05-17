@@ -74,7 +74,7 @@ nhauls_no_btemp <- haul_maxyr %>% filter(is.na(GEAR_TEMPERATURE)) %>% nrow()
 
 # Econ info ---------------------------------------------------------------
 
-dat <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
+dat <- read.csv("data/AI_planning_species_2020.csv")
 sp_prices <- dat %>%
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) %>%
   dplyr::rename(`Scientific name`=species.name,

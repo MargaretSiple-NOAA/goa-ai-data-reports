@@ -146,3 +146,7 @@ if (SRVY == "AI") {
 
 # All done!
 print("Finished downloading local versions of tables! Yay.")
+
+# One more - prices
+a <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
+write.csv(x = a, "./data/AI_planning_species_2020.csv", row.names = FALSE)
