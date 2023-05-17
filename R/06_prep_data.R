@@ -313,19 +313,72 @@ otos_collected <- specimen_maxyr %>%
 # 10        10115 Eastern Aleutians            730 
 L_maxyr <- L %>%
   filter(YEAR == maxyr & REGION == SRVY)
-meanlengths_area <- L_maxyr %>%
+meanlengths_area2 <- L_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
   )) %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
-  dplyr::summarize("Mean length" = mean(LENGTH, na.rm = TRUE)) %>%
+  dplyr::summarize("Mean length" = mean(LENGTH), na.rm = TRUE) %>% # MAY NEED TO WEIGHT BY FREQUENCY
   ungroup() %>%
   dplyr::left_join(region_lu2)
 
 total_otos <- sum(otos_collected$`Number of otoliths collected`) %>%
   format(big.mark = ",")
+
+
+# Length comps from size comp table ---------------------------------------
+sizecomp <- read.csv("data/local_ai/sizecomp_total.csv",header = TRUE) %>% 
+  filter(SURVEY==SRVY & YEAR>minyr)
+
+# Janky but I am in a rush so will have to deal.
+report_pseudolengths <- data.frame()
+
+for (i in 1:nrow(report_species)){
+  sp_code <- report_species$species_code[i]
+  
+  males <- sizecomp %>% 
+    filter(SPECIES_CODE==sp_code) %>%
+    dplyr::group_by(YEAR) %>%
+    dplyr::mutate(prop_10k = (MALES/sum(MALES)) * 10000) %>%
+    dplyr::mutate(prop_10k = round(prop_10k)) %>%
+    arrange(-YEAR,LENGTH) %>%
+    dplyr::mutate(prop_10k = ifelse(MALES==0, 0,prop_10k)) %>%
+    tidyr::uncount(prop_10k, .id="id") %>%
+    dplyr::select(SURVEY,YEAR,SPECIES_CODE,LENGTH,id) %>%
+    mutate(Sex = "Male")
+  
+  females <- sizecomp %>% 
+    filter(SPECIES_CODE==sp_code) %>%
+    dplyr::group_by(YEAR) %>%
+    dplyr::mutate(prop_10k = (FEMALES/sum(FEMALES)) * 10000) %>% #this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
+    dplyr::mutate(prop_10k = round(prop_10k)) %>%
+    arrange(-YEAR,LENGTH) %>%
+    dplyr::mutate(prop_10k = ifelse(FEMALES==0, 0,prop_10k)) %>%
+    uncount(prop_10k, .id="id") %>%
+    dplyr::select(SURVEY,YEAR,SPECIES_CODE,LENGTH,id) %>%
+    mutate(Sex = "Female")
+  
+  unsexed <- sizecomp %>% 
+    filter(SPECIES_CODE==sp_code) %>%
+    dplyr::group_by(YEAR) %>%
+    dplyr::mutate(prop_10k = (UNSEXED/sum(UNSEXED)) * 10000) %>%
+    dplyr::mutate(prop_10k = round(prop_10k)) %>%
+    arrange(-YEAR,LENGTH) %>%
+    dplyr::mutate(prop_10k = ifelse(UNSEXED==0, 0, prop_10k)) %>%
+    uncount(prop_10k, .id="id") %>%
+    dplyr::select(SURVEY,YEAR,SPECIES_CODE,LENGTH,id) %>%
+    mutate(Sex = "Unsexed")
+  all <- bind_rows(males,females,unsexed)
+  
+  report_pseudolengths <- rbind(report_pseudolengths,all)
+}
+
+# unique(report_pseudolengths$YEAR)
+# unique(report_pseudolengths$SPECIES_CODE)
+
+write.csv(report_pseudolengths, paste0(dir_out_tables,"report_pseudolengths.csv"),row.names = FALSE)
 
 # Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps
@@ -363,6 +416,8 @@ report_biomasses <- biomass_total %>%
   filter(YEAR == maxyr) %>%
   janitor::clean_names() %>%
   right_join(report_species)
+
+
 
 # Get species blurb interior sentences ------------------------------------
 blurbs <- read.csv(here::here("data", "AI2022_SpeciesBlurbMiddleSentences.csv"))
