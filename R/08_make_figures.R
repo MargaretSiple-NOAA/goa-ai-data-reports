@@ -360,8 +360,7 @@ if (make_joy_division_length) {
   list_joy_length <- list()
 
   # report_pseudolengths <- read.csv(paste0(dir_in_tables, "report_pseudolengths.csv"))
-  yrbreaks <- unique(report_pseudolengths$YEAR)
-
+  
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -410,14 +409,13 @@ if (make_joy_division_length) {
     # These are multipliers for where the sample size geom_text falls on the y axis
     multiplier <- 2
     if (report_species$species_code[i] %in% c(
-      21921,
-      30060,
-      30051,
+      21921, #ok
+      30060, #ok
       20510,
       480,
       21347
     )) {
-      multiplier <- 1.7
+      multiplier <- 1.3
     }
     if (report_species$species_code[i] %in% c(
       472,
@@ -425,8 +423,11 @@ if (make_joy_division_length) {
     )) {
       multiplier <- 1.5
     }
-    if (report_species$species_code[i] == 10200) {
+    if (report_species$species_code[i] %in% c(10200,30151,30152,21370)) {
       multiplier <- 1.6
+    }
+    if (report_species$species_code[i] %in% c(10110,10112)) {
+      multiplier <- 2.1
     }
 
     len2plot <- report_pseudolengths %>%
@@ -460,6 +461,8 @@ if (make_joy_division_length) {
       left_join(sample_sizes %>% filter(SPECIES_CODE == report_species$species_code[i])) %>%
       left_join(ylocs)
 
+    yrbreaks <- unique(len2plot2$YEAR)
+    
     joyplot <- len2plot2 %>%
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       ggridges::geom_density_ridges_gradient(
