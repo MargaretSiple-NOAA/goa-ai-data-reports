@@ -447,9 +447,18 @@ if (make_joy_division_length) {
       dplyr::mutate(yloc = medlength * multiplier) %>%
       ungroup()
 
-    ylocs <- medlines_sp %>%
-      filter(YEAR == maxyr) %>%
+    ylocs <- report_pseudolengths %>%
+      filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      group_by(YEAR, Sex) %>%
+      dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
+      mutate(yloc = maxlength*1.1) %>%
+      ungroup() %>%
+      filter(YEAR == 2002) %>%
       dplyr::select(-YEAR)
+    
+    # ylocs <- medlines_sp %>%
+    #   filter(YEAR == maxyr) %>%
+    #   dplyr::select(-YEAR)
 
     write.csv(
       x = medlines_sp,
@@ -477,7 +486,7 @@ if (make_joy_division_length) {
       scale_y_reverse(breaks = yrbreaks) +
       scale_linetype_manual(values = c("solid", "dashed")) +
       geom_text(aes(label = paste0("n = ", n), x = yloc),
-        nudge_y = 1, colour = "grey35", size = 2.2
+        nudge_y = 1, colour = "grey35", size = 2.2, vjust="inward",hjust="inward"
       ) +
       facet_grid(~Sex) +
       xlab("Length (mm)") +
@@ -516,9 +525,18 @@ if (make_joy_division_length) {
         dplyr::mutate(yloc = medlength * multiplier) %>%
         ungroup()
 
-      ylocs <- medlines_sp %>%
-        filter(YEAR == maxyr) %>%
-        dplyr::select(-YEAR)
+      ylocs <- report_pseudolengths %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
+        group_by(YEAR, Sex) %>%
+        dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
+        mutate(yloc = maxlength*1.1) %>%
+        ungroup() %>%
+          filter(YEAR == 2002) %>%
+          dplyr::select(-YEAR)
+        
+      # ylocs <- medlines_sp %>%
+      #   filter(YEAR == maxyr) %>%
+      #   dplyr::select(-YEAR)
 
       sample_sizes_comb <- sample_sizes %>%
         filter(SPECIES_CODE %in% polycode_vec) %>%
@@ -546,7 +564,7 @@ if (make_joy_division_length) {
         scale_y_reverse(breaks = yrbreaks, labels = yrlabels) +
         scale_linetype_manual(values = c("solid", "dashed")) +
         geom_text(aes(label = paste0("n = ", n), x = yloc),
-          nudge_y = 1, colour = "grey35", size = 2.2
+          nudge_y = 1, colour = "grey35", size = 2.2, vjust="inward",hjust="inward"
         ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
@@ -567,7 +585,7 @@ if (make_joy_division_length) {
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_joyfreqhist.png"
-    ), width = 7, height = 7, units = "in", res = 200)
+    ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
 
@@ -619,7 +637,7 @@ if (make_ldscatter) {
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_ldscatter.png"
-    ), width = 8, height = 3, units = "in", res = 200)
+    ), width = 8, height = 2, units = "in", res = 200)
     print(ldscatter)
     dev.off()
 
