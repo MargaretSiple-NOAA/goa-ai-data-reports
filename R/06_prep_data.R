@@ -256,18 +256,15 @@ L <- L %>%
 length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
 # Number of lengths collected per area
-lengths_collected <- length_maxyr %>%
-  nrow() %>%
+lengths_collected <- sum(length_maxyr$FREQUENCY) %>%
   format(big.mark = ",")
 
-nfishlengths <- length_maxyr %>%
-  filter(LENGTH_TYPE %in% c(1,5,11)) %>%
-  nrow() %>%
+nfishlengths <- sum(length_maxyr %>%
+  filter(LENGTH_TYPE %in% c(1,5,11)) %>% dplyr::select(FREQUENCY)) %>%
   format(big.mark = ",")
 
-nsquidlengths <- length_maxyr %>%
-  filter(LENGTH_TYPE == 12) %>%
-  nrow() %>%
+nsquidlengths <- sum(length_maxyr %>%
+  filter(LENGTH_TYPE == 12) %>% dplyr::select(FREQUENCY)) %>%
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
