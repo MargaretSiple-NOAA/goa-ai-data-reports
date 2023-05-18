@@ -177,7 +177,7 @@ surface_temp_plot
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
