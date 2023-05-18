@@ -177,7 +177,7 @@ surface_temp_plot
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
@@ -240,6 +240,14 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     top_n(1, `Mean length`) %>%
     dplyr::select(INPFC_AREA_ABBREV) %>%
     as.character()
+  
+ if(species_code %in% c(
+      c(10260, 10261, 10262, 10263),
+      c(10110, 10112),
+      c(30050, 30051, 30052)
+  )){
+     combo_id_sentence <- "Since this species was not identified as distinct from its close congener for the entirety of the survey time period, combined lengths are presented in grey for the full time series. The years in the time series before this species was identified as separate, with confidence, are marked with an asterisk."
+  }else(combo_id_sentence <- "")
 
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesResultTemplate.Rmd"))
 }
