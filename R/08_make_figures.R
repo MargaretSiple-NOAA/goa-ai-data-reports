@@ -498,7 +498,9 @@ if (make_joy_division_length) {
         strip.background = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.position = "none"
+        legend.position = "none",
+        axis.title.x = element_text(hjust = 0.5),
+        axis.title.y = element_text(hjust = 0.5)
       )
 
 
@@ -575,7 +577,9 @@ if (make_joy_division_length) {
           strip.background = element_blank(),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          legend.position = "none"
+          legend.position = "none",
+          axis.title.x = element_text(hjust = 0.5),
+          axis.title.y = element_text(hjust = 0.5)
         )
 
       joyplot <- joyplot + joyplot2
