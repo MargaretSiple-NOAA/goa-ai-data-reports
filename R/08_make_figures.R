@@ -324,7 +324,7 @@ if (make_cpue_bubbles) {
 
     # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
     thisyrshauldata <- cpue_raw %>%
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
         coords = c("start_longitude", "start_latitude"),
@@ -453,7 +453,7 @@ if (make_joy_division_length) {
       dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
       mutate(yloc = maxlength*1.1) %>%
       ungroup() %>%
-      filter(YEAR == 2002) %>%
+      filter(YEAR == 2012) %>%
       dplyr::select(-YEAR)
     
     # ylocs <- medlines_sp %>%
