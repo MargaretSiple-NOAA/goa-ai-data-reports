@@ -331,7 +331,7 @@ prep_tab3 <- function(speciescode) {
       `Biomass (t)` = Biomass...t.,
       `Lower 95% CI` = X95..LCL..t.,
       `Upper 95% CI` = X95..UCL..t.,
-      `Weight (kg)` = Weight...kg.
+      `Mean weight (kg)` = Weight...kg.
     ) %>%
     dplyr::slice(21:25, 1:20) #sloppy way to slice off the SBS and move it to the top
   

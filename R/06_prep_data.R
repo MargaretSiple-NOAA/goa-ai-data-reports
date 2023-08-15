@@ -281,7 +281,7 @@ otos_collected <- specimen_maxyr %>%
   )) %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(INPFC_AREA, `Depth range`) %>%
-  dplyr::summarize("Number of otoliths collected" = n()) %>%
+  dplyr::summarize("Pairs of otoliths collected" = n()) %>%
   ungroup() %>%
   arrange(factor(INPFC_AREA, levels= district_order))
 

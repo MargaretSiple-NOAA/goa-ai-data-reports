@@ -131,7 +131,7 @@ n_inverts <- total_diversity %>% filter(tax_group == "invert")
 n_phyla <- length(unique(n_inverts$phylum))
 
 tax_summary_sentence <- paste(
-  "Total catches across the survey area returned",
+  "Total catches across the survey area included",
   nrow(n_fish), "fish species from", n_fam, "families and",
   nrow(n_inverts), "invertebrate species or taxa from", n_phyla, "phyla"
 )

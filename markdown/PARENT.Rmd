@@ -158,14 +158,14 @@ include_graphics(here::here(img1_path))
 <br />
 <br />
 
-```{r fig.cap='Bottom temperatures as measured by survey gear.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption"}
+```{r fig.cap='Bottom temperatures as measured by survey gear. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption"}
 bottom_temp_plot
 ```
 
 <br />
 <br />
 
-```{r fig.cap='Surface temperatures as measured by survey gear.', fig.id='surface-temp',  fig.cap.style = "Figure Caption"}
+```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption"}
 surface_temp_plot
 ```
 

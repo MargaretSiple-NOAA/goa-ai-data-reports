@@ -13,9 +13,9 @@ district_order <- c("Southern Bering Sea",
                     "Western Aleutians") # order of districts in the results
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2023-05-11" 
-figuredate <- "2023-05-11"
-reportvaluesdate <- "2023-05-11"
+tabledate <- "2023-05-16" 
+figuredate <- "2023-05-16"
+reportvaluesdate <- "2023-05-16"
 
 # Survey information ------------------------------------------------------
 #survnumber <- "twentieth" 
@@ -58,4 +58,4 @@ report_yr <- maxyr
 # Vessel specs ------------------------------------------------------------
 vessel1_spec_chunk <- paste("The Alaska Provider is 53.6 m in overall length (LOA) and is powered by two main engines with 2,200 continuous horsepower (HP). It is equipped with two forward and one stern net reel, but only the aft reel was used during the AI", maxyr, "bottom trawl survey.")
 
-vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine. The Ocean Explorer is equipped with two forward net reels, both of which were used during the AI", maxyr, "bottom trawl survey.")
+vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine. It is equipped with two forward net reels, both of which were used during the AI", maxyr, "bottom trawl survey.")
