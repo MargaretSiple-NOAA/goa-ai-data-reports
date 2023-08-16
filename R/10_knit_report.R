@@ -1,5 +1,4 @@
 # 10_knit_report
-# ADD A SCRIPT HERE TO CHECK FOR ALL THE DATA OBJECTS WE NEED
 # MAKE SURE YOU'VE SET THE DATES YOU WANT TO GET THE DATA FROM IN 00_report_settings.R
 
 # Get basic report info
