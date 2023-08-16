@@ -97,7 +97,7 @@ dispal <- c(met.brewer(
   direction = -1
 ), "black")
 
-
+dispal <- c("#441151","#90be6d","#de541e","#a7a5c6","#2d3047")
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
