@@ -470,7 +470,7 @@ if (make_joy_division_length) {
       geom_label(data = testlabdf, 
                  mapping =  aes(label = paste0("n = ", n), x = Inf), 
                  fill='white',label.size = NA,
-                 nudge_x=-100, nudge_y = 1, hjust = "inward", size = 3
+                 nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
       ) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(
@@ -539,7 +539,7 @@ if (make_joy_division_length) {
         geom_label(data = testlabdf_comb, 
                    mapping =  aes(label = paste0("n = ", n), x = Inf), 
                    fill='white',label.size = NA,
-                   nudge_x=-100, nudge_y = 1, hjust = "inward", size = 3
+                   nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
         ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
@@ -609,7 +609,9 @@ if (make_ldscatter) {
       theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.position = "none"
+        legend.position = "none",
+        strip.background = element_blank(),
+        strip.text = element_text(colour = 'black')
       )
 
     png(filename = paste0(
