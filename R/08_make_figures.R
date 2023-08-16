@@ -141,7 +141,7 @@ if (make_biomass_timeseries) {
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
-        color = linecolor, size = 0.9, width = 0.7
+        color = linecolor, linewidth = 0.9, width = 0.7
       ) +
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
@@ -407,29 +407,7 @@ if (make_joy_division_length) {
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
-    multiplier <- 2
-    if (report_species$species_code[i] %in% c(
-      21921, #ok
-      30060, #ok
-      20510,
-      480,
-      21347
-    )) {
-      multiplier <- 1.3
-    }
-    if (report_species$species_code[i] %in% c(
-      472,
-      10115
-    )) {
-      multiplier <- 1.5
-    }
-    if (report_species$species_code[i] %in% c(10200,30151,30152,21370)) {
-      multiplier <- 1.6
-    }
-    if (report_species$species_code[i] %in% c(10110,10112)) {
-      multiplier <- 2.1
-    }
-
+    
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
@@ -444,21 +422,16 @@ if (make_joy_division_length) {
       filter(SPECIES_CODE == report_species$species_code[i]) %>%
       group_by(YEAR, Sex) %>%
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-      dplyr::mutate(yloc = medlength * multiplier) %>%
       ungroup()
 
     ylocs <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i]) %>%
       group_by(YEAR, Sex) %>%
       dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
-      mutate(yloc = maxlength*1.1) %>%
+      mutate(yloc = Inf) %>%
       ungroup() %>%
       filter(YEAR == 2012) %>%
       dplyr::select(-YEAR)
-    
-    # ylocs <- medlines_sp %>%
-    #   filter(YEAR == maxyr) %>%
-    #   dplyr::select(-YEAR)
 
     write.csv(
       x = medlines_sp,
@@ -472,6 +445,9 @@ if (make_joy_division_length) {
 
     yrbreaks <- unique(len2plot2$YEAR)
     
+    testlabdf <- len2plot2 %>%
+      distinct(YEAR,Sex,.keep_all = TRUE)
+    
     joyplot <- len2plot2 %>%
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       ggridges::geom_density_ridges_gradient(
@@ -483,16 +459,19 @@ if (make_joy_division_length) {
         vline_size = 0.6,
         vline_linetype = "dotted" # "A1"
       ) +
-      scale_y_reverse(breaks = yrbreaks) +
+      scale_y_reverse(breaks = yrbreaks,expand = c(0,0)) +
       scale_linetype_manual(values = c("solid", "dashed")) +
-      geom_text(aes(label = paste0("n = ", n), x = yloc),
-        nudge_y = 1, colour = "grey35", size = 2.2, vjust="inward",hjust="inward"
-      ) +
+      
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
       theme_ridges(font_size = 8) +
       scale_fill_gradientn(colours = joypal) +
+      geom_label(data = testlabdf, 
+                 mapping =  aes(label = paste0("n = ", n), x = Inf), 
+                 fill='white',label.size = NA,
+                 nudge_x=-100, nudge_y = 1, hjust = "inward", size = 3
+      ) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(
         strip.background = element_blank(),
@@ -500,13 +479,14 @@ if (make_joy_division_length) {
         panel.grid.minor = element_blank(),
         legend.position = "none",
         axis.title.x = element_text(hjust = 0.5),
-        axis.title.y = element_text(hjust = 0.5)
+        axis.title.y = element_text(hjust = 0.5),
+        panel.spacing.x = unit(4, "mm")
       )
 
 
     # lookup table is referenced below
 
-    # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
+# is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
     if (report_species$species_code[i] %in% spps_lookup$polycode) {
       plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode == report_species$species_code[i])]
       complex_sp <- spps_lookup$complex[which(spps_lookup$polycode == report_species$species_code[i])]
@@ -524,21 +504,9 @@ if (make_joy_division_length) {
         filter(SPECIES_CODE %in% polycode_vec) %>%
         group_by(YEAR, Sex) %>%
         dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-        dplyr::mutate(yloc = medlength * multiplier) %>%
+        #dplyr::mutate(yloc = medlength * multiplier) %>%
         ungroup()
-
-      ylocs <- report_pseudolengths %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
-        group_by(YEAR, Sex) %>%
-        dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
-        mutate(yloc = maxlength*1.1) %>%
-        ungroup() %>%
-          filter(YEAR == 2002) %>%
-          dplyr::select(-YEAR)
         
-      # ylocs <- medlines_sp %>%
-      #   filter(YEAR == maxyr) %>%
-      #   dplyr::select(-YEAR)
 
       sample_sizes_comb <- sample_sizes %>%
         filter(SPECIES_CODE %in% polycode_vec) %>%
@@ -549,11 +517,14 @@ if (make_joy_division_length) {
       len2plot_comb <- report_pseudolengths %>%
         filter(SPECIES_CODE %in% polycode_vec) %>%
         filter(Sex != "Unsexed") %>%
-        left_join(sample_sizes_comb) %>%
-        left_join(ylocs)
+        left_join(sample_sizes_comb)
 
+      testlabdf_comb <- len2plot_comb %>%
+        distinct(YEAR,Sex,.keep_all = TRUE)
+      
       joyplot2 <- len2plot_comb %>%
-        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR), fill = "grey") +
+        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR), 
+               fill = "grey") +
         ggridges::geom_density_ridges_gradient(
           bandwidth = 5,
           rel_min_height = 0,
@@ -565,8 +536,10 @@ if (make_joy_division_length) {
         ) +
         scale_y_reverse(breaks = yrbreaks, labels = yrlabels) +
         scale_linetype_manual(values = c("solid", "dashed")) +
-        geom_text(aes(label = paste0("n = ", n), x = yloc),
-          nudge_y = 1, colour = "grey35", size = 2.2, vjust="inward",hjust="inward"
+        geom_label(data = testlabdf_comb, 
+                   mapping =  aes(label = paste0("n = ", n), x = Inf), 
+                   fill='white',label.size = NA,
+                   nudge_x=-100, nudge_y = 1, hjust = "inward", size = 3
         ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
@@ -579,7 +552,8 @@ if (make_joy_division_length) {
           panel.grid.minor = element_blank(),
           legend.position = "none",
           axis.title.x = element_text(hjust = 0.5),
-          axis.title.y = element_text(hjust = 0.5)
+          axis.title.y = element_text(hjust = 0.5),
+          panel.spacing.x = unit(4, "mm")
         )
 
       joyplot <- joyplot + joyplot2

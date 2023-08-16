@@ -1,8 +1,8 @@
 group,spp_name_informal,species_code,spp_name_scientific,presentation,report,reportorder
-Sculpins,yellow irish lord,21347,Hemilepidotus jordani,1,1,14
+Sculpins,yellow Irish lord,21347,Hemilepidotus jordani,1,1,14
 Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1,12
 Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1,1
-Roundfishes,atka mackerel,21921,Pleurogrammus monopterygius,1,1,9
+Roundfishes,Atka mackerel,21921,Pleurogrammus monopterygius,1,1,9
 Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1,10
 Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1,17
 Rockfishes,walleye pollock,21740,Gadus chalcogrammus,1,1,11
@@ -12,7 +12,7 @@ Flatfishes,Northern rock sole,10261,Lepidopsetta polyxystra,1,1,3
 Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,1,19
 Skates,Aleutian skate,472,Bathyraja aleutica,1,1,27
 Skates,white blotched skate,480,Bathyraja maculata,1,1,25
-Flatfishes,kamchatka flounder,10112,Atheresthes evermanni,,1,2
+Flatfishes,Kamchatka flounder,10112,Atheresthes evermanni,,1,2
 Flatfishes,Southern rock sole,10262,Lepidopsetta bilineata,,1,4
 Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,,1,5
 Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,,1,6
