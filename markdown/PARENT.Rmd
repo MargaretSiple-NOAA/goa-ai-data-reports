@@ -217,7 +217,8 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     dplyr::select(`Survey district`) %>%
     left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
     dplyr::select(`INPFC_AREA_ABBREV`) %>%
-    as.character()
+    as.character() %>%
+    fix_co_greatest()
 
   inpfc_2nd_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     mutate(`Survey district` = na_if(`Survey district`, "")) %>%
@@ -231,7 +232,8 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     dplyr::select(`Survey district`) %>%
     left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
     dplyr::select(`INPFC_AREA_ABBREV`) %>%
-    as.character()
+    as.character() %>%
+    fix_co_greatest()
 
   middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
 

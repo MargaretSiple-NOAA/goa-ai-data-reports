@@ -90,6 +90,28 @@ divkm2forha <- 100
 divmforft <- 0.3048
 divftform <- 3.28084
 
+
+# Text manipulation -------------------------------------------------------
+#' Title
+#'
+#' @param x text string from soliciting the areas with the top CPUE or biomass or whatever
+#'
+#' @return a string with both of those areas
+#' @export
+#'
+#' @examples
+fix_co_greatest <- function(text_string){
+  if(startsWith(x = text_string, "c(")){
+    text_string2 <- sub("c(","",text_string,fixed = TRUE)
+    text_string3 <- gsub("[^-,/a-zA-Z0-9[:space:]]+", "", text_string2, perl = TRUE)
+    newtext <- gsub("[,]", " and", text_string3, perl = TRUE)
+  }else{
+    newtext <- text_string
+  }
+  return(newtext)
+}
+
+
 # Species -----------------------------------------------
 
 #' Make a list of the top 20 species by CPUE
