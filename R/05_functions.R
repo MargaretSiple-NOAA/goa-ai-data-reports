@@ -104,7 +104,7 @@ fix_co_greatest <- function(text_string){
   if(startsWith(x = text_string, "c(")){
     text_string2 <- sub("c(","",text_string,fixed = TRUE)
     text_string3 <- gsub("[^-,/a-zA-Z0-9[:space:]]+", "", text_string2, perl = TRUE)
-    newtext <- gsub("[,]", " and", text_string3, perl = TRUE)
+    newtext <- gsub("[,]", ", ", text_string3, perl = TRUE)
   }else{
     newtext <- text_string
   }
