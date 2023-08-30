@@ -1,7 +1,7 @@
 ---
 output:
   officedown::rdocx_document: 
-    reference_docx: styles_reference3.docx
+    reference_docx: styles_reference4.docx
     pandoc_args: ["--metadata-file=header.yaml"]
 csl: "../cite/citestyle.csl"
 bibliography: "../cite/bibliography.bib"
