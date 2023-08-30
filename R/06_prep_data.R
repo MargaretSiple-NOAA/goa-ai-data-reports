@@ -310,7 +310,7 @@ otos_collected <- specimen_maxyr %>%
 # 10        10115 Eastern Aleutians            730 
 L_maxyr <- L %>%
   filter(YEAR == maxyr & REGION == SRVY)
-meanlengths_area2 <- L_maxyr %>%
+meanlengths_area <- L_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
