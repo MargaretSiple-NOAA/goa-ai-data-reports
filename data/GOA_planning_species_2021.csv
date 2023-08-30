@@ -1,0 +1,58 @@
+﻿species.code,species.name,species.code,species.name,common.name,include,ex.vessel.price,source
+150,Chondrichthyes,,,sharks,N,44,2
+310,Squalus acanthias,,,spiny dogfish,Y,44,2
+400,Rajidae,,,skates,Y,573,1
+420,Raja Binoculata,,,big skate,Y,969,1
+435,Bathyraja interrupta,,,Bering skate,Y,276,3
+440,Raja rhina,,,longnose skate,Y,925,1
+472,Bathyraja aleutica,,,Aleutian skate,Y,276,1
+10110,Atheresthes stomias,10110,Atheresthes stomias,arrowtooth flounder,Y,110,1
+10112,Atheresthes evermanni,,,Kamchatka flounder,Y,128,3
+10115,Reinhardtius hippoglossoides,,,Greenland turbot,Y,132,1
+10120,Hippoglossus stenolepis,,,Pacific halibut,N,14361,1
+10130,Hippoglossoides elassodon,,,flathead sole,Y,242,1
+10170,Parophrys vetulus,,,English sole,Y,374,1
+10180,Microstomus  pacificus,,,Dover sole,Y,220,1
+10200,Glyptocephalus zachirus,,,rex sole,Y,529,1
+10210,Limanda aspera,,,yellowfin sole,Y,110,1
+10220,Platichthys stellatus,,,starry flounder,Y,154,1
+10250,Psettichthys melanostictus,,,sand sole,Y,925,1
+10260,Lepidopsetta sp.,,,Lepidopsetta sp.,Y,485,1
+10261,Lepidopsetta polyxystra,,,Lepidopsetta polyxystra,Y,485,1
+10262,Lepidopsetta bilineatus,,,Lepidopsetta bilineata,Y,485,1
+10270,Isopsetta isolepis,,,butter sole,Y,308,1
+10285,Pleuronectes quadrituberculatus,,,Alaska plaice,Y,132,1
+20510,Anoplopoma fimbria,,,sablefish,N,17180,1
+21220,Coryphaenoides acrolepis,,,Pacific grenadier,Y,44,2
+21230,Albatrossia pectoralis,,,giant grenadier,N,0,3
+21232,Coryphaenoides cinereus,,,popeye grenadier,N,0,3
+21300,Cottidae,,,sculpins,Y,44,1
+21720,Gadus macrocephalus,,,Pacific cod,Y,639,1
+21740,Theragra chalcogramma,,,walleye pollock,Y,374,1
+21910,Ophiodon elongatus,,,lingcod,Y,1233,1
+21921,Pleurogrammus monopterygius,,,Atka mackerel,Y,110,1
+22500,Merluccius productus,,,Pacific hake,Y,44,3
+30020,Sebastolobus alascanus,,,shortspine thornyhead,Y,1960,1
+30030,Sebastolobus altivelis,,,longspine thornyhead,Y,1960,3
+30050,Sebastes sp.,,,rougheye complex,Y,639,1
+30051,Sebastes aleutianus,,,rougheye rockfish,Y,639,1
+30052,Sebastes melanostictus,,,blackspotted rockfish,Y,639,1
+30060,Sebastes alutus,,,Pacific ocean perch,Y,286,1
+30100,Sebastes brevispinis,,,silvergray rockfish,Y,595,1
+30150,Sebastes sp.,,,dusky rockfish,Y,1432,3
+30151,Sebastes ciliatus,,,dark rockfish,Y,1432,1
+30152,Sebastes variabilis,,,light dusky rockfish,Y,308,1
+30170,Sebastes crameri,,,darkblotched rockfish,Y,66,3
+30200,Sebastes elongatus,,,greenstriped rockfish,Y,308,3
+30240,Sebastes flavidus,,,yellowtail rockfish,Y,485,1
+30270,Sebastes helvomaculatus,,,rosethorn rockfish,Y,1718,1
+30400,Sebastes paucispinis,,,boccacio,Y,683,1
+30410,Sebastes pinniger,,,canary rockfish,Y,683,1
+30420,Sebastes polyspinis,,,northern rockfish,Y,220,1
+30430,Sebastes proriger,,,redstripe rockfish,Y,308,1
+30470,Sebastes ruberrimus,,,yelloweye rockfish,Y,2048,1
+30475,Sebastes babcocki,,,redbanded rockfish,Y,573,1
+30535,Sebastes variegatus,,,harlequin rockfish,Y,110,1
+30560,Sebastes zacentrus,,,sharpchin rockfish,Y,330,1
+30576,Sebastes borealis,,,shortraker rockfish,Y,595,1
+30600,Sebastes reedi,,,yellowmouth rockfish,Y,44,2
