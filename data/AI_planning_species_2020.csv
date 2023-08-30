@@ -11,7 +11,7 @@ species.code,species.name,common.name,include,ex.vessel.price,source
 20510,Anoplopoma fimbria,sablefish,N,NA,
 21300,Cottidae,sculpins,N,NA,
 21720,Gadus macrocephalus,Pacific cod,Y,0.41,REFM
-21740,Theragra chalcogramma,walleye pollock,Y,0.15,REFM
+21740,Gadus chalcogrammus,walleye pollock,Y,0.15,REFM
 21921,Pleurogrammus monopterygius,Atka mackerel,Y,0.08,REFM
 30020,Sebastolobus alascanus,shortspine thornyhead,N,0.92,REFM
 30030,Sebastolobus altivelis,longspine thornyhead,N,NA,
