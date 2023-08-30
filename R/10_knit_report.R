@@ -66,7 +66,7 @@ rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
 Sys.time() - starttime
 
 #  time for 4 species: about 40-50 seconds
-#  for all species: about 5 mins
+#  for all species: about 12 mins
 
 
 # Append the appendices using officer -------------------------------------
