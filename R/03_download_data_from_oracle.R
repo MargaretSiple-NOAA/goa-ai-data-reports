@@ -107,17 +107,21 @@ print("Finished downloading strata file.")
 
 
 if (SRVY == "GOA") {
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_TOTAL")
+  write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
+  
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
-  write.csv(x = a, "./data/local_goa/goa_biomass_stratum.csv", row.names = FALSE)
-
+  write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
+  
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
-  write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
-
-  survnumber <- RODBC::sqlQuery(channel, "select count(distinct cruise) survnumber
-from race_data.cruises a, race_data.survey_definitions b, race_data.surveys c
-where b.survey_name = 'Aleutian Islands Bottom Trawl Survey'
-and a.survey_id = c.survey_id
-and b.survey_definition_id = c.survey_definition_id")
+  write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
+  
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.CPUE")
+  write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
+  
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.SIZECOMP_TOTAL")
+  write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
+  
   
   print("Finished downloading GOA schema tables")
 }
@@ -148,5 +152,13 @@ if (SRVY == "AI") {
 print("Finished downloading local versions of tables! Yay.")
 
 # One more - prices
-a <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
-write.csv(x = a, "./data/AI_planning_species_2020.csv", row.names = FALSE)
+if (SRVY == "AI") {
+  a <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
+  write.csv(x = a, "./data/AI_planning_species_2020.csv", row.names = FALSE)
+}
+
+if (SRVY == "GOA") {
+  # GOA_planning_species_2021.csv
+  # These are Sheet 1 from G:/GOA/Survey Planning/goa_planning_species_01052023.xlsx
+  print("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
+}
