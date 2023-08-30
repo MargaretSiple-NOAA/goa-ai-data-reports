@@ -321,7 +321,7 @@ meanlengths_area2 <- L_maxyr %>%
   ungroup() %>%
   dplyr::left_join(region_lu2)
 
-total_otos <- sum(otos_collected$`Number of otoliths collected`) %>%
+total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
   format(big.mark = ",")
 
 
