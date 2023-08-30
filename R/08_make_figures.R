@@ -605,7 +605,7 @@ if (make_ldscatter) {
       geom_smooth(method = "loess") +
       xlab("Bottom depth (m)") +
       ylab("Length (cm)") +
-      theme_light() +
+      theme_light(base_size = 10) +
       theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
