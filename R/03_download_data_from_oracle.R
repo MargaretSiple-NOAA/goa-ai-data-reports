@@ -108,19 +108,19 @@ print("Finished downloading strata file.")
 
 if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_TOTAL")
-  write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
+  write.csv(x = a, "./data/local_goa/biomass_total.csv", row.names = FALSE)
   
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
-  write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
+  write.csv(x = a, "./data/local_goa/biomass_stratum.csv", row.names = FALSE)
   
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
-  write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
+  write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
   
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.CPUE")
-  write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
+  write.csv(x = a, "./data/local_goa/cpue.csv", row.names = FALSE)
   
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.SIZECOMP_TOTAL")
-  write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
+  write.csv(x = a, "./data/local_goa/sizecomp_total.csv", row.names = FALSE)
   
   
   print("Finished downloading GOA schema tables")
