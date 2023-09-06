@@ -122,6 +122,8 @@ if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.SIZECOMP_TOTAL")
   write.csv(x = a, "./data/local_goa/sizecomp_total.csv", row.names = FALSE)
   
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOAGRID")
+  write.csv(x = a, "./data/local_goa/goagrid.csv", row.names = FALSE)
   
   print("Finished downloading GOA schema tables")
 }
