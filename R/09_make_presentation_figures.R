@@ -1,4 +1,3 @@
-
 # PRESENTATION FIGURES ----------------------------------------------------
 # Table of contents (toggle true/false to make some plots but not others):
 # 1. Biomass indices relative to LT mean
@@ -8,55 +7,42 @@ make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
 # 3. CPUE bubble maps
-make_cpue_bubbles <- TRUE
+make_cpue_bubbles <- FALSE
 # 4. Length frequency plots by region and depth stratum
 make_length_freqs <- TRUE
-# 5. Length frequency plots as joy divison plots
+# 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
-
-# THE CODE BELOW IS THE SAME AS THE FIRST 75 LINES OF 01_START_HERE.R
+# 6. CPUE IDW maps
+make_cpue_idw <- TRUE
 
 # Report settings -------------------------------------------------------------
-usePNGPDF <- "png"
-maxyr <- 2018 # Change this for the year!
-compareyr <- 2016 # Change this for the year!
-print_figs <- FALSE # Do you want to print out PNGs of each figure?
+source("R/00_report_settings.R")
+source("R/01_directories.R")
+SRVY <- "GOA"
+maxyr <- 2023 # Change this for the year!
+compareyr <- 2021
 
-# When did you save the last version of the figures and tables you want to use?
-tabledate <- "2022-08-30"
-figuredate <- "2022-08-30"
+# Load packages and functions -------------------------------------------------
+source("R/02_load_packages.R")
+source("R/05_functions.R")
 
-# Survey information ------------------------------------------------------
-survnumber <- "49th" # Change this for the year!
-dates_conducted <- "June 6th through August 14th, 2018" # Change this for the year!
-SRVY <- "AI" # Options: "GOA", "AI"
-YEAR <- maxyr
-vessel1 <- "FV Ocean Explorer"
-vessel2 <- "FV Alaska Provider"
-ref_compareyr <- "@von_szalay_data_2017"
-if (SRVY == "GOA"){dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"} # Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC This is where all the text files live and are edited.
-if(SRVY =="AI"){dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"} # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
-
-
-
-# Report info -------------------------------------------------------------
- 
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
 if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
-  source("R/05_download_data_from_oracle.R")
+  source("R/03_download_data_from_oracle.R")
 }
-
-# Get text from Google Drive ----------------------------------------------
-y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
-if (y) {
-  source("R/06_get_gdrive_chapters.R")
-}
+#
+# # Get text from Google Drive ----------------------------------------------
+# y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
+# if (y) {
+#   source("R/04_get_gdrive_chapters.R")
+# }
 
 # Data --------------------------------------------------------------------
 # Get species table
-if(SRVY=="AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
 
 # Get CPUE tables from Emily's public-facing data pkg
 # Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. In order to download this same dataset, use the following:
@@ -73,15 +59,16 @@ head(cpue_raw)
 # NOTE: MAY CHANGE TO DRAW FROM ORACLE
 
 # Get a table of the strata and depths / regions
-dat <- read.csv("data/goa_strata.csv",header= TRUE)
-region_lu <- dat %>% 
-  filter(SURVEY==SRVY) %>%
+dat <- read.csv("data/goa_strata.csv", header = TRUE)
+region_lu <- dat %>%
+  filter(SURVEY == SRVY) %>%
   dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH) %>%
-  filter(STRATUM >=211 & STRATUM <= 794) %>%
-  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH,sep = " - ",remove = FALSE) %>%
+  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
   mutate(`Depth range` = paste0(`Depth range`, " m"))
 
-
+if (SRVY == "AI") {
+  region_lu <- region_lu %>% filter(STRATUM >= 211 & STRATUM <= 794)
+}
 
 # Begin figure creation/report prep ---------------------------------------
 #
@@ -93,30 +80,35 @@ library(patchwork)
 # Data to plot ------------------------------------------------------------
 # All the species for which we want to make plots
 head(report_species)
-report_species <- report_species %>% 
+report_species <- report_species %>%
   arrange(-species_code)
 
-# Total biomass data (currently taking from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
-biomass_total <- read.csv("data/local_ai/biomass_total.csv")
+# Load total biomass data (currently taking from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
+if (SRVY == "AI") {
+  biomass_total <- read.csv("data/local_ai/biomass_total.csv")
+}
+if (SRVY == "GOA") {
+  biomass_total <- read.csv("data/local_goa/biomass_total.csv")
+}
 
 # Haul data from RACEBASE
 haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
-nyears <- length(unique(filter(haul, REGION==SRVY)$CRUISE))
+nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
-# Haul summary table 
+# Haul summary table
 haul2 <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
 nstations <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
-  distinct(STATIONID) %>%
-  nrow()
+  distinct(STATIONID, STRATUM) %>%
+  nrow() # checked in 2023
 
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
-  nrow() #420 in 2018
+  nrow()
 
 
 # Base maps ---------------------------------------------------------------
@@ -173,7 +165,7 @@ bartheme <- theme_classic2(base_size = 16) +
 # Palettes!
 # MetBrewer (dark colors)
 stratumpal <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
+  shortpal = MetBrewer::met.brewer(palette_name = "Hokusai1", type = "continuous"),
   x = 1:nstrata
 )
 
@@ -182,12 +174,12 @@ linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for joy div plot
-joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9,name = "Blues"),x = 1:nyears)
+joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 
 # Palette for species colors and fills
-#speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
+# speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
 speciescolors <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "VanGogh2", type = "discrete", direction = -1),
+  shortpal = MetBrewer::met.brewer(palette_name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
 )
 # 1. Biomass index relative to LT mean ---------------------------------------
@@ -206,25 +198,24 @@ if (make_biomass_timeseries) {
       ggplot(aes(x = YEAR, y = TOTAL_BIOMASS)) +
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
-      #geom_line(color = linecolor, lwd = 1) +
-      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),color = linecolor,size=0.9,width=0.7) +
+      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
       labs(title = paste0(name_bms)) +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
     p1
-    
-    
+
+
     list_biomass_ts[[i]] <- p1
     png(
-      filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_ts.png"),
+      filename = paste0(dir_out_figures, name_bms, "_", SRVY, "_", maxyr, "_biomass_ts.png"),
       width = 7, height = 7, units = "in", res = 150
     )
     print(p1)
     dev.off()
   }
-  #names(list_biomass_ts) <- report_species$species_code # not sure if I want to keep this
+  # names(list_biomass_ts) <- report_species$species_code # not sure if I want to keep this
 }
 
 
@@ -248,11 +239,12 @@ if (make_catch_comp) {
     xlab("Year") +
     ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
-    bartheme
+    bartheme +
+    theme(legend.position = "bottom")
 
   png(
-    filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
-    width = 7, height = 7, units = "in", res = 150
+    filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"),
+    width = 12, height = 8, units = "in", res = 150
   )
   print(p2)
   dev.off()
@@ -287,7 +279,7 @@ if (make_cpue_bubbles) {
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_east$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0,max(thisyrshauldata$cpue_kgha))) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -309,7 +301,7 @@ if (make_cpue_bubbles) {
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_central$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0,max(thisyrshauldata$cpue_kgha))) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -335,7 +327,7 @@ if (make_cpue_bubbles) {
       scale_color_manual(values = stratumpal) +
       geom_sf(data = ai_west$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0,max(thisyrshauldata$cpue_kgha))) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -349,21 +341,20 @@ if (make_cpue_bubbles) {
       labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
       bubbletheme
 
-    toprow <- cowplot::plot_grid(p3c,NULL, rel_widths = c(2,1))
-    bottomrow <- cowplot::plot_grid(NULL,p3a,rel_widths = c(1,2))
-    final_obj <- cowplot::plot_grid(toprow,p3b,bottomrow,ncol=1)
-    
+    toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
+    bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
+    final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
+
     png(
-      filename = paste0(dir_out_figures, namebubble, "_",maxyr,"_bubble_example.png"),
+      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble_example.png"),
       width = 10, height = 10, units = "in", res = 200
     )
     print(final_obj)
-    
+
     dev.off()
-    
+
     list_cpue_bubbles[[i]] <- final_obj # save fig to list
-    
-  } #/end species loop
+  } # /end species loop
 }
 
 
@@ -373,38 +364,81 @@ if (make_cpue_bubbles) {
 
 head(biomass_total)
 
-compare_tab <- biomass_total %>% 
-  filter(YEAR %in% c(maxyr, compareyr) & 
-           SPECIES_CODE %in% report_species$species_code) %>%
+compare_tab <- biomass_total %>%
+  filter(YEAR %in% c(maxyr, compareyr) &
+    SPECIES_CODE %in% report_species$species_code) %>%
   dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
   dplyr::arrange(YEAR) %>%
-  tidyr::pivot_wider(names_from = YEAR,
-                     values_from = TOTAL_BIOMASS,
-                     names_prefix = "yr_") %>%
+  tidyr::pivot_wider(
+    names_from = YEAR,
+    values_from = TOTAL_BIOMASS,
+    names_prefix = "yr_"
+  ) %>%
   as.data.frame()
 
-compare_tab$percent_change <- round((compare_tab[,3] - compare_tab[,2]) / compare_tab[,2] * 100, digits = 1)
+compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
 names(compare_tab)
 
 compare_tab2 <- compare_tab %>%
-  left_join(report_species, by = c("SPECIES_CODE"="species_code")) %>%
-  arrange(-SPECIES_CODE) 
+  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
+  arrange(-SPECIES_CODE)
 
-write.csv(x = compare_tab2,
-          file = paste0(dir_out_chapters,"comparison_w_previous_year.csv"))
+write.csv(
+  x = compare_tab2,
+  file = paste0(dir_out_chapters, "comparison_w_previous_year.csv")
+)
 
 
-# 4. Make length frequency plots by area/depth stratum --------------------
+# 4. CPUE IDW plots -------------------------------------------------------
+
+# The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
+# THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
+
+if (make_biomass_timeseries) {
+  list_idw_cpue <- list()
+  dat2plot <- cpue_raw %>%
+       filter(survey == SRVY & species_code == sp & year == yr)
+  
+}
+# get cpue table by station for a species
+# sp <- 30060
+# yr <- 2018
+# dat2plot <- cpue_raw %>%
+#   filter(survey == SRVY & species_code == sp & year == yr)
+# colnames(dat2plot)
+# cpue_res <- 0.1 # will take less time
+# # example data:
+# # head(akgfmaps::YFS2017)
+#
+# # This is a dummy figure! Doesn't mean anything because it's for GOA
+# figure1 <- plot_idw_xbyx(
+#   yrs = yr,
+#   dat = dat2plot,
+#   lat = "start_latitude",
+#   lon = "start_longitude",
+#   var = "cpue_kgkm2",
+#   year = "year",
+#   key.title = "POP (kg/km2)",
+#   grid = "extrapolation.grid",
+#   extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
+#   grid.cell = c(cpue_res, cpue_res),
+#   row0 = 1,
+#   region = "goa"
+# )
+#
+
+
+# 5. Make length frequency plots by area/depth stratum --------------------
 # Uses only the most recent year (no comparison)
 
 if (make_length_freqs) {
   length <- read.csv(here::here("data", "local_racebase", "length.csv"))
-  
+
   list_length_freq <- list()
-  
+
   length2 <- length %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(REGION == SRVY) #YEAR == maxyr & 
+    filter(REGION == SRVY) # YEAR == maxyr &
 
   length3 <- length2 %>%
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
@@ -419,7 +453,7 @@ if (make_length_freqs) {
 
   length4 <- length3 %>%
     tidyr::uncount(FREQUENCY) %>%
-    mutate(INPFC_AREA = factor(INPFC_AREA,levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"),labels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "S. Bering Sea"))) %>%
+    mutate(INPFC_AREA = factor(INPFC_AREA, levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"), labels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "S. Bering Sea"))) %>%
     group_split(Sex) # turn freq column into rows for histogramming
 
   lengthpal <- MetBrewer::met.brewer(name = "Nizami", n = 8)[c(2, 5, 7)] # order: red (females), turquoise (unsexed), blue (males)
@@ -453,7 +487,7 @@ if (make_length_freqs) {
       geom_histogram(stat = "count", show.legend = TRUE, alpha = 0.6) +
       scale_fill_manual("Sex", values = lengthpal[c(1, 3, 2)]) +
       theme(legend.position = "right")
-      
+
 
     legend <- cowplot::get_legend(legplot)
 
@@ -461,7 +495,7 @@ if (make_length_freqs) {
       plot_grid(lfplot, ncol = 1, align = "v"),
       plot_grid(NULL, legend, ncol = 1),
       rel_widths = c(1, 0.2)
-    ) )
+    ))
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
@@ -475,7 +509,7 @@ if (make_length_freqs) {
 }
 
 
-# 5. Length frequency plots - joy division plots -----------------------------
+# 6. Length frequency plots - joy division plots -----------------------------
 
 if (make_joy_division_length) {
   list_joy_length <- list()
@@ -516,17 +550,16 @@ if (make_joy_division_length) {
     ), width = 12, height = 8, units = "in", res = 200)
     print(joyplot)
     dev.off()
-    
+
     list_joy_length[[i]] <- joyplot
   }
-  
 }
 
 # Make those slides! --------------------------------------------------------
 
 rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
-                  output_dir = dir_out_chapters,
-                  output_file = paste0("PLAN_TEAM_SLIDES.pptx")
+  output_dir = dir_out_chapters,
+  output_file = paste0("PLAN_TEAM_SLIDES.pptx")
 )
 
-print(Sys.time()-starttime)
+print(Sys.time() - starttime)
