@@ -326,8 +326,17 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
 
 
 # Length comps from size comp table ---------------------------------------
+# Expand length table to make freqs -- these should be used for joy division and other length hist plots
+
+if(SRVY=="AI"){
 sizecomp <- read.csv("data/local_ai/sizecomp_total.csv",header = TRUE) %>% 
   filter(SURVEY==SRVY & YEAR>=minyr)
+}
+
+if(SRVY=="GOA"){
+  sizecomp <- read.csv("data/local_goa/sizecomp_total.csv",header = TRUE) %>% 
+    filter(SURVEY==SRVY & YEAR>=minyr)
+}
 
 # Janky but I am in a rush so will have to deal.
 report_pseudolengths <- data.frame()
@@ -372,10 +381,8 @@ for (i in 1:nrow(report_species)){
   report_pseudolengths <- rbind(report_pseudolengths,all)
 }
 
-# unique(report_pseudolengths$YEAR)
-# unique(report_pseudolengths$SPECIES_CODE)
 
-write.csv(report_pseudolengths, paste0(dir_out_tables,"report_pseudolengths.csv"),row.names = FALSE)
+write.csv(report_pseudolengths, paste0("data/",maxyr,"_",SRVY,"_","report_pseudolengths.csv"),row.names = FALSE)
 
 # Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps
