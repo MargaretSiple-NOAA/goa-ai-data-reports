@@ -44,19 +44,7 @@ if (x) {
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
 
-# Get CPUE tables from Emily's public-facing data pkg
-# Update this directory if you need to; grabs a time-stamped snapshot of the CPUE tables used in the data reports. In order to download this same dataset, use the following:
-# library("httr")
-# library("jsonlite")
-# # link to the API
-# api_link <- "https://origin-tst-ods-st.fisheries.noaa.gov/ods/foss/afsc_groundfish_survey/"
-# res <- httr::GET(url = api_link)
-# # base::rawToChar(res$content) # Test connection
-# data <- jsonlite::fromJSON(base::rawToChar(res$content))
-
-cpue_raw <- read.csv(here::here("data/cpue_station.csv")) # This file can be obtained from Emily's gap_public_data repo here: https://github.com/afsc-gap-products/gap_public_data
-head(cpue_raw)
-# NOTE: MAY CHANGE TO DRAW FROM ORACLE
+report_species <- filter(report_species, presentation==1)
 
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv", header = TRUE)
@@ -70,9 +58,8 @@ if (SRVY == "AI") {
   region_lu <- region_lu %>% filter(STRATUM >= 211 & STRATUM <= 794)
 }
 
-# Begin figure creation/report prep ---------------------------------------
-#
 
+# Begin figure creation/report prep ---------------------------------------
 # Libraries ---------------------------------------------------------------
 library(akgfmaps)
 library(patchwork)
@@ -82,6 +69,9 @@ library(patchwork)
 head(report_species)
 report_species <- report_species %>%
   arrange(-species_code)
+
+# Get key/table of names (common, scientific, etc)
+common_names <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
 
 # Load total biomass data (currently taking from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
 if (SRVY == "AI") {
@@ -110,22 +100,56 @@ nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
 
+# CPUE 
+if(SRVY=="AI"){
+  x <- read.csv(file = here::here("data", "local_ai","cpue.csv"), header = TRUE) 
+
+  # This is already 0-filled
+cpue_raw <- x %>%
+  left_join(common_names) %>%
+  dplyr::select(-YEAR_ADDED) %>%
+  dplyr::left_join(haul) %>%
+  janitor::clean_names() %>% # need to add common name lookup
+  dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
+  janitor::clean_names()
+}
+
+if(SRVY=="GOA"){
+  x <- read.csv(file = here::here("data", "local_goa","cpue.csv"), header = TRUE) 
+  
+  # This is already 0-filled
+  cpue_raw <- x %>%
+    left_join(common_names) %>%
+    dplyr::select(-YEAR_ADDED) %>%
+    dplyr::left_join(haul) %>%
+    janitor::clean_names() %>% # need to add common name lookup
+    dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
+    janitor::clean_names()
+}
+
 
 # Base maps ---------------------------------------------------------------
-ai_east <- akgfmaps::get_base_layers(
-  select.region = "ai.east",
-  set.crs = "auto"
-)
-ai_central <- akgfmaps::get_base_layers(
-  select.region = "ai.central",
-  set.crs = "auto"
-)
-ai_west <- akgfmaps::get_base_layers(
-  select.region = "ai.west",
-  set.crs = "auto"
-)
+if (SRVY == "AI") {
+  ai_east <- akgfmaps::get_base_layers(
+    select.region = "ai.east",
+    set.crs = "auto"
+  )
+  ai_central <- akgfmaps::get_base_layers(
+    select.region = "ai.central",
+    set.crs = "auto"
+  )
+  ai_west <- akgfmaps::get_base_layers(
+    select.region = "ai.west",
+    set.crs = "auto"
+  )
+  nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))  
+}
 
-nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
+if(SRVY=="GOA"){
+  a <- read.csv("data/local_goa/goagrid.csv")
+  nstrata <- length(unique(a$STRATUM))
+}
+
 
 # Aesthetic settings ------------------------------------------------------
 
@@ -394,10 +418,44 @@ write.csv(
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
 # THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
 
-if (make_biomass_timeseries) {
+if (make_cpue_idw) {
   list_idw_cpue <- list()
-  dat2plot <- cpue_raw %>%
-       filter(survey == SRVY & species_code == sp & year == yr)
+  for(s in 20:nrow(report_species)){
+    sp <- report_species$species_code[s]
+    namebubble <- report_species$spp_name_informal[s]
+    
+    dat2plot <- cpue_raw %>%
+      filter(survey == SRVY & species_code == sp & year == maxyr)
+    cpue_res <- 0.01 # will take less time
+    
+    fig <- plot_idw_xbyx(
+      yrs = maxyr,
+      dat = dat2plot,
+      lat = "start_latitude",
+      lon = "start_longitude",
+      var = "cpue_kgkm2",
+      year = "year",
+      key.title = paste(report_species$spp_name_informal[s],"(kg/km2)"),
+      grid = "extrapolation.grid",
+      extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
+      grid.cell = c(cpue_res, cpue_res),
+      row0 = 1,
+      region = "goa"
+    ) +
+      theme(axis.text = element_text(size = 11))
+    
+    png(
+      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_cpue_idw.png"),
+      width = 11, height = 10, units = "in", res = 200
+    )
+    print(fig)
+    
+    dev.off()
+    
+    list_idw_cpue[[s]] <- fig # save fig to list
+    
+  }
+  
   
 }
 # get cpue table by station for a species
