@@ -384,35 +384,6 @@ if (make_cpue_bubbles) {
 
 
 
-# Percent changes in biomass since last survey ----------------------------
-
-head(biomass_total)
-
-compare_tab <- biomass_total %>%
-  filter(YEAR %in% c(maxyr, compareyr) &
-    SPECIES_CODE %in% report_species$species_code) %>%
-  dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
-  dplyr::arrange(YEAR) %>%
-  tidyr::pivot_wider(
-    names_from = YEAR,
-    values_from = TOTAL_BIOMASS,
-    names_prefix = "yr_"
-  ) %>%
-  as.data.frame()
-
-compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
-names(compare_tab)
-
-compare_tab2 <- compare_tab %>%
-  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
-  arrange(-SPECIES_CODE)
-
-write.csv(
-  x = compare_tab2,
-  file = paste0(dir_out_chapters, "comparison_w_previous_year.csv")
-)
-
-
 # 4. CPUE IDW plots -------------------------------------------------------
 
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
@@ -420,13 +391,13 @@ write.csv(
 
 if (make_cpue_idw) {
   list_idw_cpue <- list()
-  for(s in 20:nrow(report_species)){
+  for(s in 1:nrow(report_species)){
     sp <- report_species$species_code[s]
     namebubble <- report_species$spp_name_informal[s]
     
     dat2plot <- cpue_raw %>%
       filter(survey == SRVY & species_code == sp & year == maxyr)
-    cpue_res <- 0.01 # will take less time
+    cpue_res <- 0.05 # 0.05 will take less time, 0.01 is best looking but takes ~10 mins per plot.
     
     fig <- plot_idw_xbyx(
       yrs = maxyr,
@@ -484,6 +455,34 @@ if (make_cpue_idw) {
 #   region = "goa"
 # )
 #
+# ** 4b. Percent changes in biomass since last survey ----------------------------
+
+head(biomass_total)
+
+compare_tab <- biomass_total %>%
+  filter(YEAR %in% c(maxyr, compareyr) &
+           SPECIES_CODE %in% report_species$species_code) %>%
+  dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
+  dplyr::arrange(YEAR) %>%
+  tidyr::pivot_wider(
+    names_from = YEAR,
+    values_from = TOTAL_BIOMASS,
+    names_prefix = "yr_"
+  ) %>%
+  as.data.frame()
+
+compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
+names(compare_tab)
+
+compare_tab2 <- compare_tab %>%
+  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
+  arrange(-SPECIES_CODE) %>%
+  dplyr::select(-(presentation:reportorder))
+
+write.csv(
+  x = compare_tab2,
+  file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_survey.csv")
+)
 
 
 # 5. Make length frequency plots by area/depth stratum --------------------
