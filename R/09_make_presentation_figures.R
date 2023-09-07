@@ -424,37 +424,12 @@ if (make_cpue_idw) {
     dev.off()
     
     list_idw_cpue[[s]] <- fig # save fig to list
-    
   }
   
-  
+  names(list_idw_cpue) <- report_species$species_code
+  save(list_idw_cpue, file = paste0(dir_out_figures, "list_idw_cpue.rdata"))
 }
-# get cpue table by station for a species
-# sp <- 30060
-# yr <- 2018
-# dat2plot <- cpue_raw %>%
-#   filter(survey == SRVY & species_code == sp & year == yr)
-# colnames(dat2plot)
-# cpue_res <- 0.1 # will take less time
-# # example data:
-# # head(akgfmaps::YFS2017)
-#
-# # This is a dummy figure! Doesn't mean anything because it's for GOA
-# figure1 <- plot_idw_xbyx(
-#   yrs = yr,
-#   dat = dat2plot,
-#   lat = "start_latitude",
-#   lon = "start_longitude",
-#   var = "cpue_kgkm2",
-#   year = "year",
-#   key.title = "POP (kg/km2)",
-#   grid = "extrapolation.grid",
-#   extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
-#   grid.cell = c(cpue_res, cpue_res),
-#   row0 = 1,
-#   region = "goa"
-# )
-#
+
 # ** 4b. Percent changes in biomass since last survey ----------------------------
 
 head(biomass_total)
@@ -485,7 +460,7 @@ write.csv(
 )
 
 
-# 5. Make length frequency plots by area/depth stratum --------------------
+# 5. Length frequency by area/depth stratum ------------------------------------
 # Uses only the most recent year (no comparison)
 
 if (make_length_freqs) {
@@ -513,7 +488,7 @@ if (make_length_freqs) {
     mutate(INPFC_AREA = factor(INPFC_AREA, levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"), labels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "S. Bering Sea"))) %>%
     group_split(Sex) # turn freq column into rows for histogramming
 
-  lengthpal <- MetBrewer::met.brewer(name = "Nizami", n = 8)[c(2, 5, 7)] # order: red (females), turquoise (unsexed), blue (males)
+  lengthpal <- MetBrewer::met.brewer(palette_name =  "Nizami", n = 8)[c(2, 5, 7)] # order: red (females), turquoise (unsexed), blue (males)
 
   samplesizes <- length3 %>%
     group_by(INPFC_AREA, `Depth range`) %>%
@@ -548,9 +523,9 @@ if (make_length_freqs) {
 
     legend <- cowplot::get_legend(legplot)
 
-    lfplot2 <- ggdraw(plot_grid(
-      plot_grid(lfplot, ncol = 1, align = "v"),
-      plot_grid(NULL, legend, ncol = 1),
+    lfplot2 <- cowplot::ggdraw(cowplot::plot_grid(
+      cowplot::plot_grid(lfplot, ncol = 1, align = "v"),
+      cowplot::plot_grid(NULL, legend, ncol = 1),
       rel_widths = c(1, 0.2)
     ))
 
@@ -563,6 +538,7 @@ if (make_length_freqs) {
 
     list_length_freq[[i]] <- lfplot2
   }
+  save(list_length_freq, file = paste0(dir_out_figures, "list_length_freq.rdata"))
 }
 
 
@@ -610,6 +586,7 @@ if (make_joy_division_length) {
 
     list_joy_length[[i]] <- joyplot
   }
+  save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
 }
 
 # Make those slides! --------------------------------------------------------
