@@ -464,70 +464,81 @@ write.csv(
 # Uses only the most recent year (no comparison)
 
 if (make_length_freqs) {
-  length <- read.csv(here::here("data", "local_racebase", "length.csv"))
-
+  
+  # Load expanded lengths. If these aren't generated above, they can be made in the prep_data file.
+  lengths_expanded <- read.csv(paste0("data/",maxyr,"_",SRVY,"_report_pseudolengths.csv"))
+  dat2plot <- lengths_expanded %>%
+    filter(YEAR==maxyr)
+  
   list_length_freq <- list()
 
-  length2 <- length %>%
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(REGION == SRVY) # YEAR == maxyr &
-
-  length3 <- length2 %>%
-    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
-    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
-    left_join(region_lu, by = "STRATUM") %>%
-    mutate(Sex = case_when(
-      SEX == 1 ~ "Male",
-      SEX == 2 ~ "Female",
-      SEX == 3 ~ "Unsexed"
-    )) %>%
-    dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
-
-  length4 <- length3 %>%
-    tidyr::uncount(FREQUENCY) %>%
-    mutate(INPFC_AREA = factor(INPFC_AREA, levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"), labels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "S. Bering Sea"))) %>%
-    group_split(Sex) # turn freq column into rows for histogramming
-
-  lengthpal <- MetBrewer::met.brewer(palette_name =  "Nizami", n = 8)[c(2, 5, 7)] # order: red (females), turquoise (unsexed), blue (males)
-
-  samplesizes <- length3 %>%
-    group_by(INPFC_AREA, `Depth range`) %>%
-    count() %>%
-    ungroup()
-
-  # TODO : add sample numbers to plots.
-
-  for (i in 1:nrow(report_species)) {
-    dat2plot <- purrr::map(length4, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
-
-    lfplot <- ggplot() +
-      # MALES
-      geom_histogram(data = dat2plot[[2]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[3], alpha = 0.6) + #
-      # UNSEXED
-      geom_histogram(data = dat2plot[[3]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[2], alpha = 0.4) + #
-      # FEMALES
-      geom_histogram(data = dat2plot[[1]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[1], alpha = 0.6) + #
-      facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y", labeller = labeller(groupwrap = label_wrap_gen(10))) +
-      labs(title = paste0(YEAR, " - ", report_species$spp_name_informal[i])) +
-      xlab("Length (cm)") +
-      ylab("Count in length subsample") +
-      theme_classic2(base_size = 10) +
-      theme(strip.background = element_blank()) +
-      theme(legend.position = "bottom")
-
-    legplot <- ggplot(data = length3, aes(x = YEAR, fill = Sex)) +
-      geom_histogram(stat = "count", show.legend = TRUE, alpha = 0.6) +
-      scale_fill_manual("Sex", values = lengthpal[c(1, 3, 2)]) +
-      theme(legend.position = "right")
-
-
-    legend <- cowplot::get_legend(legplot)
-
-    lfplot2 <- cowplot::ggdraw(cowplot::plot_grid(
-      cowplot::plot_grid(lfplot, ncol = 1, align = "v"),
-      cowplot::plot_grid(NULL, legend, ncol = 1),
-      rel_widths = c(1, 0.2)
-    ))
+  # length2 <- length %>%
+  #   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+  #   filter(REGION == SRVY) # YEAR == maxyr &
+  # 
+  # length3 <- length2 %>%
+  #   left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
+  #   dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
+  #   left_join(region_lu, by = "STRATUM") %>%
+  #   mutate(Sex = case_when(
+  #     SEX == 1 ~ "Male",
+  #     SEX == 2 ~ "Female",
+  #     SEX == 3 ~ "Unsexed"
+  #   )) %>%
+  #   dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
+  # 
+  # length4 <- length3 %>%
+  #   tidyr::uncount(FREQUENCY) %>%
+  #   mutate(INPFC_AREA = factor(INPFC_AREA, levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"), labels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "S. Bering Sea"))) %>%
+  #   group_split(Sex) # turn freq column into rows for histogramming
+  # 
+  # lengthpal <- MetBrewer::met.brewer(palette_name =  "Nizami", n = 8)[c(2, 5, 7)] # order: red (females), turquoise (unsexed), blue (males)
+  # 
+  # samplesizes <- length3 %>%
+  #   group_by(INPFC_AREA, `Depth range`) %>%
+  #   count() %>%
+  #   ungroup()
+  # 
+  # # TODO : add sample numbers to plots.
+  # 
+  # for (i in 1:nrow(report_species)) {
+  #   dat2plot <- purrr::map(length4, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
+  # 
+  #   lfplot <- ggplot() +
+  #     # MALES
+  #     geom_histogram(data = dat2plot[[2]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[3], alpha = 0.6) + #
+  #     # UNSEXED
+  #     geom_histogram(data = dat2plot[[3]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[2], alpha = 0.4) + #
+  #     # FEMALES
+  #     geom_histogram(data = dat2plot[[1]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[1], alpha = 0.6) + #
+  #     facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y", labeller = labeller(groupwrap = label_wrap_gen(10))) +
+  #     labs(title = paste0(YEAR, " - ", report_species$spp_name_informal[i])) +
+  #     xlab("Length (cm)") +
+  #     ylab("Count in length subsample") +
+  #     theme_classic2(base_size = 10) +
+  #     theme(strip.background = element_blank()) +
+  #     theme(legend.position = "bottom")
+  # 
+  #   legplot <- ggplot(data = length3, aes(x = YEAR, fill = Sex)) +
+  #     geom_histogram(stat = "count", show.legend = TRUE, alpha = 0.6) +
+  #     scale_fill_manual("Sex", values = lengthpal[c(1, 3, 2)]) +
+  #     theme(legend.position = "right")
+  # 
+  # 
+  #   legend <- cowplot::get_legend(legplot)
+  # 
+  #   lfplot2 <- cowplot::ggdraw(cowplot::plot_grid(
+  #     cowplot::plot_grid(lfplot, ncol = 1, align = "v"),
+  #     cowplot::plot_grid(NULL, legend, ncol = 1),
+  #     rel_widths = c(1, 0.2)
+  #   ))
+  
+  for(i in 1:nrow(report_species)){
+    dat_sp <- dat2plot %>% 
+      dplyr::filter(SPECIES_CODE==report_species$species_code[i])
+    p1 <- 
+  }
+ 
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
@@ -542,18 +553,22 @@ if (make_length_freqs) {
 }
 
 
-# 6. Length frequency plots - joy division plots -----------------------------
+# 6. Joy division plots - Length frequency -----------------------------
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-
-
-  length <- read.csv(here::here("data", "local_racebase", "length.csv"))
-
-  length2 <- length %>%
+  
+  report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
+  
+  L <- read.csv(here::here("data/local_racebase/length.csv"))
+  L <- L %>%
+    mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
+  length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+  
+  length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(REGION == SRVY)
-
+    filter(REGION == SRVY) # want to keep all years for this fig
+  
   length3 <- length2 %>%
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
     dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
@@ -564,30 +579,206 @@ if (make_joy_division_length) {
       SEX == 3 ~ "Unsexed"
     )) %>%
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
+  
+  sample_sizes <- length3 %>%
+    filter(YEAR >= minyr) %>%
+    dplyr::group_by(YEAR, SPECIES_CODE, Sex) %>%
+    dplyr::summarize(n = sum(FREQUENCY)) %>%
+    ungroup() %>%
+    mutate(YEAR = as.integer(YEAR))
+  
+  # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
+  spps_lookup <- data.frame(
+    polycode = c(
+      c(10260, 10261, 10262, 10263),
+      c(10110, 10112),
+      c(30050, 30051, 30052)
+    ),
+    complex = c(
+      rep("nrs_srs", times = 4),
+      rep("kam_atf", times = 2),
+      rep("rebs", times = 3)
+    )
+  ) %>%
+    mutate(complex_name = case_when(
+      complex == "nrs_srs" ~ "Northern and southern rock sole",
+      complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
+      complex == "rebs" ~ "Rougheye/blackspotted rockfish"
+    ))
+  
+  
+  
+  # Loop thru species
   for (i in 1:nrow(report_species)) {
-    joyplot <- length3 %>%
+    # These are multipliers for where the sample size geom_text falls on the y axis
+    
+    len2plot <- report_pseudolengths %>%
+      filter(SPECIES_CODE == report_species$species_code[i])
+    
+    # Only sexed lengths included, unless it's SSTH
+    if (report_species$species_code[i] != 30020) {
+      len2plot <- len2plot %>%
+        filter(Sex != "Unsexed")
+    }
+    
+    # Save median lengths by year and sex for species i
+    medlines_sp <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i]) %>%
-      ggplot(aes(x = LENGTH, y = YEAR, group = YEAR, fill = YEAR)) +
-      geom_density_ridges() +
-      scale_y_discrete(limits = rev) +
-      facet_wrap(~Sex) +
-      xlab("Length(mm)") +
+      group_by(YEAR, Sex) %>%
+      dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+      ungroup()
+    
+    ylocs <- report_pseudolengths %>%
+      filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      group_by(YEAR, Sex) %>%
+      dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
+      mutate(yloc = Inf) %>%
+      ungroup() %>%
+      filter(YEAR == 2012) %>%
+      dplyr::select(-YEAR)
+    
+    write.csv(
+      x = medlines_sp,
+      file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
+      row.names = FALSE
+    )
+    
+    len2plot2 <- len2plot %>%
+      left_join(sample_sizes %>% filter(SPECIES_CODE == report_species$species_code[i])) %>%
+      left_join(ylocs)
+    
+    yrbreaks <- unique(len2plot2$YEAR)
+    
+    testlabdf <- len2plot2 %>%
+      distinct(YEAR,Sex,.keep_all = TRUE)
+    
+    joyplot <- len2plot2 %>%
+      ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
+      ggridges::geom_density_ridges_gradient(
+        bandwidth = 5,
+        rel_min_height = 0,
+        quantile_lines = T,
+        quantile_fun = median,
+        vline_color = "white",
+        vline_size = 0.6,
+        vline_linetype = "dotted" # "A1"
+      ) +
+      scale_y_reverse(breaks = yrbreaks,expand = c(0,0)) +
+      scale_linetype_manual(values = c("solid", "dashed")) +
+      
+      facet_grid(~Sex) +
+      xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges() +
-      scale_fill_manual(values = joypal) +
-      labs(title = paste(report_species$spp_name_informal[i]))
-
+      theme_ridges(font_size = 8) +
+      scale_fill_gradientn(colours = joypal) +
+      geom_label(data = testlabdf, 
+                 mapping =  aes(label = paste0("n = ", n), x = Inf), 
+                 fill='white',label.size = NA,
+                 nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
+      ) +
+      labs(title = paste(report_species$spp_name_informal[i])) +
+      theme(
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.title.x = element_text(hjust = 0.5),
+        axis.title.y = element_text(hjust = 0.5),
+        panel.spacing.x = unit(4, "mm")
+      )
+    
+    
+    # lookup table is referenced below
+    
+    # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
+    if (report_species$species_code[i] %in% spps_lookup$polycode) {
+      plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode == report_species$species_code[i])]
+      complex_sp <- spps_lookup$complex[which(spps_lookup$polycode == report_species$species_code[i])]
+      polycode_vec <- spps_lookup$polycode[which(spps_lookup$complex == complex_sp)]
+      star_yr <- switch(complex_sp,
+                        nrs_srs = 1996,
+                        kam_atf = 1992,
+                        rebs = 2006
+      )
+      yrlabels <- yrbreaks
+      yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
+      yrlabels <- as.character(yrlabels)
+      
+      medlines_sp <- report_pseudolengths %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
+        group_by(YEAR, Sex) %>%
+        dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+        #dplyr::mutate(yloc = medlength * multiplier) %>%
+        ungroup()
+      
+      
+      sample_sizes_comb <- sample_sizes %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
+        group_by(YEAR, Sex) %>%
+        dplyr::summarize(n = sum(n)) %>%
+        ungroup()
+      
+      len2plot_comb <- report_pseudolengths %>%
+        filter(SPECIES_CODE %in% polycode_vec) %>%
+        filter(Sex != "Unsexed") %>%
+        left_join(sample_sizes_comb)
+      
+      testlabdf_comb <- len2plot_comb %>%
+        distinct(YEAR,Sex,.keep_all = TRUE)
+      
+      joyplot2 <- len2plot_comb %>%
+        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR), 
+               fill = "grey") +
+        ggridges::geom_density_ridges_gradient(
+          bandwidth = 5,
+          rel_min_height = 0,
+          quantile_lines = T,
+          quantile_fun = median,
+          vline_color = "white",
+          vline_size = 0.6,
+          vline_linetype = "dotted" # "A1"
+        ) +
+        scale_y_reverse(breaks = yrbreaks, labels = yrlabels) +
+        scale_linetype_manual(values = c("solid", "dashed")) +
+        geom_label(data = testlabdf_comb, 
+                   mapping =  aes(label = paste0("n = ", n), x = Inf), 
+                   fill='white',label.size = NA,
+                   nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
+        ) +
+        facet_grid(~Sex) +
+        xlab("Length (mm)") +
+        ylab("Year") +
+        theme_ridges(font_size = 8) +
+        labs(title = plot_title) +
+        theme(
+          strip.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = "none",
+          axis.title.x = element_text(hjust = 0.5),
+          axis.title.y = element_text(hjust = 0.5),
+          panel.spacing.x = unit(4, "mm")
+        )
+      
+      joyplot <- joyplot + joyplot2
+    }
+    
+    
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_joyfreqhist.png"
-    ), width = 12, height = 8, units = "in", res = 200)
+    ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
-
+    
     list_joy_length[[i]] <- joyplot
   }
-  save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
+  names(list_joy_length) <- report_species$species_code
+  
+  save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
+  print("Done with joy division plots for length comp.")
 }
+
 
 # Make those slides! --------------------------------------------------------
 
