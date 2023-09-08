@@ -780,6 +780,87 @@ if (make_joy_division_length) {
 }
 
 
+# 7. Surface and bottom temperatures --------------------------------------
+if (make_temp_plot) {
+  list_temperature <- list()
+  
+  # haul info (source: RACEBASE)
+  haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
+  
+  sstdat <- haul %>%
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+    filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
+    group_by(YEAR) %>%
+    dplyr::summarize(
+      bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
+      surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
+    ) %>%
+    ungroup() %>%
+    as.data.frame() %>%
+    mutate(YEAR = as.numeric(YEAR))
+  
+  sst_summary <- sstdat %>%
+    mutate(
+      bottom_stz = bottom - mean(bottom, na.rm = T),
+      surface_stz = surface - mean(surface, na.rm = T)
+    ) %>%
+    pivot_longer(cols = bottom:surface_stz)
+  
+  plotdat <- haul %>%
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+    filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
+    filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
+    filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
+  
+  
+  bottom_temp_plot <- plotdat %>%
+    ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
+    ggdist::stat_interval() +
+    ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
+    geom_point(size = 0.5, color = "gray5") +
+    rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
+    scale_fill_ramp_discrete(na.translate = FALSE) +
+    labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
+    theme_light()
+  
+  surface_temp_plot <- plotdat %>%
+    ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
+    ggdist::stat_interval() +
+    ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
+    geom_point(size = 0.5, color = "gray5") +
+    rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
+    scale_fill_ramp_discrete(na.translate = FALSE) +
+    labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
+    theme_light()
+  
+  png(
+    filename = paste0(
+      dir_out_figures, maxyr, "_bottomtemp.png"
+    ),
+    width = 8, height = 5.5, units = "in", res = 200
+  )
+  print(bottom_temp_plot)
+  dev.off()
+  
+  png(
+    filename = paste0(
+      dir_out_figures, maxyr, "_surfacetemp.png"
+    ),
+    width = 8, height = 5.5, units = "in", res = 200
+  )
+  print(surface_temp_plot)
+  dev.off()
+  
+  list_temperature[[1]] <- bottom_temp_plot
+  list_temperature[[2]] <- surface_temp_plot
+  
+  names(list_temperature) <- c("bottomtemp", "surfacetemp")
+  
+  save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
+  print("Done with joy division plots for length comp.")
+}
+
+
 # Make those slides! --------------------------------------------------------
 
 rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
