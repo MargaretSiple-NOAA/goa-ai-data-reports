@@ -9,7 +9,7 @@ make_catch_comp <- TRUE
 # 3. CPUE bubble maps
 make_cpue_bubbles <- FALSE
 # 4. Length frequency plots by region and depth stratum
-make_length_freqs <- TRUE
+make_length_freqs <- FALSE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
 # 6. CPUE IDW maps
@@ -536,7 +536,7 @@ if (make_length_freqs) {
   for(i in 1:nrow(report_species)){
     dat_sp <- dat2plot %>% 
       dplyr::filter(SPECIES_CODE==report_species$species_code[i])
-    p1 <- 
+   # p1 <- 
   }
  
 
@@ -549,9 +549,9 @@ if (make_length_freqs) {
 
     list_length_freq[[i]] <- lfplot2
   }
-  save(list_length_freq, file = paste0(dir_out_figures, "list_length_freq.rdata"))
-}
+  #save(list_length_freq, file = paste0(dir_out_figures, "list_length_freq.rdata"))
 
+#}
 
 # 6. Joy division plots - Length frequency -----------------------------
 
