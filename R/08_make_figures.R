@@ -384,7 +384,7 @@ if (make_joy_division_length) {
     mutate(YEAR = as.integer(YEAR))
 
   # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
-  spps_lookup <- data.frame(
+  complex_lookup <- data.frame(
     polycode = c(
       c(10260, 10261, 10262, 10263),
       c(10110, 10112),
@@ -402,7 +402,11 @@ if (make_joy_division_length) {
       complex == "rebs" ~ "Rougheye/blackspotted rockfish"
     ))
 
-
+  # If Gulf survey, don't do the combined plot for ATF/kam (there aren't enough kam)
+  if (SRVY == "GOA") {
+    complex_lookup <- filter(complex_lookup, complex != "kam_atf")
+  }
+  
 
   # Loop thru species
   for (i in 1:nrow(report_species)) {
@@ -480,17 +484,18 @@ if (make_joy_division_length) {
         legend.position = "none",
         axis.title.x = element_text(hjust = 0.5),
         axis.title.y = element_text(hjust = 0.5),
-        panel.spacing.x = unit(4, "mm")
+        panel.spacing.x = unit(4, "mm"),
+        axis.line.x = element_line(lineend = "square")
       )
 
 
     # lookup table is referenced below
 
 # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
-    if (report_species$species_code[i] %in% spps_lookup$polycode) {
-      plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode == report_species$species_code[i])]
-      complex_sp <- spps_lookup$complex[which(spps_lookup$polycode == report_species$species_code[i])]
-      polycode_vec <- spps_lookup$polycode[which(spps_lookup$complex == complex_sp)]
+    if (report_species$species_code[i] %in% complex_lookup$polycode) {
+      plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
+      complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
+      polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
       star_yr <- switch(complex_sp,
         nrs_srs = 1996,
         kam_atf = 1992,
@@ -553,7 +558,8 @@ if (make_joy_division_length) {
           legend.position = "none",
           axis.title.x = element_text(hjust = 0.5),
           axis.title.y = element_text(hjust = 0.5),
-          panel.spacing.x = unit(4, "mm")
+          panel.spacing.x = unit(4, "mm"),
+          axis.line.x = element_line(lineend = "square")
         )
 
       joyplot <- joyplot + joyplot2
