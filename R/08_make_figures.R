@@ -428,14 +428,14 @@ if (make_joy_division_length) {
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
 
-    ylocs <- report_pseudolengths %>%
-      filter(SPECIES_CODE == report_species$species_code[i]) %>%
-      group_by(YEAR, Sex) %>%
-      dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
-      mutate(yloc = Inf) %>%
-      ungroup() %>%
-      filter(YEAR == 2012) %>%
-      dplyr::select(-YEAR)
+    # ylocs <- report_pseudolengths %>%
+    #   filter(SPECIES_CODE == report_species$species_code[i]) %>%
+    #   group_by(YEAR, Sex) %>%
+    #   dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
+    #   mutate(yloc = Inf) %>%
+    #   ungroup() %>%
+    #   filter(YEAR == 2012) %>%
+    #   dplyr::select(-YEAR)
 
     write.csv(
       x = medlines_sp,
@@ -444,8 +444,9 @@ if (make_joy_division_length) {
     )
 
     len2plot2 <- len2plot %>%
-      left_join(sample_sizes %>% filter(SPECIES_CODE == report_species$species_code[i])) %>%
-      left_join(ylocs)
+      left_join(sample_sizes %>% 
+                  filter(SPECIES_CODE == report_species$species_code[i])) #%>%
+     # left_join(ylocs)
 
     yrbreaks <- unique(len2plot2$YEAR)
     
@@ -509,7 +510,6 @@ if (make_joy_division_length) {
         filter(SPECIES_CODE %in% polycode_vec) %>%
         group_by(YEAR, Sex) %>%
         dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-        #dplyr::mutate(yloc = medlength * multiplier) %>%
         ungroup()
         
 
