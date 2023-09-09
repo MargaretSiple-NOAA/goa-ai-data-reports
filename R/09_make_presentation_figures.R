@@ -206,6 +206,8 @@ speciescolors <- lengthen_pal(
   shortpal = MetBrewer::met.brewer(palette_name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
 )
+
+
 # 1. Biomass index relative to LT mean ---------------------------------------
 
 if (make_biomass_timeseries) {
@@ -239,7 +241,7 @@ if (make_biomass_timeseries) {
     print(p1)
     dev.off()
   }
-  # names(list_biomass_ts) <- report_species$species_code # not sure if I want to keep this
+   names(list_biomass_ts) <- as.character(report_species$species_code)
 }
 
 
@@ -391,13 +393,13 @@ if (make_cpue_bubbles) {
 
 if (make_cpue_idw) {
   list_idw_cpue <- list()
-  for(s in 1:nrow(report_species)){
+  for(s in 10:nrow(report_species)){ #1:nrow(report_species)
     sp <- report_species$species_code[s]
     namebubble <- report_species$spp_name_informal[s]
     
     dat2plot <- cpue_raw %>%
       filter(survey == SRVY & species_code == sp & year == maxyr)
-    cpue_res <- 0.05 # 0.05 will take less time, 0.01 is best looking but takes ~10 mins per plot.
+    cpue_res <- 0.01 # 0.05 will take less time, 0.01 is best looking but takes ~10 mins per plot.
     
     fig <- plot_idw_xbyx(
       yrs = maxyr,
@@ -424,6 +426,7 @@ if (make_cpue_idw) {
     dev.off()
     
     list_idw_cpue[[s]] <- fig # save fig to list
+    cat("done with ",report_species$spp_name_informal[s],"/n")
   }
   
   names(list_idw_cpue) <- report_species$species_code
@@ -588,7 +591,7 @@ if (make_joy_division_length) {
     mutate(YEAR = as.integer(YEAR))
   
   # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
-  spps_lookup <- data.frame(
+  complex_lookup <- data.frame(
     polycode = c(
       c(10260, 10261, 10262, 10263),
       c(10110, 10112),
@@ -606,7 +609,10 @@ if (make_joy_division_length) {
       complex == "rebs" ~ "Rougheye/blackspotted rockfish"
     ))
   
-  
+  # If Gulf survey, don't do the combined plot for ATF/kam (there aren't enough kam)
+  if (SRVY == "GOA") {
+    complex_lookup <- filter(complex_lookup, complex != "kam_atf")
+  }
   
   # Loop thru species
   for (i in 1:nrow(report_species)) {
@@ -628,14 +634,14 @@ if (make_joy_division_length) {
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
     
-    ylocs <- report_pseudolengths %>%
-      filter(SPECIES_CODE == report_species$species_code[i]) %>%
-      group_by(YEAR, Sex) %>%
-      dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
-      mutate(yloc = Inf) %>%
-      ungroup() %>%
-      filter(YEAR == 2012) %>%
-      dplyr::select(-YEAR)
+    # ylocs <- report_pseudolengths %>%
+    #   filter(SPECIES_CODE == report_species$species_code[i]) %>%
+    #   group_by(YEAR, Sex) %>%
+    #   dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
+    #   mutate(yloc = Inf) %>%
+    #   ungroup() %>%
+    #   filter(YEAR == 2012) %>%
+    #   dplyr::select(-YEAR)
     
     write.csv(
       x = medlines_sp,
@@ -644,28 +650,32 @@ if (make_joy_division_length) {
     )
     
     len2plot2 <- len2plot %>%
-      left_join(sample_sizes %>% filter(SPECIES_CODE == report_species$species_code[i])) %>%
-      left_join(ylocs)
+      left_join(sample_sizes %>% 
+                  filter(SPECIES_CODE == report_species$species_code[i])) 
+    # %>%
+    #   left_join(ylocs)
     
     yrbreaks <- unique(len2plot2$YEAR)
+    lengthlimits <- range(len2plot2$LENGTH)
     
     testlabdf <- len2plot2 %>%
       distinct(YEAR,Sex,.keep_all = TRUE)
     
     joyplot <- len2plot2 %>%
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
-      ggridges::geom_density_ridges_gradient(
+      ggridges::geom_density_ridges_gradient( #
         bandwidth = 5,
         rel_min_height = 0,
         quantile_lines = T,
         quantile_fun = median,
         vline_color = "white",
         vline_size = 0.6,
-        vline_linetype = "dotted" # "A1"
+        vline_linetype = "dotted"
+        # "A1"
       ) +
-      scale_y_reverse(breaks = yrbreaks,expand = c(0,0)) +
+      scale_y_reverse(breaks = yrbreaks, expand = c(0,0)) +
+      scale_x_continuous(expand = c(0,0), limits = lengthlimits) + #
       scale_linetype_manual(values = c("solid", "dashed")) +
-      
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
@@ -674,7 +684,9 @@ if (make_joy_division_length) {
       geom_label(data = testlabdf, 
                  mapping =  aes(label = paste0("n = ", n), x = Inf), 
                  fill='white',label.size = NA,
-                 nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
+                 nudge_x=0, 
+                 nudge_y = 1, 
+                 hjust = "inward", size = 2
       ) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(
@@ -684,17 +696,18 @@ if (make_joy_division_length) {
         legend.position = "none",
         axis.title.x = element_text(hjust = 0.5),
         axis.title.y = element_text(hjust = 0.5),
-        panel.spacing.x = unit(4, "mm")
+        panel.spacing.x = unit(4, "mm"),
+        axis.line.x = element_line(lineend = "square")
       )
     
     
     # lookup table is referenced below
     
     # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
-    if (report_species$species_code[i] %in% spps_lookup$polycode) {
-      plot_title <- spps_lookup$complex_name[which(spps_lookup$polycode == report_species$species_code[i])]
-      complex_sp <- spps_lookup$complex[which(spps_lookup$polycode == report_species$species_code[i])]
-      polycode_vec <- spps_lookup$polycode[which(spps_lookup$complex == complex_sp)]
+    if (report_species$species_code[i] %in% complex_lookup$polycode) {
+      plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
+      complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
+      polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
       star_yr <- switch(complex_sp,
                         nrs_srs = 1996,
                         kam_atf = 1992,
@@ -757,7 +770,8 @@ if (make_joy_division_length) {
           legend.position = "none",
           axis.title.x = element_text(hjust = 0.5),
           axis.title.y = element_text(hjust = 0.5),
-          panel.spacing.x = unit(4, "mm")
+          panel.spacing.x = unit(4, "mm"),
+          axis.line.x = element_line(lineend = "square")
         )
       
       joyplot <- joyplot + joyplot2
@@ -862,6 +876,15 @@ if (make_temp_plot) {
 
 
 # Make those slides! --------------------------------------------------------
+figuredate <- "2023-09-08" # hard coded, **k it!
+tabledate <- "2023-09-08"
+
+cat(
+  "Using report data from", tabledate, "for tables. \n",
+  "Using report data from", figuredate, "for figures."
+)
+
+
 
 rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
   output_dir = dir_out_chapters,
