@@ -26,7 +26,7 @@ To collect standardized and fishery-independent time series of:
 -   Distribution
 -   Age and biological condition
 
-There are `r nrow(report_species)` managed species or species groups in the Gulf of Alaska that have stock assessments.
+There are `r nrow(report_species)` managed species or species groups in the Gulf of Alaska that are presented here.
 
 ------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ There are `r nrow(report_species)` managed species or species groups in the Gulf
 
 -   `r SRVY` data are finalized as of **September 11th**
 -   Age composition will be updated as Age & Growth finish otolith samples
--   CPUE tables will be available on FOSS in the future
+-   CPUE tables will be available on FOSS
 -   Collaboration with SMART group to improve data pull and processing steps
 
 ------------------------------------------------------------------------
@@ -64,13 +64,35 @@ p2
 
 ------------------------------------------------------------------------
 
+## Bottom temperature ($\textdegree$ C)
+
+```{r bottomtemp}
+list_temperature[[1]]
+```
+
+---
+
+## Surface temperature ($\textdegree$ C)
+
+```{r surfacetemp}
+list_temperature[[2]]
+```
+
+---
+
+## Biomass trends
+
+???
+
+Now we’ll take a look at biomass trends, length frequencies, and distribution & abundance for several species
+
+
+---
 
 ```{r, echo=FALSE, results='asis'}
-# If some plots aren't loaded into the environment, load them:
-if(!exists("list_idw_cpue")){load(paste0("output/",figuredate,"/","figures/", "list_idw_cpue.rdata" ))}
-
 # NEED TO ADD HERE: CHECKS IF THINGS ARE LOADED INTO ENV AND LOAD THEM IF NOT
 # report_species contains the list of species in the report 
+
 src <- list()
 
 for (i in 1:3) { # nrow(report_species)
