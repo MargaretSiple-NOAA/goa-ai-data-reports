@@ -1,4 +1,5 @@
 # 05_download_data_from_oracle
+# This script contains everything you need an Oracle connection to run for the reports. You should be able to connect, download local versions of all the stuff you need, and then disconnect (or whatever) and 
 
 # Setup folders for local files -------------------------------------------
 if (!file.exists("data/local_racebase")) dir.create("data/local_racebase", recursive = TRUE)
@@ -6,13 +7,15 @@ if (!file.exists("data/local_race_data")) dir.create("data/local_race_data", rec
 if (!file.exists("data/local_nodc")) dir.create("data/local_nodc", recursive = TRUE)
 if (!file.exists("data/local_ai")) dir.create("data/local_ai", recursive = TRUE)
 if (!file.exists("data/local_goa")) dir.create("data/local_goa", recursive = TRUE)
-
+if (!file.exists("data/local_ai_processed")) dir.create("data/local_ai_processed", recursive = TRUE)
+if (!file.exists("data/local_processed")) dir.create("data/local_goa_processed", recursive = TRUE)
 
 # Setup channel to connect to Oracle --------------------------------------
 
 source("R/setup_channel.R")
 
 # The setup_channel.R script sets up a channel using your Oracle username and pw.
+
 
 ################## DOWNLOAD TABLES##########################################
 # RACEBASE ----------------------------------------------------------------
@@ -150,10 +153,8 @@ if (SRVY == "AI") {
 }
 
 
-# All done!
-print("Finished downloading local versions of tables! Yay.")
+# Ex-vessel prices --------------------------------------------------------
 
-# One more - prices
 if (SRVY == "AI") {
   a <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
   write.csv(x = a, "./data/AI_planning_species_2020.csv", row.names = FALSE)
@@ -164,3 +165,39 @@ if (SRVY == "GOA") {
   # These are Sheet 1 from G:/GOA/Survey Planning/goa_planning_species_01052023.xlsx
   print("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
 }
+
+################## BUILD TABLES FROM ORACLE ####################################
+
+# Get species table
+if (SRVY == "AI") report_species <- read.csv(here::here("data", "ai_report_specieslist.csv"))
+if (SRVY == "GOA") report_species <- read.csv(here::here("data", "goa_report_specieslist.csv"))
+
+report_species <- report_species |>
+  dplyr::arrange(-species_code) |>
+  dplyr::filter(report == 1) 
+
+# Reorder based on specified spps order
+report_species <- report_species[order(report_species$reportorder), ]
+
+
+# Table 4's (built w SQL) -------------------------------------------------
+# This makes a rough draft of table 4
+make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
+  a <- RODBC::sqlQuery(channel, paste0(
+    "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey, "\' and b.YEAR = ", year,
+    " and b.SPECIES_CODE = ", species_code,
+    " and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
+  ))
+
+  dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
+
+  write.csv(x = a, file = dir_out, row.names = FALSE)
+}
+
+lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
+
+
+
+# All done!
+print("Finished downloading local versions of tables! Yay.")
+

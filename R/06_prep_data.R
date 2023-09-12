@@ -4,20 +4,6 @@
 # Note: if you've downloaded all the local versions of the tables, you should be able to run this script without internet access or anything. If it fails, make an issue!
 
 # RACEBASE tables ----------------------------------------------------
-# Get species table
-if (SRVY == "AI") report_species <- read.csv(here::here("data", "ai_report_specieslist.csv"))
-
-report_species <- report_species %>%
-  arrange(-species_code) %>%
-  filter(report == 1)
-
-# Reorder based on specified spps order
-report_species <- report_species[order(report_species$reportorder), ]
-
-pres_species <- report_species %>%
-  arrange(-species_code) %>%
-  filter(presentation == 1)
-
 # haul info (source: RACEBASE)
 haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
