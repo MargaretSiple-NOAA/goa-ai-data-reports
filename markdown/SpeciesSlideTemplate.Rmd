@@ -1,0 +1,31 @@
+-----
+
+## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
+
+```{r echo=FALSE}
+list_biomass_ts[[as.character({{species_code}})]]
+```
+
+----
+
+## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
+
+```{r echo=FALSE}
+if(exists("list_idw_cpue")){
+ list_idw_cpue[[as.character({{species_code}})]]
+}else{
+  # knitr::include_graphics(paste0("output/",figuredate,"/","figures/", as.character({{spp_name_informal}}),
+  #                                "_", maxyr,"_cpue_idw.png"))
+  print("eek, problem with IDW maps")
+}
+```
+
+----
+
+## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
+
+```{r echo=FALSE}
+list_joy_length[[as.character({{species_code}})]]
+```
+
+
