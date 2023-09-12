@@ -128,6 +128,53 @@ if (SRVY == "GOA") {
 }
 
 
+# Data values in slides ---------------------------------------------------
+# Length data from racebase
+L <- read.csv(here::here("data/local_racebase/length.csv"))
+L <- L %>%
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
+length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+
+# Number of lengths collected per area
+lengths_collected <- sum(length_maxyr$FREQUENCY) %>%
+  format(big.mark = ",")
+
+nfishlengths <- sum(length_maxyr %>%
+  filter(LENGTH_TYPE %in% c(1, 5, 11)) %>%
+  dplyr::select(FREQUENCY)) %>%
+  sum() %>%
+  format(big.mark = ",")
+
+  nfishlengths_reportspps <- length_maxyr %>%
+  filter(LENGTH_TYPE %in% c(1, 5, 11)) %>%
+  filter(SPECIES_CODE %in% report_species$species_code) %>%
+  dplyr::select(FREQUENCY) %>%
+  sum() %>%
+  format(big.mark = ",")
+
+nsquidlengths <- sum(length_maxyr %>%
+  filter(LENGTH_TYPE == 12) %>% dplyr::select(FREQUENCY)) %>%
+  format(big.mark = ",")
+
+# Number of otoliths sampled per area
+S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
+specimen_maxyr <- S %>%
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
+  filter(YEAR == maxyr & REGION == SRVY)
+
+otos_collected <- specimen_maxyr %>%
+  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+  dplyr::left_join(haul_maxyr, by = c(
+    "CRUISEJOIN", "HAULJOIN", "HAUL",
+    "REGION", "VESSEL", "YEAR"
+  )) %>%
+  dplyr::left_join(region_lu, by = c("STRATUM")) %>%
+  group_by(INPFC_AREA, `Depth range`) %>%
+  dplyr::summarize("Pairs of otoliths collected" = n()) %>%
+  ungroup() %>%
+  arrange(factor(INPFC_AREA, levels = district_order))
+
+
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
   ai_east <- akgfmaps::get_base_layers(

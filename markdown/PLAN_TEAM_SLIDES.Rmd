@@ -114,7 +114,7 @@ Now for a quick summary of our collections
 ## Species lengths collected
 
 :::notes
-For the 20 species included in this summary, we collected more than XXXX lengths and a total of around XXXXX lengths collected overall
+For the `r nrow(report_species)` species included in this summary, we collected more than `r nfishlengths_reportspps` lengths and a total of around `r nfishlengths` lengths collected overall
 One of the changes we instituted this summer to reduce ergonomic strain was based on a stock assessment - survey team collaboration who determined that we could reduce the number of lengths per species and the number of sexed lengths measured
 :::
 
