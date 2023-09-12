@@ -14,6 +14,8 @@ make_length_freqs <- FALSE
 make_joy_division_length <- TRUE
 # 6. CPUE IDW maps
 make_cpue_idw <- TRUE
+# 7. Plots of surface and bottom temperature
+make_temp_plot <- TRUE
 
 # Report settings -------------------------------------------------------------
 source("R/00_report_settings.R")
@@ -32,19 +34,13 @@ if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
   source("R/03_download_data_from_oracle.R")
 }
-#
-# # Get text from Google Drive ----------------------------------------------
-# y <- askYesNo(msg = "Do you want to re-download Google Drive files now?")
-# if (y) {
-#   source("R/04_get_gdrive_chapters.R")
-# }
 
 # Data --------------------------------------------------------------------
 # Get species table
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
 
-report_species <- filter(report_species, presentation==1)
+report_species <- filter(report_species, presentation == 1)
 
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv", header = TRUE)
@@ -100,23 +96,23 @@ nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
 
-# CPUE 
-if(SRVY=="AI"){
-  x <- read.csv(file = here::here("data", "local_ai","cpue.csv"), header = TRUE) 
+# CPUE
+if (SRVY == "AI") {
+  x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
 
   # This is already 0-filled
-cpue_raw <- x %>%
-  left_join(common_names) %>%
-  dplyr::select(-YEAR_ADDED) %>%
-  dplyr::left_join(haul) %>%
-  janitor::clean_names() %>% # need to add common name lookup
-  dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
-  janitor::clean_names()
+  cpue_raw <- x %>%
+    left_join(common_names) %>%
+    dplyr::select(-YEAR_ADDED) %>%
+    dplyr::left_join(haul) %>%
+    janitor::clean_names() %>% # need to add common name lookup
+    dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
+    janitor::clean_names()
 }
 
-if(SRVY=="GOA"){
-  x <- read.csv(file = here::here("data", "local_goa","cpue.csv"), header = TRUE) 
-  
+if (SRVY == "GOA") {
+  x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
+
   # This is already 0-filled
   cpue_raw <- x %>%
     left_join(common_names) %>%
@@ -142,10 +138,10 @@ if (SRVY == "AI") {
     select.region = "ai.west",
     set.crs = "auto"
   )
-  nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))  
+  nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
 }
 
-if(SRVY=="GOA"){
+if (SRVY == "GOA") {
   a <- read.csv("data/local_goa/goagrid.csv")
   nstrata <- length(unique(a$STRATUM))
 }
@@ -183,7 +179,9 @@ bubbletheme <- theme(
 
 
 linetheme <- theme_bw(base_size = 16)
-bartheme <- theme_classic2(base_size = 16) +
+
+
+bartheme <- theme_classic2(base_size = 12) +
   theme(strip.background = element_blank())
 
 # Palettes!
@@ -241,7 +239,8 @@ if (make_biomass_timeseries) {
     print(p1)
     dev.off()
   }
-   names(list_biomass_ts) <- as.character(report_species$species_code)
+  names(list_biomass_ts) <- as.character(report_species$species_code)
+  save(list_biomass_ts, file = paste0(dir_out_figures, "list_biomass_ts.rdata"))
 }
 
 
@@ -263,7 +262,7 @@ if (make_catch_comp) {
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
+    ylab(expression(paste("Total estimated \nbiomass (\u00D7 ", 10^6, " mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
@@ -393,14 +392,14 @@ if (make_cpue_bubbles) {
 
 if (make_cpue_idw) {
   list_idw_cpue <- list()
-  for(s in 10:nrow(report_species)){ #1:nrow(report_species)
+  for (s in 1:nrow(report_species)) { # 1:nrow(report_species)
     sp <- report_species$species_code[s]
     namebubble <- report_species$spp_name_informal[s]
-    
+
     dat2plot <- cpue_raw %>%
       filter(survey == SRVY & species_code == sp & year == maxyr)
-    cpue_res <- 0.01 # 0.05 will take less time, 0.01 is best looking but takes ~10 mins per plot.
-    
+    cpue_res <- 0.05 # 0.05 will take less time, 0.01 is best looking but takes ~10 mins per plot.
+
     fig <- plot_idw_xbyx(
       yrs = maxyr,
       dat = dat2plot,
@@ -408,7 +407,7 @@ if (make_cpue_idw) {
       lon = "start_longitude",
       var = "cpue_kgkm2",
       year = "year",
-      key.title = paste(report_species$spp_name_informal[s],"(kg/km2)"),
+      key.title = paste(report_species$spp_name_informal[s], "(kg/km2)"),
       grid = "extrapolation.grid",
       extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
       grid.cell = c(cpue_res, cpue_res),
@@ -416,30 +415,30 @@ if (make_cpue_idw) {
       region = "goa"
     ) +
       theme(axis.text = element_text(size = 11))
-    
+
     png(
       filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_cpue_idw.png"),
       width = 11, height = 10, units = "in", res = 200
     )
     print(fig)
-    
+
     dev.off()
-    
+
     list_idw_cpue[[s]] <- fig # save fig to list
-    cat("done with ",report_species$spp_name_informal[s],"/n")
+    cat("done with", report_species$spp_name_informal[s], "\n")
   }
-  
+
   names(list_idw_cpue) <- report_species$species_code
   save(list_idw_cpue, file = paste0(dir_out_figures, "list_idw_cpue.rdata"))
 }
 
-# ** 4b. Percent changes in biomass since last survey ----------------------------
+# 5. Percent changes in biomass since last survey ----------------------------
 
 head(biomass_total)
 
 compare_tab <- biomass_total %>%
   filter(YEAR %in% c(maxyr, compareyr) &
-           SPECIES_CODE %in% report_species$species_code) %>%
+    SPECIES_CODE %in% report_species$species_code) %>%
   dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
   dplyr::arrange(YEAR) %>%
   tidyr::pivot_wider(
@@ -463,115 +462,52 @@ write.csv(
 )
 
 
-# 5. Length frequency by area/depth stratum ------------------------------------
+# 6. Length frequency by area/depth stratum ------------------------------------
 # Uses only the most recent year (no comparison)
 
 if (make_length_freqs) {
-  
   # Load expanded lengths. If these aren't generated above, they can be made in the prep_data file.
-  lengths_expanded <- read.csv(paste0("data/",maxyr,"_",SRVY,"_report_pseudolengths.csv"))
-  dat2plot <- lengths_expanded %>%
-    filter(YEAR==maxyr)
-  
-  list_length_freq <- list()
+  # lengths_expanded <- read.csv(paste0("data/",maxyr,"_",SRVY,"_report_pseudolengths.csv"))
+  # dat2plot <- lengths_expanded %>%
+  #   filter(YEAR==maxyr)
+  #
+  # list_length_freq <- list()
+  #
+  # for(i in 1:nrow(report_species)){
+  #   dat_sp <- dat2plot %>%
+  #     dplyr::filter(SPECIES_CODE==report_species$species_code[i])
+  #  # p1 <-
+  # }
+  #
+  #
+  #   png(filename = paste0(
+  #     dir_out_figures, maxyr, "_",
+  #     report_species$spp_name_informal[i], "_lengthfreqhist.png"
+  #   ), width = 9, height = 9, units = "in", res = 200)
+  #   print(lfplot2)
+  #   dev.off()
+  #
+  #   list_length_freq[[i]] <- lfplot2
+  # }
+  # save(list_length_freq, file = paste0(dir_out_figures, "list_length_freq.rdata"))
+}
 
-  # length2 <- length %>%
-  #   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-  #   filter(REGION == SRVY) # YEAR == maxyr &
-  # 
-  # length3 <- length2 %>%
-  #   left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
-  #   dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
-  #   left_join(region_lu, by = "STRATUM") %>%
-  #   mutate(Sex = case_when(
-  #     SEX == 1 ~ "Male",
-  #     SEX == 2 ~ "Female",
-  #     SEX == 3 ~ "Unsexed"
-  #   )) %>%
-  #   dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
-  # 
-  # length4 <- length3 %>%
-  #   tidyr::uncount(FREQUENCY) %>%
-  #   mutate(INPFC_AREA = factor(INPFC_AREA, levels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "Southern Bering Sea"), labels = c("Western Aleutians", "Central Aleutians", "Eastern Aleutians", "S. Bering Sea"))) %>%
-  #   group_split(Sex) # turn freq column into rows for histogramming
-  # 
-  # lengthpal <- MetBrewer::met.brewer(palette_name =  "Nizami", n = 8)[c(2, 5, 7)] # order: red (females), turquoise (unsexed), blue (males)
-  # 
-  # samplesizes <- length3 %>%
-  #   group_by(INPFC_AREA, `Depth range`) %>%
-  #   count() %>%
-  #   ungroup()
-  # 
-  # # TODO : add sample numbers to plots.
-  # 
-  # for (i in 1:nrow(report_species)) {
-  #   dat2plot <- purrr::map(length4, ~ filter(.x, SPECIES_CODE == report_species$species_code[i]))
-  # 
-  #   lfplot <- ggplot() +
-  #     # MALES
-  #     geom_histogram(data = dat2plot[[2]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[3], alpha = 0.6) + #
-  #     # UNSEXED
-  #     geom_histogram(data = dat2plot[[3]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[2], alpha = 0.4) + #
-  #     # FEMALES
-  #     geom_histogram(data = dat2plot[[1]], aes(x = LENGTH / 10, fill = Sex), fill = lengthpal[1], alpha = 0.6) + #
-  #     facet_grid(`Depth range` ~ INPFC_AREA, scales = "free_y", labeller = labeller(groupwrap = label_wrap_gen(10))) +
-  #     labs(title = paste0(YEAR, " - ", report_species$spp_name_informal[i])) +
-  #     xlab("Length (cm)") +
-  #     ylab("Count in length subsample") +
-  #     theme_classic2(base_size = 10) +
-  #     theme(strip.background = element_blank()) +
-  #     theme(legend.position = "bottom")
-  # 
-  #   legplot <- ggplot(data = length3, aes(x = YEAR, fill = Sex)) +
-  #     geom_histogram(stat = "count", show.legend = TRUE, alpha = 0.6) +
-  #     scale_fill_manual("Sex", values = lengthpal[c(1, 3, 2)]) +
-  #     theme(legend.position = "right")
-  # 
-  # 
-  #   legend <- cowplot::get_legend(legplot)
-  # 
-  #   lfplot2 <- cowplot::ggdraw(cowplot::plot_grid(
-  #     cowplot::plot_grid(lfplot, ncol = 1, align = "v"),
-  #     cowplot::plot_grid(NULL, legend, ncol = 1),
-  #     rel_widths = c(1, 0.2)
-  #   ))
-  
-  for(i in 1:nrow(report_species)){
-    dat_sp <- dat2plot %>% 
-      dplyr::filter(SPECIES_CODE==report_species$species_code[i])
-   # p1 <- 
-  }
- 
-
-    png(filename = paste0(
-      dir_out_figures, maxyr, "_",
-      report_species$spp_name_informal[i], "_lengthfreqhist.png"
-    ), width = 9, height = 9, units = "in", res = 200)
-    print(lfplot2)
-    dev.off()
-
-    list_length_freq[[i]] <- lfplot2
-  }
-  #save(list_length_freq, file = paste0(dir_out_figures, "list_length_freq.rdata"))
-
-#}
-
-# 6. Joy division plots - Length frequency -----------------------------
+# 7. Joy division plots - Length frequency -----------------------------
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-  
+
   report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
-  
+
   L <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L %>%
     mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
   length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
-  
+
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
-  
+
   length3 <- length2 %>%
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
     dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
@@ -582,14 +518,14 @@ if (make_joy_division_length) {
       SEX == 3 ~ "Unsexed"
     )) %>%
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
-  
+
   sample_sizes <- length3 %>%
     filter(YEAR >= minyr) %>%
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) %>%
     dplyr::summarize(n = sum(FREQUENCY)) %>%
     ungroup() %>%
     mutate(YEAR = as.integer(YEAR))
-  
+
   # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
   complex_lookup <- data.frame(
     polycode = c(
@@ -608,32 +544,32 @@ if (make_joy_division_length) {
       complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
       complex == "rebs" ~ "Rougheye/blackspotted rockfish"
     ))
-  
+
   # If Gulf survey, don't do the combined plot for ATF/kam (there aren't enough kam)
   if (SRVY == "GOA") {
     complex_lookup <- filter(complex_lookup, complex != "kam_atf")
   }
-  
+
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
-    
+
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
-    
+
     # Only sexed lengths included, unless it's SSTH
     if (report_species$species_code[i] != 30020) {
       len2plot <- len2plot %>%
         filter(Sex != "Unsexed")
     }
-    
+
     # Save median lengths by year and sex for species i
     medlines_sp <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i]) %>%
       group_by(YEAR, Sex) %>%
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
-    
+
     # ylocs <- report_pseudolengths %>%
     #   filter(SPECIES_CODE == report_species$species_code[i]) %>%
     #   group_by(YEAR, Sex) %>%
@@ -642,25 +578,25 @@ if (make_joy_division_length) {
     #   ungroup() %>%
     #   filter(YEAR == 2012) %>%
     #   dplyr::select(-YEAR)
-    
+
     write.csv(
       x = medlines_sp,
       file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
       row.names = FALSE
     )
-    
+
     len2plot2 <- len2plot %>%
-      left_join(sample_sizes %>% 
-                  filter(SPECIES_CODE == report_species$species_code[i])) 
+      left_join(sample_sizes %>%
+        filter(SPECIES_CODE == report_species$species_code[i]))
     # %>%
     #   left_join(ylocs)
-    
+
     yrbreaks <- unique(len2plot2$YEAR)
     lengthlimits <- range(len2plot2$LENGTH)
-    
+
     testlabdf <- len2plot2 %>%
-      distinct(YEAR,Sex,.keep_all = TRUE)
-    
+      distinct(YEAR, Sex, .keep_all = TRUE)
+
     joyplot <- len2plot2 %>%
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       ggridges::geom_density_ridges_gradient( #
@@ -673,20 +609,21 @@ if (make_joy_division_length) {
         vline_linetype = "dotted"
         # "A1"
       ) +
-      scale_y_reverse(breaks = yrbreaks, expand = c(0,0)) +
-      scale_x_continuous(expand = c(0,0), limits = lengthlimits) + #
+      scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
+      scale_x_continuous(expand = c(0, 0), limits = lengthlimits) + #
       scale_linetype_manual(values = c("solid", "dashed")) +
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
       theme_ridges(font_size = 8) +
       scale_fill_gradientn(colours = joypal) +
-      geom_label(data = testlabdf, 
-                 mapping =  aes(label = paste0("n = ", n), x = Inf), 
-                 fill='white',label.size = NA,
-                 nudge_x=0, 
-                 nudge_y = 1, 
-                 hjust = "inward", size = 2
+      geom_label(
+        data = testlabdf,
+        mapping = aes(label = paste0("n = ", n), x = Inf),
+        fill = "white", label.size = NA,
+        nudge_x = 0,
+        nudge_y = 1,
+        hjust = "inward", size = 2
       ) +
       labs(title = paste(report_species$spp_name_informal[i])) +
       theme(
@@ -699,49 +636,51 @@ if (make_joy_division_length) {
         panel.spacing.x = unit(4, "mm"),
         axis.line.x = element_line(lineend = "square")
       )
-    
-    
+
+
     # lookup table is referenced below
-    
+
     # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
     if (report_species$species_code[i] %in% complex_lookup$polycode) {
       plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
       complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
       polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
       star_yr <- switch(complex_sp,
-                        nrs_srs = 1996,
-                        kam_atf = 1992,
-                        rebs = 2006
+        nrs_srs = 1996,
+        kam_atf = 1992,
+        rebs = 2006
       )
       yrlabels <- yrbreaks
       yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
       yrlabels <- as.character(yrlabels)
-      
+
       medlines_sp <- report_pseudolengths %>%
         filter(SPECIES_CODE %in% polycode_vec) %>%
         group_by(YEAR, Sex) %>%
         dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-        #dplyr::mutate(yloc = medlength * multiplier) %>%
+        # dplyr::mutate(yloc = medlength * multiplier) %>%
         ungroup()
-      
-      
+
+
       sample_sizes_comb <- sample_sizes %>%
         filter(SPECIES_CODE %in% polycode_vec) %>%
         group_by(YEAR, Sex) %>%
         dplyr::summarize(n = sum(n)) %>%
         ungroup()
-      
+
       len2plot_comb <- report_pseudolengths %>%
         filter(SPECIES_CODE %in% polycode_vec) %>%
         filter(Sex != "Unsexed") %>%
         left_join(sample_sizes_comb)
-      
+
       testlabdf_comb <- len2plot_comb %>%
-        distinct(YEAR,Sex,.keep_all = TRUE)
-      
+        distinct(YEAR, Sex, .keep_all = TRUE)
+
       joyplot2 <- len2plot_comb %>%
-        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR), 
-               fill = "grey") +
+        ggplot(
+          mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
+          fill = "grey"
+        ) +
         ggridges::geom_density_ridges_gradient(
           bandwidth = 5,
           rel_min_height = 0,
@@ -753,10 +692,11 @@ if (make_joy_division_length) {
         ) +
         scale_y_reverse(breaks = yrbreaks, labels = yrlabels) +
         scale_linetype_manual(values = c("solid", "dashed")) +
-        geom_label(data = testlabdf_comb, 
-                   mapping =  aes(label = paste0("n = ", n), x = Inf), 
-                   fill='white',label.size = NA,
-                   nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
+        geom_label(
+          data = testlabdf_comb,
+          mapping = aes(label = paste0("n = ", n), x = Inf),
+          fill = "white", label.size = NA,
+          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 2
         ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
@@ -773,34 +713,34 @@ if (make_joy_division_length) {
           panel.spacing.x = unit(4, "mm"),
           axis.line.x = element_line(lineend = "square")
         )
-      
+
       joyplot <- joyplot + joyplot2
     }
-    
-    
+
+
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
-    
+
     list_joy_length[[i]] <- joyplot
   }
   names(list_joy_length) <- report_species$species_code
-  
-  save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
+
+  save(list_joy_length, file = paste0(dir_out_figures, "llist_joy_length.rdata"))
   print("Done with joy division plots for length comp.")
 }
 
 
-# 7. Surface and bottom temperatures --------------------------------------
+# 8. Surface and bottom temperatures --------------------------------------
 if (make_temp_plot) {
   list_temperature <- list()
-  
+
   # haul info (source: RACEBASE)
   haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
-  
+
   sstdat <- haul %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
@@ -812,21 +752,21 @@ if (make_temp_plot) {
     ungroup() %>%
     as.data.frame() %>%
     mutate(YEAR = as.numeric(YEAR))
-  
+
   sst_summary <- sstdat %>%
     mutate(
       bottom_stz = bottom - mean(bottom, na.rm = T),
       surface_stz = surface - mean(surface, na.rm = T)
     ) %>%
     pivot_longer(cols = bottom:surface_stz)
-  
+
   plotdat <- haul %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
     filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
-  
-  
+
+
   bottom_temp_plot <- plotdat %>%
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval() +
@@ -836,7 +776,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
     theme_light()
-  
+
   surface_temp_plot <- plotdat %>%
     ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval() +
@@ -846,7 +786,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
     theme_light()
-  
+
   png(
     filename = paste0(
       dir_out_figures, maxyr, "_bottomtemp.png"
@@ -855,7 +795,7 @@ if (make_temp_plot) {
   )
   print(bottom_temp_plot)
   dev.off()
-  
+
   png(
     filename = paste0(
       dir_out_figures, maxyr, "_surfacetemp.png"
@@ -864,28 +804,47 @@ if (make_temp_plot) {
   )
   print(surface_temp_plot)
   dev.off()
-  
+
   list_temperature[[1]] <- bottom_temp_plot
   list_temperature[[2]] <- surface_temp_plot
-  
+
   names(list_temperature) <- c("bottomtemp", "surfacetemp")
-  
+
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with joy division plots for length comp.")
 }
 
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2023-09-08" # hard coded, **k it!
-tabledate <- "2023-09-08"
+figuredate <- "2023-09-11" # hard coded, **k it!
+tabledate <- "2023-09-11"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
   "Using report data from", figuredate, "for figures."
 )
 
+# If some plots aren't loaded into the environment, load them:
+# if(!exists("list_idw_cpue")){load(paste0("output/",figuredate,"/","figures/", "list_idw_cpue.rdata" ))}
+if (!exists("list_biomass_ts")) {
+  load(paste0("output/", figuredate, "/", "figures/", "list_biomass_ts.rdata"))
+}
+if (!exists("list_joy_length")) {
+  load(paste0("output/", figuredate, "/", "figures/", "list_joy_length.rdata"))
+}
+if (!exists("list_temperature")) {
+  load(paste0("output/", figuredate, "/", "figures/", "list_temperature.rdata"))
+}
 
 
+# Make sure you have the list of species
+if (!exists("report_species")) {
+  if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+  if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
+}
+
+
+# Render the Markdown file
 rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
   output_dir = dir_out_chapters,
   output_file = paste0("PLAN_TEAM_SLIDES.pptx")
