@@ -30,7 +30,9 @@ haul_maxyr <- haul %>%
 cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
 
 survnumber <- cruises %>%
-  filter(SURVEY_NAME == "Aleutian Islands Bottom Trawl Survey") %>%
+  filter(SURVEY_NAME == ifelse(SRVY=="AI",
+                               "Aleutian Islands Bottom Trawl Survey", 
+                               "Gulf of Alaska Bottom Trawl Survey")) %>%
   distinct(CRUISE) %>%
   nrow() %>%
   scales::ordinal()
@@ -84,17 +86,19 @@ cpue_raw <- x %>%
   janitor::clean_names()
 
 # Biomass by stratum (source: AI or GOA schema)
-biomass_stratum <- read.csv(here::here("data", "local_ai", "biomass_stratum.csv"))
+local_folder <- ifelse(SRVY=="AI","local_ai","local_goa")
+biomass_stratum <- read.csv(here::here("data", local_folder, "biomass_stratum.csv"))
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
 
 # Total biomass across survey area - currently reads from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
-biomass_total <- read.csv(here::here("data", "local_ai", "biomass_total.csv"))
+biomass_total <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
 
 # Station allocation table (source: AI or GOA schema)
-all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
+all_allocation <- read.csv(here::here("data", local_folder, "ai_station_allocation.csv"))
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
+
 region_lu <- dat %>%
   filter(SURVEY == SRVY) %>%
   dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, 
