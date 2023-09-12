@@ -2,9 +2,21 @@
 
 ## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
 
+:::::: {.columns}
+::: {.column}
 ```{r echo=FALSE}
 list_biomass_ts[[as.character({{species_code}})]]
 ```
+:::
+
+::: {.column}
+```{r echo=FALSE}
+list_joy_length[[as.character({{species_code}})]]
+```
+:::
+::::::
+
+
 
 ----
 
@@ -18,14 +30,6 @@ if(exists("list_idw_cpue")){
   #                                "_", maxyr,"_cpue_idw.png"))
   print("eek, problem with IDW maps")
 }
-```
-
-----
-
-## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
-
-```{r echo=FALSE}
-list_joy_length[[as.character({{species_code}})]]
 ```
 
 
