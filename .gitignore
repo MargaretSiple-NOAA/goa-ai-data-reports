@@ -32,6 +32,8 @@ vignettes/*.pdf
 /data/local_racebase
 /data/local_goa
 /data/local_ai
+/data/local_goa_processed
+/data/local_ai_processed
 /data/length_ADFG.csv
 /data/specimen_ADFG.csv
 /data/ai2022_missing_temp_data_filled.csv
