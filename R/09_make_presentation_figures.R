@@ -23,6 +23,10 @@ source("R/01_directories.R")
 SRVY <- "GOA"
 maxyr <- 2023 # Change this for the year!
 compareyr <- 2021
+dates_conducted <- "May 18th through August 6th, 2023" #EDIT 
+if(SRVY=="GOA"){
+all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
+}
 
 # Load packages and functions -------------------------------------------------
 source("R/02_load_packages.R")
@@ -181,7 +185,7 @@ bubbletheme <- theme(
 linetheme <- theme_bw(base_size = 16)
 
 
-bartheme <- theme_classic2(base_size = 12) +
+bartheme <- ggpubr::theme_classic2(base_size = 12) + 
   theme(strip.background = element_blank())
 
 # Palettes!
@@ -729,7 +733,7 @@ if (make_joy_division_length) {
   }
   names(list_joy_length) <- report_species$species_code
 
-  save(list_joy_length, file = paste0(dir_out_figures, "llist_joy_length.rdata"))
+  save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
   print("Done with joy division plots for length comp.")
 }
 
@@ -825,7 +829,8 @@ cat(
 )
 
 # If some plots aren't loaded into the environment, load them:
-# if(!exists("list_idw_cpue")){load(paste0("output/",figuredate,"/","figures/", "list_idw_cpue.rdata" ))}
+ if(!exists("list_idw_cpue")){load(paste0("output/",figuredate,"/","figures/", "list_idw_cpue.rdata" ))}
+
 if (!exists("list_biomass_ts")) {
   load(paste0("output/", figuredate, "/", "figures/", "list_biomass_ts.rdata"))
 }
