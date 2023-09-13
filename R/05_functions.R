@@ -776,31 +776,6 @@ plot_pa_xbyx <- function(spcode, # speciescode
       limits = reg_dat$plot.boundary$x,
       breaks = reg_dat$lon.breaks
     )
-  # +
-  #   ggsn::scalebar(
-  #     data = reg_dat$survey.grid,
-  #     location = "bottomleft",
-  #     dist = 100,
-  #     dist_unit = dist_unit,
-  #     transform = FALSE,
-  #     st.dist = dplyr::case_when(
-  #       row0 == 1 & length(yrs) > 4 ~ 0.07,
-  #       row0 == 1 ~ 0.04,
-  #       row0 == 2 ~ 0.06,
-  #       TRUE ~ 0.05
-  #     ),
-  #     height = ifelse(row0 == 1, 0.02,
-  #       ifelse(row0 == 2, 0.04, 0.04)
-  #     ),
-  #     st.bottom = FALSE,
-  #     st.size = dplyr::case_when(
-  #       row0 == 1 & length(yrs) > 4 ~ 1.5,
-  #       row0 == 1 & length(yrs) > 3 ~ 2,
-  #       row0 == 1 ~ 3,
-  #       row0 == 2 ~ 2.25,
-  #       TRUE ~ 2
-  #     )
-  #   )
 
   f4 <- f3 +
     guides(
