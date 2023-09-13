@@ -31,6 +31,8 @@ compareyr <- 2021
 dates_conducted <- "May 18th through August 6th, 2023" # EDIT
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
+  preassignedstationstatement <- "This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
+and this will become a permanent feature of our station allocations in the future."
 }
 
 # Load packages and functions -------------------------------------------------

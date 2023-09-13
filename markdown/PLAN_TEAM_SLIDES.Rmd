@@ -81,8 +81,8 @@ The purpose of our survey is to assess the status of groundfish and invertebrate
 Our survey is a stratified random design that allocates stations to strata based on abundance, variance, stratum area, and economic value
 The strata are primarily based on depth and extend down to 500m; strata are further divided by geography and statistical sampling areas
 We randomly allocate stations within this design framework from a pool of previously successfully trawled locations
-This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
-and this will become a permanent feature of our station allocations in the future
+
+`r preassignedstationstatement`
 :::
 
 ------------------------------------------------------------------------
