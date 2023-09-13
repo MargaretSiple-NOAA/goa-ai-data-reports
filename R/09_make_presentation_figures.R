@@ -91,6 +91,10 @@ haul2 <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
+haul_maxyr <- haul %>%
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
+  filter(REGION == SRVY & YEAR == maxyr)
+
 nstations <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
@@ -276,7 +280,7 @@ if (make_biomass_timeseries) {
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
-      labs(title = paste0(name_bms)) +
+      #labs(title = paste0(name_bms)) +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
     p1
@@ -324,9 +328,11 @@ if (make_catch_comp) {
   )
   print(p2)
   dev.off()
+  
+  save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
 
-# 3. CPUE bubble maps ----------------------------------------------------------
+# 3. CPUE bubble maps (Aleutians only) -----------------------------------------
 if (make_cpue_bubbles) {
   list_cpue_bubbles <- list()
   for (i in 1:nrow(report_species)) {
@@ -439,7 +445,7 @@ if (make_cpue_bubbles) {
 # 4. CPUE IDW plots -------------------------------------------------------
 
 # The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
-# THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
+# THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE or Jim Ianelli's bar plot thing.
 
 if (make_cpue_idw) {
   list_idw_cpue <- list()
@@ -458,7 +464,7 @@ if (make_cpue_idw) {
       lon = "start_longitude",
       var = "cpue_kgkm2",
       year = "year",
-      key.title = paste(report_species$spp_name_informal[s], "(kg/km2)"),
+      key.title = "CPUE (kg/km2)", #report_species$spp_name_informal[s]
       grid = "extrapolation.grid",
       extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
       grid.cell = c(cpue_res, cpue_res),
@@ -476,7 +482,7 @@ if (make_cpue_idw) {
     dev.off()
 
     list_idw_cpue[[s]] <- fig # save fig to list
-    cat("done with", report_species$spp_name_informal[s], "\n")
+    cat("done with", report_species$spp_name_informal[s]," (",s,"/", nrow(report_species),")\n")
   }
 
   names(list_idw_cpue) <- report_species$species_code
@@ -550,11 +556,12 @@ if (make_joy_division_length) {
 
   report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
 
+  # This is repeated; deal with it later
   L <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L %>%
     mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
   length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
-
+  
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -676,7 +683,6 @@ if (make_joy_division_length) {
         nudge_y = 1,
         hjust = "inward", size = 2
       ) +
-      labs(title = paste(report_species$spp_name_informal[i])) +
       theme(
         strip.background = element_blank(),
         panel.grid.major = element_blank(),
@@ -693,7 +699,13 @@ if (make_joy_division_length) {
 
     # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
     if (report_species$species_code[i] %in% complex_lookup$polycode) {
+      
+      # Add label to plot of the species so ppl can compare it with the combined one
+      joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
+      
+      # Make a title for the combined plot (single species + combined congeners)
       plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
+      
       complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
       polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
       star_yr <- switch(complex_sp,
@@ -741,7 +753,7 @@ if (make_joy_division_length) {
           vline_size = 0.6,
           vline_linetype = "dotted" # "A1"
         ) +
-        scale_y_reverse(breaks = yrbreaks, labels = yrlabels) +
+        scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
         scale_linetype_manual(values = c("solid", "dashed")) +
         geom_label(
           data = testlabdf_comb,
