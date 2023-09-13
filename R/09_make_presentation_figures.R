@@ -1,16 +1,21 @@
 # PRESENTATION FIGURES ----------------------------------------------------
-# Table of contents (toggle true/false to make some plots but not others):
-# 1. Biomass indices relative to LT mean
-starttime <- Sys.time() # timer in case you want to know how long everything takes
+# Project: Automated GOA-AI data reports and slides
+# Author: Megsie Siple
+# Notes: Use this to make pptx slides for the Joint Groundfish Plan Team presentation. This uses tables from Oracle (RACEBASE, AI and GOA schemas) and builds the figures and some summary stats.
+# ---
 
+
+# Table of contents (toggle true/false to make some plots but not others):
+
+# 1. Biomass indices relative to LT mean
 make_biomass_timeseries <- TRUE
-# 2. Catch composition plot
+# 2. Catch composition
 make_catch_comp <- TRUE
-# 3. CPUE bubble maps
+# 3. CPUE bubble map (Aleutians only)
 make_cpue_bubbles <- FALSE
-# 4. Length frequency plots by region and depth stratum
+# 4. Length frequency plots by region and depth stratum (probably deprecated - not annual increments)
 make_length_freqs <- FALSE
-# 5. Length frequency plots as joy division plots
+# 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
 make_joy_division_length <- TRUE
 # 6. CPUE IDW maps
 make_cpue_idw <- TRUE
@@ -23,9 +28,9 @@ source("R/01_directories.R")
 SRVY <- "GOA"
 maxyr <- 2023 # Change this for the year!
 compareyr <- 2021
-dates_conducted <- "May 18th through August 6th, 2023" #EDIT 
-if(SRVY=="GOA"){
-all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
+dates_conducted <- "May 18th through August 6th, 2023" # EDIT
+if (SRVY == "GOA") {
+  all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
 }
 
 # Load packages and functions -------------------------------------------------
@@ -39,7 +44,7 @@ if (x) {
   source("R/03_download_data_from_oracle.R")
 }
 
-# Data --------------------------------------------------------------------
+# General data -----------------------------------------------------------------
 # Get species table
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
@@ -57,12 +62,6 @@ region_lu <- dat %>%
 if (SRVY == "AI") {
   region_lu <- region_lu %>% filter(STRATUM >= 211 & STRATUM <= 794)
 }
-
-
-# Begin figure creation/report prep ---------------------------------------
-# Libraries ---------------------------------------------------------------
-library(akgfmaps)
-library(patchwork)
 
 # Data to plot ------------------------------------------------------------
 # All the species for which we want to make plots
@@ -132,14 +131,14 @@ if (SRVY == "GOA") {
 }
 
 
-# Data values in slides ---------------------------------------------------
-# Length data from racebase
+# Data for text ---------------------------------------------------
+# Length data from racebase:
 L <- read.csv(here::here("data/local_racebase/length.csv"))
 L <- L %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
 length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
-# Number of lengths collected per area
+# Lengths collected
 lengths_collected <- sum(length_maxyr$FREQUENCY) %>%
   format(big.mark = ",")
 
@@ -149,7 +148,7 @@ nfishlengths <- sum(length_maxyr %>%
   sum() %>%
   format(big.mark = ",")
 
-  nfishlengths_reportspps <- length_maxyr %>%
+nfishlengths_reportspps <- length_maxyr %>%
   filter(LENGTH_TYPE %in% c(1, 5, 11)) %>%
   filter(SPECIES_CODE %in% report_species$species_code) %>%
   dplyr::select(FREQUENCY) %>%
@@ -160,7 +159,7 @@ nsquidlengths <- sum(length_maxyr %>%
   filter(LENGTH_TYPE == 12) %>% dplyr::select(FREQUENCY)) %>%
   format(big.mark = ",")
 
-# Number of otoliths sampled per area
+# Otoliths collected
 S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
 specimen_maxyr <- S %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
@@ -178,6 +177,20 @@ otos_collected <- specimen_maxyr %>%
   ungroup() %>%
   arrange(factor(INPFC_AREA, levels = district_order))
 
+# Temperature info
+minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE > 0)],
+  na.rm = T
+)
+maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE,
+  na.rm = T
+)
+
+minsurfacetemp <- min(haul_maxyr$SURFACE_TEMPERATURE[which(haul_maxyr$SURFACE_TEMPERATURE > 0)],
+  na.rm = T
+)
+maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
+  na.rm = T
+)
 
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
@@ -236,7 +249,7 @@ bubbletheme <- theme(
 linetheme <- theme_bw(base_size = 16)
 
 
-bartheme <- ggpubr::theme_classic2(base_size = 12) + 
+bartheme <- ggpubr::theme_classic2(base_size = 12) +
   theme(strip.background = element_blank())
 
 # Palettes!
@@ -260,6 +273,9 @@ speciescolors <- lengthen_pal(
   x = 1:(nrow(report_species) + 1)
 )
 
+################### CHUNKS ##################################################
+# These can be run individually as needed. For example, if you want to modify all the biomass time series plots at once. If you know you already have satisfactory versions of all these plots, you don't need to re-run this code! The presentation knitting section will check if figs are available and will load them if not.
+# ~###########################################################################
 
 # 1. Biomass index relative to LT mean ---------------------------------------
 
@@ -280,7 +296,7 @@ if (make_biomass_timeseries) {
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
-      #labs(title = paste0(name_bms)) +
+      # labs(title = paste0(name_bms)) +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
     p1
@@ -328,7 +344,7 @@ if (make_catch_comp) {
   )
   print(p2)
   dev.off()
-  
+
   save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
 
@@ -464,7 +480,7 @@ if (make_cpue_idw) {
       lon = "start_longitude",
       var = "cpue_kgkm2",
       year = "year",
-      key.title = "CPUE (kg/km2)", #report_species$spp_name_informal[s]
+      key.title = "CPUE (kg/km2)", # report_species$spp_name_informal[s]
       grid = "extrapolation.grid",
       extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
       grid.cell = c(cpue_res, cpue_res),
@@ -482,7 +498,7 @@ if (make_cpue_idw) {
     dev.off()
 
     list_idw_cpue[[s]] <- fig # save fig to list
-    cat("done with", report_species$spp_name_informal[s]," (",s,"/", nrow(report_species),")\n")
+    cat("done with", report_species$spp_name_informal[s], " (", s, "/", nrow(report_species), ")\n")
   }
 
   names(list_idw_cpue) <- report_species$species_code
@@ -561,7 +577,7 @@ if (make_joy_division_length) {
   L <- L %>%
     mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
   length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
-  
+
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -699,13 +715,12 @@ if (make_joy_division_length) {
 
     # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
     if (report_species$species_code[i] %in% complex_lookup$polycode) {
-      
       # Add label to plot of the species so ppl can compare it with the combined one
       joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
-      
+
       # Make a title for the combined plot (single species + combined congeners)
       plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
-      
+
       complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
       polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
       star_yr <- switch(complex_sp,
@@ -878,6 +893,10 @@ if (make_temp_plot) {
 }
 
 
+# ################### SLIDE PRODUCTION #######################################
+# If you already made all the figures and you just need to knit them into a presentation, you can start here. Make sure you modify figuredate and tabledate to reflect the date you want to use figs and tables from.
+# ~###########################################################################
+
 # Make those slides! --------------------------------------------------------
 figuredate <- "2023-09-11" # hard coded, **k it!
 tabledate <- "2023-09-11"
@@ -888,7 +907,9 @@ cat(
 )
 
 # If some plots aren't loaded into the environment, load them:
- if(!exists("list_idw_cpue")){load(paste0("output/",figuredate,"/","figures/", "list_idw_cpue.rdata" ))}
+if (!exists("list_idw_cpue")) {
+  load(paste0("output/", figuredate, "/", "figures/", "list_idw_cpue.rdata"))
+}
 
 if (!exists("list_biomass_ts")) {
   load(paste0("output/", figuredate, "/", "figures/", "list_biomass_ts.rdata"))
@@ -909,6 +930,8 @@ if (!exists("report_species")) {
 
 
 # Render the Markdown file
+starttime <- Sys.time() # timer in case you want to know how long everything takes
+
 rmarkdown::render(paste0(dir_markdown, "/PLAN_TEAM_SLIDES.Rmd"),
   output_dir = dir_out_chapters,
   output_file = paste0("PLAN_TEAM_SLIDES.pptx")
