@@ -47,7 +47,7 @@ Cpt Dan Carney, ~9 yrs experience
 ::::::
 
 :::notes
-Both of our charter vessels have conducted the Aleutian survey several times and our skippers are highly experienced, hard bottom draggers
+Both of our charter vessels have conducted the `r SRVY` survey several times and our skippers are highly experienced, hard bottom draggers
 
 Their experience is crucial to the success of this survey.
 :::
@@ -63,7 +63,7 @@ To collect standardized and fishery-independent time series of:
 There are `r nrow(report_species)` managed species or species groups in the Gulf of Alaska that are presented here.
 
 :::notes
-The purpose of our survey is to assess the status of groundfish and invertebrate populations in the Gulf of Alaskaby describing their distribution and abundance along with the length and age composition of the populations
+The purpose of our survey is to assess the status of groundfish and invertebrate populations in the Gulf of Alaska by describing their distribution and abundance along with the length and age composition of the populations
 :::
 
 ------------------------------------------------------------------------
@@ -95,9 +95,13 @@ and this will become a permanent feature of our station allocations in the futur
 -   Collaboration with SMART group to improve data pull and processing steps
 
 :::notes
-For the first time, this year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in RACEBase in Oracle
-We achieved this through some important innovations (like in season data editing) and a lot of hard work by our Survey Team
-Our CPUE and Effort data will be made available on FOSS, the NMFS Fishery One Stop Shop for data and will also be available as previously on AKFIN
+For the first time, this year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in RACEBase. 
+We achieved this through some important innovations (like in-season data editing) and a lot of hard work by our Survey Team
+
+
+Our CPUE and Effort data will be made available on FOSS, the NMFS Fishery One Stop Shop for data and will also be available as previously on AKFIN.
+
+
 Links for both of these web-based servers are at the bottom of this slide
 :::
 
@@ -144,6 +148,10 @@ Highlighting a couple of the Special Projects - INSERT SPECIAL COLLECTIONS TO ME
 
 ![Flow of new automated data reports](../img/DataReportFlowChart.png)
 In progress at the AFSC GAP products [GitHub page](https://www.github.com/afsc-gap-products/goa-ai-data-reports/).
+
+:::notes
+Our data report (and the slides for this presentation) were made in RMarkdown using a new (as of last year) framework for reproducible reports. In this process, R code is used to draw from shared drives and our survey database, compile them, create figures and tables, and format them for presentation. 
+:::
 
 ------------------------------------------------------------------------
 
