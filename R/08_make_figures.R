@@ -23,20 +23,28 @@ make_temp_plot <- TRUE
 
 
 # Base maps ---------------------------------------------------------------
-ai_east <- akgfmaps::get_base_layers(
-  select.region = "ai.east",
-  set.crs = "auto"
-)
-ai_central <- akgfmaps::get_base_layers(
-  select.region = "ai.central",
-  set.crs = "auto"
-)
-ai_west <- akgfmaps::get_base_layers(
-  select.region = "ai.west",
-  set.crs = "auto"
-)
+if (SRVY == "AI") {
+  ai_east <- akgfmaps::get_base_layers(
+    select.region = "ai.east",
+    set.crs = "auto"
+  )
+  ai_central <- akgfmaps::get_base_layers(
+    select.region = "ai.central",
+    set.crs = "auto"
+  )
+  ai_west <- akgfmaps::get_base_layers(
+    select.region = "ai.west",
+    set.crs = "auto"
+  )
+  nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
+}
 
-nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
+if (SRVY == "GOA") {
+  # From Ned
+  a <- read.csv("data/goa_strata.csv")
+  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY=="GOA" )
+  nstrata <-  length(unique(a$STRATUM))
+}
 
 # Aesthetic settings ------------------------------------------------------
 
@@ -71,7 +79,7 @@ bubbletheme <- theme(
 
 linetheme <- theme_bw(base_size = 12)
 
-bartheme <- theme_classic2(base_size = 12) +
+bartheme <- ggpubr::theme_classic2(base_size = 12) +
   theme(strip.background = element_blank())
 
 # Palettes!

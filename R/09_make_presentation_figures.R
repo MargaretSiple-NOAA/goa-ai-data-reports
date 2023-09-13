@@ -210,8 +210,10 @@ if (SRVY == "AI") {
 }
 
 if (SRVY == "GOA") {
-  a <- read.csv("data/local_goa/goagrid.csv")
-  nstrata <- length(unique(a$STRATUM))
+  # From Ned
+  a <- read.csv("data/goa_strata.csv")
+  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY=="GOA" )
+  nstrata <-  length(unique(a$STRATUM))
 }
 
 
