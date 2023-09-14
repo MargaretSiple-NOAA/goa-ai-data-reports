@@ -509,6 +509,162 @@ if (make_cpue_idw) {
   save(list_idw_cpue, file = paste0(dir_out_figures, "list_idw_cpue.rdata"))
 }
 
+
+# 4b. CPUE Ianelli plots --------------------------------------------------
+# STart w something like the bubble plot
+# cpue_raw is loaded above
+reg_dat_goa <- akgfmaps::get_base_layers(
+  select.region = "goa",
+  set.crs = "EPSG:3338"
+)
+reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+  dplyr::mutate(
+    SRVY = "GOA",
+    color = scales::alpha(colour = "grey80", 0.7),
+    SURVEY = "Gulf of Alaska"
+  )
+
+
+ianelli_style <- FALSE
+reg_dat <- reg_dat_goa
+key.title <- ""
+yrs <- c(2023)
+row0 <- 2 # default
+legendtitle <- bquote(CPUE(kg / ha)) # inside fn
+
+if (make_cpue_bubbles) {
+  list_bubbles <- list()
+  for (i in 1:nrow(report_species)) {
+    thisyrshauldata <- cpue_raw |>
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+      dplyr::filter(year == maxyr & survey == SRVY & species_code == report_species$species_code[i]) |>
+      sf::st_as_sf(
+        coords = c("start_longitude", "start_latitude"),
+        crs = "EPSG:4326"
+      ) |>
+      sf::st_transform(crs = reg_dat_goa$crs)
+
+    f1 <- ggplot() +
+      geom_sf(
+        data = reg_dat$akland,
+        color = NA,
+        fill = "grey40"
+      ) +
+      geom_sf(
+        data = filter(thisyrshauldata, cpue_kgha > 0),
+        aes(size = cpue_kgha),
+        alpha = 0.5,
+        color = mako(n = 1, begin = .25, end = .75)
+      ) +
+      geom_sf( # x's for places where we sampled but didn't catch any of that species
+        data = dplyr::filter(thisyrshauldata, cpue_kgha == 0),
+        alpha = 0.5,
+        color = "#B8B8B8", # grey5
+        shape = 4,
+        size = 1
+      )
+
+    f2 <- f1 +
+      geom_sf(
+        data = reg_dat$survey.area,
+        mapping = aes(color = SURVEY),
+        fill = NA,
+        shape = NA,
+        size = .25,
+        show.legend = FALSE
+      ) +
+      scale_color_manual(
+        name = key.title,
+        values = reg_dat$survey.area$color,
+        breaks = rev(reg_dat$survey.area$SURVEY),
+        labels = rev((reg_dat$survey.area$SRVY))
+      )
+
+    f3 <- f2 +
+      ggplot2::scale_y_continuous(
+        name = "", # "Latitude",
+        limits = reg_dat$plot.boundary$y,
+        breaks = reg_dat$lat.breaks
+      ) +
+      ggplot2::scale_x_continuous(
+        name = "", # "Longitude",
+        limits = reg_dat$plot.boundary$x,
+        breaks = reg_dat$lon.breaks
+      )
+
+    f4 <- f3 +
+      guides(
+        size = guide_legend(
+          order = 1,
+          title.position = "top",
+          label.position = "top",
+          title.hjust = 0.5,
+          nrow = 1
+        )
+      )
+
+    if (ianelli_style) {
+      pos_cpue <- thisyrshauldata # filter(thisyrshauldata, cpue_kgkm2>0)
+
+      # get coordinates into dataframe from so you can use
+      coords_df <- data.frame(st_coordinates(pos_cpue[, "geometry"]))
+      pos_cpue2 <- bind_cols(pos_cpue, coords_df)
+      scale <- 20 # 10
+      width <- 9000
+
+      f5 <- f4 +
+        geom_rect(data = pos_cpue2, aes(xmin = X - width / 2, xmax = X + width / 2, ymin = Y, ymax = Y + cpue_kgkm2 * scale), fill = "#797EF6AA") # "#3E356BFF"
+      # f5
+    } else {
+      f5 <- f4
+    }
+
+    # Add theme and background and stuff
+    figure <- f5 +
+      theme( # set legend position and vertical arrangement
+        panel.background = element_rect(
+          fill = "white",
+          colour = NA
+        ),
+        panel.border = element_rect(
+          fill = NA,
+          colour = "grey20"
+        ),
+        axis.text = element_text(size = ifelse(length(yrs) > 4 & row0 == 1, 6, 8)),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        legend.background = element_rect(
+          colour = "transparent",
+          fill = "transparent"
+        ),
+        legend.key = element_rect(
+          colour = "transparent",
+          fill = "transparent"
+        ),
+        legend.position = "bottom",
+        legend.box = "horizontal"
+      ) +
+      labs(size = legendtitle)
+
+    png(
+      filename = paste0(dir_out_figures, report_species$spp_name_informal[i], "_", maxyr, "_cpue_bubble.png"),
+      width = 11, height = 10, units = "in", res = 200
+    )
+    print(figure)
+
+    dev.off()
+
+    list_bubbles[[i]] <- figure
+  } # /species loop
+  names(list_bubbles) <- report_species$species_code
+  save(list_bubbles, file = paste0(dir_out_figures, "list_bubbles.rdata"))
+}
+
+
+
+
+
 # 5. Percent changes in biomass since last survey ----------------------------
 
 head(biomass_total)
