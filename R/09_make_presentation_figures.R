@@ -12,7 +12,8 @@ make_biomass_timeseries <- TRUE
 # 2. Catch composition
 make_catch_comp <- TRUE
 # 3. CPUE bubble map (Aleutians only)
-make_cpue_bubbles <- FALSE
+make_cpue_bubbles <- TRUE
+make_cpue_ianelli <- FALSE
 # 4. Length frequency plots by region and depth stratum (probably deprecated - not annual increments)
 make_length_freqs <- FALSE
 # 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
