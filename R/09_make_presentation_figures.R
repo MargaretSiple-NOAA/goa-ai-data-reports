@@ -478,24 +478,13 @@ if (make_cpue_idw) {
 
 
 # 4b. CPUE Ianelli plots --------------------------------------------------
-# STart w something like the bubble plot
-# cpue_raw is loaded above
-# reg_dat_goa <- akgfmaps::get_base_layers(
-#   select.region = "goa",
-#   set.crs = "EPSG:3338"
-# )
-# reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
-#   dplyr::mutate(
-#     SRVY = "GOA",
-#     color = scales::alpha(colour = "grey80", 0.7),
-#     SURVEY = "Gulf of Alaska"
-#   )
-# 
+# Same base layer as the bubble plot but with bars for each haul
+
 
 if (make_cpue_ianelli) {
   
   ianelli_style <- TRUE
-  reg_dat <- reg_dat_goa
+ # reg_dat <- reg_dat_goa
   key.title <- ""
   yrs <- c(2023)
   row0 <- 2 # default

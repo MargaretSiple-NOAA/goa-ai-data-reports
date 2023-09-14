@@ -1096,6 +1096,13 @@ plot_idw_xbyx <- function(
   return(figure)
 }
 
+# LATER: Add an independent function to plot CPUE as bars instead of circles
+# plot_ianelli <- function(region, species, year){
+#   key.title <- ""
+#   yrs <- c(2023)
+#   row0 <- 2 # default
+#   legendtitle <- bquote(CPUE(kg / ha)) # inside fn
+# }
 
 # Tables -----------------------------------------------------------------------
 make_table_4 <- function(biomass_stratum = biomass_stratum,
