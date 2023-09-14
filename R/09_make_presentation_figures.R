@@ -214,8 +214,8 @@ if (SRVY == "AI") {
 if (SRVY == "GOA") {
   # From Ned
   a <- read.csv("data/goa_strata.csv")
-  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY=="GOA" )
-  nstrata <-  length(unique(a$STRATUM))
+  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
+  nstrata <- length(unique(a$STRATUM))
 }
 
 
@@ -352,113 +352,75 @@ if (make_catch_comp) {
   save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
 
-# 3. CPUE bubble maps (Aleutians only) -----------------------------------------
+# 3. CPUE bubble maps  ------------------------------------------------
 if (make_cpue_bubbles) {
   list_cpue_bubbles <- list()
+
+  if (SRVY == "GOA") {
+    reg_dat_goa <- akgfmaps::get_base_layers(
+      select.region = "goa",
+      set.crs = "EPSG:3338"
+    )
+    reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+      dplyr::mutate(
+        SRVY = "GOA",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Gulf of Alaska"
+      )
+    reg_data <- reg_dat_goa
+  }
+
+  if (SRVY == "AI") {
+    reg_dat_ai <- akgfmaps::get_base_layers(
+      select.region = "ai",
+      set.crs = "EPSG:3338"
+    )
+    reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
+      dplyr::mutate(
+        SRVY = "AI",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Aleutian Islands"
+      )
+    reg_data <- reg_data_ai
+  }
+
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
-    namebubble <- report_species$spp_name_informal[i]
 
-    # CPUE data
+    # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
     thisyrshauldata <- cpue_raw %>%
-      filter(year == maxyr & srvy == SRVY & species_code == spbubble) %>%
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
+      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
-        coords = c("longitude_dd", "latitude_dd"),
+        coords = c("start_longitude", "start_latitude"),
         crs = "EPSG:4326"
       ) %>%
-      st_transform(crs = ai_east$crs)
+      st_transform(crs = reg_data$crs)
 
-    # MAPS
-    p3a <- ggplot() +
-      geom_sf(
-        data = ai_east$survey.grid,
-        mapping = aes(
-          fill = factor(floor(STRATUM / 10)),
-          color = factor(floor(STRATUM / 10))
-        )
-      ) +
-      scale_fill_manual(values = stratumpal) +
-      scale_color_manual(values = stratumpal) +
-      geom_sf(data = ai_east$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_east$lon.breaks) +
-      scale_y_continuous(breaks = ai_east$lat.breaks) +
-      labs(subtitle = "Eastern Aleutians") +
-      bubbletheme
-
-    p3b <- ggplot() +
-      geom_sf(
-        data = ai_central$survey.grid,
-        mapping = aes(
-          fill = factor(floor(STRATUM / 10)),
-          color = factor(floor(STRATUM / 10))
-        )
-      ) +
-      scale_fill_manual(values = stratumpal) +
-      scale_color_manual(values = stratumpal) +
-      geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      coord_sf(
-        xlim = ai_central$plot.boundary$x,
-        ylim = ai_central$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_central$lon.breaks) +
-      scale_y_continuous(breaks = ai_central$lat.breaks) +
-      labs(subtitle = "Central Aleutians") +
-      bubbletheme
-
-    p3c <- ggplot() +
-      geom_sf(
-        data = ai_west$survey.grid,
-        mapping = aes(
-          fill = factor(floor(STRATUM / 10)),
-          color = factor(floor(STRATUM / 10))
-        )
-      ) +
-      scale_fill_manual(values = stratumpal) +
-      scale_color_manual(values = stratumpal) +
-      geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgha), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgha))) +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      coord_sf(
-        xlim = ai_west$plot.boundary$x,
-        ylim = ai_west$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_west$lon.breaks) +
-      scale_y_continuous(breaks = ai_west$lat.breaks) +
-      labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-      bubbletheme
-
-    toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
-    bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
-    final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
-
-    png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble_example.png"),
-      width = 10, height = 10, units = "in", res = 200
+    fig <- plot_pa_xbyx(
+      spcode = spbubble,
+      dat = thisyrshauldata,
+      yrs = c(2022),
+      key.title = "",
+      row0 = 2, reg_dat = reg_data, dist_unit = "nm", # nautical miles
+      col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
     )
-    print(final_obj)
 
+    fig <- fig + theme(axis.text = element_text(size = 12))
+
+    list_cpue_bubbles[[i]] <- fig
+
+    png(filename = paste0(
+      dir_out_figures, 
+      report_species$spp_name_informal[i], "_", SRVY,"_", maxyr, "_CPUE_bubble.png"
+    ), width = 8, height = 5.5, units = "in", res = 200)
+    print(fig)
     dev.off()
-
-    list_cpue_bubbles[[i]] <- final_obj # save fig to list
-  } # /end species loop
+  }
+  names(list_cpue_bubbles) <- report_species$species_code
+  save(list_cpue_bubbles, file = paste0(dir_out_figures, "list_cpue_bubbles.rdata"))
+  print("Done with bubble maps of CPUE.")
 }
-
 
 
 
@@ -525,15 +487,15 @@ reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
   )
 
 
-ianelli_style <- FALSE
+ianelli_style <- TRUE
 reg_dat <- reg_dat_goa
 key.title <- ""
 yrs <- c(2023)
 row0 <- 2 # default
 legendtitle <- bquote(CPUE(kg / ha)) # inside fn
 
-if (make_cpue_bubbles) {
-  list_bubbles <- list()
+if (make_cpue_ianelli) {
+  list_ianelli <- list()
   for (i in 1:nrow(report_species)) {
     thisyrshauldata <- cpue_raw |>
       dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
@@ -550,12 +512,12 @@ if (make_cpue_bubbles) {
         color = NA,
         fill = "grey40"
       ) +
-      geom_sf(
-        data = filter(thisyrshauldata, cpue_kgha > 0),
-        aes(size = cpue_kgha),
-        alpha = 0.5,
-        color = mako(n = 1, begin = .25, end = .75)
-      ) +
+      # geom_sf(
+      #   data = filter(thisyrshauldata, cpue_kgha > 0),
+      #   aes(size = cpue_kgha),
+      #   alpha = 0.5,
+      #   color = mako(n = 1, begin = .25, end = .75)
+      # ) +
       geom_sf( # x's for places where we sampled but didn't catch any of that species
         data = dplyr::filter(thisyrshauldata, cpue_kgha == 0),
         alpha = 0.5,
@@ -630,7 +592,7 @@ if (make_cpue_bubbles) {
           fill = NA,
           colour = "grey20"
         ),
-        axis.text = element_text(size = ifelse(length(yrs) > 4 & row0 == 1, 6, 8)),
+        axis.text = element_text(size = ifelse(length(yrs) > 4 & row0 == 1, 10, 12)),
         strip.background = element_blank(),
         strip.text = element_text(size = 12, face = "bold"),
         legend.text = element_text(size = 12),
@@ -648,17 +610,17 @@ if (make_cpue_bubbles) {
       labs(size = legendtitle)
 
     png(
-      filename = paste0(dir_out_figures, report_species$spp_name_informal[i], "_", maxyr, "_cpue_bubble.png"),
+      filename = paste0(dir_out_figures, report_species$spp_name_informal[i], "_", maxyr, "_cpue_ianelli.png"),
       width = 11, height = 10, units = "in", res = 200
     )
     print(figure)
 
     dev.off()
 
-    list_bubbles[[i]] <- figure
+    list_ianelli[[i]] <- figure
   } # /species loop
-  names(list_bubbles) <- report_species$species_code
-  save(list_bubbles, file = paste0(dir_out_figures, "list_bubbles.rdata"))
+  names(list_ianelli) <- report_species$species_code
+  save(list_ianelli, file = paste0(dir_out_figures, "list_ianelli.rdata"))
 }
 
 
