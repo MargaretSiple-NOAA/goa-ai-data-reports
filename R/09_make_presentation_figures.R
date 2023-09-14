@@ -300,7 +300,6 @@ if (make_biomass_timeseries) {
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
-      # labs(title = paste0(name_bms)) +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
     p1
@@ -333,11 +332,11 @@ if (make_catch_comp) {
   )
 
   p2 <- biomass_total_filtered %>%
-    ggplot(aes(fill = spp_name_informal, y = TOTAL_BIOMASS / 10e6, x = YEAR)) +
+    ggplot(aes(fill = spp_name_informal, y = TOTAL_BIOMASS / 1e6, x = YEAR)) +
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated \nbiomass (\u00D7 ", 10^6, " mt)"))) +
+    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6," mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
@@ -1037,6 +1036,10 @@ if (!exists("list_joy_length")) {
 }
 if (!exists("list_temperature")) {
   load(paste0("output/", figuredate, "/", "figures/", "list_temperature.rdata"))
+}
+
+if (!exists("p2")) {
+  load(paste0("output/", figuredate, "/", "figures/", "catch_comp.rdata"))
 }
 
 
