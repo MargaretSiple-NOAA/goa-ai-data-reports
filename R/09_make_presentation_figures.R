@@ -353,9 +353,9 @@ if (make_catch_comp) {
 }
 
 # 3. CPUE bubble maps  ------------------------------------------------
-if (make_cpue_bubbles) {
-  list_cpue_bubbles <- list()
+# Load map stuff if making bubble maps or Ianelli maps
 
+if(make_cpue_bubbles | make_cpue_ianelli){
   if (SRVY == "GOA") {
     reg_dat_goa <- akgfmaps::get_base_layers(
       select.region = "goa",
@@ -369,7 +369,7 @@ if (make_cpue_bubbles) {
       )
     reg_data <- reg_dat_goa
   }
-
+  
   if (SRVY == "AI") {
     reg_dat_ai <- akgfmaps::get_base_layers(
       select.region = "ai",
@@ -383,6 +383,11 @@ if (make_cpue_bubbles) {
       )
     reg_data <- reg_data_ai
   }
+}
+
+
+if (make_cpue_bubbles) {
+  list_cpue_bubbles <- list()
 
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
@@ -475,26 +480,28 @@ if (make_cpue_idw) {
 # 4b. CPUE Ianelli plots --------------------------------------------------
 # STart w something like the bubble plot
 # cpue_raw is loaded above
-reg_dat_goa <- akgfmaps::get_base_layers(
-  select.region = "goa",
-  set.crs = "EPSG:3338"
-)
-reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
-  dplyr::mutate(
-    SRVY = "GOA",
-    color = scales::alpha(colour = "grey80", 0.7),
-    SURVEY = "Gulf of Alaska"
-  )
-
-
-ianelli_style <- TRUE
-reg_dat <- reg_dat_goa
-key.title <- ""
-yrs <- c(2023)
-row0 <- 2 # default
-legendtitle <- bquote(CPUE(kg / ha)) # inside fn
+# reg_dat_goa <- akgfmaps::get_base_layers(
+#   select.region = "goa",
+#   set.crs = "EPSG:3338"
+# )
+# reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+#   dplyr::mutate(
+#     SRVY = "GOA",
+#     color = scales::alpha(colour = "grey80", 0.7),
+#     SURVEY = "Gulf of Alaska"
+#   )
+# 
 
 if (make_cpue_ianelli) {
+  
+  ianelli_style <- TRUE
+  reg_dat <- reg_dat_goa
+  key.title <- ""
+  yrs <- c(2023)
+  row0 <- 2 # default
+  legendtitle <- bquote(CPUE(kg / ha)) # inside fn
+  
+  
   list_ianelli <- list()
   for (i in 1:nrow(report_species)) {
     thisyrshauldata <- cpue_raw |>
