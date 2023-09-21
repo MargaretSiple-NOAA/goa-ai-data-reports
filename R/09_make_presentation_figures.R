@@ -22,6 +22,8 @@ make_joy_division_length <- TRUE
 make_cpue_idw <- TRUE
 # 7. Plots of surface and bottom temperature
 make_temp_plot <- TRUE
+# make a special combined biomass plot for rebs
+make_special_rebs <- TRUE
 
 # Report settings -------------------------------------------------------------
 source("R/00_report_settings.R")
@@ -52,7 +54,7 @@ if (x) {
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
 
-report_species <- filter(report_species, presentation == 1)
+report_species <- dplyr::filter(report_species, presentation == 1)
 
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv", header = TRUE)
@@ -132,7 +134,6 @@ if (SRVY == "GOA") {
     dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
     janitor::clean_names()
 }
-
 
 # Data for text ---------------------------------------------------
 # Length data from racebase:
@@ -318,6 +319,63 @@ if (make_biomass_timeseries) {
   save(list_biomass_ts, file = paste0(dir_out_figures, "list_biomass_ts.rdata"))
 }
 
+# 1b. REBS biomass -----------------------------------------------------------------
+# Use gapindex package with GROUP variable to plot biomass for the REBS complex through time. These species are assessed as a complex so Jane and other assessment folks want to see Plan Team plots for the complex together. The length frequencies already do this.
+if (make_special_rebs) {
+  # Special area for dealing with REBS
+  # library(tidyverse)
+  library(gapindex)
+
+  ## Connect to Oracle
+  sql_channel <- gapindex::get_connected()
+
+  yrs_to_pull <- c(
+    2003L, 1993L, 2015L, 1996L, 1999L, 2001L, 1990L, 2023L, 1984L,
+    2021L, 2017L, 1987L, 2011L, 2013L, 2019L, 2009L, 2005L, 2007L
+  )
+
+  # 30051 (rougheye), 30052 (blackspotted), 30050 (combo)
+
+  ## Pull data.
+  rebs_data <- gapindex::get_data(
+    year_set = yrs_to_pull,
+    survey_set = "GOA",
+    spp_codes = data.frame(
+      SPECIES_CODE = c(30050, 30051, 30052),
+      GROUP = 30050 #  GROUP has to be numeric
+    ), 
+    haul_type = 3,
+    abundance_haul = "Y",
+    pull_lengths = TRUE,
+    sql_channel = sql_channel
+  )
+
+  cpue_table <- gapindex::calc_cpue(racebase_tables = rebs_data)
+
+  biomass_stratum <- gapindex::calc_biomass_stratum(racebase_tables = rebs_data, 
+                                                    cpue = cpue_table) 
+  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
+  biomass_subarea <- gapindex::calc_biomass_subarea(racebase_tables = rebs_data, 
+                                                    biomass_strata = biomass_stratum)
+
+  rebs_biomass_df <- biomass_subarea |>
+    dplyr::filter(AREA_ID == 99903) # total B only
+  head(rebs_biomass_df)
+
+  lta <- mean(rebs_biomass_df$BIOMASS_MT)
+
+  p1 <- rebs_biomass_df |>
+    ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
+    geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
+    geom_point(color = linecolor, size = 2) +
+    geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), 
+                  color = linecolor, linewidth = 0.9, width = 0.7) +
+    ylab("Estimated total biomass (mt)") +
+    xlab("Year") +
+    scale_y_continuous(labels = scales::label_comma()) +
+    linetheme
+  p1
+}
 
 # 2. Catch composition -------------------------------------------------------
 if (make_catch_comp) {
