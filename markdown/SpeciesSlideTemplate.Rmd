@@ -5,7 +5,12 @@
 :::::: {.columns}
 ::: {.column}
 ```{r echo=FALSE}
-list_biomass_ts[[as.character({{species_code}})]]
+b <- list_biomass_ts[[as.character({{ species_code }})]]
+if ({{ species_code }} %in% c(30050, 30051, 30052)) {
+  print(b + rebs_biomass)
+} else {
+  print(b)
+}
 ```
 :::
 

@@ -342,7 +342,7 @@ if (make_special_rebs) {
     survey_set = "GOA",
     spp_codes = data.frame(
       SPECIES_CODE = c(30050, 30051, 30052),
-      GROUP = 30050 #  GROUP has to be numeric
+      GROUP = "REBS" #  GROUP has to be numeric
     ), 
     haul_type = 3,
     abundance_haul = "Y",
@@ -359,22 +359,37 @@ if (make_special_rebs) {
                                                     biomass_strata = biomass_stratum)
 
   rebs_biomass_df <- biomass_subarea |>
-    dplyr::filter(AREA_ID == 99903) # total B only
+    dplyr::filter(AREA_ID == 99903) |> # total B only
+    mutate(MIN_BIOMASS = BIOMASS_MT- 2*(sqrt(BIOMASS_VAR)),
+           MAX_BIOMASS = BIOMASS_MT+ 2*(sqrt(BIOMASS_VAR))) |>
+    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS<0,0,MIN_BIOMASS))
   head(rebs_biomass_df)
 
   lta <- mean(rebs_biomass_df$BIOMASS_MT)
+  
 
-  p1 <- rebs_biomass_df |>
+  rebs_biomass <- rebs_biomass_df |>
     ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
-    geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
-    geom_point(color = linecolor, size = 2) +
+    geom_hline(yintercept = lta, color = "#505050", lwd = 0.7, lty = 2) +
+    geom_point(color = "darkgrey", size = 2) +
     geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), 
-                  color = linecolor, linewidth = 0.9, width = 0.7) +
+                  color = "darkgrey", linewidth = 0.9, width = 0.7) +
     ylab("Estimated total biomass (mt)") +
     xlab("Year") +
     scale_y_continuous(labels = scales::label_comma()) +
-    linetheme
-  p1
+    linetheme +
+    annotate("text", x=1995, y=120000, label = "* Uses 2SD approximation for confidence intervals") 
+
+  rebs_biomass
+  
+  png(
+    filename = paste0(dir_out_figures, "Rougheye_blackspotted_complex", "_", SRVY, "_", maxyr, "_biomass_ts.png"),
+    width = 7, height = 7, units = "in", res = 150
+  )
+  print(rebs_biomass)
+  dev.off()
+  
+  save(rebs_biomass, file = paste0(dir_out_figures, "rebs_biomass_ts.rdata"))
 }
 
 # 2. Catch composition -------------------------------------------------------
@@ -1096,9 +1111,11 @@ if (!exists("list_joy_length")) {
 if (!exists("list_temperature")) {
   load(paste0("output/", figuredate, "/", "figures/", "list_temperature.rdata"))
 }
-
 if (!exists("p2")) {
   load(paste0("output/", figuredate, "/", "figures/", "catch_comp.rdata"))
+}
+if (!exists("rebs_biomass")) {
+  load(paste0("output/", figuredate, "/", "figures/", "rebs_biomass.rdata"))
 }
 
 
