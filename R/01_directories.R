@@ -18,10 +18,19 @@ for (i in 1:length(dirs)) {
 dir.create(paste0(dir_in,"data/"))
 
 # Folder with tables produced by other people -----------------------------
-dir_in_premadetabs <- "G:/ALEUTIAN/AI 2022/DataReport/"
-
+if (SRVY == "AI") {
+  dir_in_premadetabs <- "G:/ALEUTIAN/AI 2022/DataReport/"
+}
+if (SRVY == "GOA") {
+  dir_in_premadetabs <- "G:/GOA/GOA 2023/DataReport/"
+}
 # Folder containing appendices --------------------------------------------
-appendix_dir <- "G:/ALEUTIAN/AI 2022/DataReport/Appendices/"
+if (SRVY == "AI") {
+  appendix_dir <- "G:/ALEUTIAN/AI 2022/DataReport/Appendices/"
+}
+if (SRVY == "GOA") {
+  appendix_dir <- "G:/GOA/GOA 2023/DataReport/Appendices/"
+}
 
 # Output folder -----------------------------------------------------------
 dir.output <- paste0(dir_in, "output/")
