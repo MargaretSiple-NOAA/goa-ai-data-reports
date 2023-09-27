@@ -323,14 +323,14 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
 # Length comps from size comp table ---------------------------------------
 # Expand length table to make freqs -- these should be used for joy division and other length hist plots
 
-if(SRVY=="AI"){
-sizecomp <- read.csv("data/local_ai/sizecomp_total.csv",header = TRUE) %>% 
-  filter(SURVEY==SRVY & YEAR>=minyr)
+if (SRVY == "AI") {
+  sizecomp <- read.csv("data/local_ai/sizecomp_total.csv", header = TRUE) %>%
+    filter(SURVEY == SRVY & YEAR >= minyr)
 }
 
-if(SRVY=="GOA"){
-  sizecomp <- read.csv("data/local_goa/sizecomp_total.csv",header = TRUE) %>% 
-    filter(SURVEY==SRVY & YEAR>=minyr)
+if (SRVY == "GOA") {
+  sizecomp <- read.csv("data/local_goa/sizecomp_total.csv", header = TRUE) %>%
+    filter(SURVEY == SRVY & YEAR >= minyr)
 }
 
 # Janky but I am in a rush so will have to deal.

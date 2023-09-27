@@ -7,13 +7,7 @@ source("R/00_report_settings.R")
 # Functions, packages, directories ---------------------------------------------
 source("R/01_directories.R")
 source("R/02_load_packages.R")
-
-# Get data from RACEBASE and AI/GOA schemas ------------------------------------
-# x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
-x <- FALSE
-if (x) {
-  source("R/03_download_data_from_oracle.R")
-}
+source("R/03_functions.R") # May not need all these functions.
 
 # Get text from Google Drive ----------------------------------------------
 # y <- askYesNo(msg = "Do you want to re-download Google Drive files now?",default = FALSE)
@@ -22,8 +16,14 @@ if (y) {
   source("R/04_get_gdrive_chapters.R")
 }
 
+# Get data from RACEBASE and AI/GOA schemas ------------------------------------
+# x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
+x <- FALSE
+if (x) {
+  source("R/05_download_data_from_oracle.R")
+}
+
 # Functions and data prep -------------------------------------------------
-source("R/05_functions.R") # May not need all these functions.
 source("R/06_prep_data.R") # Make all the tables and stuff needed for report and pres.
 source("R/06a_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
 
