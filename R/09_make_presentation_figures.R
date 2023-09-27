@@ -28,6 +28,7 @@ make_special_rebs <- TRUE
 # Report settings -------------------------------------------------------------
 source("R/00_report_settings.R")
 source("R/01_directories.R")
+
 SRVY <- "GOA"
 maxyr <- 2023 # Change this for the year!
 compareyr <- 2021
@@ -766,9 +767,11 @@ if (make_length_freqs) {
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-
+  if(file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))){
   report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
-
+  }else{
+    cat("Pseudolength file not found. Sourcing data prep file... \n")
+    source("R/06_prep_data.R")}
   # This is repeated; deal with it later
   L <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L %>%

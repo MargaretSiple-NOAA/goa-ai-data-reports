@@ -174,18 +174,6 @@ if (SRVY == "GOA") {
 
 ################## BUILD TABLES FROM ORACLE ####################################
 
-# Get species table
-if (SRVY == "AI") report_species <- read.csv(here::here("data", "ai_report_specieslist.csv"))
-if (SRVY == "GOA") report_species <- read.csv(here::here("data", "goa_report_specieslist.csv"))
-
-report_species <- report_species |>
-  dplyr::arrange(-species_code) |>
-  dplyr::filter(report == 1) 
-
-# Reorder based on specified spps order
-report_species <- report_species[order(report_species$reportorder), ]
-
-
 # Table 4's (built w SQL) -------------------------------------------------
 # make_tab4 function comes from the 03_functions.R file
 lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)

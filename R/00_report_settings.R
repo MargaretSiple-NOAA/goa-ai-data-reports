@@ -73,3 +73,16 @@ report_yr <- maxyr
 vessel1_spec_chunk <- paste("The Alaska Provider is 53.6 m in overall length (LOA) and is powered by two main engines with 2,200 continuous horsepower (HP). It is equipped with two forward and one stern net reel, but only the aft reel was used during the AI", maxyr, "bottom trawl survey.")
 
 vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine. It is equipped with two forward net reels, both of which were used during the AI", maxyr, "bottom trawl survey.")
+
+
+# Species to include ------------------------------------------------------
+# Get species table
+if (SRVY == "AI") report_species <- read.csv(here::here("data", "ai_report_specieslist.csv"))
+if (SRVY == "GOA") report_species <- read.csv(here::here("data", "goa_report_specieslist.csv"))
+
+report_species <- report_species |>
+  dplyr::arrange(-species_code) |>
+  dplyr::filter(report == 1) 
+
+# Reorder based on specified spps order
+report_species <- report_species[order(report_species$reportorder), ]
