@@ -204,7 +204,7 @@ Now we’ll take a look at biomass trends, length frequencies, and distribution 
 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
@@ -224,3 +224,25 @@ cat(res, sep = "\n")
 - Growing collaboration with Stock Assessment Team
 - INSERT POINT ABOUT WATER TEMPS
 - INSERT POINT ABOUT BIOMASS
+
+## Where to find the data
+
+:::: {.columns}
+
+::: {.column}
+### the GAP PRODUCTS schema
+```{r echo=FALSE, results='asis'}
+code <- qrcode::qr_code("https://afsc-gap-products.github.io/gap_products/")
+plot(code)
+```
+:::
+
+:::{.column}
+### the {gapindex} package
+```{r echo=FALSE, results='asis'}
+code <- qrcode::qr_code("https://github.com/afsc-gap-products/gapindex")
+plot(code)
+```
+:::
+
+::::
