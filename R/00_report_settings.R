@@ -18,13 +18,27 @@ figuredate <- "2023-08-30"
 reportvaluesdate <- "2023-08-30"
 
 # Survey information ------------------------------------------------------
-#survnumber <- "twentieth" 
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
-dates_conducted <- "June 6th through August 14th, 2022" # Change this for the year!
+
 SRVY <- "AI" # Options: "GOA", "AI"
-nstationsassigned <- 420
+
+if(SRVY=="AI"){
+  dates_conducted <- "June 6th through August 14th, 2022" # Change this for the year!
+}else{
+  dates_conducted <- "May 18th through August 6th, 2023" 
+}
+
+if (SRVY == "GOA") {
+  #all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
+  preassignedstationstatement <- "This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
+and this will become a permanent feature of our station allocations in the future."
+}else{
+  #all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
+  preassignedstationstatement <- ""
+}
 
 YEAR <- maxyr
+
 vessel1 <- "Ocean Explorer"
 vessel2 <- "Alaska Provider"
 captain1 <- "Dan Carney"
