@@ -288,6 +288,41 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs,"Table 2/","Table 2_A
 }
 
 
+make_tab3 <- function(species_code = NULL, survey = NULL, year = NULL){
+  if(survey=="AI"){
+    a <- RODBC::sqlQuery(channel, paste0())
+  }
+  
+  
+  dir_out <- paste0("data/local_", tolower(survey), "_processed/table3_", species_code, "_", survey, "_", year, ".csv")
+  
+  write.csv(x = a, file = dir_out, row.names = FALSE)
+}
+
+#' Make a rough draft of Table 4
+#'
+#' @param species_code species code (numeric)
+#' @param survey survey code, "AI" or "GOA" (character)
+#' @param year survey year (numeric)
+#'
+#' @return writes a csv file for each species for table 4. 
+#' @export
+#'
+#' @examples
+#' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
+#'
+make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
+  a <- RODBC::sqlQuery(channel, paste0(
+    "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey, "\' and b.YEAR = ", year,
+    " and b.SPECIES_CODE = ", species_code,
+    " and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
+  ))
+  
+  dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
+  
+  write.csv(x = a, file = dir_out, row.names = FALSE)
+}
+
 #' Create CPUE table formatted like the one in the AI 2018 report
 #'
 #' @param top_CPUE A dataframe created by either prep_tab2() or make_top_cpue() (still valid but minorly different from the historical cpue tables to we revert to the former in order to be consistent)
