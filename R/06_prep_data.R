@@ -94,7 +94,12 @@ biomass_stratum <- read.csv(here::here("data", local_folder, "biomass_stratum.cs
 biomass_total <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
 
 # Station allocation table (source: AI or GOA schema)
-all_allocation <- read.csv(here::here("data", local_folder, "ai_station_allocation.csv"))
+if (SRVY == "GOA") {
+  all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
+}else{
+  all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
+}
+
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
