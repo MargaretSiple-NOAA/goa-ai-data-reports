@@ -5,7 +5,7 @@
 source("R/00_report_settings.R")
 source("R/01_directories.R")
 source("R/02_load_packages.R")
-source("R/05_functions.R")
+source("R/03_functions.R")
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
