@@ -193,7 +193,7 @@ report_species <- report_species[order(report_species$reportorder), ]
 #' @param survey survey code, "AI" or "GOA" (character)
 #' @param year survey year (numeric)
 #'
-#' @return writes a csv file for all the 
+#' @return writes a csv file for each species for table 4. 
 #' @export
 #'
 #' @examples
