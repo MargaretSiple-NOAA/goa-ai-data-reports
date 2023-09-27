@@ -343,7 +343,7 @@ if (make_special_rebs) {
     spp_codes = data.frame(
       SPECIES_CODE = c(30050, 30051, 30052),
       GROUP = "REBS" #  GROUP has to be numeric
-    ), 
+    ),
     haul_type = 3,
     abundance_haul = "Y",
     pull_lengths = TRUE,
@@ -352,43 +352,50 @@ if (make_special_rebs) {
 
   cpue_table <- gapindex::calc_cpue(racebase_tables = rebs_data)
 
-  biomass_stratum <- gapindex::calc_biomass_stratum(racebase_tables = rebs_data, 
-                                                    cpue = cpue_table) 
+  biomass_stratum <- gapindex::calc_biomass_stratum(
+    racebase_tables = rebs_data,
+    cpue = cpue_table
+  )
   # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
-  biomass_subarea <- gapindex::calc_biomass_subarea(racebase_tables = rebs_data, 
-                                                    biomass_strata = biomass_stratum)
+  biomass_subarea <- gapindex::calc_biomass_subarea(
+    racebase_tables = rebs_data,
+    biomass_strata = biomass_stratum
+  )
 
   rebs_biomass_df <- biomass_subarea |>
     dplyr::filter(AREA_ID == 99903) |> # total B only
-    mutate(MIN_BIOMASS = BIOMASS_MT- 2*(sqrt(BIOMASS_VAR)),
-           MAX_BIOMASS = BIOMASS_MT+ 2*(sqrt(BIOMASS_VAR))) |>
-    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS<0,0,MIN_BIOMASS))
+    mutate(
+      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+    ) |>
+    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
   head(rebs_biomass_df)
 
   lta <- mean(rebs_biomass_df$BIOMASS_MT)
-  
+
 
   rebs_biomass <- rebs_biomass_df |>
     ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
     geom_hline(yintercept = lta, color = "#505050", lwd = 0.7, lty = 2) +
     geom_point(color = "darkgrey", size = 2) +
-    geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), 
-                  color = "darkgrey", linewidth = 0.9, width = 0.7) +
+    geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
+      color = "darkgrey", linewidth = 0.9, width = 0.7
+    ) +
     ylab("Estimated total biomass (mt)") +
     xlab("Year") +
     scale_y_continuous(labels = scales::label_comma()) +
     linetheme +
-    annotate("text", x=1995, y=120000, label = "* Uses 2SD approximation for confidence intervals") 
+    annotate("text", x = 1995, y = 120000, label = "* Uses 2SD approximation for confidence intervals")
 
   rebs_biomass
-  
+
   png(
     filename = paste0(dir_out_figures, "Rougheye_blackspotted_complex", "_", SRVY, "_", maxyr, "_biomass_ts.png"),
     width = 7, height = 7, units = "in", res = 150
   )
   print(rebs_biomass)
   dev.off()
-  
+
   save(rebs_biomass, file = paste0(dir_out_figures, "rebs_biomass_ts.rdata"))
 }
 
@@ -410,7 +417,7 @@ if (make_catch_comp) {
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6," mt)"))) +
+    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6, " mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
@@ -428,7 +435,7 @@ if (make_catch_comp) {
 # 3. CPUE bubble maps  ------------------------------------------------
 # Load map stuff if making bubble maps or Ianelli maps
 
-if(make_cpue_bubbles | make_cpue_ianelli){
+if (make_cpue_bubbles | make_cpue_ianelli) {
   if (SRVY == "GOA") {
     reg_dat_goa <- akgfmaps::get_base_layers(
       select.region = "goa",
@@ -442,7 +449,7 @@ if(make_cpue_bubbles | make_cpue_ianelli){
       )
     reg_data <- reg_dat_goa
   }
-  
+
   if (SRVY == "AI") {
     reg_dat_ai <- akgfmaps::get_base_layers(
       select.region = "ai",
@@ -489,8 +496,8 @@ if (make_cpue_bubbles) {
     list_cpue_bubbles[[i]] <- fig
 
     png(filename = paste0(
-      dir_out_figures, 
-      report_species$spp_name_informal[i], "_", SRVY,"_", maxyr, "_CPUE_bubble.png"
+      dir_out_figures,
+      report_species$spp_name_informal[i], "_", SRVY, "_", maxyr, "_CPUE_bubble.png"
     ), width = 8, height = 5.5, units = "in", res = 200)
     print(fig)
     dev.off()
@@ -555,15 +562,14 @@ if (make_cpue_idw) {
 
 
 if (make_cpue_ianelli) {
-  
   ianelli_style <- TRUE
- # reg_dat <- reg_dat_goa
+  # reg_dat <- reg_dat_goa
   key.title <- ""
   yrs <- c(2023)
   row0 <- 2 # default
   legendtitle <- bquote(CPUE(kg / ha)) # inside fn
-  
-  
+
+
   list_ianelli <- list()
   for (i in 1:nrow(report_species)) {
     thisyrshauldata <- cpue_raw |>
