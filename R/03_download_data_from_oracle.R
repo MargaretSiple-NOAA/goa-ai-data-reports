@@ -8,7 +8,7 @@ if (!file.exists("data/local_nodc")) dir.create("data/local_nodc", recursive = T
 if (!file.exists("data/local_ai")) dir.create("data/local_ai", recursive = TRUE)
 if (!file.exists("data/local_goa")) dir.create("data/local_goa", recursive = TRUE)
 if (!file.exists("data/local_ai_processed")) dir.create("data/local_ai_processed", recursive = TRUE)
-if (!file.exists("data/local_processed")) dir.create("data/local_goa_processed", recursive = TRUE)
+if (!file.exists("data/local_goa_processed")) dir.create("data/local_goa_processed", recursive = TRUE)
 
 # Setup channel to connect to Oracle --------------------------------------
 
@@ -128,6 +128,9 @@ if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOAGRID")
   write.csv(x = a, "./data/local_goa/goagrid.csv", row.names = FALSE)
   
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
+  write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
+  
   print("Finished downloading GOA schema tables")
 }
 
@@ -148,6 +151,9 @@ if (SRVY == "AI") {
   
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.SIZECOMP_TOTAL")
   write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
+  
+  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
+  write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
   
   print("Finished downloading AI schema tables")
 }
@@ -181,7 +187,18 @@ report_species <- report_species[order(report_species$reportorder), ]
 
 
 # Table 4's (built w SQL) -------------------------------------------------
-# This makes a rough draft of table 4
+#' Make a rough draft of Table 4
+#'
+#' @param species_code species code (numeric)
+#' @param survey survey code, "AI" or "GOA" (character)
+#' @param year survey year (numeric)
+#'
+#' @return writes a csv file for all the 
+#' @export
+#'
+#' @examples
+#' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
+#'
 make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
   a <- RODBC::sqlQuery(channel, paste0(
     "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey, "\' and b.YEAR = ", year,
@@ -194,7 +211,10 @@ make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
   write.csv(x = a, file = dir_out, row.names = FALSE)
 }
 
-lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
+#lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
+
+
+# Table 3's (built w SQL) -------------------------------------------------
 
 
 
