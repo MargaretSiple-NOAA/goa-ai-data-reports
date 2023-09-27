@@ -877,7 +877,7 @@ if (make_joy_division_length) {
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges(font_size = 8) +
+      theme_ridges(font_size = 10) +
       scale_fill_gradientn(colours = joypal) +
       geom_label(
         data = testlabdf,
@@ -885,7 +885,7 @@ if (make_joy_division_length) {
         fill = "white", label.size = NA,
         nudge_x = 0,
         nudge_y = 1,
-        hjust = "inward", size = 2
+        hjust = "inward", size = 3
       ) +
       theme(
         strip.background = element_blank(),
@@ -962,12 +962,12 @@ if (make_joy_division_length) {
           data = testlabdf_comb,
           mapping = aes(label = paste0("n = ", n), x = Inf),
           fill = "white", label.size = NA,
-          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 2
+          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3
         ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
         ylab("Year") +
-        theme_ridges(font_size = 8) +
+        theme_ridges(font_size = 7) +
         labs(title = plot_title) +
         theme(
           strip.background = element_blank(),
