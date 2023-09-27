@@ -40,7 +40,7 @@ and this will become a permanent feature of our station allocations in the futur
 
 # Load packages and functions -------------------------------------------------
 source("R/02_load_packages.R")
-source("R/05_functions.R")
+source("R/03_functions.R")
 
 # Get data from RACEBASE --------------------------------------------------
 x <- askYesNo(msg = "Do you want to download local versions of Oracle tables now?")
@@ -834,15 +834,6 @@ if (make_joy_division_length) {
       group_by(YEAR, Sex) %>%
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
-
-    # ylocs <- report_pseudolengths %>%
-    #   filter(SPECIES_CODE == report_species$species_code[i]) %>%
-    #   group_by(YEAR, Sex) %>%
-    #   dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
-    #   mutate(yloc = Inf) %>%
-    #   ungroup() %>%
-    #   filter(YEAR == 2012) %>%
-    #   dplyr::select(-YEAR)
 
     write.csv(
       x = medlines_sp,

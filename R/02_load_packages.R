@@ -22,6 +22,10 @@ if(!"MetBrewer" %in% installed.packages()){
   devtools::install_github("BlakeRMills/MetBrewer")
 }
 
+if(!"qrcode" %in% installed.packages()){
+  devtools::install_github("BlakeRMills/MetBrewer")
+}
+
 # List and load required packages -----------------------------------------
 
 PKG <- c(
@@ -46,6 +50,7 @@ PKG <- c(
   "ggridges",
   "rcartocolor",
   "ggdist",
+  "qrcode",
   
   # Citations
   "knitcitations", # devtools::install_github("cboettig/knitcitations")
