@@ -1042,10 +1042,10 @@ if (make_temp_plot) {
     dplyr::summarize(nboats = length(VESSEL)) %>%
     dplyr::ungroup() |>
     filter(YEAR>=1994) |> # filter to fit the same years as above
-    dplyr::mutate(annotation_star = case_when(nboats==1 ~ "\n(1 boat)",
+    dplyr::mutate(annotation_star = case_when(nboats==1 ~ "",
       nboats==2 ~ "",
                                               nboats==3 ~ "*",
-                                              nboats==4 ~ "\n(4 boats)")) |>
+                                              nboats==4 ~ "*")) |>
     dplyr::filter(YEAR %in% unique(plotdat$YEAR))
   
   # boatcountplot <- howmanyboats |> 
