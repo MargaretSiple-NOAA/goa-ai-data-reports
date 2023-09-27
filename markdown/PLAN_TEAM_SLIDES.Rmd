@@ -173,9 +173,9 @@ Total biomass for these taxa appears to be slightly higher than during the last 
 ```
 
 :::notes
-Water temperatures measured at the trawl net this summer remain above the long term average at both the bottom and the surface
+Water temperatures measured at the trawl net this summer remain above the long term average at both the bottom and the surface.
 
-This plot shows the full distribution of observed bottom temperatures in the survey. The heat colors show the quantiles of the distribution, and the shaded area is the shape of the full distribution.
+This plot shows the full distribution of observed bottom temperatures in the survey. The heat colors show the quantiles of the distribution, and the shaded area is the shape of the full distribution. Surveys that are not 2-boat surveys are indicated by an asterisk (3-boat survey) or otherwise written in text.
 
 Min bottom temp: `r minbottomtemp` deg C
 Max bottom temp: `r maxbottomtemp` deg C
