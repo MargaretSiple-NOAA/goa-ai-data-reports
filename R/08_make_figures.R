@@ -612,11 +612,11 @@ if (make_ldscatter) {
     ltoplot2$INPFC_AREA <- factor(ltoplot2$INPFC_AREA, levels = c(district_order, "All districts"))
 
     ldscatter <- ltoplot2 %>%
-      ggplot(aes(x = BOTTOM_DEPTH, y = LENGTH / 10, color = INPFC_AREA)) +
+      ggplot(aes(x = BOTTOM_DEPTH, y = LENGTH / 10)) + #, 
       geom_point(alpha = 0.2, size = 1.5, pch = 20) +
       facet_grid(. ~ INPFC_AREA) +
-      scale_color_manual(values = dispal) +
-      geom_smooth(method = "loess") +
+      geom_smooth(method = "loess") + #,aes(color = INPFC_AREA)
+      #scale_color_manual(values = c(rep('darkgrey',4),'red')) +
       xlab("Bottom depth (m)") +
       ylab("Length (cm)") +
       theme_light(base_size = 10) +
