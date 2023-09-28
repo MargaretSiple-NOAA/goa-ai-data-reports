@@ -211,7 +211,7 @@ nattemptedstations <- haul2 %>%
 
 # Number of stations for which Marport net spread was successfully recorded:
 nstations_w_marport_data <- haul2 %>%
-  filter(HAUL_TYPE == 3 & NET_MEASURED == "Y") %>%
+  filter(ABUNDANCE_HAUL =="Y" & NET_MEASURED == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
   nrow() # for 2022: 397
 
