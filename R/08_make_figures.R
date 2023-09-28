@@ -395,12 +395,12 @@ if (make_joy_division_length) {
   complex_lookup <- data.frame(
     polycode = c(
       c(10260, 10261, 10262, 10263),
-      c(10110, 10112),
+     # c(10110, 10112),
       c(30050, 30051, 30052)
     ),
     complex = c(
       rep("nrs_srs", times = 4),
-      rep("kam_atf", times = 2),
+     # rep("kam_atf", times = 2),
       rep("rebs", times = 3)
     )
   ) %>%
@@ -419,9 +419,13 @@ if (make_joy_division_length) {
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
-    
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
+    
+    if(SRVY=="AI" & report_species$species_code[i] %in% c(10110, 10112)){
+      len2plot <- len2plot %>% 
+        dplyr::filter(YEAR>=1994)
+    }
 
     # Only sexed lengths included, unless it's SSTH
     if (report_species$species_code[i] != 30020) {
@@ -436,15 +440,6 @@ if (make_joy_division_length) {
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
 
-    # ylocs <- report_pseudolengths %>%
-    #   filter(SPECIES_CODE == report_species$species_code[i]) %>%
-    #   group_by(YEAR, Sex) %>%
-    #   dplyr::summarize(maxlength = max(LENGTH,na.rm=T)) %>%
-    #   mutate(yloc = Inf) %>%
-    #   ungroup() %>%
-    #   filter(YEAR == 2012) %>%
-    #   dplyr::select(-YEAR)
-
     write.csv(
       x = medlines_sp,
       file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
@@ -453,13 +448,14 @@ if (make_joy_division_length) {
 
     len2plot2 <- len2plot %>%
       left_join(sample_sizes %>% 
-                  filter(SPECIES_CODE == report_species$species_code[i])) #%>%
-     # left_join(ylocs)
+                  filter(SPECIES_CODE == report_species$species_code[i]))
 
     yrbreaks <- unique(len2plot2$YEAR)
     
     testlabdf <- len2plot2 %>%
       distinct(YEAR,Sex,.keep_all = TRUE)
+    
+
     
     joyplot <- len2plot2 %>%
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +

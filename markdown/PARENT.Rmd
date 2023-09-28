@@ -232,8 +232,8 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     as.character()
 
   if (species_code %in% c(
-    c(10260, 10261, 10262, 10263),
-    c(10110, 10112)
+    c(10260, 10261, 10262, 10263)#,
+    #c(10110, 10112)
   )) {
     combo_id_sentence <- "Since this species was not identified as distinct from its close congener for the entirety of the survey time period, combined lengths are presented in grey for the full time series. The years in the time series before this species was identified as separate, with confidence, are marked with an asterisk."
   } else {
