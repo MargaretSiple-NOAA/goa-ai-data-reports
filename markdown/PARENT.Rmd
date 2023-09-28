@@ -36,7 +36,7 @@ library(officer)
 
 ```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the 2022 AI bottom trawl survey. The prices used for station allocation in 2022 are from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
 sp_prices %>% 
-  dplyr::rename("Ex-vessel price (USD)" = "Ex-vessel price") %>%
+  dplyr::rename("Ex-vessel price (USD per lb)" = "Ex-vessel price") %>%
   dplyr::filter(`Included in design`=="Y") %>%
   dplyr::select(-`Included in design`) %>%
   flextable() %>% 
@@ -113,18 +113,6 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 
 <!---BLOCK_MULTICOL_STOP{widths: [2,2,2], space: 0.07, sep: true}--->
 
-<br />
-
-
-```{r echo=FALSE,tab.cap='Species richness in survey by family, INPFC area, and depth range.', tab.id='subregion-fam-div',  tab.cap.style = "Table Caption"}
-subregion_fam_div %>%
-  flextable() %>%
-  fix_border_issues() %>%
-  theme_vanilla() %>%
-  fontsize(size = 8.5, part = "all") %>%
-  line_spacing(space = 0.5) %>%
-  autofit()
-```
 <br />
 
 ```{r echo=FALSE,tab.cap='Otolith samples collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
