@@ -17,12 +17,13 @@ library(flextable)
 ```{r echo=FALSE,tab.cap='Appendix Table B1. Fish and invertebrate species encountered and identified during the 2022 Aleutian Islands bottom trawl survey.', tab.id='b-specieslist',  tab.cap.style = "Table Caption"}
 appB %>% 
   prep_appendix_b() %>%
-  flextable(col_keys = c("family","common_name","dummy_col")) %>%
+  flextable(col_keys = c("inpfc_area","family","common_name","dummy_col")) %>%
   flextable::mk_par(
     j = "dummy_col",
     value = as_paragraph(as_i(species_2), " ", new_suffix)
   ) %>%
   set_header_labels(
+    inpfc_area = "INPFC area",
     dummy_col = "Species name",
     family = "Family",
     common_name = "Common name"
@@ -32,5 +33,6 @@ appB %>%
   width(j = 1, width = 2, unit = "in") %>%
   width(j = 2, width = 2, unit = "in") %>%
   width(j = 3, width = 2, unit = "in") %>%
+  width(j = 4, width = 2, unit = "in") %>%
   line_spacing(space = 1)
 ```

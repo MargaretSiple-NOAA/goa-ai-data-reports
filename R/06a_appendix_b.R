@@ -105,7 +105,7 @@ appB <- species_maxyr %>%
   dplyr::select(inpfc_area, species_name, common_name, 
                 family = family_taxon, phylum = phylum_taxon, 
                 major_group, tax_group) %>%
-  unique() %>%
+  distinct() %>%
   arrange(inpfc_area, tax_group, major_group, species_name)
 
 
