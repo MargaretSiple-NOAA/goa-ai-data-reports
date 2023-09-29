@@ -71,6 +71,8 @@ sp_prices <- dat %>%
                 `Ex-vessel price` = ex.vessel.price,
                 `Source` = source) 
 
+pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)),])
+
 # AI/GOA tables    ----------------------------------------------
 # cpue (source: AI or GOA schema)
 # NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
