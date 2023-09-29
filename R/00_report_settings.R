@@ -13,9 +13,9 @@ district_order <- c("Southern Bering Sea",
                     "Western Aleutians") # order of districts in the results
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2023-08-30" 
-figuredate <- "2023-08-30"
-reportvaluesdate <- "2023-08-30"
+tabledate <- "2023-09-28" 
+figuredate <- "2023-09-28"
+reportvaluesdate <- "2023-09-28"
 
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
