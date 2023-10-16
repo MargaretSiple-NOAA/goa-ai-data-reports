@@ -76,8 +76,13 @@ pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)),]
 # AI/GOA tables    ----------------------------------------------
 # cpue (source: AI or GOA schema)
 # NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
-x <- read.csv(file = here::here("data", "local_ai","cpue.csv"), header = TRUE) 
-# This is already 0-filled
+if (SRVY == "AI") {
+  x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
+  # This is already 0-filled
+} 
+if(SRVY=="GOA"){
+  x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
+}
 
 cpue_raw <- x %>%
   left_join(common_names) %>%
@@ -89,6 +94,7 @@ cpue_raw <- x %>%
 
 # Biomass by stratum (source: AI or GOA schema)
 local_folder <- ifelse(SRVY=="AI","local_ai","local_goa")
+
 biomass_stratum <- read.csv(here::here("data", local_folder, "biomass_stratum.csv"))
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
 
