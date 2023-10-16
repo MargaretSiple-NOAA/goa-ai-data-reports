@@ -486,7 +486,7 @@ if (make_cpue_bubbles) {
     fig <- plot_pa_xbyx(
       spcode = spbubble,
       dat = thisyrshauldata,
-      yrs = c(2022),
+      yrs = c(maxyr),
       key.title = "",
       row0 = 2, reg_dat = reg_data, dist_unit = "nm", # nautical miles
       col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
