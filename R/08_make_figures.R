@@ -127,8 +127,13 @@ speciescolors <- lengthen_pal(
 # error_file = magick::image_read("img/AleutiansMap.png")
 # right_png <- magick::image_convert(image = error_file, "png")
 # magick::image_write(right_png, path = "img/AleutiansMap.png", format = "png")
+if (SRVY == "AI") {
+  img1_path <- "img/AleutiansMap.png"
+}
+if (SRVY == "GOA") {
+  img1_path <- "img/INPFC_areas_GOA.png"
+}
 
-img1_path <- "img/AleutiansMap.png"
 img1 <- png::readPNG(img1_path)
 # attr(img1, "info")
 
@@ -314,18 +319,35 @@ if (make_cpue_bubbles_strata) {
 
 # 3b. CPUE bubble maps for AI - b&w Emily M style bubble plots ----------------------------------------------------------
 if (make_cpue_bubbles) {
-  list_cpue_bubbles <- list()
-
-  reg_dat_ai <- akgfmaps::get_base_layers(
-    select.region = "ai",
-    set.crs = "EPSG:3338"
-  )
-  reg_dat_ai$survey.area <- reg_dat_ai$survey.area %>%
-    dplyr::mutate(
-      SRVY = "AI",
-      color = scales::alpha(colour = "grey80", 0.7),
-      SURVEY = "Aleutian Islands"
+  if (SRVY == "GOA") {
+    reg_dat_goa <- akgfmaps::get_base_layers(
+      select.region = "goa",
+      set.crs = "EPSG:3338"
     )
+    reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+      dplyr::mutate(
+        SRVY = "GOA",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Gulf of Alaska"
+      )
+    reg_data <- reg_dat_goa
+  }
+  
+  if (SRVY == "AI") {
+    reg_dat_ai <- akgfmaps::get_base_layers(
+      select.region = "ai",
+      set.crs = "EPSG:3338"
+    )
+    reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
+      dplyr::mutate(
+        SRVY = "AI",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Aleutian Islands"
+      )
+    reg_data <- reg_data_ai
+  }
+  
+  list_cpue_bubbles <- list()
 
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
@@ -338,21 +360,21 @@ if (make_cpue_bubbles) {
         coords = c("start_longitude", "start_latitude"),
         crs = "EPSG:4326"
       ) %>%
-      st_transform(crs = reg_dat_ai$crs)
+      st_transform(crs = reg_data$crs)
 
     fig <- plot_pa_xbyx(
       spcode = spbubble,
       dat = thisyrshauldata,
-      yrs = c(2022),
+      yrs = c(maxyr),
       key.title = "",
-      row0 = 2, reg_dat = reg_dat_ai, dist_unit = "nm", # nautical miles
+      row0 = 2, reg_dat = reg_data, dist_unit = "nm", # nautical miles
       col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
     )
     list_cpue_bubbles[[i]] <- fig
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
-      report_species$spp_name_informal[i], "_CPUE_markobubble.png"
+      report_species$spp_name_informal[i], "_CPUE_cpue_bubble.png"
     ), width = 8, height = 5.5, units = "in", res = 200)
     print(fig)
     dev.off()
@@ -640,7 +662,7 @@ if (make_ldscatter) {
 }
 
 
-# 6. Surface and bottom SST -----------------------------------------------
+# 6. Surface and bottom temp -----------------------------------------------
 
 if (make_temp_plot) {
   list_temperature <- list()
