@@ -38,7 +38,6 @@ vignettes/*.pdf
 /data/specimen_ADFG.csv
 /data/ai2022_missing_temp_data_filled.csv
 /data/Catch_Summary_All.csv
-
 gdrive/
 output/
 bonus/
@@ -51,3 +50,4 @@ markdown/PLAN_TEAM_SLIDES.pptx
 /R/degree_error_demo.R
 /R/atkasummary_for_ned.R
 texput.log
+INPFC_areas_GOA.png
