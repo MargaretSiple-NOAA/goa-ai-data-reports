@@ -678,6 +678,10 @@ if (make_temp_plot) {
     ungroup() %>%
     as.data.frame() %>%
     mutate(YEAR = as.numeric(YEAR))
+  
+  if(SRVY=="GOA"){
+    sstdat <- sstdat %>% filter(YEAR != 2001) #They didn't finish the GOA survey in 2001
+  }
 
   sst_summary <- sstdat %>%
     mutate(
