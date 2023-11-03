@@ -25,21 +25,34 @@ subregion_fam_div <- appB %>%
 
 # Mean CPUE 20 most abundant groundfish spps ------------------------------
 #NOTE: This table is different if you produce it using the standard SQL script vs if you produce it by hand or in R. We don't know exactly why these values are very slightly different, but they are! So if we want to reproduce the report in the exact same way, at least for the Aleutians, we have to use a SQL script to produce the table of the top CPUEs by region. 
-if(use_sql_cpue){
-#colnames should be: c("INPFC_AREA", "species_code", "wgted_mean_cpue_kgkm2", "wgted_mean_cpue_kgha", "scientific_name", "common_name", "major_group")
-  top_CPUE <- prep_tab2() 
-}else{
-  top_CPUE <- make_top_cpue(YEAR = YEAR, 
-                            SRVY = SRVY,
-                            cpue_raw = cpue_raw)
+if (use_sql_cpue) {
+  # colnames should be: c("INPFC_AREA", "species_code", "wgted_mean_cpue_kgkm2", "wgted_mean_cpue_kgha", "scientific_name", "common_name", "major_group")
+  top_CPUE <- prep_tab2()
+} else {
+  top_CPUE <- make_top_cpue(
+    YEAR = YEAR,
+    SRVY = SRVY,
+    cpue_raw = cpue_raw
+  )
 }
-  top_CPUE <- top_CPUE %>% 
-    arrange(factor(INPFC_AREA, levels = c(district_order,
-                                          "All Aleutian Districts",
-                                          "All Areas Combined")))
+if (SRVY == "AI") {
+  top_CPUE <- top_CPUE %>%
+    arrange(factor(INPFC_AREA, levels = c(
+      district_order,
+      "All Aleutian Districts",
+      "All Areas Combined"
+    )))
+}
+if (SRVY == "GOA") {
+  top_CPUE <- top_CPUE %>%
+    arrange(factor(INPFC_AREA, levels = district_order))
+}
 
-  write.csv(x = top_CPUE,file = paste0(dir_out_tables,"top_CPUE","_",maxyr,".csv"),
-          row.names = FALSE)
+
+write.csv(
+  x = top_CPUE, file = paste0(dir_out_tables, "top_CPUE", "_", maxyr, ".csv"),
+  row.names = FALSE
+)
 
 # Biomass estimates by area and depth range -------------------------------
 # Not needed I don't think yet but I did produce this for Maia for 2022 FHS.
