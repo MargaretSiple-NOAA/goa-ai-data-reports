@@ -180,7 +180,8 @@ lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, ye
 
 
 # Table 3's (built w SQL) -------------------------------------------------
-
+#lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
+#make_tab3(species_code = 30060, survey = "GOA", year = 2023)
 
 
 # All done!
