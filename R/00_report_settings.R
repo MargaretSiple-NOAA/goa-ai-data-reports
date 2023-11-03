@@ -53,9 +53,12 @@ if (SRVY == "GOA") {
 
 if (SRVY == "AI") {
   dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"
-  dir_blurbs <- "1jl0YXfsUNi-bKRoIKiaa3b0opLbmBTIg"
   survname_long <- "Aleutian Islands"
 }
+
+# Folder containing blurb files
+dir_blurbs <- "1jl0YXfsUNi-bKRoIKiaa3b0opLbmBTIg"
+
 # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
 
 # Order of districts (for plots and tables) -------------------------------
