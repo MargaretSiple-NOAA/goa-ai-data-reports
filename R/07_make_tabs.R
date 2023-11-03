@@ -34,8 +34,7 @@ if (use_sql_cpue) {
     SRVY = SRVY,
     cpue_raw = cpue_raw
   )
-}
-if (SRVY == "AI") {
+  if (SRVY == "AI") {
   top_CPUE <- top_CPUE %>%
     arrange(factor(INPFC_AREA, levels = c(
       district_order,
@@ -43,6 +42,8 @@ if (SRVY == "AI") {
       "All Areas Combined"
     )))
 }
+}
+
 if (SRVY == "GOA") {
   top_CPUE <- top_CPUE %>%
     arrange(factor(INPFC_AREA, levels = district_order))
@@ -183,12 +184,12 @@ matches <- unique(grep(paste(toMatch, collapse = "|"),
 print("Checking for tables missing from the G Drive...")
 # which species are there tables for?
 x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
-y <- sub(pattern = "*_2022.csv", replacement = "", x = x)
+y <- sub(pattern = paste0("*_",maxyr,".csv"), replacement = "", x = x)
 
 lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
 
 if (length(lookforme) > 0) {
-  print(paste("Check for species", lookforme))
+  print(paste("Table 3: Check for species", lookforme))
 }
 
 table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
