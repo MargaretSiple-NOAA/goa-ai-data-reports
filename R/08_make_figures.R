@@ -389,8 +389,19 @@ if (make_cpue_bubbles) {
 if (make_joy_division_length) {
   list_joy_length <- list()
 
-  # report_pseudolengths <- read.csv(paste0(dir_in_tables, "report_pseudolengths.csv"))
-  
+  if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
+    report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
+  } else {
+    cat("Pseudolength file not found. Sourcing data prep file... \n")
+    source("R/06_prep_data.R")
+  }
+  # This is repeated; deal with it later
+  L <- read.csv(here::here("data/local_racebase/length.csv"))
+  L <- L %>%
+    mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
+  length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+
+
   length2 <- L %>% # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -417,12 +428,12 @@ if (make_joy_division_length) {
   complex_lookup <- data.frame(
     polycode = c(
       c(10260, 10261, 10262, 10263),
-     # c(10110, 10112),
+      # c(10110, 10112),
       c(30050, 30051, 30052)
     ),
     complex = c(
       rep("nrs_srs", times = 4),
-     # rep("kam_atf", times = 2),
+      # rep("kam_atf", times = 2),
       rep("rebs", times = 3)
     )
   ) %>%
@@ -436,17 +447,17 @@ if (make_joy_division_length) {
   if (SRVY == "GOA") {
     complex_lookup <- filter(complex_lookup, complex != "kam_atf")
   }
-  
+
 
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
-    
-    if(SRVY=="AI" & report_species$species_code[i] %in% c(10110, 10112)){
-      len2plot <- len2plot %>% 
-        dplyr::filter(YEAR>=1994)
+
+    if (SRVY == "AI" & report_species$species_code[i] %in% c(10110, 10112)) {
+      len2plot <- len2plot %>%
+        dplyr::filter(YEAR >= 1994)
     }
 
     # Only sexed lengths included, unless it's SSTH
@@ -469,16 +480,16 @@ if (make_joy_division_length) {
     )
 
     len2plot2 <- len2plot %>%
-      left_join(sample_sizes %>% 
-                  filter(SPECIES_CODE == report_species$species_code[i]))
+      left_join(sample_sizes %>%
+        filter(SPECIES_CODE == report_species$species_code[i]))
 
     yrbreaks <- unique(len2plot2$YEAR)
-    
-    testlabdf <- len2plot2 %>%
-      distinct(YEAR,Sex,.keep_all = TRUE)
-    
 
-    
+    testlabdf <- len2plot2 %>%
+      distinct(YEAR, Sex, .keep_all = TRUE)
+
+
+
     joyplot <- len2plot2 %>%
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       ggridges::geom_density_ridges_gradient(
@@ -490,20 +501,24 @@ if (make_joy_division_length) {
         vline_size = 0.6,
         vline_linetype = "dotted" # "A1"
       ) +
-      scale_y_reverse(breaks = yrbreaks,expand = c(0,0)) +
+      scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
+      +
+        scale_x_continuous(expand = c(0, 0), limits = lengthlimits) +
       scale_linetype_manual(values = c("solid", "dashed")) +
-      
       facet_grid(~Sex) +
       xlab("Length (mm)") +
       ylab("Year") +
-      theme_ridges(font_size = 8) +
+      theme_ridges(font_size = 10) +
       scale_fill_gradientn(colours = joypal) +
-      geom_label(data = testlabdf, 
-                 mapping =  aes(label = paste0("n = ", n), x = Inf), 
-                 fill='white',label.size = NA,
-                 nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
+      geom_label(
+        data = testlabdf,
+        mapping = aes(label = paste0("n = ", n), x = Inf),
+        fill = "white", label.size = NA,
+        nudge_x = 0, nudge_y = 1,
+        hjust = "inward",
+        size = 3
       ) +
-      labs(title = paste(report_species$spp_name_informal[i])) +
+      # labs(title = paste(report_species$spp_name_informal[i])) +
       theme(
         strip.background = element_blank(),
         panel.grid.major = element_blank(),
@@ -518,8 +533,12 @@ if (make_joy_division_length) {
 
     # lookup table is referenced below
 
-# is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
+    # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
     if (report_species$species_code[i] %in% complex_lookup$polycode) {
+      # Add label to plot of the species so ppl can compare it with the combined one
+      joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
+      # Make a title for the combined plot (single species + combined congeners)
+
       plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
       complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
       polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
@@ -537,7 +556,7 @@ if (make_joy_division_length) {
         group_by(YEAR, Sex) %>%
         dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
         ungroup()
-        
+
 
       sample_sizes_comb <- sample_sizes %>%
         filter(SPECIES_CODE %in% polycode_vec) %>%
@@ -551,11 +570,13 @@ if (make_joy_division_length) {
         left_join(sample_sizes_comb)
 
       testlabdf_comb <- len2plot_comb %>%
-        distinct(YEAR,Sex,.keep_all = TRUE)
-      
+        distinct(YEAR, Sex, .keep_all = TRUE)
+
       joyplot2 <- len2plot_comb %>%
-        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR), 
-               fill = "grey") +
+        ggplot(
+          mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
+          fill = "grey"
+        ) +
         ggridges::geom_density_ridges_gradient(
           bandwidth = 5,
           rel_min_height = 0,
@@ -565,17 +586,18 @@ if (make_joy_division_length) {
           vline_size = 0.6,
           vline_linetype = "dotted" # "A1"
         ) +
-        scale_y_reverse(breaks = yrbreaks, labels = yrlabels) +
+        scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
         scale_linetype_manual(values = c("solid", "dashed")) +
-        geom_label(data = testlabdf_comb, 
-                   mapping =  aes(label = paste0("n = ", n), x = Inf), 
-                   fill='white',label.size = NA,
-                   nudge_x=-100, nudge_y = 1, hjust = "inward", size = 2
+        geom_label(
+          data = testlabdf_comb,
+          mapping = aes(label = paste0("n = ", n), x = Inf),
+          fill = "white", label.size = NA,
+          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3
         ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
         ylab("Year") +
-        theme_ridges(font_size = 8) +
+        theme_ridges(font_size = 7) +
         labs(title = plot_title) +
         theme(
           strip.background = element_blank(),
