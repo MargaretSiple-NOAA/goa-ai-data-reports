@@ -34,7 +34,7 @@ library(officer)
 \newpage
 <!-- Tables -->
 
-```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the AI 2022 bottom trawl survey. The prices used for station allocation in 2022 are from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap=paste0('Ex-vessel prices used to allocate stations in the ', SRVY, ' ', maxyr, ' bottom trawl survey. The prices used for station allocation in ', maxyr, ' are from ', maxyr-2, '.'), tab.id='sp-prices',  tab.cap.style = "Table Caption"}
 sp_prices %>% 
   dplyr::rename("Ex-vessel price (USD per lb)" = "Ex-vessel price") %>%
   dplyr::filter(`Included in design`=="Y") %>%
@@ -50,7 +50,7 @@ sp_prices %>%
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Stations allocated and sampled during the 2022 AI bottom trawl survey.', tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap=paste('Stations allocated and sampled during the', maxyr, SRVY,'bottom trawl survey.'), tab.id='stations-allocated',  tab.cap.style = "Table Caption"}
 list_tables[["allocated_sampled"]] %>% 
   #allocated_sampled %>%
   mutate(`Total area` = round(`Total area`,digits = 0),
@@ -179,7 +179,7 @@ surface_temp_plot
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
