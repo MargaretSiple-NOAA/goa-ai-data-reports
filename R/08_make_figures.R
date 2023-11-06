@@ -771,7 +771,7 @@ if (make_temp_plot) {
   names(list_temperature) <- c("bottomtemp", "surfacetemp")
 
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
-  print("Done with joy division plots for length comp.")
+  print("Done with temeprature plots.")
 }
 
 
