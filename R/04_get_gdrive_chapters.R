@@ -44,7 +44,7 @@ googledrive::drive_download(
   file = googledrive::as_id(otosheet$id),
   type = "csv",
   overwrite = TRUE,
-  path = paste0("data", "/", otosheet$name)
+  path = paste0("data/", otosheet$name)
 )
 
 
