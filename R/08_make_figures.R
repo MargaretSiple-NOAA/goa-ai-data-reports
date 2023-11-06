@@ -94,9 +94,9 @@ linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for joy div plot
-# joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 joypal <- c("#d1eeea", "#a8dbd9", "#85c4c9", "#68abb8", "#4f90a6", "#3b738f", "#2a5674") # Mint palette
 joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#123f5a") # more green palette
+joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 joypal_grey <- grey.colors(n = 7)
 
 # Palette for survey regions
@@ -484,6 +484,7 @@ if (make_joy_division_length) {
         filter(SPECIES_CODE == report_species$species_code[i]))
 
     yrbreaks <- unique(len2plot2$YEAR)
+    lengthlimits <- range(len2plot2$LENGTH)
 
     testlabdf <- len2plot2 %>%
       distinct(YEAR, Sex, .keep_all = TRUE)
@@ -502,8 +503,7 @@ if (make_joy_division_length) {
         vline_linetype = "dotted" # "A1"
       ) +
       scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
-      +
-        scale_x_continuous(expand = c(0, 0), limits = lengthlimits) +
+        scale_x_continuous(expand = c(0,0), limits = lengthlimits) +
       scale_linetype_manual(values = c("solid", "dashed")) +
       facet_grid(~Sex) +
       xlab("Length (mm)") +
@@ -655,11 +655,11 @@ if (make_ldscatter) {
       ggplot(aes(x = BOTTOM_DEPTH, y = LENGTH / 10)) + #, 
       geom_point(alpha = 0.2, size = 1.5, pch = 20) +
       facet_grid(. ~ INPFC_AREA) +
-      geom_smooth(method = "loess") + #,aes(color = INPFC_AREA)
-      #scale_color_manual(values = c(rep('darkgrey',4),'red')) +
+      geom_smooth(method = "loess", aes(color = INPFC_AREA)) + #,aes(color = INPFC_AREA)
+      scale_color_manual(values = c(rep('#91AEC1',5),'#324376')) +
       xlab("Bottom depth (m)") +
       ylab("Length (cm)") +
-      theme_light(base_size = 10) +
+      theme_light(base_size = 9) +
       theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -671,7 +671,7 @@ if (make_ldscatter) {
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_ldscatter.png"
-    ), width = 8, height = 2, units = "in", res = 200)
+    ), width = 9, height = 2, units = "in", res = 200)
     print(ldscatter)
     dev.off()
 
