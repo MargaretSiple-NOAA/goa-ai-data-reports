@@ -1,0 +1,19 @@
+species,target,collection,diff,% diff,notes
+ATF,600,925,325,54,Target met.
+Atka mackerel,100,205,105,105,Target met.
+blackspotted RF,250,225,-25,-10,Target met within 10%.
+Dover sole,500,304,-196,-39,"Increasing the collection rule from “if > 5, collect 3” to “if >=5, collect 5” or “up to 3” would have met the 500 target."
+dusky RF,500,327,-173,-35,Doubling the collection rule from “up to 10” to “up to 20” would have met the 500 target.
+flathead sole,500,455,-45,-9,Target met within 10%.
+harlequin RF,200,127,-73,-36,Increasing the collection rule from “2 per cm/sex/haul” to “3 per cm/sex/haul” or “4 per cm/sex/haul” would have met the 200 target within 10%.
+northern rock sole,500,433,-67,-13,Increasing the collection rule from “up to 4” to “up to 5” would have met the 500 target.
+northern RF,500,274,-226,-45,Doubling the collection rule from “up to 10” to “up to 20” would have met the 500 target.
+Pacific cod,1000,1137,137,14,Target met.
+POP,1000,960,-40,-4,Target met within 10%.
+rex sole,700,667,-33,-5,Target met within 15%.
+rougheye RF,300,307,7,2,Target met.
+sablefish,350,225,-125,-36,Increasing the collection rule from “up to 2 @ stns < 200 m” to “up to 3 @ stns < 200 m” would have met the 350 target within 10%.
+shortraker RF,400,240,-160,-40,"304 individuals were surveyed, would not have met 400 target."
+silvergray RF,200,289,89,44,Target met.
+southern rock sole,500,498,-2,<1,Target met within 10%.
+walleye pollock,1500,1633,133,9,Target met.
