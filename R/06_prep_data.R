@@ -30,9 +30,10 @@ haul_maxyr <- haul %>%
 cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
 
 survnumber <- cruises %>%
-  filter(SURVEY_NAME == ifelse(SRVY=="AI",
-                               "Aleutian Islands Bottom Trawl Survey", 
-                               "Gulf of Alaska Bottom Trawl Survey")) %>%
+  filter(SURVEY_NAME == ifelse(SRVY == "AI",
+    "Aleutian Islands Bottom Trawl Survey",
+    "Gulf of Alaska Bottom Trawl Survey"
+  )) %>%
   distinct(CRUISE) %>%
   nrow() %>%
   scales::ordinal()
@@ -41,21 +42,29 @@ survnumber <- cruises %>%
 # length(which(is.na(haul_maxyr$GEAR_TEMPERATURE)))
 # length(which(is.na(haul_maxyr$SURFACE_TEMPERATURE)))
 
-haul_maxyr %>% 
-  filter(GEAR_TEMPERATURE ==0)
+haul_maxyr %>%
+  filter(GEAR_TEMPERATURE == 0)
 
-minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE>0)], 
-                     na.rm = T)
-maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE, 
-                     na.rm = T)
+minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE > 0)],
+  na.rm = T
+)
+maxbottomtemp <- max(haul_maxyr$GEAR_TEMPERATURE,
+  na.rm = T
+)
 
-minsurfacetemp <-min(haul_maxyr$SURFACE_TEMPERATURE[which(haul_maxyr$SURFACE_TEMPERATURE>0)],
-                     na.rm = T)
-maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE, 
-                      na.rm = T)
+minsurfacetemp <- min(haul_maxyr$SURFACE_TEMPERATURE[which(haul_maxyr$SURFACE_TEMPERATURE > 0)],
+  na.rm = T
+)
+maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
+  na.rm = T
+)
 
-nhauls_no_stemp <- haul_maxyr %>% filter(is.na(SURFACE_TEMPERATURE)) %>% nrow()
-nhauls_no_btemp <- haul_maxyr %>% filter(is.na(GEAR_TEMPERATURE)) %>% nrow()
+nhauls_no_stemp <- haul_maxyr %>%
+  filter(is.na(SURFACE_TEMPERATURE)) %>%
+  nrow()
+nhauls_no_btemp <- haul_maxyr %>%
+  filter(is.na(GEAR_TEMPERATURE)) %>%
+  nrow()
 
 # write.csv(file = "hauls_no_stemp.csv",x = hauls_no_stemp)
 # write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
@@ -65,13 +74,15 @@ nhauls_no_btemp <- haul_maxyr %>% filter(is.na(GEAR_TEMPERATURE)) %>% nrow()
 dat <- read.csv("data/AI_planning_species_2020.csv")
 sp_prices <- dat %>%
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) %>%
-  dplyr::rename(`Scientific name`=species.name,
-                `Common name` = common.name,
-                `Included in design` = include,
-                `Ex-vessel price` = ex.vessel.price,
-                `Source` = source) 
+  dplyr::rename(
+    `Scientific name` = species.name,
+    `Common name` = common.name,
+    `Included in design` = include,
+    `Ex-vessel price` = ex.vessel.price,
+    `Source` = source
+  )
 
-pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)),])
+pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), ])
 
 # AI/GOA tables    ----------------------------------------------
 # cpue (source: AI or GOA schema)
@@ -79,8 +90,8 @@ pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)),]
 if (SRVY == "AI") {
   x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
   # This is already 0-filled
-} 
-if(SRVY=="GOA"){
+}
+if (SRVY == "GOA") {
   x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
 }
 
@@ -93,7 +104,7 @@ cpue_raw <- x %>%
   janitor::clean_names()
 
 # Biomass by stratum (source: AI or GOA schema)
-local_folder <- ifelse(SRVY=="AI","local_ai","local_goa")
+local_folder <- ifelse(SRVY == "AI", "local_ai", "local_goa")
 
 biomass_stratum <- read.csv(here::here("data", local_folder, "biomass_stratum.csv"))
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
@@ -104,7 +115,7 @@ biomass_total <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
-}else{
+} else {
   all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
 }
 
@@ -114,9 +125,11 @@ dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
 
 region_lu <- dat %>%
   filter(SURVEY == SRVY) %>%
-  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH, 
-                REGULATORY_AREA_NAME, AREA, DESCRIPTION) %>%
-  filter(STRATUM <= 794) %>% 
+  dplyr::select(
+    SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH,
+    REGULATORY_AREA_NAME, AREA, DESCRIPTION
+  ) %>%
+  filter(STRATUM <= 794) %>%
   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
   mutate(INPFC_AREA = str_trim(INPFC_AREA))
@@ -125,10 +138,12 @@ region_lu2 <- region_lu %>%
   dplyr::group_by(INPFC_AREA) %>%
   dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) %>%
   dplyr::ungroup() %>%
-  mutate(INPFC_AREA_ABBREV = case_when(INPFC_AREA == "Central Aleutians" ~ "Central AI",
-                                       INPFC_AREA == "Eastern Aleutians" ~ "Eastern AI",
-                                       INPFC_AREA == "Western Aleutians" ~ "Western AI",
-                                       INPFC_AREA == "Southern Bering Sea" ~ "SBS"))
+  mutate(INPFC_AREA_ABBREV = case_when(
+    INPFC_AREA == "Central Aleutians" ~ "Central AI",
+    INPFC_AREA == "Eastern Aleutians" ~ "Eastern AI",
+    INPFC_AREA == "Western Aleutians" ~ "Western AI",
+    INPFC_AREA == "Southern Bering Sea" ~ "SBS"
+  ))
 
 # Add Aleutian areas
 INPFC_areas <- region_lu2 %>%
@@ -164,19 +179,19 @@ avg_net_width <- haul %>%
   as.numeric()
 
 nstationsassigned <- all_allocation %>%
-  filter(YEAR == maxyr) %>% 
+  filter(YEAR == maxyr) %>%
   nrow()
 
 nnewstations <- all_allocation %>%
-  filter(YEAR == maxyr & is.na(STATIONID)) %>% 
+  filter(YEAR == maxyr & is.na(STATIONID)) %>%
   nrow()
 
 if (nnewstations == 0) {
   "Code says no new stations were sampled this year. Is this correct?"
 }
 
-# Of the new stations allocated to the different vessels, which ones were successfully sampled? 
-hist_stations <- haul %>% 
+# Of the new stations allocated to the different vessels, which ones were successfully sampled?
+hist_stations <- haul %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
   filter(REGION == SRVY) %>%
   filter(YEAR != maxyr) %>%
@@ -186,13 +201,13 @@ hist_stations <- hist_stations$STATIONID
 
 test <- haul_maxyr %>%
   mutate(newstation = ifelse(STATIONID %in% hist_stations, "no", "yes")) %>%
-  filter(newstation=="yes")
+  filter(newstation == "yes")
 
-new_successfully_sampled <- test %>% 
-  filter(ABUNDANCE_HAUL=="Y") %>%
+new_successfully_sampled <- test %>%
+  filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
-  
-newstationsentence <- paste("Among the", nnewstations, "total new stations assigned,",new_successfully_sampled, "were successfully found and trawled.")
+
+newstationsentence <- paste("Among the", nnewstations, "total new stations assigned,", new_successfully_sampled, "were successfully found and trawled.")
 
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
@@ -219,15 +234,15 @@ nattemptedstations <- haul2 %>%
 
 # Number of stations for which Marport net spread was successfully recorded:
 nstations_w_marport_data <- haul2 %>%
-  filter(ABUNDANCE_HAUL =="Y" & NET_MEASURED == "Y") %>%
+  filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
   nrow() # for 2022: 397
 
 nestimatedspreads <- haul2 %>%
-  filter(ABUNDANCE_HAUL =="Y" & NET_MEASURED=="N") %>%
+  filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "N") %>%
   distinct(STATIONID, STRATUM) %>%
   nrow()
-  
+
 
 # Number of "failed tows":
 nfailedtows <- haul2 %>%
@@ -263,7 +278,7 @@ lengths_collected <- sum(length_maxyr$FREQUENCY) %>%
   format(big.mark = ",")
 
 nfishlengths <- sum(length_maxyr %>%
-  filter(LENGTH_TYPE %in% c(1,5,11)) %>% dplyr::select(FREQUENCY)) %>%
+  filter(LENGTH_TYPE %in% c(1, 5, 11)) %>% dplyr::select(FREQUENCY)) %>%
   format(big.mark = ",")
 
 nsquidlengths <- sum(length_maxyr %>%
@@ -286,7 +301,7 @@ otos_collected <- specimen_maxyr %>%
   group_by(INPFC_AREA, `Depth range`) %>%
   dplyr::summarize("Pairs of otoliths collected" = n()) %>%
   ungroup() %>%
-  arrange(factor(INPFC_AREA, levels= district_order))
+  arrange(factor(INPFC_AREA, levels = district_order))
 
 # meanlengths_area <- specimen_maxyr %>%
 #   filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
@@ -309,8 +324,8 @@ otos_collected <- specimen_maxyr %>%
 # 6        10112 Eastern Aleutians            330.
 # 7        10112 Southern Bering Sea          360.
 # 8        10112 Western Aleutians            392.
-# 9        10115 Central Aleutians            710 
-# 10        10115 Eastern Aleutians            730 
+# 9        10115 Central Aleutians            710
+# 10        10115 Eastern Aleutians            730
 L_maxyr <- L %>%
   filter(YEAR == maxyr & REGION == SRVY)
 meanlengths_area <- L_maxyr %>%
@@ -344,48 +359,48 @@ if (SRVY == "GOA") {
 # Janky but I am in a rush so will have to deal.
 report_pseudolengths <- data.frame()
 
-for (i in 1:nrow(report_species)){
+for (i in 1:nrow(report_species)) {
   sp_code <- report_species$species_code[i]
-  
-  males <- sizecomp %>% 
-    filter(SPECIES_CODE==sp_code) %>%
+
+  males <- sizecomp %>%
+    filter(SPECIES_CODE == sp_code) %>%
     dplyr::group_by(YEAR) %>%
-    dplyr::mutate(prop_10k = (MALES/sum(MALES)) * 10000) %>%
+    dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) %>%
     dplyr::mutate(prop_10k = round(prop_10k)) %>%
-    arrange(-YEAR,LENGTH) %>%
-    dplyr::mutate(prop_10k = ifelse(MALES==0, 0,prop_10k)) %>%
-    tidyr::uncount(prop_10k, .id="id") %>%
-    dplyr::select(SURVEY,YEAR,SPECIES_CODE,LENGTH,id) %>%
+    arrange(-YEAR, LENGTH) %>%
+    dplyr::mutate(prop_10k = ifelse(MALES == 0, 0, prop_10k)) %>%
+    tidyr::uncount(prop_10k, .id = "id") %>%
+    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) %>%
     mutate(Sex = "Male")
-  
-  females <- sizecomp %>% 
-    filter(SPECIES_CODE==sp_code) %>%
+
+  females <- sizecomp %>%
+    filter(SPECIES_CODE == sp_code) %>%
     dplyr::group_by(YEAR) %>%
-    dplyr::mutate(prop_10k = (FEMALES/sum(FEMALES)) * 10000) %>% #this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
+    dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) %>% # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
     dplyr::mutate(prop_10k = round(prop_10k)) %>%
-    arrange(-YEAR,LENGTH) %>%
-    dplyr::mutate(prop_10k = ifelse(FEMALES==0, 0,prop_10k)) %>%
-    uncount(prop_10k, .id="id") %>%
-    dplyr::select(SURVEY,YEAR,SPECIES_CODE,LENGTH,id) %>%
+    arrange(-YEAR, LENGTH) %>%
+    dplyr::mutate(prop_10k = ifelse(FEMALES == 0, 0, prop_10k)) %>%
+    uncount(prop_10k, .id = "id") %>%
+    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) %>%
     mutate(Sex = "Female")
-  
-  unsexed <- sizecomp %>% 
-    filter(SPECIES_CODE==sp_code) %>%
+
+  unsexed <- sizecomp %>%
+    filter(SPECIES_CODE == sp_code) %>%
     dplyr::group_by(YEAR) %>%
-    dplyr::mutate(prop_10k = (UNSEXED/sum(UNSEXED)) * 10000) %>%
+    dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) %>%
     dplyr::mutate(prop_10k = round(prop_10k)) %>%
-    arrange(-YEAR,LENGTH) %>%
-    dplyr::mutate(prop_10k = ifelse(UNSEXED==0, 0, prop_10k)) %>%
-    uncount(prop_10k, .id="id") %>%
-    dplyr::select(SURVEY,YEAR,SPECIES_CODE,LENGTH,id) %>%
+    arrange(-YEAR, LENGTH) %>%
+    dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) %>%
+    uncount(prop_10k, .id = "id") %>%
+    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) %>%
     mutate(Sex = "Unsexed")
-  all <- bind_rows(males,females,unsexed)
-  
-  report_pseudolengths <- rbind(report_pseudolengths,all)
+  all <- bind_rows(males, females, unsexed)
+
+  report_pseudolengths <- rbind(report_pseudolengths, all)
 }
 
 
-write.csv(report_pseudolengths, paste0("data/",maxyr,"_",SRVY,"_","report_pseudolengths.csv"),row.names = FALSE)
+write.csv(report_pseudolengths, paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"), row.names = FALSE)
 
 # Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps
@@ -427,9 +442,11 @@ report_biomasses <- biomass_total %>%
 
 
 # Get species blurb interior sentences ------------------------------------
-if(SRVY=="AI"){
-  blurbs <- read.csv(here::here("data", "AI2022_SpeciesBlurbMiddleSentences.csv"))
-}
+
+blurbs <- read.csv(here::here(
+  "data",
+  paste0(SRVY, maxyr, "_SpeciesBlurbMiddleSentences.csv")
+))
 
 
-#Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
+# Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
