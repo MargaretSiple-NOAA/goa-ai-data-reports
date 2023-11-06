@@ -10,8 +10,20 @@ if(!maxyr){print("This script requires objects that aren't in the environment ye
 # Color of thick border between subdistrict areas
 cl <- fp_border(color = "#5A5A5A", width = 3)
 
-# Otolith targets ---------------------------------------------------------
+
+# Length targets ----------------------------------------------------------
 targetn <- read.csv(here::here("data","target_n.csv"))
+
+# Otolith targets ---------------------------------------------------------
+df <- read.csv(here::here("data",paste0(SRVY,maxyr,"_otolith_targets.csv")))
+
+otos_target_sampled <- df |>
+  dplyr::mutate(percent.diff = round((collection-target)/target * 100)) |>
+  dplyr::select(species, collection, target, percent.diff)
+
+# Experiment: try creating a kableExtra table and saving it as an image.
+#otos_target_sampled$percent.diff <- color_bar("lightgreen")(otos_target_sampled$percent.diff)
+
 
 # Species richness by subregion and family --------------------------------
 subregion_fam_div <- appB %>%
@@ -23,7 +35,7 @@ subregion_fam_div <- appB %>%
   mutate_at(2:5, ~ replace_na(., 0)) %>%
   relocate(any_of(c("Family", district_order)))
 
-# Mean CPUE 20 most abundant groundfish spps ------------------------------
+# "Table 2": Mean CPUE 20 most abundant groundfish spps ------------------------------
 #NOTE: This table is different if you produce it using the standard SQL script vs if you produce it by hand or in R. We don't know exactly why these values are very slightly different, but they are! So if we want to reproduce the report in the exact same way, at least for the Aleutians, we have to use a SQL script to produce the table of the top CPUEs by region. 
 if (use_sql_cpue) {
   # colnames should be: c("INPFC_AREA", "species_code", "wgted_mean_cpue_kgkm2", "wgted_mean_cpue_kgha", "scientific_name", "common_name", "major_group")
@@ -199,22 +211,17 @@ table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
 names(table4s_list) <- report_species$species_code
 
 
-# for(i in 1:nrow(report_species)){
-#   tab4_sp <- table4s_list[[as.character(report_species$species_code[i])]]
-#   tab4_sp <- tab4_sp %>% arrange(desc(`Number of hauls`))
-#   write.csv(tab4_sp,file = paste0("C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/2023-05-09/tables/",maxyr,"_",report_species$spp_name_informal[i],"_Table4.csv"))
-#   
-#   tab3_sp <- table3s_list[[as.character(report_species$species_code[i])]]
-#   write.csv(tab3_sp,file = paste0("C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/2023-05-09/tables/",maxyr,"_",report_species$spp_name_informal[i],"_Table3.csv"))
-# }
 
 # Put together big list...will be edited later ----------------------------
 
 list_tables <- list()
+
 list_tables[["allocated_sampled"]] <- allocated_sampled # Stations allocated and successfully sampled
-list_tables[["length-sample-sizes"]] <- targetn  # Target sample size for species/species groups
-list_tables[["top_CPUE"]] <- top_CPUE #
-#names(list_tables) <- c("allocated_sampled","targetn","top_CPUE")
+list_tables[["length-sample-sizes"]] <- targetn  # Target length size for species/species groups
+list_tables[["top_CPUE"]] <- top_CPUE 
+
+list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
+
 
 
 save(list_tables,
