@@ -201,24 +201,24 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     mutate(`Survey district` = na_if(`Survey district`, "")) %>%
     tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Depth (m)` == "All depths") %>%
-    filter(`Survey district` != "Combined Aleutian Districts") %>%
+    filter(`Survey district` != "All areas") %>% # take out the total 
+    {if(SRVY=="AI") filter(., `Survey district` != "Combined Aleutian Districts") else .} %>%
     mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (t)`))) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
-    left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
-    dplyr::select(`INPFC_AREA_ABBREV`) %>%
+    {if(SRVY=="AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .} %>%
     as.character()
 
   inpfc_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     mutate(`Survey district` = na_if(`Survey district`, "")) %>%
     tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Depth (m)` == "All depths") %>%
-    filter(`Survey district` != "Combined Aleutian Districts") %>%
+    filter(`Survey district` != "All areas") %>% # take out the total 
+    {if(SRVY=="AI") filter(., `Survey district` != "Combined Aleutian Districts") else .}%>%
     mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/ha)`))) %>%
     filter(cpue_numeric == max(cpue_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
-    left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
-    dplyr::select(`INPFC_AREA_ABBREV`) %>%
+    {if(SRVY=="AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .} %>%
     as.character() %>%
     fix_co_greatest()
 
@@ -226,14 +226,12 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     mutate(`Survey district` = na_if(`Survey district`, "")) %>%
     tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Depth (m)` == "All depths") %>%
-    filter(`Survey district` != "Combined Aleutian Districts") %>%
+    {if(SRVY=="AI") filter(., `Survey district` != "Combined Aleutian Districts") else .}%>%
     mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/ha)`))) %>%
     filter(cpue_numeric != max(cpue_numeric, na.rm = TRUE)) %>% # janky but this is how I take out the highest CPUE, the next highest will be selected below
     filter(cpue_numeric == max(cpue_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
-    dplyr::select(`Survey district`) %>%
-    left_join(region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
-    dplyr::select(`INPFC_AREA_ABBREV`) %>%
+    {if(SRVY=="AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .} %>%
     as.character() %>%
     fix_co_greatest()
 
@@ -242,7 +240,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
   region_largest <- meanlengths_area %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     top_n(1, `Mean length`) %>%
-    dplyr::select(INPFC_AREA_ABBREV) %>%
+    {ifelse(SRVY=="AI", dplyr::select(.,INPFC_AREA_ABBREV),dplyr::select(.,INPFC_AREA))} %>%
     as.character()
 
   if (species_code %in% c(
