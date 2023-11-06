@@ -34,7 +34,7 @@ library(officer)
 \newpage
 <!-- Tables -->
 
-```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the 2022 AI bottom trawl survey. The prices used for station allocation in 2022 are from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap='Ex-vessel prices used to allocate stations in the AI 2022 bottom trawl survey. The prices used for station allocation in 2022 are from 2020.', tab.id='sp-prices',  tab.cap.style = "Table Caption"}
 sp_prices %>% 
   dplyr::rename("Ex-vessel price (USD per lb)" = "Ex-vessel price") %>%
   dplyr::filter(`Included in design`=="Y") %>%
@@ -126,6 +126,20 @@ otos_collected  %>%
   line_spacing(space = 0.5) %>%
   autofit() %>%
   hline(i = ~ break_position(`INPFC area`), border = cl) 
+```
+
+```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table Caption"}
+list_tables[["otos_target_sampled"]]  %>% 
+  #otos_target_sampled %>% 
+  dplyr::rename("Species" = "species",
+                "Target N" = "target", 
+                "N collected" = "collection",
+                "Percent difference" = "percent.diff") %>%
+  flextable() %>%  
+  theme_vanilla() %>%
+  fontsize(size = 9,part = 'all') %>% 
+  line_spacing(space = 0.5) %>%
+  autofit()
 ```
 
 \newpage
