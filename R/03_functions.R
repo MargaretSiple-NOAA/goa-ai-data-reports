@@ -404,9 +404,11 @@ prep_tab3 <- function(speciescode) {
       `Lower 95% CI` = X95..LCL..t.,
       `Upper 95% CI` = X95..UCL..t.,
       `Mean weight (kg)` = Weight...kg.
-    ) %>%
+    ) 
+    
+ if(SRVY=="AI"){x <- x %>%
     dplyr::slice(21:25, 1:20) #sloppy way to slice off the SBS and move it to the top
-  
+ }
   
 
   return(cleaned_tab)
