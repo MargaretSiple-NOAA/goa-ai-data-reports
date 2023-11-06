@@ -25,9 +25,9 @@ top_CPUE <- read.csv(
 
 
 # Load figures ------------------------------------------------------------
-# Static map of region
-img1_path <- "img/AleutiansMap.png"
-img1 <- png::readPNG(img1_path)
+# Static map of region - already loaded?
+# img1_path <- "img/AleutiansMap.png"
+# img1 <- png::readPNG(img1_path)
 
 load(file = paste0(
   dir_in_figures, "cpue_bubbles.rdata"
