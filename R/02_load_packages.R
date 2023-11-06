@@ -29,7 +29,6 @@ if(!"qrcode" %in% installed.packages()){
 # List and load required packages -----------------------------------------
 
 PKG <- c(
-  #"plyr", # load plyr first to avoid errors
   "devtools",
   
   # Markdown
@@ -104,6 +103,8 @@ PKG <- c(
   "officer", 
   "flextable", 
   "fuzzyjoin",
+  # "kableExtra",
+  # "formattable",
   
   # For editing XML files
   "XML", 
