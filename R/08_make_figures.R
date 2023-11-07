@@ -203,7 +203,8 @@ if (make_total_surv_map) {
     coord_sf(
       xlim = goa_all$plot.boundary$x,
       ylim = goa_all$plot.boundary$y
-    )
+    ) +
+    guides(fill=guide_legend(nrow=2, byrow=TRUE))
 
   png(
     filename = paste0(dir_out_figures, maxyr, "stations.png"),
