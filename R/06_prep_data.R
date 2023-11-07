@@ -328,6 +328,7 @@ otos_collected <- specimen_maxyr %>%
 # 10        10115 Eastern Aleutians            730
 L_maxyr <- L %>%
   filter(YEAR == maxyr & REGION == SRVY)
+
 meanlengths_area <- L_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
@@ -335,7 +336,8 @@ meanlengths_area <- L_maxyr %>%
   )) %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
-  dplyr::summarize("Mean length" = mean(LENGTH), na.rm = TRUE) %>% # MAY NEED TO WEIGHT BY FREQUENCY
+  dplyr::summarize("N" = sum(FREQUENCY, na.rm = TRUE), 
+                   "Mean length" = mean(LENGTH, na.rm = TRUE) ) %>% # MAY NEED TO WEIGHT BY FREQUENCY
   ungroup() %>%
   dplyr::left_join(region_lu2)
 
@@ -356,7 +358,7 @@ if (SRVY == "GOA") {
     filter(SURVEY == SRVY & YEAR >= minyr)
 }
 
-# Janky but I am in a rush so will have to deal.
+# Janky but I am in a rush so will have to deal. See notes below.
 report_pseudolengths <- data.frame()
 
 for (i in 1:nrow(report_species)) {

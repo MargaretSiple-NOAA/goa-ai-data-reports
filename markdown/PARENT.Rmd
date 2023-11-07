@@ -128,6 +128,8 @@ otos_collected  %>%
   hline(i = ~ break_position(`INPFC area`), border = cl) 
 ```
 
+<br />
+
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table Caption"}
 list_tables[["otos_target_sampled"]]  %>% 
   #otos_target_sampled %>% 
@@ -146,8 +148,8 @@ list_tables[["otos_target_sampled"]]  %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap='Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', fig.id='area-map',  fig.cap.style = "Figure Caption"}
-include_graphics(here::here(img1_path))
+```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.','Map of the GOA 2023 bottom trawl survey area indicating INPFC areas.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7}
+if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 ```
 
 <!-- NOTE: Figures after this first one are all per species until the appendix. -->
@@ -160,14 +162,14 @@ include_graphics(here::here(img1_path))
 <br />
 <br />
 
-```{r fig.cap='Bottom temperatures as measured by survey gear. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption"}
+```{r fig.cap='Bottom temperatures as measured by survey gear. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=7}
 bottom_temp_plot
 ```
 
 <br />
 <br />
 
-```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption"}
+```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=7}
 surface_temp_plot
 ```
 
@@ -242,6 +244,11 @@ for (i in 1:3) { # nrow(report_species)
     top_n(1, `Mean length`) %>%
     {ifelse(SRVY=="AI", dplyr::select(.,INPFC_AREA_ABBREV),dplyr::select(.,INPFC_AREA))} %>%
     as.character()
+  
+  spp_n_length <- meanlengths_area %>%
+    dplyr::filter(SPECIES_CODE == species_code) %>%
+    summarize(sum(N)) %>%
+    as.numeric()
 
   if (species_code %in% c(
     c(10260, 10261, 10262, 10263)#,
