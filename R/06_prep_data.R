@@ -337,9 +337,20 @@ meanlengths_area <- L_maxyr %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
   dplyr::summarize("N" = sum(FREQUENCY, na.rm = TRUE), 
-                   "Mean length" = mean(LENGTH, na.rm = TRUE) ) %>% # MAY NEED TO WEIGHT BY FREQUENCY
+                   "Mean length" = mean(LENGTH, na.rm = TRUE) ) %>% 
   ungroup() %>%
   dplyr::left_join(region_lu2)
+
+meanlengths_depth <- L_maxyr %>%
+  dplyr::left_join(haul_maxyr, by = c(
+    "CRUISEJOIN", "HAULJOIN",
+    "REGION", "VESSEL", "CRUISE"
+  )) %>%
+  dplyr::left_join(region_lu, by = c("STRATUM")) %>%
+  dplyr::group_by(SPECIES_CODE, `Depth range`) %>% # ,
+  dplyr::summarize("N" = sum(FREQUENCY, na.rm = TRUE), 
+                   "Mean length" = mean(LENGTH, na.rm = TRUE) ) %>%
+  ungroup() 
 
 total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
   format(big.mark = ",")
