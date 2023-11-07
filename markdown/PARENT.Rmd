@@ -245,6 +245,12 @@ for (i in 1:3) { # nrow(report_species)
     {ifelse(SRVY=="AI", dplyr::select(.,INPFC_AREA_ABBREV),dplyr::select(.,INPFC_AREA))} %>%
     as.character()
   
+  depth_largest <- meanlengths_depth %>%
+    dplyr::filter(SPECIES_CODE == species_code) %>%
+    top_n(1, `Mean length`) %>%
+    dplyr::select(`Depth range`) %>%
+    as.character()
+  
   spp_n_length <- meanlengths_area %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     summarize(sum(N)) %>%
