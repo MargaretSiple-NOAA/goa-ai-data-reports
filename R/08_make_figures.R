@@ -137,6 +137,84 @@ if (SRVY == "GOA") {
 img1 <- png::readPNG(img1_path)
 # attr(img1, "info")
 
+
+# 0b: INPFC areas with stations sampled -----------------------------------
+if (make_total_surv_map) {
+  if (SRVY == "GOA") {
+    reg_dat_goa <- akgfmaps::get_base_layers(
+      select.region = "goa",
+      set.crs = "EPSG:3338"
+    )
+    reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+      dplyr::mutate(
+        SRVY = "GOA",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Gulf of Alaska"
+      )
+    reg_data <- reg_dat_goa
+  }
+
+  if (SRVY == "AI") {
+    reg_dat_ai <- akgfmaps::get_base_layers(
+      select.region = "ai",
+      set.crs = "EPSG:3338"
+    )
+    reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
+      dplyr::mutate(
+        SRVY = "AI",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Aleutian Islands"
+      )
+    reg_data <- reg_data_ai
+  }
+
+  goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
+
+  goa_inpfc <- akgfmaps::get_base_layers(select.region = "inpfc.goa", set.crs = "auto")
+  # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
+
+  geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
+  palette_map <- MetBrewer::met.brewer(palette_name = "Nizami", n = 6, type = "discrete", direction = 1)[c(1, 4, 2, 5, 3)]
+
+  thisyrshauldata <- cpue_raw %>%
+    dplyr::filter(year == maxyr & survey == SRVY) %>%
+    st_as_sf(
+      coords = c("start_longitude", "start_latitude"),
+      crs = "EPSG:4326"
+    ) %>%
+    st_transform(crs = reg_data$crs)
+
+  p1 <- ggplot() +
+    geom_sf(data = goa_all$akland) +
+    geom_sf(data = goa_inpfc, aes(fill = INPFC_STRATUM)) +
+    scale_fill_manual("INPFC area", values = palette_map, breaks = geo_order) +
+    # geom_sf(data = GOA$bathymetry) +
+    geom_sf(data = goa_all$survey.area, fill = NA) +
+    coord_sf(
+      xlim = goa_all$plot.boundary$x,
+      ylim = goa_all$plot.boundary$y
+    ) +
+    theme_light() +
+    theme(legend.position = "bottom")
+
+
+  station_map <- p1 +
+    geom_sf(data = thisyrshauldata, size = 0.5) +
+    coord_sf(
+      xlim = goa_all$plot.boundary$x,
+      ylim = goa_all$plot.boundary$y
+    )
+
+  png(
+    filename = paste0(dir_out_figures, maxyr, "stations.png"),
+    width = 8, height = 5, units = "in", res = 150
+  )
+  print(station_map)
+  dev.off()
+
+  save(station_map, file = paste0(dir_out_figures, maxyr, "_station_map.RDS"))
+}
+
 # 1. Biomass index relative to LT mean ---------------------------------------
 
 if (make_biomass_timeseries) {
