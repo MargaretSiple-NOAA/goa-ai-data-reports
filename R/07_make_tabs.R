@@ -125,7 +125,7 @@ inpfc_depth_areas <- region_lu %>%
 
 piece1 <- all_allocation %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
-  left_join(region_lu) %>%
+  left_join(region_lu,by = c("SURVEY", "STRATUM")) %>%
   group_by(INPFC_AREA, `Depth range`) %>%
   dplyr::count(name = "allocated") %>%
   ungroup() %>%
