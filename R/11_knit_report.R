@@ -45,12 +45,9 @@ load(file = paste0(
   dir_in_figures, "list_ldscatter.rdata"
 )) # object: list_ldscatter
 
-
-# Figures used for presentation
-# load(file = paste0(
-#   dir_in_figures,"biomass_ts.rdata")) # object: list_biomass_ts
-# load(file = paste0(
-#   dir_in_figures,"cpue_bubbles_strata.rdata")) # object: list_cpue_bubbles_strata
+load(file = paste0(
+  dir_in_figures, "station_map.RDS"
+)) # object: station_map
 
 
 # Load the individual values ----------------------------------------------
