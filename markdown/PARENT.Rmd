@@ -115,28 +115,13 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 
 <br />
 
-```{r echo=FALSE,tab.cap='Otolith samples collected by INPFC area and depth range.', tab.id='otolith-sample-summary',  tab.cap.style = "Table Caption"}
-otos_collected  %>% 
-  dplyr::rename("INPFC area" = "INPFC_AREA") %>%
-  flextable() %>%  
-  merge_v(j = ~`INPFC area`) %>%
-  fix_border_issues() %>%
-  theme_vanilla() %>%
-  fontsize(size = 8.5,part = 'all') %>% 
-  line_spacing(space = 0.5) %>%
-  autofit() %>%
-  hline(i = ~ break_position(`INPFC area`), border = cl) 
-```
-
-<br />
-
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table Caption"}
 list_tables[["otos_target_sampled"]]  %>% 
   #otos_target_sampled %>% 
   dplyr::rename("Species" = "species",
                 "Target N" = "target", 
                 "N collected" = "collection",
-                "Percent difference" = "percent.diff") %>%
+                "Percent difference between target and collection" = "percent.diff") %>%
   flextable() %>%  
   theme_vanilla() %>%
   fontsize(size = 9,part = 'all') %>% 
@@ -148,7 +133,7 @@ list_tables[["otos_target_sampled"]]  %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.','Map of the GOA 2023 bottom trawl survey area indicating INPFC areas.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7}
+```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', 'Map of the GOA 2023 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7}
 if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 ```
 
@@ -220,7 +205,8 @@ for (i in 1:3) { # nrow(report_species)
     mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/ha)`))) %>%
     filter(cpue_numeric == max(cpue_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
-    {if(SRVY=="AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .} %>%
+    {if(SRVY=="AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% 
+        dplyr::select(., `INPFC_AREA_ABBREV`) else .} %>%
     as.character() %>%
     fix_co_greatest()
 
@@ -254,7 +240,8 @@ for (i in 1:3) { # nrow(report_species)
   spp_n_length <- meanlengths_area %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     summarize(sum(N)) %>%
-    as.numeric()
+    as.numeric() %>%
+    format(big.mark=",")
 
   if (species_code %in% c(
     c(10260, 10261, 10262, 10263)#,
