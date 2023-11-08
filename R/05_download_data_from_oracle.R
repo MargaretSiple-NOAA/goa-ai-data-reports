@@ -174,6 +174,30 @@ if (SRVY == "GOA") {
 
 ################## BUILD TABLES FROM ORACLE ####################################
 
+
+# Use gapindex to get size comp table -------------------------------------
+# Use gapindex to get size comps - these will be used to 
+sql_channel <- gapindex::get_connected()
+
+xx <- gapindex::get_data(year_set = maxyr,
+                         survey_set = SRVY,
+                         spp_codes = report_species$species_code,
+                         abundance_haul = "Y",
+                         sql_channel = sql_channel, 
+                         pull_lengths = TRUE)
+cpue <- gapindex::calc_cpue(racebase_tables = xx)
+biomass_stratum <- gapindex::calc_biomass_stratum(racebase_tables = xx, 
+                                                  cpue = cpue)
+sizecomp_stratum <- gapindex::calc_sizecomp_stratum(racebase_cpue = cpue,
+                                                    racebase_stratum_popn = biomass_stratum, 
+                                                    racebase_tables = xx)
+
+# Save to the local folder for SRVY:
+write.csv(sizecomp_stratum, 
+          file = paste0("./data/local_",tolower(SRVY), "/sizecomp_stratum.csv"), 
+          row.names = FALSE)
+
+
 # Table 4's (built w SQL) -------------------------------------------------
 # make_tab4 function comes from the 03_functions.R file
 lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
