@@ -25,7 +25,7 @@ otos_target_sampled <- df |>
 #otos_target_sampled$percent.diff <- color_bar("lightgreen")(otos_target_sampled$percent.diff)
 
 
-# Species richness by subregion and family --------------------------------
+# Sp richness by subregion and family ------------------------------------------
 subregion_fam_div <- appB %>%
   group_by(inpfc_area, family) %>%
   tally(name = "nsp") %>%
@@ -35,7 +35,7 @@ subregion_fam_div <- appB %>%
   mutate_at(2:5, ~ replace_na(., 0)) %>%
   relocate(any_of(c("Family", district_order)))
 
-# "Table 2": Mean CPUE 20 most abundant groundfish spps ------------------------------
+# "Table 2": Mean CPUE 20 most abundant groundfish spps ------------------------
 #NOTE: This table is different if you produce it using the standard SQL script vs if you produce it by hand or in R. We don't know exactly why these values are very slightly different, but they are! So if we want to reproduce the report in the exact same way, at least for the Aleutians, we have to use a SQL script to produce the table of the top CPUEs by region. 
 if (use_sql_cpue) {
   # colnames should be: c("INPFC_AREA", "species_code", "wgted_mean_cpue_kgkm2", "wgted_mean_cpue_kgha", "scientific_name", "common_name", "major_group")
@@ -67,11 +67,8 @@ write.csv(
   row.names = FALSE
 )
 
-# Biomass estimates by area and depth range -------------------------------
-# Not needed I don't think yet but I did produce this for Maia for 2022 FHS.
-#make_depth_mgmt_area_summary(species_code = 10130)
 
-# % changes in biomass since last survey ----------------------------
+# Presentation: % changes in biomass since last survey --------------------
 
 head(biomass_total)
 
@@ -182,10 +179,7 @@ colnames(allocated_sampled) <- c("Survey district", "Depth range",
                                  "Stations allocated", "Stations attempted", "Stations completed", 
                                  "Total area", "Stations per 1,000 km^2")
 
-# CPUE table by district - formatted by Paul ------------------------------
-#CPUE_table_formatted <- read_xlsx(path = paste0(dir_in_premadetabs,"Table 2/Table 2 AI2022.xlsx"))
-
-# district_depth_cpue_sp_list - list of tables that Paul made -------------
+# "Table 3" and "Table 4" ------------------------------------------------------
 # Check to see if all the species in the list are in the folder
 toMatch <- report_species$species_code
 matches <- unique(grep(paste(toMatch, collapse = "|"),
@@ -211,16 +205,36 @@ table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
 names(table4s_list) <- report_species$species_code
 
 
+# Size comps for summaries ------------------------------------------------
+# Table sizecomp_stratum is from gapindex which queries Oracle, so the code to do it is in 05_download_data_from_oracle.R
+sizecomp_stratum <- read.csv(file = paste0("./data/local_", tolower(SRVY), "/sizecomp_stratum.csv"), header = TRUE)
+strata <- read.csv(file = "data/goa_strata.csv", header = TRUE)
+sc <- strata |>
+  dplyr::filter(SURVEY == SRVY) |>
+  dplyr::right_join(sizecomp_stratum) |>
+  dplyr::mutate(DEPTH_RANGE = paste(MIN_DEPTH, "-", MAX_DEPTH, "m")) |>
+  dplyr::select(STRATUM, INPFC_AREA, STRATUM, SPECIES_CODE, 
+                LENGTH_MM, SEX, POPULATION_COUNT, DEPTH_RANGE)
+sc_depth <- sc |>
+  dplyr::group_by(SPECIES_CODE, SEX, DEPTH_RANGE) |>
+  dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
+  dplyr::ungroup()
 
-# Put together big list...will be edited later ----------------------------
+sc_inpfc_area <- sc |>
+  dplyr::group_by(SPECIES_CODE, SEX, INPFC_AREA) |>
+  dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
+  dplyr::ungroup()
+
+# Assemble and save tables -----------------------------------------------------
 
 list_tables <- list()
 
 list_tables[["allocated_sampled"]] <- allocated_sampled # Stations allocated and successfully sampled
 list_tables[["length-sample-sizes"]] <- targetn  # Target length size for species/species groups
 list_tables[["top_CPUE"]] <- top_CPUE 
-
 list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
+list_tables[[sizecomp_stratum]] <- sizecomp_stratum
+
 
 
 
