@@ -222,7 +222,17 @@ for (i in 1:3) { # nrow(report_species)
     {if(SRVY=="AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .} %>%
     as.character() %>%
     fix_co_greatest()
-
+  
+  depth_highest_biomass <-  table3s_list[paste(report_species$species_code[i])][[1]] %>%
+    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
+    tidyr::fill(`Survey district`, .direction = "down") %>%
+    filter(`Survey district` == "All areas" & `Depth (m)` != "All depths") %>% # take out the total 
+    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (t)`)) %>%
+    filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
+    dplyr::select(`Depth (m)`) %>%
+    as.character()
+  depth_highest_biomass <- paste(depth_highest_biomass, "m")
+  
   middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
 
   region_largest <- meanlengths_area %>%

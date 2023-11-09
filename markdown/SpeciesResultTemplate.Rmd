@@ -1,9 +1,11 @@
 ## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
 
+<br />
 
 -  {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table \@ref(tab:top-cpue)). 
 
--  The total biomass of {{spp_name_informal}} in the {{year}} {{survname_long}} bottom trawl survey was estimated to be {{species_biomass}} t. The largest estimated biomass for {{spp_name_informal}} was in the {{inpfc_highest_biomass}} (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and Table `r officer::run_reference(paste0("table1-",{{species_code}}))`).
+-  The total biomass of {{spp_name_informal}} in the {{year}} {{survname_long}} bottom trawl survey was estimated to be {{species_biomass}} t. The largest estimated biomass for {{spp_name_informal}} was in the {{inpfc_highest_biomass}} region, and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
+<!-- (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and Table `r officer::run_reference(paste0("table1-",{{species_code}}))`) -->
 
 -  The highest densities were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
 
@@ -69,6 +71,6 @@ list_cpue_bubbles[[as.character({{species_code}})]]
 list_joy_length[[as.character({{species_code}})]]
 ```
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length by depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent locally estimated scatterplot smoothing (LOESS) smooths, added to show trends in length. Shaded bands indicate 95% confidence intervals.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length by depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent locally estimated scatterplot smoothing (LOESS) smooths, added to show trends in length. Shaded bands indicate 95% confidence intervals. Data shown are raw (unexpanded) lengths.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
 list_ldscatter[[as.character({{species_code}})]]
 ```

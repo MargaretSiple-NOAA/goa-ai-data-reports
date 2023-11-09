@@ -111,6 +111,22 @@ fix_co_greatest <- function(text_string){
   return(newtext)
 }
 
+#' Convert character version of a large number into a numeric one
+#'
+#' @param x vector of character strings like you would find in a standard GOA / AI data table. Usually contains stuff like "---" or "< something".
+#'
+#' @return a numeric version of the number, or NA if x was a series of dashes or something else.
+#' @export
+#'
+#' @examples
+chr_to_num <- function(x){
+  y=x
+  y[which(x=="---" | x == "<1")] = NA
+  y = as.numeric(gsub(",", "", y))
+  
+  return(y)
+}
+  
 
 # Species -----------------------------------------------
 
