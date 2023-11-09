@@ -207,7 +207,12 @@ new_successfully_sampled <- test %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
 
+# In the AI, we assign boat to investigate new stations that haven't been trawled before. In the GOA survey, that doesn't happen.
+if(SRVY=="AI"){
 newstationsentence <- paste("Among the", nnewstations, "total new stations assigned,", new_successfully_sampled, "were successfully found and trawled.")
+}else{
+  newstationsentence <- ""
+}
 
 # Number of stations "successfully sampled"
 # Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
