@@ -100,6 +100,16 @@ write.csv(x = a, "./data/specimen_ADFG.csv", row.names = FALSE)
 print("Finished downloading ADF&G tables")
 
 
+
+# GAP_PRODUCTS ------------------------------------------------------------
+
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
+write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
+
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
+write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
+
+
 # GOA ---------------------------------------------------------------------
 
 # Need goa_strata because it contains both GOA and AI strata
@@ -188,6 +198,7 @@ xx <- gapindex::get_data(year_set = maxyr,
 cpue <- gapindex::calc_cpue(racebase_tables = xx)
 biomass_stratum <- gapindex::calc_biomass_stratum(racebase_tables = xx, 
                                                   cpue = cpue)
+biomass_subarea <- gapindex::calc_biomass_subarea(racebase_tables = xx,biomass_strata = biomass_stratum)
 sizecomp_stratum <- gapindex::calc_sizecomp_stratum(racebase_cpue = cpue,
                                                     racebase_stratum_popn = biomass_stratum, 
                                                     racebase_tables = xx)
