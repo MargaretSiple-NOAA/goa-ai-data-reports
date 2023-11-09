@@ -16,6 +16,10 @@ for (i in 1:length(dirs)) {
 
 # Data folder (for storing db tables) -------------------------------------
 dir.create(paste0(dir_in,"data/"))
+dir.create(paste0(dir_in,"data/local_gap_products/"))
+dir.create(paste0(dir_in,"data/local_ai/"))
+dir.create(paste0(dir_in,"data/local_goa/"))
+dir.create(paste0(dir_in,"data/local_racebase/"))
 
 # Folder with tables produced by other people -----------------------------
 if (SRVY == "AI") {
