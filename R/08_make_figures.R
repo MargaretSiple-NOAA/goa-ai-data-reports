@@ -20,7 +20,8 @@ make_joy_division_length <- TRUE
 make_ldscatter <- TRUE
 # 6. Plot of surface and bottom SST with long term avg
 make_temp_plot <- TRUE
-
+# XX. Make a map of the full survey area with strata and stations
+make_total_surv_map <- TRUE
 
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
@@ -207,7 +208,7 @@ if (make_total_surv_map) {
     guides(fill=guide_legend(nrow=2, byrow=TRUE))
 
   png(
-    filename = paste0(dir_out_figures, maxyr, "stations.png"),
+    filename = paste0(dir_out_figures, maxyr, "_station_map.png"),
     width = 8, height = 5, units = "in", res = 150
   )
   print(station_map)

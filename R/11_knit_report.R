@@ -46,7 +46,7 @@ load(file = paste0(
 )) # object: list_ldscatter
 
 load(file = paste0(
-  dir_in_figures, "station_map.RDS"
+  dir_in_figures, maxyr, "_station_map.RDS"
 )) # object: station_map
 
 
