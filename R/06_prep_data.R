@@ -134,6 +134,7 @@ region_lu <- dat %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
   mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
+#For AI years, add abbreviated area names:
 region_lu2 <- region_lu %>%
   dplyr::group_by(INPFC_AREA) %>%
   dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) %>%
@@ -145,7 +146,8 @@ region_lu2 <- region_lu %>%
     INPFC_AREA == "Southern Bering Sea" ~ "SBS"
   ))
 
-# Add Aleutian areas
+# If it's an AI year, add Aleutian areas:
+if(SRVY=="AI"){
 INPFC_areas <- region_lu2 %>%
   tibble::add_row(
     INPFC_AREA = "All Aleutian Districts",
@@ -155,7 +157,13 @@ INPFC_areas <- region_lu2 %>%
     INPFC_AREA = "All Districts",
     INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
   )
-
+}else{
+  INPFC_areas <- region_lu2 %>%
+    tibble::add_row(
+      INPFC_AREA = "All Districts",
+      INPFC_AREA_AREA_km2 = sum(region_lu2$INPFC_AREA_AREA_km2)
+    )
+}
 
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
