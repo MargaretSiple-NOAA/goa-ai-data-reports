@@ -130,119 +130,114 @@ chr_to_num <- function(x){
 
 # Species -----------------------------------------------
 
-#' Make a list of the top 20 species by CPUE
-#'
-#' @param YEAR numeric - year for which you want the top spps
-#' @param SRVY character - "GOA" or "AI"
-#' @param cpue_raw dataframe or tibble containing raw CPUE data. Can be from FOSS or GOA/AI schemae. Columnscurrently include...
-# c("survey", "year", "catchjoin", "hauljoin", "vessel", "cruise",
-#   "haul", "stratum", "distance_fished", "net_width", "species_code",
-#   "weight", "number_fish", "effort", "cpue_kgkm2", "numcpue", "species_name",
-#   "common_name", "cruisejoin", "region", "haul_type", "performance",
-#   "duration", "net_measured", "net_height", "start_latitude", "end_latitude",
-#   "start_longitude", "end_longitude", "stationid", "gear_depth",
-#   "bottom_depth", "bottom_type", "surface_temperature", "gear_temperature",
-#   "wire_length", "gear", "accessories", "subsample", "abundance_haul",
-#   "auditjoin", "start_time")
-#' @param topn how many of the top species do you want? For the report it's the top 20; can be adjusted as needed
-#' @return a tibble with CPUE and some other stuff by species, for the 20 most abundant spps in the survey.
-#' @export
-#'
-#' @examples
-make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps for each region
-  # INPFC_areas2 <- INPFC_areas
-  # INPFC_areas2$INPFC_AREA_AREA_km2 <- c(16542, 25201, 7482, 15188, 56931, 64413)
-  #
-  cpue_districts <- cpue_raw %>%
-    filter(year == YEAR & survey == SRVY & abundance_haul == "Y") %>%
-    dplyr::mutate(taxon = dplyr::case_when(
-      species_code <= 31550 ~ "fish",
-      species_code >= 40001 ~ "invert"
-    )) %>%
-    dplyr::mutate(common_name = case_when(
-      species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
-      species_code == 405 ~ "Bathyraja sp.",
-      TRUE ~ common_name
-    )) %>%
-    # Old skate check
-    # dplyr::filter(species_code >=400 & species_code<=495) %>%
-    left_join(region_lu, by = c("stratum" = "STRATUM")) %>%
-    # This table has stratum areas, INPFC area names, and more.
+#' #' Make a list of the top 20 species by CPUE
+#' #'
+#' #' @param YEAR numeric - year for which you want the top spps
+#' #' @param SRVY character - "GOA" or "AI"
+#' #' @param cpue_raw dataframe or tibble containing raw CPUE data. Can be from FOSS or GOA/AI schemae. Columnscurrently include...
+#' # c("survey", "year", "catchjoin", "hauljoin", "vessel", "cruise",
+#' #   "haul", "stratum", "distance_fished", "net_width", "species_code",
+#' #   "weight", "number_fish", "effort", "cpue_kgkm2", "numcpue", "species_name",
+#' #   "common_name", "cruisejoin", "region", "haul_type", "performance",
+#' #   "duration", "net_measured", "net_height", "start_latitude", "end_latitude",
+#' #   "start_longitude", "end_longitude", "stationid", "gear_depth",
+#' #   "bottom_depth", "bottom_type", "surface_temperature", "gear_temperature",
+#' #   "wire_length", "gear", "accessories", "subsample", "abundance_haul",
+#' #   "auditjoin", "start_time")
+#' #' @param topn how many of the top species do you want? For the report it's the top 20; can be adjusted as needed
+#' #' @return a tibble with CPUE and some other stuff by species, for the 20 most abundant spps in the survey.
+#' #' @export
+#' #'
+#' #' @examples
+#' make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps for each region
+#'   
+#'   cpue_districts <- cpue_raw %>%
+#'     filter(year == YEAR & survey == SRVY & abundance_haul == "Y") %>% #
+#'     dplyr::mutate(taxon = dplyr::case_when(
+#'       species_code <= 31550 ~ "fish",
+#'       species_code >= 40001 ~ "invert"
+#'     )) %>%
+#'     dplyr::mutate(common_name = case_when(
+#'       species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
+#'       species_code == 405 ~ "Bathyraja sp.",
+#'       TRUE ~ common_name
+#'     )) %>%
+#'     # Old skate check
+#'     # dplyr::filter(species_code >=400 & species_code<=495) %>%
+#'     left_join(region_lu, by = c("stratum" = "STRATUM")) %>%
+#'     dplyr::group_by(
+#'       survey, year, stratum, species_code,
+#'       species_name, common_name, taxon,
+#'       SURVEY, INPFC_AREA, `Depth range`,
+#'       REGULATORY_AREA_NAME, AREA
+#'     ) %>% # AREA is the area in km^2 of the stratum
+#'     dplyr::summarize(
+#'       stratum_cpue_kgkm2 = mean(cpue_kgkm2),
+#'       stratum_cpue_kgkm2_var = var(cpue_kgkm2)
+#'     ) %>%
+#'     # mean cpue by stratum (not yet weighted)
+#'     ungroup() %>%
+#'     dplyr::left_join(INPFC_areas) %>%
+#'     mutate(weight_for_mean = AREA / INPFC_AREA_AREA_km2)
+#' 
+#'   # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
+#'   districts <- cpue_districts %>%
+#'     dplyr::group_by(INPFC_AREA, species_code) %>%
+#'     dplyr::summarize(
+#'       wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * weight_for_mean)
+#'     ) %>%
+#'     ungroup() %>%
+#'     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
+#'     group_by(INPFC_AREA) %>%
+#'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
+#'     dplyr::ungroup() %>%
+#'     dplyr::left_join(species_names)
+#' 
+#'   if(SRVY=="AI"){
+#'   total_aleutians_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Aleutian Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
+#' 
+#'   aleutian_areas <- cpue_districts %>%
+#'     mutate(survey_weight = AREA / total_aleutians_area_km2) %>%
+#'     dplyr::group_by(species_code) %>%
+#'     dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
+#'     ungroup() %>%
+#'     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
+#'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
+#'     dplyr::left_join(species_names) %>%
+#'     mutate(INPFC_AREA = "All Aleutian Districts") 
+#'   }  else{
+#'     aleutian_areas <- data.frame()
+#'   }
+#'   
+#'   total_survey_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
+#'   
+#'  all_areas <- cpue_districts %>%
+#'     mutate(survey_weight = AREA / total_survey_area_km2) %>%
+#'     dplyr::group_by(species_code) %>%
+#'     dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
+#'     ungroup() %>%
+#'     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
+#'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
+#'     dplyr::left_join(species_names) %>%
+#'     mutate(INPFC_AREA = "All Areas Combined")
+#' 
+#'   
+#'   bigtable <- bind_rows(districts, aleutian_areas, all_areas) %>%
+#'     dplyr::mutate(scientific_name = case_when(
+#'       common_name == "Rougheye / blackspotted rockfish complex" ~ "Sebastes aleutianus / Sebastes melanostictus",
+#'       TRUE ~ scientific_name
+#'     )) %>%
+#'     dplyr::mutate(major_group = case_when(
+#'       common_name == "Rougheye / blackspotted rockfish complex" ~ "Rockfishes",
+#'       TRUE ~ major_group
+#'     ))
+#'   
+#'   # bigtable
+#'   
+#'   return(bigtable)
+#' }
+#' 
 
-    dplyr::group_by(
-      survey, year, stratum, species_code,
-      species_name, common_name, taxon,
-      SURVEY, INPFC_AREA, `Depth range`,
-      REGULATORY_AREA_NAME, AREA
-    ) %>% # AREA is the area im km^2 of the stratum
-    dplyr::summarize(
-      stratum_cpue_kgkm2 = mean(cpue_kgkm2),
-      stratum_cpue_kgkm2_var = var(cpue_kgkm2)
-    ) %>%
-    # mean cpue by stratum (not yet weighted)
-    ungroup() %>%
-    dplyr::left_join(INPFC_areas) %>%
-    mutate(weight_for_mean = AREA / INPFC_AREA_AREA_km2)
-
-  # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
-  districts <- cpue_districts %>%
-    dplyr::group_by(INPFC_AREA, species_code) %>%
-    dplyr::summarize(
-      wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * weight_for_mean)
-      # ,
-      # var_cpue_kgkm2 = sum(weight_for_mean^2 * stratum_cpue_kgkm2_var,na.rm=TRUE)
-    ) %>%
-    ungroup() %>%
-    mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-    group_by(INPFC_AREA) %>%
-    dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-    dplyr::ungroup() %>%
-    dplyr::left_join(species_names)
-
-  total_aleutians_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Aleutian Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
-
-  aleutian_areas <- cpue_districts %>%
-    mutate(survey_weight = AREA / total_aleutians_area_km2) %>%
-    dplyr::group_by(species_code) %>%
-    dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
-    ungroup() %>%
-    mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-    dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-    dplyr::left_join(species_names) %>%
-    mutate(INPFC_AREA = "All Aleutian Districts")
-
-  total_survey_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
-
-  all_areas <- cpue_districts %>%
-    mutate(survey_weight = AREA / total_survey_area_km2) %>%
-    dplyr::group_by(species_code) %>%
-    dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
-    ungroup() %>%
-    mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-    dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-    dplyr::left_join(species_names) %>%
-    mutate(INPFC_AREA = "All Areas Combined")
-
-
-  bigtable <- bind_rows(districts, aleutian_areas, all_areas) %>%
-    dplyr::mutate(scientific_name = case_when(
-      common_name == "Rougheye / blackspotted rockfish complex" ~ "Sebastes aleutianus / Sebastes melanostictus",
-      TRUE ~ scientific_name
-    )) %>%
-    dplyr::mutate(major_group = case_when(
-      common_name == "Rougheye / blackspotted rockfish complex" ~ "Rockfishes",
-      TRUE ~ major_group
-    ))
-
-  # may eventually want to return variance in the table
-  # if(!return_var){
-  #   bigtable <- bigtable %>%
-  #     select(-var_cpue_kgkm2)
-  # }
-
-  # bigtable
-  return(bigtable)
-}
 
 #' Make summary table of biomass by depth range and mgmt area (assessment request)
 #'

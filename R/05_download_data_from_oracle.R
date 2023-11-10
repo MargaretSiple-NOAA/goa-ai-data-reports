@@ -118,11 +118,11 @@ a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
 
 a <- filter(a, 
             SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52) & 
-              SPECIES_CODE %in% report_species$species_code & 
               YEAR == maxyr)
 
 write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
+print("Finished downloading GAP_PRODUCTS tables.")
 
 # GOA ---------------------------------------------------------------------
 
