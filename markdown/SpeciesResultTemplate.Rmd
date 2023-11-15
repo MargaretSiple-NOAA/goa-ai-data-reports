@@ -9,9 +9,9 @@
 -  The total biomass of {{spp_name_informal}} in the {{year}} {{survname_long}} bottom trawl survey was estimated to be {{species_biomass}} t. The largest estimated biomass for {{spp_name_informal}} was in the {{inpfc_highest_biomass}} region, and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
 <!-- (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and Table `r officer::run_reference(paste0("table1-",{{species_code}}))`) -->
 
--  The highest densities were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
+-  The highest densities were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} regions (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
 
--  On average, the largest individuals were found in the {{region_largest}} and in a depth range of {{depth_largest}} (total survey sample size *N = {{spp_n_length}}*; Figure `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))`.
+-  On average, the largest individuals were found in the {{region_largest}} region and in a depth range of {{depth_largest}} (total survey sample size *N = {{spp_n_length}}*; Figure `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))`.
 
 
 
