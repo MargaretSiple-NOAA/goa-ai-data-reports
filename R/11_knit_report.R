@@ -56,9 +56,9 @@ load(file = paste0(dir_in_reportvalues, "/reportvalues.rdata"))
 # Render the markdown doc! -----------------------------------------------------
 
 starttime <- Sys.time()
-rmarkdown::render(paste0(dir_markdown, "/PARENT.Rmd"),
+rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_dir = dir_out_chapters,
-  output_file = "PARENT.docx"
+  output_file = "DATA_REPORT.docx"
 )
 Sys.time() - starttime
 
