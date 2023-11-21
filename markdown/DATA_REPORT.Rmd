@@ -137,7 +137,6 @@ list_tables[["otos_target_sampled"]]  %>%
 if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 ```
 
-<!-- NOTE: Figures after this first one are all per species until the appendix. -->
 
 # Results
 
@@ -157,6 +156,8 @@ bottom_temp_plot
 ```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=7}
 surface_temp_plot
 ```
+
+<!-- NOTE: Figures after this first one are all per species until the appendix. -->
 
 ```{r child=here::here("gdrive","Results_part2.Rmd")}
 ```
