@@ -98,8 +98,8 @@ vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m LOA with a 1,500 HP ma
 
 # Species to include ------------------------------------------------------
 # Get species table
-if (SRVY == "AI") report_species <- read.csv(here::here("data", "ai_report_specieslist.csv"))
-if (SRVY == "GOA") report_species <- read.csv(here::here("data", "goa_report_specieslist.csv"))
+if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
 
 report_species <- report_species |>
   dplyr::arrange(-species_code) |>
