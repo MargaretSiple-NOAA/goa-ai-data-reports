@@ -12,69 +12,9 @@ list_tables <- list()
 list_figures <- list()
 
 # Conversions --------------------------------------------
-find_units <- function(unit = "", unt = "", dat, divby = NULL) {
-  # x <- ifelse(unit == "", "s", paste0(" ", unit))
-  x <- unit # ifelse(unit != "", paste0(" ", unit), unit)
-  x_ <- ifelse(unt == "", "", unt)
-
-  # find appropriate units
-
-  if (is.null(divby)) {
-    min_val <- min(dat, na.rm = TRUE)
-    min_val1 <- xunits(min_val, words = TRUE)
-  } else {
-    min_val <- divby
-    min_val1 <- xunits(divby, words = TRUE)
-  }
-
-
-  if (min_val < 1e3) {
-    divby <- 1
-    unit_word <- ifelse(unit == "", "", paste0(" (", x, ")"))
-    unit_wrd <- paste0("", x_)
-  } else if (min_val < 1e6) {
-    divby <- 1e3
-    unit_word <- paste0(
-      " (thousand",
-      ifelse(unit == "", "s", paste0(" ", unit)),
-      ")"
-    )
-    unit_wrd <- paste0("K", x_)
-  } else if (grepl(pattern = "million", x = min_val1)) {
-    divby <- 1e6
-    unit_word <- paste0(
-      " (million",
-      ifelse(unit == "", "s", paste0(" ", unit)),
-      ")"
-    )
-    unit_wrd <- paste0("M", x_)
-  } else if (grepl(pattern = "billion", x = min_val1)) {
-    divby <- 1e9
-    unit_word <- paste0(
-      " (billion",
-      ifelse(unit == "", "s", paste0(" ", unit)),
-      ")"
-    )
-    unit_wrd <- paste0("B", x_)
-  } else if (grepl(pattern = "trillion", x = min_val1)) {
-    divby <- 1e12
-    unit_word <- paste0(
-      " (trillion",
-      ifelse(unit == "", "s", paste0(" ", unit)),
-      ")"
-    )
-    unit_wrd <- paste0("T", x_)
-  }
-
-
-  return(list(
-    "divby" = divby,
-    "unit_word" = unit_word,
-    "unit_wrd" = unit_wrd
-  ))
+biomass_round <- function(x) {
+  round(x, digits = 0)
 }
-
-biomass_round <- function(x){round(x,digits = 0)}
 
 # https://github.com/geanders/weathermetrics/blob/master/R/temperature_conversions.R
 c2f <- function(T.celsius, round = 2) {
@@ -83,7 +23,7 @@ c2f <- function(T.celsius, round = 2) {
   return(T.fahrenheit)
 }
 
-# Conversion factor thingies
+# Other conversions
 divnmi2forkm2 <- 1 / 3.429904
 divkm2fornmi2 <- 3.429904
 divkm2forha <- 100
@@ -92,7 +32,7 @@ divftform <- 3.28084
 
 
 # Text manipulation -------------------------------------------------------
-#' Title
+#' Fix inserted text when there are two areas or depths with the "greatest biomass" (i.e., if it's the same for both and they're both the max).
 #'
 #' @param x text string from soliciting the areas with the top CPUE or biomass or whatever
 #'
@@ -100,12 +40,12 @@ divftform <- 3.28084
 #' @export
 #'
 #' @examples
-fix_co_greatest <- function(text_string){
-  if(startsWith(x = text_string, "c(")){
-    text_string2 <- sub("c(","",text_string,fixed = TRUE)
+fix_co_greatest <- function(text_string) {
+  if (startsWith(x = text_string, "c(")) {
+    text_string2 <- sub("c(", "", text_string, fixed = TRUE)
     text_string3 <- gsub("[^-,/a-zA-Z0-9[:space:]]+", "", text_string2, perl = TRUE)
     newtext <- gsub("[,]", ", ", text_string3, perl = TRUE)
-  }else{
+  } else {
     newtext <- text_string
   }
   return(newtext)
@@ -119,14 +59,14 @@ fix_co_greatest <- function(text_string){
 #' @export
 #'
 #' @examples
-chr_to_num <- function(x){
-  y=x
-  y[which(x=="---" | x == "<1")] = NA
-  y = as.numeric(gsub(",", "", y))
-  
+chr_to_num <- function(x) {
+  y <- x
+  y[which(x == "---" | x == "<1")] <- NA
+  y <- as.numeric(gsub(",", "", y))
+
   return(y)
 }
-  
+
 
 # Species -----------------------------------------------
 
@@ -150,7 +90,7 @@ chr_to_num <- function(x){
 #' #'
 #' #' @examples
 #' make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps for each region
-#'   
+#'
 #'   cpue_districts <- cpue_raw %>%
 #'     filter(year == YEAR & survey == SRVY & abundance_haul == "Y") %>% #
 #'     dplyr::mutate(taxon = dplyr::case_when(
@@ -179,7 +119,7 @@ chr_to_num <- function(x){
 #'     ungroup() %>%
 #'     dplyr::left_join(INPFC_areas) %>%
 #'     mutate(weight_for_mean = AREA / INPFC_AREA_AREA_km2)
-#' 
+#'
 #'   # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
 #'   districts <- cpue_districts %>%
 #'     dplyr::group_by(INPFC_AREA, species_code) %>%
@@ -192,10 +132,10 @@ chr_to_num <- function(x){
 #'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
 #'     dplyr::ungroup() %>%
 #'     dplyr::left_join(species_names)
-#' 
+#'
 #'   if(SRVY=="AI"){
 #'   total_aleutians_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Aleutian Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
-#' 
+#'
 #'   aleutian_areas <- cpue_districts %>%
 #'     mutate(survey_weight = AREA / total_aleutians_area_km2) %>%
 #'     dplyr::group_by(species_code) %>%
@@ -204,13 +144,13 @@ chr_to_num <- function(x){
 #'     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
 #'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
 #'     dplyr::left_join(species_names) %>%
-#'     mutate(INPFC_AREA = "All Aleutian Districts") 
+#'     mutate(INPFC_AREA = "All Aleutian Districts")
 #'   }  else{
 #'     aleutian_areas <- data.frame()
 #'   }
-#'   
+#'
 #'   total_survey_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
-#'   
+#'
 #'  all_areas <- cpue_districts %>%
 #'     mutate(survey_weight = AREA / total_survey_area_km2) %>%
 #'     dplyr::group_by(species_code) %>%
@@ -220,8 +160,8 @@ chr_to_num <- function(x){
 #'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
 #'     dplyr::left_join(species_names) %>%
 #'     mutate(INPFC_AREA = "All Areas Combined")
-#' 
-#'   
+#'
+#'
 #'   bigtable <- bind_rows(districts, aleutian_areas, all_areas) %>%
 #'     dplyr::mutate(scientific_name = case_when(
 #'       common_name == "Rougheye / blackspotted rockfish complex" ~ "Sebastes aleutianus / Sebastes melanostictus",
@@ -231,12 +171,12 @@ chr_to_num <- function(x){
 #'       common_name == "Rougheye / blackspotted rockfish complex" ~ "Rockfishes",
 #'       TRUE ~ major_group
 #'     ))
-#'   
+#'
 #'   # bigtable
-#'   
+#'
 #'   return(bigtable)
 #' }
-#' 
+#'
 
 
 #' Make summary table of biomass by depth range and mgmt area (assessment request)
@@ -250,8 +190,8 @@ chr_to_num <- function(x){
 #' make_depth_mgmt_area_summary(species_code = 10130)
 make_depth_mgmt_area_summary <- function(species_code) {
   x <- biomass_stratum %>%
-    filter(SPECIES_CODE == species_code) %>%
-    left_join(region_lu, by = c("SURVEY", "STRATUM")) %>%
+    dplyr::filter(SPECIES_CODE == species_code) %>%
+    dplyr::left_join(region_lu, by = c("SURVEY", "STRATUM")) %>%
     dplyr::select(YEAR, REGULATORY_AREA_NAME, `Depth range`, STRATUM_BIOMASS) %>%
     dplyr::group_by(YEAR, REGULATORY_AREA_NAME, `Depth range`) %>% #
     dplyr::summarize(total_biomass = sum(STRATUM_BIOMASS, na.rm = TRUE)) %>%
@@ -261,7 +201,7 @@ make_depth_mgmt_area_summary <- function(species_code) {
 }
 
 
-#' Using a spreadsheet fromn the old methodology, make a list of the top 20 species by CPUE.
+#' Using a spreadsheet from the old methodology, make a list of the top 20 species by CPUE.
 #'
 #' @details Currently this is our chosen method becaus eit eliminates the weird tiny discrepancies that we get when calculating CPUEs by hand vs. using summary tables from the AI schema.
 #' @param filepath The path of the file containing the CPUE table. Currently, Paul produces this using SQL plus some excel wizardry.
@@ -270,36 +210,38 @@ make_depth_mgmt_area_summary <- function(species_code) {
 #' @export
 #'
 #' @examples
-prep_tab2 <- function(filepath = paste0(dir_in_premadetabs,"Table 2/","Table 2_AI2022_makeitlooklikethisplease.xlsx")){
+prep_tab2 <- function(filepath = paste0(dir_in_premadetabs, "Table 2/", "Table 2_AI2022_makeitlooklikethisplease.xlsx")) {
   if (!file.exists(filepath)) {
     stop("Species Table 2 file missing from the folder. Check directory and make sure you're on the VPN and the filename you've specified is correct, including the year, region, and folder.")
   }
   raw <- readxl::read_excel(filepath)
   # not_all_na <- function(x) any(!is.na(x))
-  # raw2 <- raw %>% 
-  #   dplyr::select(where(not_all_na)) 
-  
+  # raw2 <- raw %>%
+  #   dplyr::select(where(not_all_na))
+
   haulcounts <- raw %>%
-    dplyr::filter(species=="Number of hauls") %>%
+    dplyr::filter(species == "Number of hauls") %>%
     dplyr::rename("nhauls" = CPUE) %>%
     dplyr::select(-species)
-  
+
   raw2 <- raw %>%
-    dplyr::filter(species!="Number of hauls") %>%
-    fuzzyjoin::regex_left_join(species_codes,by = c("species" = "COMMON_NAME")) %>%
+    dplyr::filter(species != "Number of hauls") %>%
+    fuzzyjoin::regex_left_join(species_codes, by = c("species" = "COMMON_NAME")) %>%
     dplyr::select(-species) %>%
-    dplyr::rename("wgted_mean_cpue_kgha"="CPUE",
-                  "INPFC_AREA"="INPFC area",
-                  "species_code" ="SPECIES_CODE",
-                  "common_name"="COMMON_NAME",
-                  "scientific_name"="SPECIES_NAME") %>%
-    dplyr::arrange(factor(INPFC_AREA,levels=district_order))
-  
+    dplyr::rename(
+      "wgted_mean_cpue_kgha" = "CPUE",
+      "INPFC_AREA" = "INPFC area",
+      "species_code" = "SPECIES_CODE",
+      "common_name" = "COMMON_NAME",
+      "scientific_name" = "SPECIES_NAME"
+    ) %>%
+    dplyr::arrange(factor(INPFC_AREA, levels = district_order))
+
   return(raw2)
 }
 
 
-#NOTE: THIS STILL DOESN"T WORK
+# NOTE: THIS STILL DOESN"T WORK
 # make_tab3 <- function(species_code = NULL, survey = NULL, year = NULL){
 #   if(survey=="AI"){
 #     # source: G:\ALEUTIAN\datareport\ai_cpuetable.sql] and one for GOA [G:\GOA\datareport\goa_cpuetable.sql]
@@ -308,20 +250,20 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs,"Table 2/","Table 2_A
 #     goa_query <- gsub("\t", " ", goa_query)
 #     a <- RODBC::sqlQuery(channel, paste0("define xyear = '", as.character(year),"' ",goa_query))
 #   }
-#   
+#
 # if(survey=="GOA"){
 #   # Read the SQL script from a file
 #   sql_script <- readLines("sql/goa_cpuetable.sql")
 #   goa_query <-  paste(sql_script, collapse = " ")
-#   
+#
 #   # Combine the lines into a single string, removing carriage returns
 #   sql_script <- paste(sql_script, collapse = " ")
 #   a <- RODBC::sqlQuery(channel, paste0(
 #     "define xsurvey_area = 'GOA' define b = 'goa.biomass_' define sz = 'goa.sizecomp_' define in = 'inpfc' define in2 = 'inpfc_' define a = 'area' define a2 = 'area_' define d = 'depth' define t = 'total' define cpue = 'goa.cpue' define bindy = &b&in2&d define bdy = &b&d define biny = &b&in define bay = &b&a define bady = &b&a2&d define szindy = &sz&in2&d define szdy = &sz&d define sziny= &sz&in define szady = &sz&a2&d define szty = &sz&t define cpuey = &cpue drop table summary_areas1; create table summary_areas1 as select distinct summary_area_depth summary_area from goa.goa_strata where survey = upper('&xsurvey_area') and stratum in (select distinct stratum from &cpuey); insert into summary_areas1 select distinct summary_area from goa.goa_strata where survey = upper('&xsurvey_area') and stratum in (select distinct stratum from &cpuey); insert into summary_areas1 select distinct summary_depth from goa.goa_strata where survey = upper('&xsurvey_area') and stratum in (select distinct stratum from &cpuey); insert into summary_areas1 values (999); drop table summary_areas; create table summary_areas as select summary_area, species_code from summary_areas1 s, goa.analysis_species g where biomass_flag = upper('&xsurvey_area') or biomass_flag = 'BOTH'; drop table biomass_tab; create table biomass_tab as select b.species_code, b.summary_area_depth summary_area, haul_count, catch_count, round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight from &bindy b, &szindy s where b.year = &", year, " and s.year = &", year, "and b.summary_area_depth = s.summary_area_depth(+) and b.species_code = s.species_code(+) and area_pop > 0 group by b.species_code, b.summary_area_depth, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; insert into biomass_tab select b.species_code, b.summary_area, haul_count, catch_count, round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight from &biny b, &sziny s 	where b.year = &",year," and s.year = &",year, "and b.summary_area = s.summary_area(+) and b.species_code = s.species_code(+) and area_pop > 0	group by b.species_code, b.summary_area, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; drop table bay; create table bay as select * from &bay; update bay set area_pop = 1 where area_pop = 0; insert into biomass_tab select b.species_code, 999 total_area, haul_count, catch_count, round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight from bay b, &szty s where b.year = &",year, "and s.year = &", year,"and b.species_code = s.species_code(+) and regulatory_area_name = 'ALEUTIANS' group by b.species_code, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; drop table bady; create table bady as select * from &bady; update bady set area_pop = 1 where area_pop = 0; insert into biomass_tab select b.species_code, b.summary_depth, haul_count, catch_count,  round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight	from bady b, &szady s where b.year = &", year, "and s.year= &", year,	"and b.species_code = s.species_code(+) and b.regulatory_area_name = 'GULF OF ALASKA' and b.regulatory_area_name = s.regulatory_area_name and b.summary_depth = s.summary_depth group by b.species_code, b.summary_depth, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; drop table haul_count; create table haul_count as select distinct summary_area, haul_count from biomass_tab; drop table table_biomass; create table table_biomass as select s.summary_area, o.sort_order, s.species_code, ltrim(to_char(h.haul_count,'990')) haul_count, ltrim(to_char(catch_count,'990')) catch_count, ltrim(to_char(mean_wgt_cpue, '999,999,990'), ' ') mean_wgt_cpue, ltrim(to_char(area_biomass, '999,999,990'), ' ') area_biomass, ltrim(to_char(min_biomass, '999,999,990'), ' ') min_biomass, ltrim(to_char(max_biomass, '999,999,990'), ' ') max_biomass, ltrim(to_char(weight, '990.000'), ' ') weight	from biomass_tab b, summary_areas s, haul_count h, goa.data_report_sort_order o	where s.summary_area = b.summary_area(+) and s.species_code = b.species_code(+) and h.summary_area(+) = s.summary_area and h.summary_area = o.summary_area; update table_biomass set haul_count = '0' where haul_count is null; update table_biomass set catch_count = '0' where catch_count is null; update table_biomass set mean_wgt_cpue = '---' where mean_wgt_cpue is null; update table_biomass set area_biomass = '---' where area_biomass is null; update table_biomass set min_biomass = '---' where min_biomass is null; update table_biomass set max_biomass = '---' where max_biomass is null; update table_biomass set weight = '---' where weight is null; update table_biomass set mean_wgt_cpue = '<1' where mean_wgt_cpue = '0'; update table_biomass set area_biomass = '<1' where area_biomass = '0'; update table_biomass set weight = '<0.001' where weight = '0.000'; drop table biomass_tab; drop table bay; drop table bady; drop table summary_areas1; drop table summary_areas"))
 # }
-#   
+#
 #   dir_out <- paste0("data/local_", tolower(survey), "_processed/table3_", species_code, "_", survey, "_", year, ".csv")
-#   
+#
 #   write.csv(x = a, file = dir_out, row.names = FALSE)
 # }
 
@@ -331,7 +273,7 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs,"Table 2/","Table 2_A
 #' @param survey survey code, "AI" or "GOA" (character)
 #' @param year survey year (numeric)
 #'
-#' @return writes a csv file for each species for table 4. 
+#' @return writes a csv file for each species for table 4.
 #' @export
 #'
 #' @examples
@@ -343,9 +285,9 @@ make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
     " and b.SPECIES_CODE = ", species_code,
     " and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
   ))
-  
+
   dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
-  
+
   write.csv(x = a, file = dir_out, row.names = FALSE)
 }
 
@@ -366,9 +308,9 @@ top_CPUE_formatted <- function(top_CPUE) {
       `INPFC area` = INPFC_AREA,
       Species = common_name,
       `CPUE (kg/ha)` = wgted_mean_cpue_kgha
-    ) #%>%
-    #group_split(`INPFC area`)
-  
+    ) # %>%
+  # group_split(`INPFC area`)
+
   # y <- lapply(x, pivot_wider, names_from = `INPFC area`, values_from = `CPUE (kg/ha)`)
   # for (i in 1:length(y)) {
   #   names(y)[i] <- names(y[[i]][2])
@@ -393,7 +335,7 @@ top_CPUE_formatted <- function(top_CPUE) {
 #' @examples
 #' prep_tab3(30060)
 prep_tab3 <- function(speciescode) {
-  filepath <- paste0(dir_in_premadetabs, "Table 3/", speciescode, paste0("_",maxyr,".csv"))
+  filepath <- paste0(dir_in_premadetabs, "Table 3/", speciescode, paste0("_", maxyr, ".csv"))
   if (!file.exists(filepath)) {
     stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")
   }
@@ -415,12 +357,13 @@ prep_tab3 <- function(speciescode) {
       `Lower 95% CI` = X95..LCL..t.,
       `Upper 95% CI` = X95..UCL..t.,
       `Mean weight (kg)` = Weight...kg.
-    ) 
-    
- if(SRVY=="AI"){x <- x %>%
-    dplyr::slice(21:25, 1:20) #sloppy way to slice off the SBS and move it to the top
- }
-  
+    )
+
+  if (SRVY == "AI") {
+    x <- x %>%
+      dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
+  }
+
 
   return(cleaned_tab)
 }
@@ -452,8 +395,8 @@ prep_tab4 <- function(speciescode) {
       `Lower 95% CI` = Lower.CI.Biomass,
       `Upper 95% CI` = Upper.CI.Biomass
     ) %>%
-    arrange(factor(`Survey district`,levels = district_order),`Depth range (m)`)
-  
+    arrange(factor(`Survey district`, levels = district_order), `Depth range (m)`)
+
   return(cleaned_tab)
 }
 
@@ -480,160 +423,6 @@ prep_appendix_b <- function(df) {
     }
   }
   return(df2)
-}
-
-
-#' find values based on strings
-#'
-#' @param x
-#' @param col
-#' @param str
-#' @param str_not
-#' @param col_out
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' find_codes(
-#'   x = species, str = "skate", col = "common_name",
-#'   col_out = "common_name"
-#' )
-#' find_codes(
-#'   x = species, str = "skate", col = "common_name",
-#'   col_out = "common_name", str_not = "Alaska skate"
-#' )
-#' find_codes(x = species, str = "skate", col = "common_name")
-find_codes <- function(x, col = "common_name", str = NULL,
-                       str_not = NULL, col_str_not = NULL,
-                       col_out = "species_code") {
-  out <- x
-
-  if (is.null(col_str_not)) {
-    col_str_not <- col
-  }
-
-  # 1. remove codes that we defintly dont want
-  out <- out %>%
-    dplyr::filter(
-      !(grepl(
-        pattern = " egg",
-        x = unlist(out[, col]),
-        ignore.case = TRUE
-      ))
-    )
-
-  # 2. find the codes we do want
-  if (!is.null(str)) {
-    str <- str[!is.na(str)]
-    str <- unique(str)
-
-    for (i in 1:length(str)) {
-      out <- out %>%
-        dplyr::filter(
-          grepl(
-            pattern = str[i],
-            x = as.character(unlist(out[, col])),
-            ignore.case = TRUE
-          )
-        )
-    }
-  }
-
-  # 3. remove codes that may have been included in codes we want (2)
-  if (!is.null(str_not)) {
-    str_not <- str_not[!is.na(str_not)]
-    str_not <- unique(str_not)
-
-    for (i in 1:length(str_not)) {
-      out <- out %>%
-        dplyr::filter(!(grepl(
-          pattern = str_not[i],
-          x = unlist(out[, col_str_not]),
-          ignore.case = TRUE
-        )))
-    }
-  }
-
-  # clean codes
-  out <- out %>%
-    dplyr::select(all_of(col_out)) %>%
-    unique() %>%
-    unlist()
-
-  names(out) <- NULL
-
-  if (length(out) == 0) {
-    out <- NA
-  } else {
-    out <- sort(out)
-  }
-
-  return(out)
-}
-
-
-species_table <- function(haul_spp,
-                          spp_print,
-                          # spp_sci,
-                          SURVEY000,
-                          SRVY000 = NA) {
-  header <- paste0("Summary of environmental variables that ", spp_print, " (", spp_sci, ") have been found in across the ", SURVEY000, ifelse(sum(SRVY000 %in% c("NBS", "EBS")) == 2, "NEBS", paste0(" (", SRVY000, ")")))
-
-  # Select data and make plot
-  cols <- c(
-    "start_latitude", "start_longitude", # "weight", "number_fish",
-    "bottom_depth", "gear_temperature", "surface_temperature"
-  )
-  COLS <- c(
-    "Latitude", "Longitude",
-    # "Weight", "Abundance",
-    "Bottom Depth", "Bottom Temperature", "Surface Temperature"
-  )
-
-  haul_spp <- haul_spp %>%
-    dplyr::filter(SRVY %in% SRVY000)
-
-  # if (nrow(haul_spp)==0) {
-
-  # basiccontent0<-c()
-  table_spp <- c()
-
-  for (ii in 1:length(cols)) {
-    table_spp <- rbind.data.frame(
-      table_spp,
-      data.frame(
-        metric0 = cols[ii],
-        Metric = COLS[ii],
-        Min = ifelse((nrow(haul_spp) == 0), NA, min(haul_spp[, cols[ii]], na.rm = T)),
-        Max = ifelse((nrow(haul_spp) == 0), NA, max(haul_spp[, cols[ii]], na.rm = T)),
-        Mean = ifelse((nrow(haul_spp) == 0), NA, sum(haul_spp[, cols[ii]], na.rm = T) / nrow(haul_spp))
-      )
-    )
-  }
-
-  table_spp_print <- table_spp
-
-  if (nrow(haul_spp) != 0) {
-    for (ii in c("Min", "Max", "Mean")) {
-      table_spp_print[, ii] <-
-        trimws(formatC(
-          x = table_spp_print[, ii],
-          big.mark = ",",
-          digits = 2, format = "f"
-        ))
-    }
-  }
-  table_spp_print$metric0 <- NULL
-
-  # table_raw = table_spp
-  # table_print = table_spp_print
-
-  return(list(
-    "header" = header,
-    "raw" = table_spp,
-    "print" = table_spp_print
-  ))
 }
 
 
@@ -700,7 +489,7 @@ lengthen_pal <- function(x = 1:10, shortpal) {
 #'
 #' @examples
 #' format_tons(5222.168)
-format_tons <- function(x){
+format_tons <- function(x) {
   y <- prettyNum(round(x), big.mark = ",", scientific = FALSE)
   return(y)
 }
