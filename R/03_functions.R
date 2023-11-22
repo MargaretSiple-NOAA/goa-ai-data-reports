@@ -18,7 +18,32 @@ divmforft <- 0.3048
 divftform <- 3.28084
 
 
-# Text manipulation -------------------------------------------------------
+# Text generation ---------------------------------------------------------
+length_comp_statement <- function(species_lengths){
+  gam.form <- "length ~ s(depth) + " # NEED TO FIGURE OUT BEST WAY OF DETECTING TREND 
+}
+
+sex_diff_size_statement <- function(species_lengths) {
+  males <- rnorm(200, 40, 5)
+  females <- rnorm(200, 40, 5)
+  z <- ks.test(x, y)
+  diff <- ifelse(z$p.value < 0.05, TRUE, FALSE)
+  if (diff) {
+    pt_1 <- "There is some sex difference in size within this species;"
+    # which of the sexes are larger?
+    if (mean(males) > mean(females)) {
+      p2 <- paste0("Males (mean FL ", mean(males, na.rm = TRUE), ") are generally larger than females (mean FL ", mean(females), ")")
+    }
+    if (mean(females) > mean(males)) {
+      p2 <- paste0("Females (mean FL ", mean(females, na.rm = TRUE), ") are generally larger than males (mean FL ", mean(males), ")")
+    }
+  } else {
+    (pt_1 <- "")
+  }
+}
+
+
+# Text formatting -------------------------------------------------------
 #' Fix inserted text when there are two areas or depths with the "greatest biomass" (i.e., if it's the same for both and they're both the max).
 #'
 #' @param x text string from soliciting the areas with the top CPUE or biomass or whatever
