@@ -68,7 +68,7 @@ Sys.time() - starttime
 
 # Append the appendices using officer -------------------------------------
 
-maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "PARENT.docx"))) %>%
+maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
   body_add_break()
 
 fullreport <- body_add_docx(
@@ -119,4 +119,4 @@ fullreport <- body_add_docx(fullreport,
 
 
 
-print(fullreport, target = paste0(dir_out_chapters, "Parent&Appendices.docx"))
+print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))
