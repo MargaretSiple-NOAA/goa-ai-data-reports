@@ -37,6 +37,7 @@ vignettes/*.pdf
 /data/local_racebase
 /data/local_goa
 /data/local_ai
+/data/local_gap_products
 /data/local_goa_processed
 /data/local_ai_processed
 /data/length_ADFG.csv
@@ -49,12 +50,13 @@ bonus/
 /data/cpue_station.csv
 /data/SpeciesBlurbMiddleStences.csv
 
-# Ignore reformats of length data
+# Ignore reformatted length data
 *report_pseudolengths.csv
 
 # .doc, .ppt and html output products
 *.html
-markdown/PLAN_TEAM_SLIDES.pptx
+*.pptx
+*.docx
 
 # Experimental/onetime outputs stuff
 /R/degree_error_demo.R
