@@ -19,9 +19,9 @@ reportvaluesdate <- "2023-11-10"
 SRVY <- "GOA" # Options: "GOA", "AI"
 
 if (SRVY == "AI") {
-  dates_conducted <- "June 6th through August 14th, 2022" # Change this for the year!
+  dates_conducted <- "6 June through 14 August, 2022" # Change this for the year!
 } else {
-  dates_conducted <- "May 18th through August 6th, 2023"
+  dates_conducted <- "18 May through 6 August, 2023"
 }
 
 
