@@ -10,9 +10,9 @@
 
 -  The total biomass of {{spp_name_informal}} in the {{year}} {{survname_long}} bottom trawl survey was estimated to be {{species_biomass}} t. The largest estimated biomass for {{spp_name_informal}} was in the {{inpfc_highest_biomass}} region, and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
 
--  The highest densities were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} regions (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
+-  The highest densities were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} regions (Fig. `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
 
--  On average, the largest individuals were found in the {{region_largest}} region and in a depth range of {{depth_largest}} (total survey sample size *N = {{spp_n_length}}*; Figure `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))`.
+-  On average, the largest individuals were found in the {{region_largest}} region and in a depth range of {{depth_largest}} (total survey sample size *N = {{spp_n_length}}*; Fig. `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))`.
 
 
 
@@ -22,14 +22,13 @@
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits, and average fish weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table Caption",tab.align="left"}
 table3s_list[[as.character({{ species_code }})]][,1:9] %>%
-  #table3s_list[[as.character(10112)]][,1:9] %>%
+  #table3s_list[[as.character(30060)]][,1:9] %>%
   flextable() %>%
   theme_vanilla() %>%
   fontsize(size = 9, part = "all") %>%
   fit_to_width(max_width = 8, unit = "in") %>%
-  align(align = "right", part = "all") %>%
-  align(i = 1, align = "center",part = 'header') %>%
-  align(j = 1, align = "left",part = 'body') %>%
+  align(align = "center", part = "all") %>%
+  align(j = 1, align = "left", part = 'body') %>%
   padding(padding = 0, part = "all") %>%
   set_caption(
     as_paragraph(
@@ -50,10 +49,9 @@ table4s_list[[as.character({{ species_code }})]] %>%
   fix_border_issues() %>%
   theme_vanilla() %>%
   fontsize(size = 7.5, part = "all") %>%
-  #width(j=c(1,3), width = 1.7) %>%
-  #fit_to_width(max_width = 7.5, unit = "in") %>%
-  align(align = "right", part = "all") %>%
-  align(i = 1, align = "center",part = 'header') %>%
+  align(align = "center", part = "all") %>%
+  align(j = c(1,3), align = "left", part = "body") %>%
+  align(i = 1, align = "center", part = "header") %>%
   # set_caption(
   #   as_paragraph(
   #     as_chunk("Summary of {{spp_name_informal}} mean catch-per-unit-effort (CPUE) and estimated biomass (t) including the lower and upper 95% confidence intervals (CI) from the {{year}} {{region}} bottom trawl survey by stratum (i.e., the composite of survey district, depth interval, and subarea) ordered from highest to lowest CPUE.", props = fp_text_default(font.family = "Times New Roman", font.size = 10))
@@ -65,15 +63,15 @@ table4s_list[[as.character({{ species_code }})]] %>%
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Relative abundance of {{spp_name_informal}} in units of catch-per-unit-effort (CPUE, kg/ha; X = no catch) in the {{year}} NMFS AFSC RACE Groundfish Assessment Program’s {{region}} summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption",fig.width=10}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Relative abundance of {{spp_name_informal}} in units of catch-per-unit-effort (CPUE, kg/ha; X = no catch) in the {{year}} NMFS-AFSC-RACE Groundfish Assessment Program’s {{region}} summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption",fig.width=10}
 list_cpue_bubbles[[as.character({{species_code}})]]
 ```
 <!---BLOCK_LANDSCAPE_STOP--->
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey, since the start of the sampling stanza. The dotted vertical line indicates median length. {{combo_id_sentence}}', fig.id=paste0("lengthcomp-",{{species_code}}), fig.width=6.5, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey since the start of the sampling stanza. The dotted vertical line indicates median length. {{combo_id_sentence}}', fig.id=paste0("lengthcomp-",{{species_code}}), fig.width=6.5, tab.cap.style = "Figure Caption"}
 list_joy_length[[as.character({{species_code}})]]
 ```
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length by depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent locally estimated scatterplot smoothing (LOESS) smooths, added to show trends in length. Shaded bands indicate 95% confidence intervals. Data shown are raw (unexpanded) lengths.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent locally estimated scatterplot smoothing (LOESS) smooths added to show trends in length. Shaded bands indicate 95% confidence intervals. Data shown are raw (unexpanded) lengths.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
 list_ldscatter[[as.character({{species_code}})]]
 ```
