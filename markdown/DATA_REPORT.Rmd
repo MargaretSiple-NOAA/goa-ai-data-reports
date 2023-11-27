@@ -42,9 +42,11 @@ sp_prices %>%
   flextable() %>% 
   fix_border_issues() %>%
   theme_vanilla() %>%
-  fontsize(size = 10,part = 'all') %>% 
+  fontsize(size = 10, part = 'all') %>% 
   italic(j = 1, part="body") %>%
   line_spacing(space = 0.75) %>%
+  align(align = "center", part = "all") %>%
+  align(j = c(1,2,4), align = "left", part = "body") %>%
   autofit()
 ```
 
@@ -87,8 +89,8 @@ list_tables[["length-sample-sizes"]] %>%
   ) %>%
   theme_vanilla() %>%
   fontsize(size = 8.5, part = "all") %>%
-  #width(j = 1, width = 4, unit = "in") %>%
-  align(i=1,j=2, align = "center",part = 'header') %>%
+  align(i = 1, j = 2, align = "center", part = "header") %>%
+  align(j = 2, align = "center", part = "body") %>%
   autofit() %>%
   line_spacing(space = 0.75)
 
@@ -116,16 +118,20 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 <br />
 
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table Caption"}
-list_tables[["otos_target_sampled"]]  %>% 
-  #otos_target_sampled %>% 
-  dplyr::rename("Species" = "species",
-                "Target N" = "target", 
-                "N collected" = "collection",
-                "Percent difference between target and collection" = "percent.diff") %>%
-  flextable() %>%  
+list_tables[["otos_target_sampled"]] %>%
+  # otos_target_sampled %>%
+  dplyr::rename(
+    "Species" = "species",
+    "Target N" = "target",
+    "N collected" = "collection",
+    "Percent difference between target and collection" = "percent.diff"
+  ) %>%
+  flextable() %>%
   theme_vanilla() %>%
-  fontsize(size = 9,part = 'all') %>% 
+  fontsize(size = 9, part = "all") %>%
   line_spacing(space = 0.5) %>%
+  align(align = "center", part = "all") %>%
+  align(j = 1, align = "left", part = "body") %>%
   autofit()
 ```
 
