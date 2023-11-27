@@ -4,19 +4,7 @@
 
 <br />
 
-<!-- These are the summary bullet points. -->
-
--  {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table \@ref(tab:top-cpue)). 
-
--  The total biomass of {{spp_name_informal}} in the {{year}} {{survname_long}} bottom trawl survey was estimated to be {{species_biomass}} t. The largest estimated biomass for {{spp_name_informal}} was in the {{inpfc_highest_biomass}} region, and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
-
--  The highest densities were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} regions (Fig. `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
-
--  On average, the largest individuals were found in the {{region_largest}} region and in a depth range of {{depth_largest}} (total survey sample size *N = {{spp_n_length}}*; Fig. `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))`.
-
-
-
-
+{{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey (Table \@ref(tab:top-cpue)). The highest densities were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). {{middle_sentences}} On average, the largest individuals were found in the {{region_largest}} (Figure `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). The total biomass of {{spp_name_informal}} in the {{year}} {{survname_long}} bottom trawl survey was estimated to be {{species_biomass}} t. The largest estimated biomass for {{spp_name_informal}} was in the {{inpfc_highest_biomass}} (Figure `r officer::run_reference(paste0("cpue-",{{species_code}}))` and Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))`.
 
 
 \newpage
