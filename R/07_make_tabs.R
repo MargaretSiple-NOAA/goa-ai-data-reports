@@ -15,12 +15,14 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 targetn <- read.csv(here::here("data","target_n.csv"))
 
 # Otolith targets ---------------------------------------------------------
+if(SRVY == "GOA"){
 df <- read.csv(here::here("data",paste0(SRVY,maxyr,"_otolith_targets.csv")))
 
 otos_target_sampled <- df |>
   dplyr::mutate(percent.diff = round((collection-target)/target * 100)) |>
-  dplyr::select(species, collection, target, percent.diff)
-
+  dplyr::select(species, collection, target, percent.diff)}else{
+    otos_target_sampled <- data.frame(test = c(1,2,3), replace_me = letters[1:3])
+}
 # Experiment: try creating a kableExtra table and saving it as an image.
 #otos_target_sampled$percent.diff <- color_bar("lightgreen")(otos_target_sampled$percent.diff)
 
@@ -34,6 +36,7 @@ subregion_fam_div <- appB %>%
   ungroup() %>%
   mutate_at(2:5, ~ replace_na(., 0)) %>%
   relocate(any_of(c("Family", district_order)))
+
 
 # "Table 2": Mean CPUE 20 most abundant groundfish spps ------------------------
 # Can convert this into a function later
