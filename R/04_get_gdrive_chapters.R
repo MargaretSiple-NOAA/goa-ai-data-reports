@@ -36,6 +36,8 @@ googledrive::drive_download(
 
 
 # Download table with the oto target and collection numbers ---------------
+# This target and collection goal form only started in 2023 and beyond.
+if(maxyr >= 2023){
 otosheet <- googledrive::drive_ls(path = blurbs_id_googledrive,
                                   pattern = paste0(SRVY, maxyr, "_otolith_targets"),
                                   type = "spreadsheet")
@@ -46,7 +48,7 @@ googledrive::drive_download(
   overwrite = TRUE,
   path = paste0("data/", otosheet$name)
 )
-
+} 
 
 # Convert text files in gdrive directory into Rmd files -------------------
 
