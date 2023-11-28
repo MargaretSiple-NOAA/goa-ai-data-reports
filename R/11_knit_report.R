@@ -45,10 +45,11 @@ load(file = paste0(
   dir_in_figures, "list_ldscatter.rdata"
 )) # object: list_ldscatter
 
+if(SRVY=="GOA"){
 load(file = paste0(
   dir_in_figures, maxyr, "_station_map.RDS"
 )) # object: station_map
-
+}
 
 # Load the individual values ----------------------------------------------
 load(file = paste0(dir_in_reportvalues, "/reportvalues.rdata"))
