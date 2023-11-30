@@ -102,7 +102,7 @@ list_tables[["allocated_sampled"]] %>%
   ) %>%
   align(align = "center", part = "all") %>%
   align(j = 1:2, align = "left", part = "body") %>%
-  hline(i = ~ break_position(`Survey district`), border = cl)
+  hline(i = ~ break_position(`Survey district`), border = fp_border(color = "#5A5A5A", width = 3))
 #%>%
   #autofit() #change back if it's still janky
 ```
@@ -190,14 +190,20 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 
 ```{r fig.cap='Bottom temperatures as measured by survey gear. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=7}
-bottom_temp_plot
+if(SRVY=="AI"){ #janky; get rid of this after AI 2022 report
+  list_temperature[['bottomtemp']]}else{
+bottom_temp_plot}
 ```
 
 <br />
 <br />
 
 ```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=7}
-surface_temp_plot
+if(SRVY=="AI"){
+  list_temperature[['surfacetemp']]}else{
+surface_temp_plot}
+
+
 ```
 
 <!-- NOTE: Figures after this first one are all per species until the appendix. -->
@@ -210,7 +216,7 @@ surface_temp_plot
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)

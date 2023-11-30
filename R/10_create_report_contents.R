@@ -28,6 +28,7 @@ source("R/06_prep_data.R") # Make all the tables and stuff needed for report and
 source("R/06a_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
 
 # Create tables and figures -----------------------------------------------
+# Each of these source() lines will save a list of outputs as an rdata file for later. And it will print out png's for figs and csvs for tables to output/
 # Do you want to build all the tables right now?
 source(here::here("R", "07_make_tabs.R"))
 
