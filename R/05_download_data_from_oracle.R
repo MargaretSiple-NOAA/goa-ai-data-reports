@@ -204,11 +204,13 @@ if (SRVY == "GOA") {
 sql_channel <- gapindex::get_connected()
 
 xx <- gapindex::get_data(year_set = maxyr,
+                         haul_type = 3,
                          survey_set = SRVY,
                          spp_codes = report_species$species_code,
                          abundance_haul = "Y",
                          sql_channel = sql_channel, 
                          pull_lengths = TRUE)
+
 cpue <- gapindex::calc_cpue(racebase_tables = xx)
 biomass_stratum <- gapindex::calc_biomass_stratum(racebase_tables = xx, 
                                                   cpue = cpue)
