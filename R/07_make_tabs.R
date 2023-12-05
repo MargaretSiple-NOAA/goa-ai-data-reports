@@ -222,15 +222,16 @@ sc <- strata |>
   dplyr::mutate(DEPTH_RANGE = paste(MIN_DEPTH, "-", MAX_DEPTH, "m")) |>
   dplyr::select(STRATUM, INPFC_AREA, STRATUM, SPECIES_CODE, 
                 LENGTH_MM, SEX, POPULATION_COUNT, DEPTH_RANGE)
-sc_depth <- sc |>
-  dplyr::group_by(SPECIES_CODE, SEX, DEPTH_RANGE) |>
-  dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
-  dplyr::ungroup()
 
-sc_inpfc_area <- sc |>
-  dplyr::group_by(SPECIES_CODE, SEX, INPFC_AREA) |>
-  dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
-  dplyr::ungroup()
+# sc_depth <- sc |>
+#   dplyr::group_by(SPECIES_CODE, SEX, DEPTH_RANGE) |>
+#   dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
+#   dplyr::ungroup()
+# 
+# sc_inpfc_area <- sc |>
+#   dplyr::group_by(SPECIES_CODE, SEX, INPFC_AREA) |>
+#   dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
+#   dplyr::ungroup()
 
 # Assemble and save tables -----------------------------------------------------
 
