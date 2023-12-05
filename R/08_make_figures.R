@@ -424,7 +424,7 @@ if (make_cpue_bubbles) {
         color = scales::alpha(colour = "grey80", 0.7),
         SURVEY = "Aleutian Islands"
       )
-    reg_data <- reg_data_ai
+    reg_data <- reg_dat_ai
   }
   
   list_cpue_bubbles <- list()
