@@ -166,7 +166,7 @@ if (make_total_surv_map) {
         color = scales::alpha(colour = "grey80", 0.7),
         SURVEY = "Aleutian Islands"
       )
-    reg_data <- reg_data_ai
+    reg_data <- reg_dat_ai
   }
 
   goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
