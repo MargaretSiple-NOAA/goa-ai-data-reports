@@ -43,8 +43,10 @@ if (z) {
 # Save all the values needed to make the report so you can easily load later --
 # clean up global env before saving. Can add to this when I find more stuff that we don't actually need in the report Markdown file.
 # The items present in this list are either intermediary (i.e., not objects used in the final report, like ai_central) or they are saved as rdata objects separately (e.g., list_cpue_bubbles)
+if(SRVY=="AI"){ai_map_layers <- c("ai_central", "ai_east", "ai_west")}else{ai_map_layers <- NULL}
+
 rm(list = c(
-  "ai_central", "ai_east", "ai_west", "bartheme", "bubbletheme", "catch", "fig", "haul",
+  ai_map_layers, "bartheme", "bubbletheme", "catch", "fig", "haul",
   "joyplot", "length2", "length3", "linetheme", 
   "list_cpue_bubbles", "list_joy_length","list_temperature", "list_ldscatter",
   "list_tables", "S", "table3s_list", "table4s_list",  "tabledate", 
