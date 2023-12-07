@@ -102,25 +102,32 @@ print("Finished downloading ADF&G tables")
 
 
 # GAP_PRODUCTS ------------------------------------------------------------
-
+# area
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
 a <- a |>
   filter(SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52) & 
            DESIGN_YEAR == ifelse(SRVY=="GOA", 1984, 1980))
-
 print(paste("Using design year(s):",unique(a$DESIGN_YEAR)))
 
 write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 
 
-
+# biomass
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
-
 a <- filter(a, 
             SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52) & 
               YEAR == maxyr)
 
 write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
+
+# size comps
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
+a <- filter(a, 
+            SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52) & 
+              YEAR == maxyr)
+
+write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
+
 
 print("Finished downloading GAP_PRODUCTS tables.")
 
