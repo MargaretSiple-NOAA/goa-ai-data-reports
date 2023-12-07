@@ -19,8 +19,29 @@ divftform <- 3.28084
 
 
 # Text generation ---------------------------------------------------------
-length_comp_statement <- function(species_lengths){
-  gam.form <- "length ~ s(depth) + " # NEED TO FIGURE OUT BEST WAY OF DETECTING TREND 
+size_depth_statement <- function(raw_lengths = ltoplot){
+  # Test 
+  #raw_lengths <- ltoplot %>% dplyr::select(REGION, SPECIES_CODE, SEX, BOTTOM_DEPTH, LENGTH)
+  
+  #raw_lengths should be filtered to region, year, and species_code when it goes in.
+  # test df ltoplot comes from the make_figures script. For now.
+  if (length(unique(raw_lengths$REGION)) > 1) {
+    stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
+  }
+  
+  if (length(unique(raw_lengths$SPECIES_CODE)) > 1) {
+    stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
+  }
+  #plot(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH)
+  x <- cor.test(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH) #pearson
+  y <- ""
+  if(x$p.value < 0.05 & x$statistic>0.5){ #slightly arbitrary cutoff for correlation
+    y <- "There is a positive relationship between length and depth."
+  }
+  if(x$p.value < 0.05 & x$statistic < (-0.5)){
+    y <- "There is a negative relationship between length and depth."
+  }
+  return(y)
 }
 
 
