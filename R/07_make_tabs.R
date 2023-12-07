@@ -252,19 +252,20 @@ list_tables[["length-sample-sizes"]] <- targetn  # Target length size for specie
 list_tables[["top_CPUE"]] <- top_CPUE 
 list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
 list_tables[["sizecomp_stratum"]] <- sizecomp_stratum
-list_tables[["sizecomps_expanded"]] <- sizecomps_expanded
-
 
 
 save(list_tables,
-     file = paste0(dir_out_tables,"report_tables.rdata")
+  file = paste0(dir_out_tables, "report_tables.rdata")
 )
 
 save(table3s_list,
-     file = paste0(dir_out_tables,"table3s_list.rdata")
+  file = paste0(dir_out_tables, "table3s_list.rdata")
 )
 
 save(table4s_list,
-     file = paste0(dir_out_tables,"table4s_list.rdata")
+  file = paste0(dir_out_tables, "table4s_list.rdata")
 )
 
+save(sizecomps_expanded,
+  file = paste0(dir_out_tables, "sizecomps_expanded.RDS")
+)
