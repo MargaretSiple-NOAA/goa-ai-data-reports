@@ -714,24 +714,33 @@ if (make_joy_division_length) {
 
 if (make_ldscatter) {
   list_ldscatter <- list()
+  depth_trend_df <- data.frame(report_species = NA, depth_trend = NA)
+  
   for (i in 1:nrow(report_species)) {
-    ltoplot <- L_maxyr %>%
-      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
+    ltoplot <- L_maxyr |>
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
       dplyr::left_join(haul2, by = c(
         "CRUISEJOIN", "HAULJOIN",
         "REGION", "VESSEL", "CRUISE"
-      )) %>%
-      dplyr::left_join(region_lu) %>%
-      dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
-      dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
-
-    ltoplot2 <- ltoplot %>%
-      mutate(INPFC_AREA = "All districts") %>%
+      )) |>
+      dplyr::left_join(region_lu,by = "STRATUM") |>
+      dplyr::filter(ABUNDANCE_HAUL == "Y") |>
+      dplyr::filter(HAULJOIN != -21810) |> # take out haul 191 from OEX 2022 which has a depth of zero
+      uncount(FREQUENCY) # expand from frequency in tow so your number of data points reflects total # of fish lengthed
+    
+    # THIS IS WHERE TO PUT THE THING THAT WILL DETECT A TREND.. OR SOMEWHERE ELSE?? I don't know!!!
+    # test <- ltoplot %>% 
+    #   dplyr::select(LENGTH, FREQUENCY, SEX, REGULATORY_AREA_NAME)
+    # test %>% uncount(FREQUENCY)
+    
+    
+    ltoplot2 <- ltoplot |>
+      mutate(INPFC_AREA = "All districts") |>
       bind_rows(ltoplot)
 
     ltoplot2$INPFC_AREA <- factor(ltoplot2$INPFC_AREA, levels = c(district_order, "All districts"))
 
-    ldscatter <- ltoplot2 %>%
+    ldscatter <- ltoplot2 |>
       ggplot(aes(x = BOTTOM_DEPTH/100, y = LENGTH / 10)) + #, 
       geom_point(alpha = 0.2, size = 1.5, pch = 20) +
       facet_grid(. ~ INPFC_AREA) +
