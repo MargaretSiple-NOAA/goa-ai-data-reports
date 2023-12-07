@@ -23,23 +23,46 @@ length_comp_statement <- function(species_lengths){
   gam.form <- "length ~ s(depth) + " # NEED TO FIGURE OUT BEST WAY OF DETECTING TREND 
 }
 
+
+#' Test whether there is a difference in mean size between the sexes
+#'
+#' @param species_lengths a data frame with columns "SURVEY"       "YEAR"         "SPECIES_CODE" "SUMMARY_AREA" "LENGTH"       "MALES"        "FEMALES"      "UNSEXED"    "TOTAL", filtered to the species and year that you are interested in. Can get it from the SIZECOMP table in the AI or GOA schemas or from GAP_PRODUCTS (currently it comes from the GOA and AI schemas)
+#'
+#' @return A character string as sentence that you can paste into the species chapter as a bullet point. If there is a sex difference in mean size, it will return a sentence about the direction. If there isn't a sex difference in size, it will return nothing.
+#' @export
+#'
+#' @examples
 sex_diff_size_statement <- function(species_lengths) {
-  males <- rnorm(200, 40, 5)
-  females <- rnorm(200, 40, 5)
-  z <- ks.test(x, y)
+  # Test df
+  # species_lengths <- filter(sizecomp, SPECIES_CODE==30060 & YEAR==maxyr)
+  if (length(unique(species_lengths$SURVEY)) > 1) {
+    stop("Error in sex_diff_size_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
+  }
+
+  # Divide by 1e4 to make the integers smaller; doesn't matter as long as proportions are right.
+  species_lengths$MALES <- species_lengths$MALES / 1e4
+  species_lengths$FEMALES <- species_lengths$FEMALES / 1e4
+
+  males <- species_lengths$MALES * species_lengths$LENGTH / sum(species_lengths$MALES)
+  females <- species_lengths$FEMALES * species_lengths$LENGTH / sum(species_lengths$FEMALES)
+
+  z <- ks.test(males, females)
   diff <- ifelse(z$p.value < 0.05, TRUE, FALSE)
   if (diff) {
-    pt_1 <- "There is some sex difference in size within this species;"
+    pt_1 <- "There is some sex difference in size within this species; "
     # which of the sexes are larger?
     if (mean(males) > mean(females)) {
-      p2 <- paste0("Males (mean FL ", mean(males, na.rm = TRUE), ") are generally larger than females (mean FL ", mean(females), ")")
+      pt_2 <- paste0("Males (mean FL ", round(mean(males, na.rm = TRUE),digits = 2), ") are generally larger than females (mean FL ", round(mean(females),digits=2), ")")
     }
     if (mean(females) > mean(males)) {
-      p2 <- paste0("Females (mean FL ", mean(females, na.rm = TRUE), ") are generally larger than males (mean FL ", mean(males), ")")
+      pt_2 <- paste0("Females (mean FL ", round(mean(females, na.rm = TRUE),digits=2), ") are generally larger than males (mean FL ", round(mean(males),digits=2), ")")
     }
   } else {
-    (pt_1 <- "")
+    pt_1 <- ""
+    pt_2 <- ""
   }
+  statement <- paste0(pt_1, pt_2)
+  return(statement)
 }
 
 
