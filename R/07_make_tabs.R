@@ -220,18 +220,28 @@ sc <- strata |>
   dplyr::filter(SURVEY == SRVY) |>
   dplyr::right_join(sizecomp_stratum) |>
   dplyr::mutate(DEPTH_RANGE = paste(MIN_DEPTH, "-", MAX_DEPTH, "m")) |>
-  dplyr::select(STRATUM, INPFC_AREA, STRATUM, SPECIES_CODE, 
-                LENGTH_MM, SEX, POPULATION_COUNT, DEPTH_RANGE)
+  dplyr::select(
+    STRATUM, INPFC_AREA, STRATUM, SPECIES_CODE,
+    LENGTH_MM, SEX, POPULATION_COUNT, DEPTH_RANGE
+  )
 
-# sc_depth <- sc |>
-#   dplyr::group_by(SPECIES_CODE, SEX, DEPTH_RANGE) |>
-#   dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
-#   dplyr::ungroup()
-# 
-# sc_inpfc_area <- sc |>
-#   dplyr::group_by(SPECIES_CODE, SEX, INPFC_AREA) |>
-#   dplyr::summarize(wtd_mean_L = sum(LENGTH_MM*POPULATION_COUNT)/sum(POPULATION_COUNT)) |>
-#   dplyr::ungroup()
+sizecomp_gp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE)
+
+# Create a full uncounted dataframe of lengths - this is the expanded lengths from the sizecomp table
+sizecomps_expanded <- sizecomp_gp |>
+  dplyr::filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) & YEAR == maxyr) |>
+  dplyr::mutate(pop_expander = round(POPULATION_COUNT / 1e4),
+                LENGTH_CM = LENGTH_MM/10) |>
+  dplyr::left_join(area_gp, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
+  dplyr::filter(AREA_TYPE == "INPFC BY DEPTH") |>
+  dplyr::select(
+    AREA_NAME, DESCRIPTION, DEPTH_MIN_M, DEPTH_MAX_M,
+    SPECIES_CODE, LENGTH_CM, SEX, pop_expander
+  ) |>
+  dplyr::group_by(AREA_NAME, DESCRIPTION, DEPTH_MIN_M, DEPTH_MAX_M, SPECIES_CODE, SEX) |>
+  tidyr::uncount(pop_expander) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(depth_range = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M, "m"))
 
 # Assemble and save tables -----------------------------------------------------
 
@@ -242,7 +252,7 @@ list_tables[["length-sample-sizes"]] <- targetn  # Target length size for specie
 list_tables[["top_CPUE"]] <- top_CPUE 
 list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
 list_tables[["sizecomp_stratum"]] <- sizecomp_stratum
-
+list_tables[["sizecomps_expanded"]] <- sizecomps_expanded
 
 
 
