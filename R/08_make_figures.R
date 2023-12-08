@@ -18,6 +18,7 @@ make_cpue_bubbles <- TRUE
 make_joy_division_length <- TRUE
 # 5b. Length vs. depth, facetted by district
 make_ldscatter <- TRUE
+make_ldcloud <- FALSE
 # 6. Plot of surface and bottom SST with long term avg
 make_temp_plot <- TRUE
 # XX. Make a map of the full survey area with strata and stations
@@ -712,49 +713,107 @@ if (make_joy_division_length) {
 
 # 5b. Scatter plots of length by depth by region --------------------------
 
-if (make_ldscatter) {
-  list_ldscatter <- list()
-  depth_trend_df <- data.frame(report_species = NA, depth_trend = NA)
+if (make_ldcloud) {
+  list_ldcloud <- list()
+  #depth_trend_df <- data.frame(report_species = NA, depth_trend = NA)
+  load(paste0(dir_in_tables,"/sizecomps_expanded.RDS"))
   
   for (i in 1:nrow(report_species)) {
-    ltoplot <- L_maxyr |>
-      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
-      dplyr::left_join(haul2, by = c(
-        "CRUISEJOIN", "HAULJOIN",
-        "REGION", "VESSEL", "CRUISE"
-      )) |>
-      dplyr::left_join(region_lu,by = "STRATUM") |>
-      dplyr::filter(ABUNDANCE_HAUL == "Y") |>
-      dplyr::filter(HAULJOIN != -21810) |> # take out haul 191 from OEX 2022 which has a depth of zero
-      uncount(FREQUENCY) # expand from frequency in tow so your number of data points reflects total # of fish lengthed
-    
-    # THIS IS WHERE TO PUT THE THING THAT WILL DETECT A TREND.. OR SOMEWHERE ELSE?? I don't know!!!
-    # test <- ltoplot %>% 
-    #   dplyr::select(LENGTH, FREQUENCY, SEX, REGULATORY_AREA_NAME)
-    # test %>% uncount(FREQUENCY)
-    
+    ltoplot <- sizecomps_expanded |> 
+      filter(SPECIES_CODE==report_species$species_code[i])
     
     ltoplot2 <- ltoplot |>
-      mutate(INPFC_AREA = "All districts") |>
+      mutate(AREA_NAME = "All districts") |>
       bind_rows(ltoplot)
 
-    ltoplot2$INPFC_AREA <- factor(ltoplot2$INPFC_AREA, levels = c(district_order, "All districts"))
-
-    ldscatter <- ltoplot2 |>
-      ggplot(aes(x = BOTTOM_DEPTH/100, y = LENGTH / 10)) + #, 
-      geom_point(alpha = 0.2, size = 1.5, pch = 20) +
-      facet_grid(. ~ INPFC_AREA) +
-      geom_smooth(method = "loess", aes(color = INPFC_AREA)) + #,aes(color = INPFC_AREA)
-      scale_color_manual(values = c(rep('#91AEC1',5),'#324376')) +
-      xlab("Bottom depth (x100 m)") +
+    ltoplot2$AREA_NAME <- factor(ltoplot2$AREA_NAME, 
+                                 levels = c(district_order, "All districts"))
+    ltoplot2$depth_range <- factor(ltoplot2$depth_range, 
+                                   levels = rev(unique(ltoplot2$depth_range)))
+    
+    plot <- ltoplot2 |>
+      ggplot(aes(depth_range, LENGTH_CM)) +
+      ggdist::stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) + 
+      geom_boxplot(width = .1, outlier.shape = NA) +
+      coord_flip() + 
+      facet_wrap(~AREA_NAME) +
+      xlab("Bottom depth") +
       ylab("Length (cm)") +
-      theme_light(base_size = 9) +
+      theme_light(base_size = 14) +
       theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "none",
         strip.background = element_blank(),
         strip.text = element_text(colour = 'black')
+      )
+    
+    png(filename = paste0(
+      dir_out_figures, maxyr, "_",
+      report_species$spp_name_informal[i], "_ldcloud.png"
+    ), width = 9, height = 2, units = "in", res = 200)
+    print(ldscatter)
+    dev.off()
+    
+    list_ldscatter[[i]] <- ldscatter
+    print(paste("Done with length by depth raincloud plot of", report_species$spp_name_informal[i]))
+  }
+  names(list_ldscatter) <- report_species$species_code
+  save(list_ldscatter, file = paste0(dir_out_figures, "list_ldcloud.rdata"))
+  print("Done with length by depth raincloud plots.")
+}
+
+if (make_ldscatter) {
+  lscale <- 10
+  dscale <- 100
+
+  list_ldscatter <- list()
+  # L_maxyr is subsetted to region (SRVY) and the year you're making the report for
+  for (i in 1:nrow(report_species)) {
+    ltoplot <- L_maxyr %>%
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      dplyr::left_join(haul2, by = c(
+        "CRUISEJOIN", "HAULJOIN", "HAUL",
+        "REGION", "VESSEL", "CRUISE"
+      )) %>%
+      dplyr::left_join(region_lu, by = "STRATUM") %>%
+      dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
+      dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
+    # make a new INPF_AREA that is all of them combined
+    ltoplot <- ltoplot %>%
+      mutate(INPFC_AREA = "All districts") %>%
+      bind_rows(ltoplot)
+
+    library(mgcv)
+    ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
+    ltoplot$INPFC_AREA <- as.factor(ltoplot$INPFC_AREA)
+    ltoplot$dummy_var <- 0
+
+    mod1 <- gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = INPFC_AREA, k = 4) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
+    ltoplot[c("predicted", "se")] <- predict(mod, newdata = ltoplot, se.fit = TRUE)
+
+    ltoplot$INPFC_AREA <- factor(ltoplot$INPFC_AREA, levels = c(district_order, "All districts"))
+
+    # color scale
+    ncols <- length(unique(ltoplot$INPFC_AREA))
+    pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
+
+    ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
+      geom_point(alpha = 0.2) +
+      geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = INPFC_AREA), alpha = 0.2) +
+      geom_line(aes(y = predicted / lscale, color = INPFC_AREA), linewidth = 1) +
+      scale_color_manual(values = pal) +
+      scale_fill_manual(values = pal) +
+      xlab(paste("Bottom depth (x", dscale, "m)")) +
+      ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
+      facet_wrap(~INPFC_AREA, nrow = 1) +
+      theme_light(base_size = 10) +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        strip.background = element_blank(),
+        strip.text = element_text(colour = "black")
       )
 
     png(filename = paste0(
