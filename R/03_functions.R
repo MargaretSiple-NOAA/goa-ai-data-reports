@@ -19,30 +19,30 @@ divftform <- 3.28084
 
 
 # Text generation ---------------------------------------------------------
-size_depth_statement <- function(raw_lengths = ltoplot){
-  # Test 
-  #raw_lengths <- ltoplot %>% dplyr::select(REGION, SPECIES_CODE, SEX, BOTTOM_DEPTH, LENGTH)
-  
-  #raw_lengths should be filtered to region, year, and species_code when it goes in.
-  # test df ltoplot comes from the make_figures script. For now.
-  if (length(unique(raw_lengths$REGION)) > 1) {
-    stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
-  }
-  
-  if (length(unique(raw_lengths$SPECIES_CODE)) > 1) {
-    stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
-  }
-  #plot(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH)
-  x <- cor.test(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH) #pearson
-  y <- ""
-  if(x$p.value < 0.05 & x$statistic>0.5){ #slightly arbitrary cutoff for correlation
-    y <- "There is a positive relationship between length and depth."
-  }
-  if(x$p.value < 0.05 & x$statistic < (-0.5)){
-    y <- "There is a negative relationship between length and depth."
-  }
-  return(y)
-}
+# size_depth_statement <- function(raw_lengths = ltoplot){
+#   # Test 
+#   #raw_lengths <- ltoplot %>% dplyr::select(REGION, SPECIES_CODE, SEX, BOTTOM_DEPTH, LENGTH)
+#   
+#   #raw_lengths should be filtered to region, year, and species_code when it goes in.
+#   # test df ltoplot comes from the make_figures script. For now.
+#   if (length(unique(raw_lengths$REGION)) > 1) {
+#     stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
+#   }
+#   
+#   if (length(unique(raw_lengths$SPECIES_CODE)) > 1) {
+#     stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
+#   }
+#   #plot(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH)
+#   x <- cor.test(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH) #pearson
+#   y <- ""
+#   if(x$p.value < 0.05 & x$statistic>0.5){ #slightly arbitrary cutoff for correlation
+#     y <- "There is a positive relationship between length and depth."
+#   }
+#   if(x$p.value < 0.05 & x$statistic < (-0.5)){
+#     y <- "There is a negative relationship between length and depth."
+#   }
+#   return(y)
+# }
 
 
 #' Test whether there is a difference in mean size between the sexes
@@ -55,22 +55,24 @@ size_depth_statement <- function(raw_lengths = ltoplot){
 #' @examples
 sex_diff_size_statement <- function(species_lengths) {
   # Test df
-  # species_lengths <- filter(sizecomp, SPECIES_CODE==30060 & YEAR==maxyr)
+  # species_lengths <- filter(sizecomp, SPECIES_CODE==10110 & YEAR==maxyr)
   if (length(unique(species_lengths$SURVEY)) > 1) {
     stop("Error in sex_diff_size_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
   }
 
   # Divide by 1e4 to make the integers smaller; doesn't matter as long as proportions are right.
-  species_lengths$MALES <- species_lengths$MALES / 1e4
-  species_lengths$FEMALES <- species_lengths$FEMALES / 1e4
+  species_lengths$MALES <- species_lengths$MALES/1e4
+  species_lengths$FEMALES <- species_lengths$FEMALES/1e4
 
-  males <- species_lengths$MALES * species_lengths$LENGTH / sum(species_lengths$MALES)
-  females <- species_lengths$FEMALES * species_lengths$LENGTH / sum(species_lengths$FEMALES)
+  males <-  species_lengths$LENGTH * (species_lengths$MALES/sum(species_lengths$MALES))
+  females <- species_lengths$LENGTH * (species_lengths$FEMALES/sum(species_lengths$FEMALES))
 
+  
+  
   z <- ks.test(males, females)
   diff <- ifelse(z$p.value < 0.05, TRUE, FALSE)
   if (diff) {
-    pt_1 <- "There is some sex difference in size within this species; "
+    pt_1 <- "There was a sex difference in size within this species; "
     # which of the sexes are larger?
     if (mean(males) > mean(females)) {
       pt_2 <- paste0("Males (mean FL ", round(mean(males, na.rm = TRUE),digits = 2), ") are generally larger than females (mean FL ", round(mean(females),digits=2), ")")
