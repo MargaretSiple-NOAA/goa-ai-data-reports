@@ -186,6 +186,24 @@ colnames(allocated_sampled) <- c("Survey district", "Depth range",
                                  "Stations allocated", "Stations attempted", "Stations completed", 
                                  "Total area", "Stations per 1,000 km^2")
 
+# Statement about assigned sampling densities - vector of two
+depthrange_hisamplingdensity <- allocated_sampled  |>
+  filter(`Depth range` != "All depths" & `Survey district` == "All areas") |>
+  slice_max(n = 2,order_by = `Stations per 1,000 km^2` ) |>
+  dplyr::select(`Depth range`) |> 
+  unlist()
+
+stationdensity_hisamplingdensity <- allocated_sampled  |>
+  filter(`Depth range` != "All depths" & `Survey district` == "All areas") |>
+  slice_max(n = 2,order_by = `Stations per 1,000 km^2`) |>
+  dplyr::select(`Stations per 1,000 km^2`) |>
+  unlist()
+
+surveywide_samplingdensity <- allocated_sampled  |>
+  filter(`Depth range` == "All depths" & `Survey district` == "All areas") |>
+  dplyr::select(`Stations per 1,000 km^2`) |>
+  as.numeric()
+
 # "Table 3" and "Table 4" ------------------------------------------------------
 # Check to see if all the species in the list are in the folder
 toMatch <- report_species$species_code
