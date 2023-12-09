@@ -12,6 +12,7 @@
 
 -  On average, the largest individuals were found in the {{region_largest}} region and in a depth range of {{depth_largest}} (total survey sample size *N = {{spp_n_length}}*; Fig. `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))`.
 
+`r if({{show.text}}){paste0("- ","{{sex_diff_sentence}}") }`
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits, and average fish weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table caption",tab.align="left"}

@@ -338,7 +338,17 @@ for (i in 1:3) { # nrow(report_species)
       combo_id_sentence <- ""
     }
   }
-
+  
+  if (species_code %in% c(30060, 10110, 21740, 21720, 10120, 20510)) { # "the big six"
+   # Check if there is a sex difference
+   sex_diff_sentence <- sex_diff_size_statement(species_lengths = dplyr::filter(sizecomp, SPECIES_CODE == species_code & YEAR == maxyr))
+   # If no difference, don't show the bullet point about it
+   show.text <- ifelse(sex_diff_sentence == "", FALSE, TRUE)
+   # If it's not in the "big six" don't show the bullet point about it
+ } else {
+   show.text <- FALSE
+ }
+  
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesResultTemplate.Rmd"))
 }
 
