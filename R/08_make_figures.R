@@ -790,7 +790,7 @@ if (make_ldscatter) {
     ltoplot$dummy_var <- 0
 
     mod1 <- gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = INPFC_AREA, k = 4) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
-    ltoplot[c("predicted", "se")] <- predict(mod, newdata = ltoplot, se.fit = TRUE)
+    ltoplot[c("predicted", "se")] <- predict(mod1, newdata = ltoplot, se.fit = TRUE)
 
     ltoplot$INPFC_AREA <- factor(ltoplot$INPFC_AREA, levels = c(district_order, "All districts"))
 
