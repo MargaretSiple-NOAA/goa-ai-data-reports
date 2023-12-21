@@ -259,6 +259,28 @@ make_depth_mgmt_area_summary <- function(species_code) {
 }
 
 
+#' Create CPUE table formatted like the one in the AI 2018 report
+#'
+#' @param top_CPUE A dataframe created by either prep_tab2() or make_top_cpue() (still valid but minorly different from the historical cpue tables to we revert to the former in order to be consistent)
+#'
+#' @return a list of dataframes, each of which should be formatted as a flextable.
+#' @export
+#'
+#' @examples
+top_CPUE_formatted <- function(top_CPUE) {
+  x <- top_CPUE %>%
+    # existing changes in markdown file:
+    dplyr::select(INPFC_AREA, common_name, wgted_mean_cpue_kgha) %>%
+    dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha, digits = 1)) %>%
+    dplyr::rename(
+      `INPFC area` = INPFC_AREA,
+      Species = common_name,
+      `CPUE (kg/ha)` = wgted_mean_cpue_kgha
+    ) 
+  return(x)
+}
+
+
 #' Using a spreadsheet from the old methodology, make a list of the top 20 species by CPUE.
 #'
 #' @details Currently this is our chosen method becaus eit eliminates the weird tiny discrepancies that we get when calculating CPUEs by hand vs. using summary tables from the AI schema.
@@ -298,7 +320,6 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs, "Table 2/", "Table 2
   return(raw2)
 }
 
-
 # NOTE: THIS STILL DOESN"T WORK
 # make_tab3 <- function(species_code = NULL, survey = NULL, year = NULL){
 #   if(survey=="AI"){
@@ -324,63 +345,6 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs, "Table 2/", "Table 2
 #
 #   write.csv(x = a, file = dir_out, row.names = FALSE)
 # }
-
-#' Make a rough draft of Table 4
-#'
-#' @param species_code species code (numeric)
-#' @param survey survey code, "AI" or "GOA" (character)
-#' @param year survey year (numeric)
-#'
-#' @return writes a csv file for each species for table 4.
-#' @export
-#'
-#' @examples
-#' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
-#'
-make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
-  a <- RODBC::sqlQuery(channel, paste0(
-    "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey, "\' and b.YEAR = ", year,
-    " and b.SPECIES_CODE = ", species_code,
-    " and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
-  ))
-
-  dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
-
-  write.csv(x = a, file = dir_out, row.names = FALSE)
-}
-
-#' Create CPUE table formatted like the one in the AI 2018 report
-#'
-#' @param top_CPUE A dataframe created by either prep_tab2() or make_top_cpue() (still valid but minorly different from the historical cpue tables to we revert to the former in order to be consistent)
-#'
-#' @return a list of dataframes, each of which should be formatted as a flextable.
-#' @export
-#'
-#' @examples
-top_CPUE_formatted <- function(top_CPUE) {
-  x <- top_CPUE %>%
-    # existing changes in markdown file:
-    dplyr::select(INPFC_AREA, common_name, wgted_mean_cpue_kgha) %>%
-    dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha, digits = 1)) %>%
-    dplyr::rename(
-      `INPFC area` = INPFC_AREA,
-      Species = common_name,
-      `CPUE (kg/ha)` = wgted_mean_cpue_kgha
-    ) # %>%
-  # group_split(`INPFC area`)
-
-  # y <- lapply(x, pivot_wider, names_from = `INPFC area`, values_from = `CPUE (kg/ha)`)
-  # for (i in 1:length(y)) {
-  #   names(y)[i] <- names(y[[i]][2])
-  #   colnames(y[[i]])[2] <- "CPUE (kg/ha)"
-  # }
-  # tophalf <- cbind(y$`Southern Bering Sea`, y$`Eastern Aleutians`, y$`Central Aleutians`)
-  # colnames(tophalf) <- c("Species", "CPUE (kg/ha)","Species ", "CPUE (kg/ha) ","Species  ", "CPUE (kg/ha)  ")
-  # bottomhalf <- cbind(y$`Western Aleutians`, y$`Combined Aleutian Districts`, y$`All Districts Combined`)
-  # colnames(bottomhalf) <- colnames(tophalf)
-  # uglydf <- rbind(tophalf,bottomhalf)
-  return(x)
-}
 
 #' Retrieve Table 3's (biomass per area and depth) for a species
 #'
@@ -457,6 +421,31 @@ prep_tab4 <- function(speciescode) {
 
   return(cleaned_tab)
 }
+
+#' Make a rough draft of Table 4
+#'
+#' @param species_code species code (numeric)
+#' @param survey survey code, "AI" or "GOA" (character)
+#' @param year survey year (numeric)
+#'
+#' @return writes a csv file for each species for table 4.
+#' @export
+#'
+#' @examples
+#' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
+#'
+make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
+  a <- RODBC::sqlQuery(channel, paste0(
+    "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey, "\' and b.YEAR = ", year,
+    " and b.SPECIES_CODE = ", species_code,
+    " and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
+  ))
+  
+  dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
+  
+  write.csv(x = a, file = dir_out, row.names = FALSE)
+}
+
 
 # format appendix b contents so they will fit easily in a flextable
 prep_appendix_b <- function(df) {
