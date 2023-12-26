@@ -3,7 +3,7 @@
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
 maxyr <- 2023 # Change this for the year!
-minyr <- 1991 # This is the min year for the "data stanza"
+minyr <- 1993 # This is the min year for the "data stanza" - 1991 for AI and 1993 for GOA
 compareyr <- 2021 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_sql_cpue <- FALSE # Do we want to use CPUE values from BIOMASS_TOTAL or "build our own" from RACEBASE catch, haul, etc tables? The default, TRUE, uses CPUE values from BIOMASS_TOTAL.

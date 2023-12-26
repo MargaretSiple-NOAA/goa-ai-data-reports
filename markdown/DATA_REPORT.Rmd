@@ -131,7 +131,7 @@ list_tables[["length-sample-sizes"]] %>%
 \newpage
 
 <!---BLOCK_MULTICOL_START--->
-```{r echo=FALSE,tab.cap='Mean CPUE (kg/ha) for the 20 most abundant groundfish species in each survey district during the 2022 Aleutian Islands bottom trawl survey.', tab.id='top-cpue', tab.cap.style = "Table caption"}
+```{r echo=FALSE,tab.cap=paste('Mean CPUE (kg/ha) for the 20 most abundant groundfish species in each survey district during the', maxyr, SRVY, 'bottom trawl survey.'), tab.id='top-cpue', tab.cap.style = "Table caption"}
 top_CPUE_formatted(top_CPUE = top_CPUE) %>%
   as_grouped_data(groups = "INPFC area") %>%
   as_flextable(hide_grouplabel = TRUE) %>%
