@@ -233,6 +233,11 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
     big.mark = ","
   )
+  
+  # Percent change in B since compareyr and maxyr
+  spp_percent_change1 <- compare_tab$percent_change[which(compare_tab$SPECIES_CODE == species_code)]
+  spp_percent_change <- abs(spp_percent_change1)
+  spp_incr_decr <- ifelse(spp_percent_change1 < 0, "decrease", "increase")
 
   inpfc_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     mutate(`Survey district` = na_if(`Survey district`, "")) %>%
