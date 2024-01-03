@@ -97,7 +97,7 @@ compare_tab2 <- compare_tab %>%
   arrange(-SPECIES_CODE) 
 
 write.csv(x = compare_tab2,
-          file = paste0(dir_out_chapters,"comparison_w_previous_year.csv"))
+          file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_year.csv"))
 
 # Stations allocated, attempted, succeeded --------------------------------
 
