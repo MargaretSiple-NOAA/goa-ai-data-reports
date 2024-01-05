@@ -1,5 +1,5 @@
 # 05_download_data_from_oracle
-# This script contains everything you need an Oracle connection to run for the reports. You should be able to connect, download local versions of all the stuff you need, and then disconnect (or whatever) and 
+# This script contains everything you need an Oracle connection to run for the reports. You should be able to connect, download local versions of all the stuff you need, and then disconnect (or whatever) and
 
 # Setup folders for local files -------------------------------------------
 if (!file.exists("data/local_racebase")) dir.create("data/local_racebase", recursive = TRUE)
@@ -99,38 +99,6 @@ write.csv(x = a, "./data/specimen_ADFG.csv", row.names = FALSE)
 
 print("Finished downloading ADF&G tables")
 
-
-
-# GAP_PRODUCTS ------------------------------------------------------------
-# area
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
-a <- a |>
-  filter(SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52) & 
-           DESIGN_YEAR == ifelse(SRVY=="GOA", 1984, 1980))
-print(paste("Using design year(s):",unique(a$DESIGN_YEAR)))
-
-write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
-
-
-# biomass
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
-a <- filter(a, 
-            SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52) & 
-              YEAR == maxyr)
-
-write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
-
-# size comps
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
-a <- filter(a, 
-            SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52) & 
-              YEAR == maxyr)
-
-write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
-
-
-print("Finished downloading GAP_PRODUCTS tables.")
-
 # GOA ---------------------------------------------------------------------
 
 # Need goa_strata because it contains both GOA and AI strata
@@ -143,25 +111,25 @@ print("Finished downloading strata file.")
 if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_TOTAL")
   write.csv(x = a, "./data/local_goa/biomass_total.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
   write.csv(x = a, "./data/local_goa/biomass_stratum.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.CPUE")
   write.csv(x = a, "./data/local_goa/cpue.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.SIZECOMP_TOTAL")
   write.csv(x = a, "./data/local_goa/sizecomp_total.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOAGRID")
   write.csv(x = a, "./data/local_goa/goagrid.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
-  
+
   print("Finished downloading GOA schema tables")
 }
 
@@ -179,16 +147,49 @@ if (SRVY == "AI") {
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
   write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.SIZECOMP_TOTAL")
   write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
-  
+
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
-  
+
   print("Finished downloading AI schema tables")
 }
 
+# GAP_PRODUCTS ------------------------------------------------------------
+# area
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
+a <- a |>
+  filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+    DESIGN_YEAR == ifelse(SRVY == "GOA", 1984, 1980))
+print(paste("Using design year(s):", unique(a$DESIGN_YEAR)))
+
+write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
+
+
+# biomass
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
+a <- filter(
+  a,
+  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+    YEAR == maxyr
+)
+
+write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
+
+# size comps
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
+a <- filter(
+  a,
+  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+    YEAR == maxyr
+)
+
+write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
+
+
+print("Finished downloading GAP_PRODUCTS tables.")
 
 # Ex-vessel prices --------------------------------------------------------
 
@@ -204,44 +205,69 @@ if (SRVY == "GOA") {
 }
 
 ################## BUILD TABLES FROM ORACLE ####################################
-
-
-# Use gapindex to get size comp table -------------------------------------
-# Use gapindex to get size comps - these will be used to 
-sql_channel <- gapindex::get_connected()
-
-xx <- gapindex::get_data(year_set = maxyr,
-                         haul_type = 3,
-                         survey_set = SRVY,
-                         spp_codes = report_species$species_code,
-                         abundance_haul = "Y",
-                         sql_channel = sql_channel, 
-                         pull_lengths = TRUE)
-
-cpue <- gapindex::calc_cpue(racebase_tables = xx)
-biomass_stratum <- gapindex::calc_biomass_stratum(racebase_tables = xx, 
-                                                  cpue = cpue)
-biomass_subarea <- gapindex::calc_biomass_subarea(racebase_tables = xx,biomass_strata = biomass_stratum)
-sizecomp_stratum <- gapindex::calc_sizecomp_stratum(racebase_cpue = cpue,
-                                                    racebase_stratum_popn = biomass_stratum, 
-                                                    racebase_tables = xx)
-
-# Save to the local folder for SRVY:
-write.csv(sizecomp_stratum, 
-          file = paste0("./data/local_",tolower(SRVY), "/sizecomp_stratum.csv"), 
-          row.names = FALSE)
-
-
 # Table 4's (built w SQL) -------------------------------------------------
 # make_tab4 function comes from the 03_functions.R file
-lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
-
+lapply(X = unique(report_species$species_code), FUN = make_tab4, survey = SRVY, year = maxyr)
 
 # Table 3's (built w SQL) -------------------------------------------------
-#lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
-#make_tab3(species_code = 30060, survey = "GOA", year = 2023)
+# lapply(X = unique(report_species$species_code), FUN = make_tab4, survey=SRVY, year = maxyr)
+# make_tab3(species_code = 30060, survey = "GOA", year = 2023)
 
 
-# All done!
-print("Finished downloading local versions of tables! Yay.")
+################## USE GAPINDEX TO GET SIZECOMPS ###############################
+# Use gapindex to get size comps - these will be used to
+sql_channel <- gapindex::get_connected()
 
+xx <- gapindex::get_data(
+  year_set = maxyr,
+  haul_type = 3,
+  survey_set = SRVY,
+  spp_codes = report_species$species_code,
+  abundance_haul = "Y",
+  sql_channel = sql_channel,
+  pull_lengths = TRUE
+)
+
+cpue <- gapindex::calc_cpue(racebase_tables = xx)
+biomass_stratum <- gapindex::calc_biomass_stratum(
+  racebase_tables = xx,
+  cpue = cpue
+)
+biomass_subarea <- gapindex::calc_biomass_subarea(racebase_tables = xx, biomass_strata = biomass_stratum)
+sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
+  racebase_cpue = cpue,
+  racebase_stratum_popn = biomass_stratum,
+  racebase_tables = xx
+)
+
+# Save to the local folder for SRVY:
+write.csv(sizecomp_stratum,
+  file = paste0("./data/local_", tolower(SRVY), "/sizecomp_stratum.csv"),
+  row.names = FALSE
+)
+
+print("Finished downloading local versions of all tables! Yay.")
+
+################## CHECK LOCAL FOLDERS FOR RODBC ERRORS ########################
+# This doesn't work yet and I can't figure it out yet-- need to use system() to look for error text. 
+# search_phrase <- "RODBC"
+# 
+# # List all CSV files in the directory
+# csv_files <- list.files(path = here::here('data'), pattern = "\\.csv$", full.names = TRUE)
+# #csv_files <- gsub(" ",replacement = "[ ]",x = csv_files)
+# 
+# # Iterate through each CSV file and search for the phrase
+# for (file in csv_files) {
+#   
+#   # Use grep in Unix-like systems or findstr in Windows
+#   cmd <- paste0("findstr /c:", shQuote(search_phrase)," ", shQuote(file))
+#   
+#   # Execute the command and capture the output
+#   output <- system(cmd, intern = TRUE)
+#   
+#   # Check if the phrase was found
+#   if (length(output) > 0) {
+#     message(paste("Phrase found in file:", file))
+#     # You can add more actions here, like setting a flag or further processing
+#   }
+# }
