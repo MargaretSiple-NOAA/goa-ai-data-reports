@@ -13,7 +13,7 @@ species_names <- common_names %>%
   janitor::clean_names() %>%
   dplyr::rename(scientific_name = species_name) %>%
   dplyr::select(-year_added) %>%
-  mutate(major_group = case_when(
+  dplyr::mutate(major_group = dplyr::case_when(
     species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
     species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
     species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
