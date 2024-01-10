@@ -172,7 +172,9 @@ if (make_total_surv_map) {
 
   goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
 
-  goa_inpfc <- akgfmaps::get_base_layers(select.region = "inpfc.goa", set.crs = "auto")
+
+  goa_inpfc <- goa_all$inpfc.strata
+  
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
 
   geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
