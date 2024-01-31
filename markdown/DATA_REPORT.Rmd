@@ -361,4 +361,8 @@ res <- knitr::knit_child(text = unlist(src), quiet = TRUE,options = )
 cat(res, sep = "\n")
 ```
 
+# Acknowledgments
+```{r child=here::here("gdrive","Aknowledgemnts.Rmd")}
+```
+
 # Appendices

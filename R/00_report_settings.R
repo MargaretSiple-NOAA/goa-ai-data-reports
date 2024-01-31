@@ -45,10 +45,15 @@ and this will become a permanent feature of our station allocations in the futur
 
 YEAR <- maxyr
 
+# Vessels and captains
 vessel1 <- "Ocean Explorer"
 vessel2 <- "Alaska Provider"
 captain1 <- "Dan Carney"
 captain2 <- "Loren Reynolds"
+
+# Internal reviewers
+reviewer1 <- "Sarah T. Friedman"
+reviewer2 <- "Christopher Anderson"
 
 ref_compareyr <- "@von_szalay_data_2017" # should be included in cite/bibliography.bib
 
