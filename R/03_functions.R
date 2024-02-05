@@ -75,10 +75,10 @@ sex_diff_size_statement <- function(species_lengths) {
     pt_1 <- "There was a sex difference in size within this species; "
     # which of the sexes are larger?
     if (mean(males) > mean(females)) {
-      pt_2 <- paste0("Males (mean FL ", round(mean(males, na.rm = TRUE),digits = 2), ") are generally larger than females (mean FL ", round(mean(females),digits=2), ")")
+      pt_2 <- paste0("Males (mean FL ", round(mean(males, na.rm = TRUE),digits = 2), ") are generally larger than females (mean FL ", round(mean(females),digits=2), ").")
     }
     if (mean(females) > mean(males)) {
-      pt_2 <- paste0("Females (mean FL ", round(mean(females, na.rm = TRUE),digits=2), ") are generally larger than males (mean FL ", round(mean(males),digits=2), ")")
+      pt_2 <- paste0("Females (mean FL ", round(mean(females, na.rm = TRUE),digits=2), ") are generally larger than males (mean FL ", round(mean(males),digits=2), ").")
     }
   } else {
     pt_1 <- ""

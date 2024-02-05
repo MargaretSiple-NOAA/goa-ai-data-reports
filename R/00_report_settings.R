@@ -27,9 +27,9 @@ if(maxyr %% 2 != 0 && SRVY =="AI"){
 
 
 if (SRVY == "AI") {
-  dates_conducted <- "6 June through 14 August, 2022" # Change this for the year!
+  dates_conducted <- "the 6th of June through the 14th of August, 2022" # Change this for the year!
 } else {
-  dates_conducted <- "18 May through 6 August, 2023"
+  dates_conducted <- "the 18th of May through the 6th of August, 2023"
 }
 
 

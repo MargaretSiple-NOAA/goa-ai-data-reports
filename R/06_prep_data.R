@@ -34,9 +34,12 @@ survnumber <- cruises %>%
     "Aleutian Islands Bottom Trawl Survey",
     "Gulf of Alaska Bottom Trawl Survey"
   )) %>%
+  filter(YEAR >= ifelse(SRVY == "AI", 1990, 1993)) %>%
+  #filter(CRUISE != 199309) %>%
   distinct(CRUISE) %>%
-  nrow() %>%
-  scales::ordinal()
+  arrange(CRUISE)  
+  # nrow() %>%
+  # scales::ordinal()
 
 # Temp data --------------------------------------------------------
 # length(which(is.na(haul_maxyr$GEAR_TEMPERATURE)))
@@ -195,7 +198,8 @@ nnewstations <- all_allocation %>%
   nrow()
 
 if (nnewstations == 0) {
-  "Code says no new stations were sampled this year. Is this correct?"
+  print("Code says no new stations were sampled this year. Is this correct?")
+  
 }
 
 # Of the new stations allocated to the different vessels, which ones were successfully sampled?
@@ -215,10 +219,10 @@ new_successfully_sampled <- test %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
 
-# In the AI, we assign boat to investigate new stations that haven't been trawled before. In the GOA survey, that doesn't happen.
-if(SRVY=="AI"){
-newstationsentence <- paste("Among the", nnewstations, "total new stations assigned,", new_successfully_sampled, "were successfully found and trawled.")
-}else{
+# In the AI, we assign boat to investigate new stations that haven't been trawled before. In the GOA survey, that doesn't happen. 
+if (SRVY == "AI") {
+  newstationsentence <- paste(nnewstations / 2, "previously untrawled locations were assigned to each vessel in", maxyr, ". Among the", nnewstations, "total new stations assigned in the survey,", new_successfully_sampled, "were found and successfully trawled.")
+} else {
   newstationsentence <- ""
 }
 

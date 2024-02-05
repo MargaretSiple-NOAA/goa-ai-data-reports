@@ -206,6 +206,9 @@ surface_temp_plot}
 
 ```
 
+<br />
+<br />
+
 <!-- NOTE: Figures after this first one are all per species until the appendix. -->
 
 ```{r child=here::here("gdrive","Results_part2.Rmd")}

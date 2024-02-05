@@ -60,7 +60,7 @@ top_CPUE <- biomass_gp |>
   dplyr::rename(
     "species_code" = SPECIES_CODE,
     "common_name" = COMMON_NAME
-  ) %>%
+  ) |>
   dplyr::ungroup()
 
 
