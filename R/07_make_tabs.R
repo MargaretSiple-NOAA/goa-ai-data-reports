@@ -189,19 +189,19 @@ colnames(allocated_sampled) <- c("Survey district", "Depth range (m)",
 
 # Statement about assigned sampling densities - vector of two
 depthrange_hisamplingdensity <- allocated_sampled  |>
-  filter(`Depth range` != "All depths" & `Survey district` == "All areas") |>
+  filter(`Depth range (m)` != "All depths" & `Survey district` == "All areas") |>
   slice_max(n = 2,order_by = `Stations per 1,000 km^2` ) |>
-  dplyr::select(`Depth range`) |> 
+  dplyr::select(`Depth range (m)`) |> 
   unlist()
 
 stationdensity_hisamplingdensity <- allocated_sampled  |>
-  filter(`Depth range` != "All depths" & `Survey district` == "All areas") |>
+  filter(`Depth range (m)` != "All depths" & `Survey district` == "All areas") |>
   slice_max(n = 2,order_by = `Stations per 1,000 km^2`) |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   unlist()
 
 surveywide_samplingdensity <- allocated_sampled  |>
-  filter(`Depth range` == "All depths" & `Survey district` == "All areas") |>
+  filter(`Depth range (m)` == "All depths" & `Survey district` == "All areas") |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   as.numeric()
 
