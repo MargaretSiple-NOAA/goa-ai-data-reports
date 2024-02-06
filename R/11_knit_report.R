@@ -79,26 +79,11 @@ maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.doc
 
 fullreport <- body_add_docx(
   x = maindoc,
-  src = paste0(appendix_dir, "AppendixA/Appendix Figure A-1.docx")
+  src = paste0(appendix_dir, "Appendix A/Appendix A 2023.docx")
 ) %>%
   body_add_break()
 
-fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "AppendixA/Appendix Figure A-2.docx")
-) %>%
-  body_add_break()
-
-fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "AppendixA/Appendix Figure A-3.docx")
-) %>%
-  body_add_break()
-
-fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "AppendixA/Appendix Figure A-4.docx")
-) %>%
-  body_add_break()
-
-# Make appendix B
+# Make Appendix B
 source(here::here("R", "12_make_appendices.R"))
 
 fullreport <- body_add_docx(fullreport,
@@ -108,7 +93,7 @@ fullreport <- body_add_docx(fullreport,
 
 # Add Appendix C
 fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "Appendix C/APPENDIX C_2022.docx")
+  src = paste0(appendix_dir, "Appendix C/APPENDIX C_2023.docx")
 ) %>%
   body_add_break()
 
