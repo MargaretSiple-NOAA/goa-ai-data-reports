@@ -97,17 +97,4 @@ fullreport <- body_add_docx(fullreport,
 ) %>%
   body_add_break()
 
-# Add Appendix D
-fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "AppendixD/Figure D1 AI2022 BottomTemp.docx")
-) %>%
-  body_add_break()
-
-fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "AppendixD/Figure D2 AI2022 Surface Temp.docx")
-) %>%
-  body_add_break()
-
-
-
 print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))
