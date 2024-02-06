@@ -203,7 +203,8 @@ stationdensity_hisamplingdensity <- allocated_sampled  |>
 surveywide_samplingdensity <- allocated_sampled  |>
   filter(`Depth range (m)` == "All depths" & `Survey district` == "All areas") |>
   dplyr::select(`Stations per 1,000 km^2`) |>
-  as.numeric()
+  as.numeric() |>
+  round(digits = 4)
 
 # "Table 3" and "Table 4" ------------------------------------------------------
 # Check to see if all the species in the list are in the folder

@@ -189,7 +189,7 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 <br />
 
-```{r fig.cap='Bottom temperatures as measured by survey gear. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=7}
+```{r fig.cap='Bottom temperatures as measured by survey gear. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 if(SRVY=="AI"){ #janky; get rid of this after AI 2022 report
   list_temperature[['bottomtemp']]}else{
 bottom_temp_plot}
@@ -198,7 +198,7 @@ bottom_temp_plot}
 <br />
 <br />
 
-```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=7}
+```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 if(SRVY=="AI"){
   list_temperature[['surfacetemp']]}else{
 surface_temp_plot}
@@ -365,7 +365,7 @@ cat(res, sep = "\n")
 ```
 
 # Acknowledgments
-```{r child=here::here("gdrive","Aknowledgemnts.Rmd")}
+```{r child=here::here("gdrive","Acknowledgments.Rmd")}
 ```
 
 # Appendices

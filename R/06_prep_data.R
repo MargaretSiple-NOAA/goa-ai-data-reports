@@ -34,12 +34,12 @@ survnumber <- cruises %>%
     "Aleutian Islands Bottom Trawl Survey",
     "Gulf of Alaska Bottom Trawl Survey"
   )) %>%
-  filter(YEAR >= ifelse(SRVY == "AI", 1990, 1993)) %>%
+  #filter(YEAR >= ifelse(SRVY == "AI", 1990, 1993)) %>%
   #filter(CRUISE != 199309) %>%
   distinct(CRUISE) %>%
-  arrange(CRUISE)  
-  # nrow() %>%
-  # scales::ordinal()
+  arrange(CRUISE)  %>%
+  nrow() %>%
+  scales::ordinal()
 
 # Temp data --------------------------------------------------------
 # length(which(is.na(haul_maxyr$GEAR_TEMPERATURE)))
