@@ -129,6 +129,23 @@ list_tables[["length-sample-sizes"]] %>%
 ```
 
 \newpage
+<br />
+
+<!-- Figures -->
+```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', 'Map of the GOA 2023 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
+if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
+```
+
+
+# Results
+
+```{r child=here::here("gdrive","Results_part1.Rmd")}
+```
+
+<br />
+<br />
+
+\newpage
 
 <!---BLOCK_MULTICOL_START--->
 ```{r echo=FALSE,tab.cap=paste('Mean CPUE [kg/ha] for the 20 most abundant groundfish species in each survey district during the', maxyr, SRVY, 'bottom trawl survey.'), tab.id='top-cpue', tab.cap.style = "Table caption"}
@@ -172,24 +189,10 @@ if (SRVY == "GOA") {
 }
 ```
 
-\newpage
-<br />
-
-<!-- Figures -->
-```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', 'Map of the GOA 2023 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7}
-if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
-```
-
-
-# Results
-
-```{r child=here::here("gdrive","Results_part1.Rmd")}
-```
-
 <br />
 <br />
 
-```{r fig.cap='Bottom temperatures as measured by survey gear. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Bottom temperatures as measured at the trawl. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 if(SRVY=="AI"){ #janky; get rid of this after AI 2022 report
   list_temperature[['bottomtemp']]}else{
 bottom_temp_plot}
@@ -198,7 +201,7 @@ bottom_temp_plot}
 <br />
 <br />
 
-```{r fig.cap='Surface temperatures as measured by survey gear. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Surface temperatures as measured at the trawl. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 if(SRVY=="AI"){
   list_temperature[['surfacetemp']]}else{
 surface_temp_plot}
@@ -219,7 +222,7 @@ surface_temp_plot}
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)

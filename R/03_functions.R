@@ -72,13 +72,13 @@ sex_diff_size_statement <- function(species_lengths) {
   z <- ks.test(males, females)
   diff <- ifelse(z$p.value < 0.05, TRUE, FALSE)
   if (diff) {
-    pt_1 <- "There was a sex difference in size within this species; "
+    pt_1 <- "There was a sex difference in length within this species; "
     # which of the sexes are larger?
     if (mean(males) > mean(females)) {
-      pt_2 <- paste0("Males (mean FL ", round(mean(males, na.rm = TRUE),digits = 2), ") are generally larger than females (mean FL ", round(mean(females),digits=2), ").")
+      pt_2 <- paste0("Males (mean FL ", round(mean(males, na.rm = TRUE),digits = 2), ") are generally longer than females (mean FL ", round(mean(females),digits=2), "cm).")
     }
     if (mean(females) > mean(males)) {
-      pt_2 <- paste0("Females (mean FL ", round(mean(females, na.rm = TRUE),digits=2), ") are generally larger than males (mean FL ", round(mean(males),digits=2), ").")
+      pt_2 <- paste0("Females (mean FL ", round(mean(females, na.rm = TRUE),digits=2), ") are generally longer than males (mean FL ", round(mean(males),digits=2), "cm).")
     }
   } else {
     pt_1 <- ""
@@ -376,8 +376,8 @@ prep_tab3 <- function(speciescode) {
       `Hauls with catch` = Hauls.w.Catch,
       `CPUE (kg/ha)` = CPUE..kg.ha.,
       `Biomass (t)` = Biomass...t.,
-      `Lower 95% CI` = X95..LCL..t.,
-      `Upper 95% CI` = X95..UCL..t.,
+      `Lower 95% CL` = X95..LCL..t.,
+      `Upper 95% CL` = X95..UCL..t.,
       `Mean weight (kg)` = Weight...kg.
     )
 
@@ -414,8 +414,8 @@ prep_tab4 <- function(speciescode) {
       `Hauls with catch` = Hauls.with.Catch,
       `CPUE (kg/ha)` = CPUE..kg.ha.,
       `Biomass (t)` = Biomass..t.,
-      `Lower 95% CI` = Lower.CI.Biomass,
-      `Upper 95% CI` = Upper.CI.Biomass
+      `Lower 95% CL` = Lower.CI.Biomass,
+      `Upper 95% CL` = Upper.CI.Biomass
     ) %>%
     arrange(factor(`Survey district`, levels = district_order), `Depth range (m)`)
 

@@ -1,20 +1,20 @@
 Species.or.species.group,sci.name,sci.name.addendum,Target.sample.size
-Walleye pollock,Gadus chalcogrammus,,100
+walleye pollock,Gadus chalcogrammus,,100
 Pacific cod,Gadus macrocephalus,,100
-Arrowtooth flounder (ATF),Atheresthes stomias,,150
+arrowtooth flounder (ATF),Atheresthes stomias,,150
 All rockfish species,Sebastes,spp.,100
-Sablefish,Anoplopoma fimbria,,100
+sablefish,Anoplopoma fimbria,,100
 Atka mackerel,Pleurogrammus monopterygius,,100
 All species of flatfish (except ATF),,Order Pleuronectiformes,100
-Prowfish,Zaprora silenus,,100
-Lingcod,Ophiodon elongatus,,100
-Salmon,,Family Salmonidae,100
-Yellow Irish lord,Hemilepidotus jordani,,100
-Bigmouth sculpin,Hemilepidotus bolini,,100
-Great sculpin,Myoxocephalus polyacanthocephalus,,100
-Plain sculpin,Myoxocephalus jaok,,100
-Warty sculpin,Myoxocephalus verrucosus,,100
-"Forage fish (herring, eulachon, capelin, sand lance)",,Several families,100
-Commander squid,Berryteuthis magister,,100
-Skates and sharks (total length),,Subclass Elasmobranchii  ,50
-Grenadiers (tip of snout to insertion of first anal ray),,Family Macrouridae,50
+prowfish,Zaprora silenus,,100
+lingcod,Ophiodon elongatus,,100
+salmon,,Family Salmonidae,100
+yellow Irish lord,Hemilepidotus jordani,,100
+bigmouth sculpin,Hemilepidotus bolini,,100
+great sculpin,Myoxocephalus polyacanthocephalus,,100
+plain sculpin,Myoxocephalus jaok,,100
+warty sculpin,Myoxocephalus verrucosus,,100
+"forage fish (herring, eulachon, capelin, sand lance)",,Several families,100
+commander squid,Berryteuthis magister,,100
+skates and sharks (total length),,Subclass Elasmobranchii,50
+grenadiers (tip of snout to insertion of first anal ray),,Family Macrouridae,50

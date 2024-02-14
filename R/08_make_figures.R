@@ -400,7 +400,7 @@ if (make_cpue_bubbles_strata) {
   print("Done with CPUE bubble maps showing stratum areas.")
 }
 
-# 3b. CPUE bubble maps for AI - b&w Emily M style bubble plots ----------------------------------------------------------
+# 3b. CPUE bubble maps - b&w Emily M style bubble plots ----------------------------------------------------------
 if (make_cpue_bubbles) {
   if (SRVY == "GOA") {
     reg_dat_goa <- akgfmaps::get_base_layers(
@@ -452,7 +452,8 @@ if (make_cpue_bubbles) {
       key.title = "",
       row0 = 2, reg_dat = reg_data, dist_unit = "nm", # nautical miles
       col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
-    )
+    ) + theme(plot.margin = margin(-2,0,-2,0,"cm"))
+    
     list_cpue_bubbles[[i]] <- fig
 
     png(filename = paste0(
@@ -881,14 +882,6 @@ if (make_temp_plot) {
       surface_stz = surface - mean(surface, na.rm = T)
     ) %>%
     pivot_longer(cols = bottom:surface_stz)
-
-  # sst_summary %>%
-  #   filter(grepl("_stz", name)) %>%
-  #   ggplot(aes(YEAR, value, color = name)) +
-  #   geom_point(size = 2) +
-  #   scale_color_manual(values = c("purple", "orange"))
-
-  # library(ggdist)
 
   plotdat <- haul %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
