@@ -16,7 +16,7 @@ make_cpue_bubbles_strata <- FALSE
 make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
-# 5b. Length vs. depth, facetted by district
+# 5b. Length vs. depth, faceted by district
 make_ldscatter <- TRUE
 make_ldcloud <- FALSE
 # 6. Plot of surface and bottom SST with long term avg
@@ -872,9 +872,9 @@ if (make_temp_plot) {
     ungroup() %>%
     as.data.frame() %>%
     mutate(YEAR = as.numeric(YEAR))
-  
-  if(SRVY=="GOA"){
-    sstdat <- sstdat %>% filter(YEAR != 2001) #They didn't finish the GOA survey in 2001
+
+  if (SRVY == "GOA") {
+    sstdat <- sstdat %>% filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
   }
 
   sst_summary <- sstdat %>%
@@ -885,31 +885,72 @@ if (make_temp_plot) {
     pivot_longer(cols = bottom:surface_stz)
 
   plotdat <- haul %>%
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+    mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
     filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
     filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
 
+  bottom_temp_20yr <- plotdat |>
+    filter(YEAR >= (maxyr - 20)) |>
+    dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  bottom_temp_10yr <- plotdat |>
+    filter(YEAR >= (maxyr - 10)) |>
+    dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  bottom_temp_avgs <- data.frame(
+    "Average" = c("10-year", "20-year"),
+    "Value" = c(bottom_temp_20yr, bottom_temp_10yr),
+    Start_year = c(maxyr - 10, maxyr - 20)
+  )
 
   bottom_temp_plot <- plotdat %>%
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
-    ggdist::stat_interval() +
-    ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
-    geom_point(size = 0.5, color = "gray5") +
+    ggdist::stat_interval(linewidth = 3) +
+    ggdist::stat_halfeye(
+      fill = "tan", alpha = 0.5,
+      interval_color = "grey27", point_color = "grey27"
+    ) +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
     labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
-    theme_light()
+    theme_light() +
+    geom_segment(data = bottom_temp_avgs, aes(
+      y = Value, yend = Value,
+      linetype = Average,
+      x = Start_year, xend = maxyr
+    ))
+
+  surface_temp_20yr <- plotdat |>
+    filter(YEAR >= (maxyr - 20)) |>
+    dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  surface_temp_10yr <- plotdat |>
+    filter(YEAR >= (maxyr - 10)) |>
+    dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  surface_temp_avgs <- data.frame(
+    "Average" = c("10-year", "20-year"),
+    "Value" = c(surface_temp_20yr, surface_temp_10yr)
+  )
 
   surface_temp_plot <- plotdat %>%
     ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
-    ggdist::stat_interval() +
-    ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
-    geom_point(size = 0.5, color = "gray5") +
+    ggdist::stat_interval(linewidth = 3) +
+    ggdist::stat_halfeye(
+      fill = "tan", alpha = 0.5,
+      interval_color = "grey27", point_color = "grey27"
+    ) +
+    # geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
-    theme_light()
+    theme_light() +
+    geom_segment(data = surface_temp_avgs, aes(
+      y = Value, yend = Value,
+      linetype = Average,
+      x = Start_year, xend = maxyr
+    ))
 
   png(
     filename = paste0(
@@ -937,7 +978,6 @@ if (make_temp_plot) {
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
 }
-
 
 
 # (7.) GOA CPUE map ----------------------------------------------------------------

@@ -1051,37 +1051,70 @@ if (make_temp_plot) {
                                               nboats==4 ~ "*")) |>
     dplyr::filter(YEAR %in% unique(plotdat$YEAR))
   
-  # boatcountplot <- howmanyboats |> 
-  #   ggplot(aes(x=YEAR,fill=VESSEL,group=VESSEL)) +
-  #   geom_bar(color='white',fill='darkgrey',width=0.5) +
-  #   scale_x_discrete(breaks = howmanyboats$YEAR, labels = howmanyboats$YEAR) +
-  #   theme_bw() # I had an idea to do a cool stacked square thing here but abandoned
+  bottom_temp_20yr <- plotdat |>
+    filter(YEAR >= (maxyr - 20)) |>
+    dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  bottom_temp_10yr <- plotdat |>
+    filter(YEAR >= (maxyr - 10)) |>
+    dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  bottom_temp_avgs <- data.frame(
+    "Average" = c("10-year", "20-year"),
+    "Value" = c(bottom_temp_20yr, bottom_temp_10yr),
+    Start_year = c(maxyr - 10, maxyr - 20)
+  )
   
   bottom_temp_plot <- plotdat %>%
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
-    ggdist::stat_interval() +
-    ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
-    geom_point(size = 0.5, color = "gray5") +
+    ggdist::stat_interval(linewidth = 3) +
+    ggdist::stat_halfeye(
+      fill = "tan", alpha = 0.5,
+      interval_color = "grey27", point_color = "grey27"
+    ) +
+    #geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
     labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
     scale_x_discrete(breaks = howmanyboats$YEAR,
                      labels = paste0(howmanyboats$YEAR,howmanyboats$annotation_star)) +
-    theme_light()
+    theme_light() +
+    geom_segment(data = bottom_temp_avgs, aes(
+      y = Value, yend = Value,
+      linetype = Average,
+      x = Start_year, xend = maxyr
+    ))
   
-  #boatcountplot + bottom_temp_plot + plot_layout(ncol=1,heights = c(1,8))
-
+  surface_temp_20yr <- plotdat |>
+    filter(YEAR >= (maxyr - 20)) |>
+    dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  surface_temp_10yr <- plotdat |>
+    filter(YEAR >= (maxyr - 10)) |>
+    dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
+    as.numeric()
+  surface_temp_avgs <- data.frame(
+    "Average" = c("10-year", "20-year"),
+    "Value" = c(surface_temp_20yr, surface_temp_10yr)
+  )
+  
   surface_temp_plot <- plotdat %>%
     ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
-    ggdist::stat_interval() +
-    ggdist::stat_halfeye(fill = "tan", alpha = 0.3) +
-    geom_point(size = 0.5, color = "gray5") +
+    ggdist::stat_interval(linewidth = 3) +
+    ggdist::stat_halfeye(fill = "tan", alpha = 0.5,
+                         interval_color = "grey27", point_color = "grey27") +
+    #geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
     scale_x_discrete(breaks = howmanyboats$YEAR,
                      labels = paste0(howmanyboats$YEAR,howmanyboats$annotation_star)) +
-    theme_light()
+    theme_light() +
+    geom_segment(data = surface_temp_avgs, aes(
+      y = Value, yend = Value,
+      linetype = Average,
+      x = Start_year, xend = maxyr
+    ))
 
   png(
     filename = paste0(
