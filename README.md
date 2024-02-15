@@ -49,6 +49,12 @@ This report uses biomass and CPUE summary tables from the AI schema. Another way
 ## Existing documentation
 There are instructions for creating the tables and figures for the GOA data report currently in `G:/AI-GOA/Instructions&Procedures/Data Report`. Our goal is to take these and turn them into a Markdown file with documentation. 
 
+## Published reports produced using this code
+
+*A [release](https://github.com/MargaretSiple-NOAA/goa-ai-data-reports/releases) is made every time this code is used to produce a Data Processed Report.*
+
+von Szalay, P. G., Raring, N. W., Siple, M. C., Dowlin, A. N., Riggle, B. C., and Laman, E. A. (2023) Data Report: 2022 Aleutian Islands bottom trawl survey.  AFSC Processed Rep. 2023-07, 230 p. Alaska Fish. Sci. Cent., NOAA, Natl. Mar. Fish. Serv., 7600 Sand Point Way NE, Seattle WA 98115. https://doi.org/10.25923/85cy-g225
+
 ## This code is maintained by:
 **Margaret Siple** (margaret.siple AT noaa.gov; @MargaretSiple-NOAA)
 
