@@ -281,7 +281,8 @@ if (make_catch_comp) {
     xlab("Year") +
     ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
-    bartheme
+    bartheme +
+    theme(legend.position = "bottom")
 
   png(
     filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
