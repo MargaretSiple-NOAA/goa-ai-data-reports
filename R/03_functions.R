@@ -379,7 +379,8 @@ prep_tab3 <- function(speciescode) {
       `Lower 95% CL` = X95..LCL..t.,
       `Upper 95% CL` = X95..UCL..t.,
       `Mean weight (kg)` = Weight...kg.
-    )
+    ) |>
+    dplyr::filter(`Depth (m)` != "701 - 1000")
 
   if (SRVY == "AI") {
     x <- x %>%
