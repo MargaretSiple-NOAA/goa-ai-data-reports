@@ -34,7 +34,7 @@ survnumber <- cruises %>%
     "Aleutian Islands Bottom Trawl Survey",
     "Gulf of Alaska Bottom Trawl Survey"
   )) %>%
-  #filter(YEAR >= ifelse(SRVY == "AI", 1990, 1993)) %>%
+  filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) %>% # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
   #filter(CRUISE != 199309) %>%
   distinct(CRUISE) %>%
   arrange(CRUISE)  %>%
