@@ -81,7 +81,7 @@ bubbletheme <- theme(
 
 linetheme <- theme_bw(base_size = 12)
 
-bartheme <- ggpubr::theme_classic2(base_size = 12) +
+bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
 
 # Palettes!
@@ -171,10 +171,8 @@ if (make_total_surv_map) {
   }
 
   goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
-
-
   goa_inpfc <- goa_all$inpfc.strata
-  
+
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
 
   geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
@@ -192,27 +190,69 @@ if (make_total_surv_map) {
     geom_sf(data = goa_all$akland) +
     geom_sf(data = goa_inpfc, aes(fill = INPFC_STRATUM)) +
     scale_fill_manual("INPFC area", values = palette_map, breaks = geo_order) +
-    # geom_sf(data = GOA$bathymetry) +
     geom_sf(data = goa_all$survey.area, fill = NA) +
-    coord_sf(
-      xlim = goa_all$plot.boundary$x,
-      ylim = goa_all$plot.boundary$y
+    # coord_sf(
+    #   xlim = goa_all$plot.boundary$x,
+    #   ylim = c(goa_all$plot.boundary$y[1]-150000, goa_all$plot.boundary$y[2])
+    # ) +
+    geom_sf_text(
+      data = goa_inpfc, size = 4,
+      aes(label = INPFC_STRATUM, geometry = geometry),
+      nudge_y = -240000
     ) +
     theme_light() +
-    theme(legend.position = "bottom")
+    theme(legend.position = "none")
 
 
-  station_map <- p1 +
+  station_map1 <- p1 +
     geom_sf(data = thisyrshauldata, size = 0.5) +
     coord_sf(
       xlim = goa_all$plot.boundary$x,
-      ylim = goa_all$plot.boundary$y
+      ylim = c(goa_all$plot.boundary$y[1] - 150000, goa_all$plot.boundary$y[2])
     ) +
-    guides(fill=guide_legend(nrow=2, byrow=TRUE))
+    guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
+    ggspatial::annotation_scale(location = "br") +
+    theme(panel.grid = element_line(color = "#FAFAFA")) +
+    xlab("Longitude") +
+    ylab("Latitude")
+
+  # inset map
+  world <- ne_countries(scale = "medium", returnclass = "sf")
+  inset_map <- ggplot(data = world) +
+    geom_sf(color = "darkgrey", fill = "darkgrey") +
+    xlim(-170, -50) +
+    ylim(20, 80) +
+    geom_rect(
+      mapping = aes(
+        xmin = -160,
+        xmax = -130,
+        ymin = 55,
+        ymax = 62
+      ),
+      color = "darkblue", fill = NA, lwd = 0.5
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      
+      # border (for inset plotting)
+      plot.background = element_rect(fill = "white", colour = "black", 
+                                     size = 0.5)
+    )
+
+  station_map <- station_map1 + 
+    inset_element(inset_map, -0.78, 0.5, 1, 1, align_to = "panel")
 
   png(
     filename = paste0(dir_out_figures, maxyr, "_station_map.png"),
-    width = 8, height = 5, units = "in", res = 150
+    width = 8, height = 6, units = "in", res = 150
   )
   print(station_map)
   dev.off()
@@ -286,7 +326,7 @@ if (make_catch_comp) {
 
   png(
     filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
-    width = 7, height = 7, units = "in", res = 150
+    width = 9, height = 6, units = "in", res = 200
   )
   print(p2)
   dev.off()
