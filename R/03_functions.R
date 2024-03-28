@@ -61,24 +61,24 @@ sex_diff_size_statement <- function(species_lengths) {
   }
 
   # Divide by 1e4 to make the integers smaller; doesn't matter as long as proportions are right.
-  species_lengths$MALES <- species_lengths$MALES/1e4
-  species_lengths$FEMALES <- species_lengths$FEMALES/1e4
+  species_lengths$MALES <- species_lengths$MALES / 1e4
+  species_lengths$FEMALES <- species_lengths$FEMALES / 1e4
 
-  males <-  species_lengths$LENGTH * (species_lengths$MALES/sum(species_lengths$MALES))
-  females <- species_lengths$LENGTH * (species_lengths$FEMALES/sum(species_lengths$FEMALES))
+  males <- species_lengths$LENGTH * (species_lengths$MALES / sum(species_lengths$MALES))
+  females <- species_lengths$LENGTH * (species_lengths$FEMALES / sum(species_lengths$FEMALES))
 
-  
-  
+
+
   z <- ks.test(males, females)
   diff <- ifelse(z$p.value < 0.05, TRUE, FALSE)
   if (diff) {
     pt_1 <- "There was a sex difference in length within this species; "
     # which of the sexes are larger?
-    if (mean(males) > mean(females)) {
-      pt_2 <- paste0("Males (mean FL ", round(mean(males, na.rm = TRUE),digits = 2), ") are generally longer than females (mean FL ", round(mean(females),digits=2), "cm).")
+    if (sum(males) > sum(females)) {
+      pt_2 <- paste0("Males (mean FL ", round(sum(males) / 10, digits = 2), ") are generally longer than females (mean FL ", round(sum(females) / 10, digits = 2), " cm).")
     }
-    if (mean(females) > mean(males)) {
-      pt_2 <- paste0("Females (mean FL ", round(mean(females, na.rm = TRUE),digits=2), ") are generally longer than males (mean FL ", round(mean(males),digits=2), "cm).")
+    if (sum(females) > sum(males)) {
+      pt_2 <- paste0("Females (mean FL ", round(sum(females) / 10, digits = 2), " cm) are generally longer than males (mean FL ", round(sum(males) / 10, digits = 2), " cm).")
     }
   } else {
     pt_1 <- ""
