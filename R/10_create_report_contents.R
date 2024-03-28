@@ -9,8 +9,7 @@ source("R/01_directories.R")
 source("R/02_load_packages.R")
 source("R/03_functions.R") # May not need all these functions.
 
-# Get text from Google Drive ----------------------------------------------
-# y <- askYesNo(msg = "Do you want to re-download Google Drive files now?",default = FALSE)
+# Get text from Google Drive --------------------------------------------------
 y <- TRUE
 if (y) {
   source("R/04_get_gdrive_chapters.R")

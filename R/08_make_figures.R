@@ -971,7 +971,8 @@ if (make_temp_plot) {
     as.numeric()
   surface_temp_avgs <- data.frame(
     "Average" = c("10-year", "20-year"),
-    "Value" = c(surface_temp_20yr, surface_temp_10yr)
+    "Value" = c(surface_temp_20yr, surface_temp_10yr),
+    "Start_year" = c(maxyr - 10, maxyr - 20)
   )
 
   surface_temp_plot <- plotdat %>%
