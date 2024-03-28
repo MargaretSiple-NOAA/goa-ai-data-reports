@@ -145,27 +145,6 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 <br />
 
-\newpage
-
-<!---BLOCK_MULTICOL_START--->
-```{r echo=FALSE,tab.cap=paste('Mean CPUE [kg/ha] for the 20 most abundant groundfish species in each survey district during the', maxyr, SRVY, 'bottom trawl survey.'), tab.id='top-cpue', tab.cap.style = "Table caption"}
-top_CPUE_formatted(top_CPUE = top_CPUE) %>%
-  as_grouped_data(groups = "INPFC area") %>%
-  as_flextable(hide_grouplabel = TRUE) %>%
-  set_header_labels(`INPFC area` = "") %>%
-  bold(bold = TRUE, part = "header") %>%
-  align(i = ~ !is.na(`INPFC area`), align = "center") %>%
-  bold(i = ~ !is.na(`INPFC area`)) %>%
-  fit_to_width(max_width = 2, unit = "in") %>%
-  padding(padding.bottom = 0, padding.top = 0) %>%
-  fontsize(size = 8, part = "all")
-
-```
-
-<!---BLOCK_MULTICOL_STOP{widths: [2,2,2], space: 0.07, sep: true}--->
-
-<br />
-
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table caption"}
 if (SRVY == "GOA") {
   list_tables[["otos_target_sampled"]] %>%
@@ -212,11 +191,33 @@ surface_temp_plot}
 <br />
 <br />
 
+
+
 <!-- NOTE: Figures after this first one are all per species until the appendix. -->
 
 ```{r child=here::here("gdrive","Results_part2.Rmd")}
 ```
 
+\newpage
+
+<!---BLOCK_MULTICOL_START--->
+```{r echo=FALSE,tab.cap=paste('Mean CPUE [kg/ha] for the 20 most abundant groundfish species in each survey district during the', maxyr, SRVY, 'bottom trawl survey.'), tab.id='top-cpue', tab.cap.style = "Table caption"}
+top_CPUE_formatted(top_CPUE = top_CPUE) %>%
+  as_grouped_data(groups = "INPFC area") %>%
+  as_flextable(hide_grouplabel = TRUE) %>%
+  set_header_labels(`INPFC area` = "") %>%
+  bold(bold = TRUE, part = "header") %>%
+  align(i = ~ !is.na(`INPFC area`), align = "center") %>%
+  bold(i = ~ !is.na(`INPFC area`)) %>%
+  fit_to_width(max_width = 2, unit = "in") %>%
+  padding(padding.bottom = 0, padding.top = 0) %>%
+  fontsize(size = 8, part = "all")
+
+```
+
+<!---BLOCK_MULTICOL_STOP{widths: [2,2,2], space: 0.07, sep: true}--->
+
+<br />
 
 ```{r, echo=FALSE, results='asis'}
 # report_species contains the list of species in the report 
@@ -270,7 +271,7 @@ for (i in 1:3) { # nrow(report_species)
       if (SRVY == "AI") filter(., `Survey district` != "Combined Aleutian Districts") else .
     } %>%
     mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/ha)`))) %>%
-    filter(cpue_numeric == max(cpue_numeric, na.rm = TRUE)) %>%
+    dplyr::slice_max(cpue_numeric, n = 2) %>%
     dplyr::select(`Survey district`) %>%
     {
       if (SRVY == "AI") {
@@ -280,26 +281,26 @@ for (i in 1:3) { # nrow(report_species)
         .
       }
     } %>%
-    as.character() %>%
-    fix_co_greatest()
+   magrittr::extract2(1) #%>% #
+   # fix_co_greatest()
 
-  inpfc_2nd_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
-    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
-    tidyr::fill(`Survey district`, .direction = "down") %>%
-    filter(`Depth (m)` == "All depths") %>%
-    filter(`Survey district` != "All areas") %>%
-    {
-      if (SRVY == "AI") filter(., `Survey district` != "Combined Aleutian Districts") else .
-    } %>%
-    mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/ha)`))) %>%
-    filter(cpue_numeric != max(cpue_numeric, na.rm = TRUE)) %>% # janky but this is how I take out the highest CPUE, the next highest will be selected below
-    filter(cpue_numeric == max(cpue_numeric, na.rm = TRUE)) %>%
-    dplyr::select(`Survey district`) %>%
-    {
-      if (SRVY == "AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .
-    } %>%
-    as.character() %>%
-    fix_co_greatest()
+  # inpfc_2nd_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
+  #   mutate(`Survey district` = na_if(`Survey district`, "")) %>%
+  #   tidyr::fill(`Survey district`, .direction = "down") %>%
+  #   filter(`Depth (m)` == "All depths") %>%
+  #   filter(`Survey district` != "All areas") %>%
+  #   {
+  #     if (SRVY == "AI") filter(., `Survey district` != "Combined Aleutian Districts") else .
+  #   } %>%
+  #   mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/ha)`))) %>%
+  #   filter(cpue_numeric != max(cpue_numeric, na.rm = TRUE)) %>% # janky but this is how I take out the highest CPUE, the next highest will be selected below
+  #   filter(cpue_numeric == max(cpue_numeric, na.rm = TRUE)) %>%
+  #   dplyr::select(`Survey district`) %>%
+  #   {
+  #     if (SRVY == "AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .
+  #   } %>%
+  #   as.character() %>%
+  #   fix_co_greatest()
 
   depth_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     mutate(`Survey district` = na_if(`Survey district`, "")) %>%

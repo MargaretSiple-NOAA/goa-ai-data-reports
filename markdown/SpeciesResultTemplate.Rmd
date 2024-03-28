@@ -8,7 +8,7 @@
 
 -  The largest estimated biomass for {{spp_name_informal}} was in the {{inpfc_highest_biomass}} region, and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
 
--  The highest CPUEs were recorded in the {{inpfc_highest_cpue}} and {{inpfc_2nd_highest_cpue}} regions (Fig. `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
+-  The highest CPUEs were recorded in the {{inpfc_highest_cpue[1]}} and {{inpfc_highest_cpue[2]}} regions (Fig. `r officer::run_reference(paste0("cpue-",{{species_code}}))` and  Table `r officer::run_reference(paste0("table1-",{{species_code}}))`). 
 
 -  Length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-",{{species_code}}))` (total survey sample size *N = {{spp_n_length}}*; Fig. `r officer::run_reference(paste0("lengthdepth-",{{species_code}}))`). On average, the longest individuals were found in the {{region_longest}} region and in a depth range of {{depth_longest}}. 
 
