@@ -312,7 +312,7 @@ for (i in 1:3) { # nrow(report_species)
 
   middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
 
-  region_largest <- meanlengths_area %>%
+  region_longest <- meanlengths_area %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     top_n(1, `Mean length`) %>%
     {
@@ -320,7 +320,7 @@ for (i in 1:3) { # nrow(report_species)
     } %>%
     as.character()
 
-  depth_largest <- meanlengths_depth %>%
+  depth_longest <- meanlengths_depth %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     top_n(1, `Mean length`) %>%
     dplyr::select(`Depth range`) %>%
