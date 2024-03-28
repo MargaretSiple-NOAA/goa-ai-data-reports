@@ -953,8 +953,9 @@ if (make_temp_plot) {
     ) +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
+    xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
-    theme_light() +
+    theme_light(base_size=15) +
     geom_segment(data = bottom_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
@@ -985,8 +986,9 @@ if (make_temp_plot) {
     # geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
+    xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
-    theme_light() +
+    theme_light(base_size=15) +
     geom_segment(data = surface_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
@@ -1018,6 +1020,14 @@ if (make_temp_plot) {
 
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
+  
+  # For TSC
+  # png(
+  #   filename = paste0(dir_out_figures,"TempPlots_TSC.png"),
+  #   width = 6, height = 7, units = "in", res = 200
+  # )
+  # surface_temp_plot + bottom_temp_plot +  plot_layout(ncol=1, guides = 'collect')
+  # dev.off()
 }
 
 
