@@ -641,7 +641,8 @@ if (make_joy_division_length) {
         fill = "white", label.size = NA,
         nudge_x = 0, nudge_y = 1,
         hjust = "inward",
-        size = 3
+        size = 3,
+        alpha = 0.6
       ) +
       # labs(title = paste(report_species$spp_name_informal[i])) +
       theme(
@@ -717,7 +718,8 @@ if (make_joy_division_length) {
           data = testlabdf_comb,
           mapping = aes(label = paste0("n = ", n), x = Inf),
           fill = "white", label.size = NA,
-          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3
+          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3,
+          alpha = 0.6
         ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
