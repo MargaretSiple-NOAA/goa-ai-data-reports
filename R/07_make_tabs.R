@@ -1,5 +1,5 @@
 # This script builds all the tables needed for the report. It is intended to be run after all the preceding files (00 thru 06) so don't try to run it on its own.
-if(!maxyr){print("This script requires objects that aren't in the environment yet - make sure you run all the preceding files (00_report-settings.R thru 06_prep_data.R).")}
+if(!maxyr){print("This script requires objects that aren't in the environment yet - make sure you run all the preceding files (00_report_settings.R thru 06_prep_data.R).")}
 
 # Tables are labeled / ordered based on the historical data reports order of tables (currently based on the 2018 AI report, because that's the most recent one I have access to)
 # Table 1 is the target sample sizes for different species categories

@@ -825,7 +825,7 @@ if (make_ldscatter) {
       dplyr::left_join(region_lu, by = "STRATUM") %>%
       dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
       dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
-    # make a new INPF_AREA that is all of them combined
+    # make a new INPFC_AREA that is all of them combined
     ltoplot <- ltoplot %>%
       mutate(INPFC_AREA = "All districts") %>%
       bind_rows(ltoplot)
@@ -838,7 +838,7 @@ if (make_ldscatter) {
 
     if (nrow(ltoplot) < nknots * 2) {
       ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
-        geom_point(alpha = 0.2) +
+        geom_point(alpha = 0.2, size = 0.8) +
         xlab(paste("Bottom depth (x", dscale, "m)")) +
         ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
         facet_wrap(~INPFC_AREA, nrow = 1) +
@@ -863,7 +863,7 @@ if (make_ldscatter) {
       pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
 
       ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
-        geom_point(alpha = 0.2) +
+        geom_point(alpha = 0.2, size = 0.8) +
         geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = INPFC_AREA), alpha = 0.2) +
         geom_line(aes(y = predicted / lscale, color = INPFC_AREA), linewidth = 1) +
         scale_color_manual(values = pal) +
