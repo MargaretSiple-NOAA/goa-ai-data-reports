@@ -47,7 +47,7 @@ topn <- 20
 top_CPUE <- biomass_gp |>
   dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
   left_join(area_gp, by = c("AREA_ID")) |>
-  filter(AREA_TYPE == "INPFC") |>
+  filter(AREA_TYPE == "INPFC" | AREA_ID ==99903) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename(
     "INPFC_AREA" = AREA_NAME,
@@ -61,11 +61,12 @@ top_CPUE <- biomass_gp |>
     "species_code" = SPECIES_CODE,
     "common_name" = COMMON_NAME
   ) |>
-  dplyr::ungroup()
+  dplyr::ungroup() |>
+  dplyr::mutate(INPFC_AREA = ifelse(INPFC_AREA=="All","All areas",INPFC_AREA))
 
 
 top_CPUE <- top_CPUE %>%
-  arrange(factor(INPFC_AREA, levels = district_order))
+  arrange(factor(INPFC_AREA, levels = c(district_order, "All")))
 
 
 
