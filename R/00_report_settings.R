@@ -9,9 +9,9 @@ pres_or_report <- "report" # if "pres" the scripts will only make a subset of th
 use_sql_cpue <- FALSE # Do we want to use CPUE values from BIOMASS_TOTAL or "build our own" from RACEBASE catch, haul, etc tables? The default, TRUE, uses CPUE values from BIOMASS_TOTAL.
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <-"2024-03-27"  #"2023-11-10"
-figuredate <- "2024-03-27"
-reportvaluesdate <- "2024-03-27"
+tabledate <-"2024-04-08"  #"2023-11-10"
+figuredate <- "2024-04-08"
+reportvaluesdate <- "2024-04-08"
 
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
