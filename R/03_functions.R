@@ -320,31 +320,56 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs, "Table 2/", "Table 2
   return(raw2)
 }
 
-# NOTE: THIS STILL DOESN"T WORK
-# make_tab3 <- function(species_code = NULL, survey = NULL, year = NULL){
-#   if(survey=="AI"){
-#     # source: G:\ALEUTIAN\datareport\ai_cpuetable.sql] and one for GOA [G:\GOA\datareport\goa_cpuetable.sql]
-#     sql_script <- readLines("sql/ai_cpuetable.sql")
-#     goa_query <-  paste(sql_script, collapse = " ")
-#     goa_query <- gsub("\t", " ", goa_query)
-#     a <- RODBC::sqlQuery(channel, paste0("define xyear = '", as.character(year),"' ",goa_query))
-#   }
-#
-# if(survey=="GOA"){
-#   # Read the SQL script from a file
-#   sql_script <- readLines("sql/goa_cpuetable.sql")
-#   goa_query <-  paste(sql_script, collapse = " ")
-#
-#   # Combine the lines into a single string, removing carriage returns
-#   sql_script <- paste(sql_script, collapse = " ")
-#   a <- RODBC::sqlQuery(channel, paste0(
-#     "define xsurvey_area = 'GOA' define b = 'goa.biomass_' define sz = 'goa.sizecomp_' define in = 'inpfc' define in2 = 'inpfc_' define a = 'area' define a2 = 'area_' define d = 'depth' define t = 'total' define cpue = 'goa.cpue' define bindy = &b&in2&d define bdy = &b&d define biny = &b&in define bay = &b&a define bady = &b&a2&d define szindy = &sz&in2&d define szdy = &sz&d define sziny= &sz&in define szady = &sz&a2&d define szty = &sz&t define cpuey = &cpue drop table summary_areas1; create table summary_areas1 as select distinct summary_area_depth summary_area from goa.goa_strata where survey = upper('&xsurvey_area') and stratum in (select distinct stratum from &cpuey); insert into summary_areas1 select distinct summary_area from goa.goa_strata where survey = upper('&xsurvey_area') and stratum in (select distinct stratum from &cpuey); insert into summary_areas1 select distinct summary_depth from goa.goa_strata where survey = upper('&xsurvey_area') and stratum in (select distinct stratum from &cpuey); insert into summary_areas1 values (999); drop table summary_areas; create table summary_areas as select summary_area, species_code from summary_areas1 s, goa.analysis_species g where biomass_flag = upper('&xsurvey_area') or biomass_flag = 'BOTH'; drop table biomass_tab; create table biomass_tab as select b.species_code, b.summary_area_depth summary_area, haul_count, catch_count, round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight from &bindy b, &szindy s where b.year = &", year, " and s.year = &", year, "and b.summary_area_depth = s.summary_area_depth(+) and b.species_code = s.species_code(+) and area_pop > 0 group by b.species_code, b.summary_area_depth, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; insert into biomass_tab select b.species_code, b.summary_area, haul_count, catch_count, round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight from &biny b, &sziny s 	where b.year = &",year," and s.year = &",year, "and b.summary_area = s.summary_area(+) and b.species_code = s.species_code(+) and area_pop > 0	group by b.species_code, b.summary_area, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; drop table bay; create table bay as select * from &bay; update bay set area_pop = 1 where area_pop = 0; insert into biomass_tab select b.species_code, 999 total_area, haul_count, catch_count, round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight from bay b, &szty s where b.year = &",year, "and s.year = &", year,"and b.species_code = s.species_code(+) and regulatory_area_name = 'ALEUTIANS' group by b.species_code, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; drop table bady; create table bady as select * from &bady; update bady set area_pop = 1 where area_pop = 0; insert into biomass_tab select b.species_code, b.summary_depth, haul_count, catch_count,  round(b.mean_wgt_cpue, 0) mean_wgt_cpue, area_biomass, min_biomass, max_biomass, round((area_biomass*1000)/area_pop,3) weight	from bady b, &szady s where b.year = &", year, "and s.year= &", year,	"and b.species_code = s.species_code(+) and b.regulatory_area_name = 'GULF OF ALASKA' and b.regulatory_area_name = s.regulatory_area_name and b.summary_depth = s.summary_depth group by b.species_code, b.summary_depth, haul_count, catch_count, mean_wgt_cpue, area_biomass, min_biomass, max_biomass, area_pop; drop table haul_count; create table haul_count as select distinct summary_area, haul_count from biomass_tab; drop table table_biomass; create table table_biomass as select s.summary_area, o.sort_order, s.species_code, ltrim(to_char(h.haul_count,'990')) haul_count, ltrim(to_char(catch_count,'990')) catch_count, ltrim(to_char(mean_wgt_cpue, '999,999,990'), ' ') mean_wgt_cpue, ltrim(to_char(area_biomass, '999,999,990'), ' ') area_biomass, ltrim(to_char(min_biomass, '999,999,990'), ' ') min_biomass, ltrim(to_char(max_biomass, '999,999,990'), ' ') max_biomass, ltrim(to_char(weight, '990.000'), ' ') weight	from biomass_tab b, summary_areas s, haul_count h, goa.data_report_sort_order o	where s.summary_area = b.summary_area(+) and s.species_code = b.species_code(+) and h.summary_area(+) = s.summary_area and h.summary_area = o.summary_area; update table_biomass set haul_count = '0' where haul_count is null; update table_biomass set catch_count = '0' where catch_count is null; update table_biomass set mean_wgt_cpue = '---' where mean_wgt_cpue is null; update table_biomass set area_biomass = '---' where area_biomass is null; update table_biomass set min_biomass = '---' where min_biomass is null; update table_biomass set max_biomass = '---' where max_biomass is null; update table_biomass set weight = '---' where weight is null; update table_biomass set mean_wgt_cpue = '<1' where mean_wgt_cpue = '0'; update table_biomass set area_biomass = '<1' where area_biomass = '0'; update table_biomass set weight = '<0.001' where weight = '0.000'; drop table biomass_tab; drop table bay; drop table bady; drop table summary_areas1; drop table summary_areas"))
-# }
-#
-#   dir_out <- paste0("data/local_", tolower(survey), "_processed/table3_", species_code, "_", survey, "_", year, ".csv")
-#
-#   write.csv(x = a, file = dir_out, row.names = FALSE)
-# }
+
+# Function to calculate confidence intervals for lognormal distribution - hopefully will be deprecated starting with the AI 2024 DPR.
+lognorm_ci <- function(mean, variance, alpha = 0.05) {
+  sigma <- sqrt(log(1 + variance/mean^2)) # Calculate standard deviation
+  z <- qnorm(1 - alpha/2) # Calculate z-value for given alpha (two-tailed)
+  
+  # Calculate lower and upper confidence bounds
+  lower <- exp(log(mean) - z * sigma)
+  upper <- exp(log(mean) + z * sigma)
+  
+  return(c(lower, upper))
+}
+
+# NOTE: THIS STILL DOESN'T WORK
+ gap_prods_biomass_surv_yr <- read.csv("data/local_gap_products/biomass.csv")
+ gap_prods_cpue_surv_yr <- read.csv("data/local_goa_processed/cpue_processed.csv") 
+ 
+ 
+ area_key <- read.csv("data/local_gap_products/area.csv") |> dplyr::filter(AREA_TYPE == "INPFC BY DEPTH")
+ species_code <- 30060
+ 
+ make_tab3 <- function(gap_prods_biomass_surv_yr, 
+                       gap_prods_cpue_surv_yr,
+                       species_code, 
+                       survey, 
+                       year, 
+                       area_key) {
+   # gap_prods_biomass_surv_yr is the gap products BIOMASS table filtered to survey and year.
+   # gap_prods_sizecomp_surv_yr is the gap products SIZECOMP table filtered to survey and year.
+   # area_key is GAP_PRODUCTS.AREA filtered to INPFC AREA/DEPTH combos
+   if (length(unique(gap_prods_biomass_surv_yr$SURVEY_DEFINITION_ID)) > 1) {
+     stop("Biomass summary data contain more than one survey; confirm that this table is what you want!")
+   }
+   
+   bio_sp <- gap_prods_biomass_surv_yr |>
+     dplyr::filter(SPECIES_CODE == species_code) |>
+     dplyr::right_join(area_key, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
+     dplyr::select(AREA_NAME, DEPTH_MIN_M, DEPTH_MAX_M, N_HAUL, N_WEIGHT, CPUE_KGKM2_MEAN, BIOMASS_MT, BIOMASS_VAR) |>
+     dplyr::rowwise() |>
+     dplyr::mutate(LCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[1],
+                   HCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[2]) 
+    
+   wt_summary <- gap_prods_cpue_surv_yr |>
+     group_by()
+
+
+   dir_out <- paste0("data/local_", tolower(survey), "_processed/table3_", species_code, "_", survey, "_", year, ".csv")
+
+   write.csv(x = a, file = dir_out, row.names = FALSE)
+ }
 
 #' Retrieve Table 3's (biomass per area and depth) for a species
 #'
@@ -638,19 +663,6 @@ format_tons <- function(x) {
   return(y)
 }
 
-# Save plot as a png (for using lapply with the list of figures)
-
-make_png <- function(fig_list_element,
-                     year, region,
-                     savedir = dir_out_figures) {
-  filename_x <- names(fig_list_element)
-  png(
-    filename = paste0(savedir, filename_x, "_", region, "_", year, ".png"),
-    width = 10, height = 10, units = "in", res = 150
-  )
-  fig_list_element
-  dev.off()
-}
 
 #' Make a bubble plot of the Aleutian Islands.
 #'
