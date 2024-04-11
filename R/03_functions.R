@@ -333,43 +333,6 @@ lognorm_ci <- function(mean, variance, alpha = 0.05) {
   return(c(lower, upper))
 }
 
-# NOTE: THIS STILL DOESN'T WORK
- gap_prods_biomass_surv_yr <- read.csv("data/local_gap_products/biomass.csv")
- gap_prods_cpue_surv_yr <- read.csv("data/local_goa_processed/cpue_processed.csv") 
- 
- 
- area_key <- read.csv("data/local_gap_products/area.csv") |> dplyr::filter(AREA_TYPE == "INPFC BY DEPTH")
- species_code <- 30060
- 
- make_tab3 <- function(gap_prods_biomass_surv_yr, 
-                       gap_prods_cpue_surv_yr,
-                       species_code, 
-                       survey, 
-                       year, 
-                       area_key) {
-   # gap_prods_biomass_surv_yr is the gap products BIOMASS table filtered to survey and year.
-   # gap_prods_sizecomp_surv_yr is the gap products SIZECOMP table filtered to survey and year.
-   # area_key is GAP_PRODUCTS.AREA filtered to INPFC AREA/DEPTH combos
-   if (length(unique(gap_prods_biomass_surv_yr$SURVEY_DEFINITION_ID)) > 1) {
-     stop("Biomass summary data contain more than one survey; confirm that this table is what you want!")
-   }
-   
-   bio_sp <- gap_prods_biomass_surv_yr |>
-     dplyr::filter(SPECIES_CODE == species_code) |>
-     dplyr::right_join(area_key, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
-     dplyr::select(AREA_NAME, DEPTH_MIN_M, DEPTH_MAX_M, N_HAUL, N_WEIGHT, CPUE_KGKM2_MEAN, BIOMASS_MT, BIOMASS_VAR) |>
-     dplyr::rowwise() |>
-     dplyr::mutate(LCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[1],
-                   HCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[2]) 
-    
-   wt_summary <- gap_prods_cpue_surv_yr |>
-     group_by()
-
-
-   dir_out <- paste0("data/local_", tolower(survey), "_processed/table3_", species_code, "_", survey, "_", year, ".csv")
-
-   write.csv(x = a, file = dir_out, row.names = FALSE)
- }
 
 #' Retrieve Table 3's (biomass per area and depth) for a species
 #'
@@ -381,37 +344,41 @@ lognorm_ci <- function(mean, variance, alpha = 0.05) {
 #'
 #' @examples
 #' prep_tab3(30060)
-prep_tab3 <- function(speciescode) {
-  filepath <- paste0(dir_in_premadetabs, "Table 3/", speciescode, paste0("_", maxyr, ".csv"))
-  if (!file.exists(filepath)) {
-    stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")
-  }
-  x <- read.csv(file = filepath)
-  cleaned_tab <- x %>%
-    # want to eventually fix these so they are the right number of digits but... not urgent for now.
-    # dplyr::mutate(CPUE..kg.ha. = case_when(CPUE..kg.ha. != "---" &
-    #                                          CPUE..kg.ha. != "< 0.01" ~ round(as.numeric(CPUE..kg.ha.),digits = 1),
-    #                                        TRUE ~ as.character(CPUE..kg.ha.))
-    #                           ),
-    #      dplyr::mutate(Weight...kg. = round(Weight...kg.,digits = 2))
-    dplyr::rename(
-      `Survey district` = Survey.District,
-      `Depth (m)` = Depth..m.,
-      `Haul count` = Haul.Count,
-      `Hauls with catch` = Hauls.w.Catch,
-      `CPUE (kg/ha)` = CPUE..kg.ha.,
-      `Biomass (t)` = Biomass...t.,
-      `Lower 95% CL` = X95..LCL..t.,
-      `Upper 95% CL` = X95..UCL..t.,
-      `Mean weight (kg)` = Weight...kg.
-    ) |>
-    dplyr::filter(`Depth (m)` != "701 - 1000")
-
-  if (SRVY == "AI") {
-    x <- x %>%
-      dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
-  }
-
+prep_tab3 <- function(speciescode, premade = TRUE) {
+  if(premade){
+    filepath <- paste0(dir_in_premadetabs, "Table 3/", speciescode, paste0("_", maxyr, ".csv"))
+    if (!file.exists(filepath)) {
+      stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")
+    }
+    x <- read.csv(file = filepath)
+    cleaned_tab <- x %>%
+      # want to eventually fix these so they are the right number of digits but... not urgent for now.
+      # dplyr::mutate(CPUE..kg.ha. = case_when(CPUE..kg.ha. != "---" &
+      #                                          CPUE..kg.ha. != "< 0.01" ~ round(as.numeric(CPUE..kg.ha.),digits = 1),
+      #                                        TRUE ~ as.character(CPUE..kg.ha.))
+      #                           ),
+      #      dplyr::mutate(Weight...kg. = round(Weight...kg.,digits = 2))
+      dplyr::rename(
+        `Survey district` = Survey.District,
+        `Depth (m)` = Depth..m.,
+        `Haul count` = Haul.Count,
+        `Hauls with catch` = Hauls.w.Catch,
+        `CPUE (kg/ha)` = CPUE..kg.ha.,
+        `Biomass (t)` = Biomass...t.,
+        `Lower 95% CL` = X95..LCL..t.,
+        `Upper 95% CL` = X95..UCL..t.,
+        `Mean weight (kg)` = Weight...kg.
+      ) |>
+      dplyr::filter(`Depth (m)` != "701 - 1000")
+    
+    if (SRVY == "AI") {
+      x <- x %>%
+        dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
+    } #/ AI exception
+    
+  } #/ if(premade)
+  
+  # NOTE: HERE I WANT TO ADD A VERSION THAT TAKES IN TABLE 3 FROM THE *processed/table_3_allspps.csv file that I painstakingly made from GAP_PRODUCTS!
 
   return(cleaned_tab)
 }
@@ -456,6 +423,9 @@ prep_tab4 <- function(speciescode) {
 #'
 #' @return writes a csv file for each species for table 4.
 #' @export
+#' @details
+#' This function uses a table called GOA_STRATA but that table does contain all strata (both AI and GOA)
+#' 
 #'
 #' @examples
 #' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
