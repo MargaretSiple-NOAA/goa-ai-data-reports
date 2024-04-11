@@ -161,7 +161,7 @@ if (SRVY == "AI") {
 # area
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
 a <- a |>
-  filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) 
+  dplyr::filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) 
          #&     DESIGN_YEAR == ifelse(SRVY == "GOA", 1984, 1980))
 #print(paste("Using design year(s):", unique(a$DESIGN_YEAR)))
 
@@ -170,7 +170,7 @@ write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 
 # biomass
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
-a <- filter(
+a <- dplyr::filter(
   a,
   SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
     YEAR == maxyr
@@ -187,6 +187,15 @@ a <- filter(
 )
 
 write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
+
+# size comps
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
+a <- dplyr::filter(
+  a,
+  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)
+)
+
+write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
 
 print("Finished downloading GAP_PRODUCTS tables.")
@@ -228,11 +237,13 @@ xx <- gapindex::get_data(
   pull_lengths = TRUE
 )
 
-cpue <- gapindex::calc_cpue(racebase_tables = xx)
+cpue <- gapindex::calc_cpue(racebase_tables = xx) 
+
 biomass_stratum <- gapindex::calc_biomass_stratum(
   racebase_tables = xx,
   cpue = cpue
 )
+
 biomass_subarea <- gapindex::calc_biomass_subarea(racebase_tables = xx, biomass_strata = biomass_stratum)
 sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
   racebase_cpue = cpue,
@@ -246,7 +257,100 @@ write.csv(sizecomp_stratum,
   row.names = FALSE
 )
 
-print("Finished downloading local versions of all tables! Yay.")
+# Add a column to the CPUE table with mean individual fish weight (for 'Table 3')
+cpue$ind_wt_kg <- cpue$WEIGHT_KG / cpue$COUNT
+cpue$ind_wt_kg[which(cpue$WEIGHT_KG == 0 & cpue$COUNT == 0)] <- 0
+
+# AREA_IDs for each survey + AREA_ID for the total (need for several tables)
+# This is really messy. Basically I have to separate out the spatial IDs and use them as a key, then do the same with the depth IDs and with the total region. I wish there was a better way! But I can't think of one.
+
+area <- read.csv("data/local_gap_products/area.csv") #already subsetted to region SRVY.
+
+inpfcdepth_ids <- area |>
+  dplyr::filter(AREA_TYPE %in% c("INPFC BY DEPTH")) |>
+  dplyr::select(AREA_ID) |> 
+  dplyr::pull()
+
+inpfc_ids <- area |>
+  dplyr::filter(AREA_TYPE %in% c("INPFC")) |>
+  dplyr::select(AREA_ID) |> 
+  dplyr::pull()
+
+depth_ids <- area |>
+  dplyr::filter(AREA_TYPE %in% c("DEPTH")) |>
+  dplyr::select(AREA_ID) |> 
+  dplyr::pull()
+
+# goa_area_ids <- c(911, 912, 913, 914, 921, 922, 923, 924, 931, 
+#                   932, 933, 934, 941, 942, 943, 944, 951, 952, 953, 954, 
+#                   991:994, # depth area IDs
+#                   99903) # region area IDs
+# 
+# ai_area_ids <- c(7893, 7892, 7891, 5694, 5693, 5692, 5691, 3494, 3493, 3492, 3491, 294, 293, 292, 291, 
+#                  991:994, # depth area IDs
+#                  99904) # region area IDs
+
+# Specific AREA IDS to deal with totals
+if(SRVY=="GOA"){
+  design_yr_filter <- 1984
+  area_id_region <- 99903
+  }else{
+    design_yr_filter <- 1980
+    area_id_region <- 99904
+    }
+
+# Make a lookup table for which INPFC AREAS each stratum is in
+raw_stratum_groups <- read.csv("./data/local_gap_products/stratum_groups.csv") |>  
+  dplyr::filter(DESIGN_YEAR == design_yr_filter)
+
+inpfc_groups <- raw_stratum_groups |>
+  dplyr::filter(AREA_ID %in% inpfc_ids) #AREA_ID %in% area_ids[1:(length(area_ids)-5)] &
+
+depth_groups <-  raw_stratum_groups |>
+  dplyr::filter(AREA_ID %in% depth_ids)
+
+inpfcdepth_groups <- raw_stratum_groups |>
+  dplyr::filter(AREA_ID %in% inpfcdepth_ids)
+
+nrow(inpfc_groups)==nrow(depth_groups)
+
+# add various groupings to CPUE table - i don't know how to do this in a non-clunky way
+cpue_inpfc <- cpue |>
+  dplyr::left_join(inpfc_groups, by = c('SURVEY_DEFINITION_ID','STRATUM','DESIGN_YEAR'), keep = FALSE) |>
+  dplyr::filter(WEIGHT_KG>0) |>
+  dplyr::group_by(AREA_ID,SPECIES_CODE) |>
+  dplyr::summarize(mean_ind_wt_kg = mean(WEIGHT_KG/COUNT)) |>
+  dplyr::ungroup()
+
+cpue_depth <- cpue |>
+  dplyr::left_join(depth_groups, by = c('SURVEY_DEFINITION_ID','STRATUM','DESIGN_YEAR'), keep = FALSE) |>
+  dplyr::filter(WEIGHT_KG>0) |>
+  dplyr::group_by(AREA_ID,SPECIES_CODE) |>
+  dplyr::summarize(mean_ind_wt_kg = mean(WEIGHT_KG/COUNT)) |>
+  dplyr::ungroup()
+
+cpue_inpfcdepth <- cpue |>
+  dplyr::left_join(inpfcdepth_groups, by = c('SURVEY_DEFINITION_ID','STRATUM','DESIGN_YEAR'), keep = FALSE) |>
+  dplyr::filter(WEIGHT_KG>0) |>
+  dplyr::group_by(AREA_ID,SPECIES_CODE) |>
+  dplyr::summarize(mean_ind_wt_kg = mean(WEIGHT_KG/COUNT)) |>
+  dplyr::ungroup()
+
+cpue_region <- cpue |>
+  dplyr::left_join(raw_stratum_groups |> dplyr::filter(AREA_ID==area_id_region)) |>
+  dplyr::filter(WEIGHT_KG>0) |>
+  dplyr::group_by(AREA_ID,SPECIES_CODE) |>
+  dplyr::summarize(mean_ind_wt_kg = mean(WEIGHT_KG/COUNT)) |>
+  dplyr::ungroup()
+
+mean_sp_wts <- dplyr::bind_rows(cpue_inpfc, cpue_depth, cpue_inpfcdepth, cpue_region)
+
+write.csv(mean_sp_wts, 
+          file = paste0("./data/local_", tolower(SRVY), "_processed/mean_sp_weights.csv"),
+          row.names = FALSE
+          )
+
+print("Finished downloading local versions of all tables.")
 
 ################## CHECK LOCAL FOLDERS FOR RODBC ERRORS ########################
 # This doesn't work yet and I can't figure it out yet-- need to use system() to look for error text. 
