@@ -428,13 +428,12 @@ prep_tab4 <- function(speciescode) {
 #' 
 #'
 #' @examples
+#' source("R/get_connected.R")
 #' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
 #'
 make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
   a <- RODBC::sqlQuery(channel, paste0(
-    "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey, "\' and b.YEAR = ", year,
-    " and b.SPECIES_CODE = ", species_code,
-    " and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
+    "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey,"\' and b.YEAR = ", year," and b.SPECIES_CODE = ",species_code," and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
   ))
   
   dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
