@@ -345,7 +345,14 @@ mean_sp_wts <- dplyr::bind_rows(cpue_inpfc, cpue_depth, cpue_inpfcdepth, cpue_re
 # Second piece: cpue, biomass, and confidence intervals for each area, depth, area+depth, and the whole survey area.
 x <- biomass_subarea |>
   dplyr::filter(AREA_ID %in% unique(mean_sp_wts$AREA_ID)) |>
-  dplyr::left_join(mean_sp_wts, by = c('AREA_ID','SPECIES_CODE'))
+  dplyr::left_join(mean_sp_wts, by = c('AREA_ID','SPECIES_CODE')) |>
+  dplyr::rowwise() |>
+  dplyr::mutate(LCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[1],
+                HCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[2]) |>
+  dplyr::left_join(area,by = c('SURVEY_DEFINITION_ID','AREA_ID'), relationship = "many-to-many") |>
+  dplyr::select(SURVEY, YEAR, SPECIES_CODE, AREA_NAME, DESCRIPTION, AREA_TYPE, 
+                N_HAUL, N_COUNT, CPUE_KGKM2_MEAN, 
+                BIOMASS_MT, LCL, HCL, mean_ind_wt_kg, BIOMASS_VAR)
 
 write.csv(x, 
           file = paste0("./data/local_", tolower(SRVY), "_processed/table_3_allspps.csv"), 
