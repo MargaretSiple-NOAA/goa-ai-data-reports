@@ -44,8 +44,8 @@ if (SRVY == "AI") {
 if (SRVY == "GOA") {
   # From Ned
   a <- read.csv("data/goa_strata.csv")
-  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY=="GOA" )
-  nstrata <-  length(unique(a$STRATUM))
+  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
+  nstrata <- length(unique(a$STRATUM))
 }
 
 # Aesthetic settings ------------------------------------------------------
@@ -107,7 +107,7 @@ dispal <- c(met.brewer(
   direction = -1
 ), "black")
 
-dispal <- c("#441151","#90be6d","#de541e","#a7a5c6","#2d3047")
+dispal <- c("#441151", "#90be6d", "#de541e", "#a7a5c6", "#2d3047")
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
@@ -217,18 +217,17 @@ if (make_total_surv_map) {
     ylab("Latitude")
 
   # inset map
-  world <- ne_countries(scale = "medium", returnclass = "sf")
+  world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
   inset_map <- ggplot(data = world) +
     geom_sf(color = "darkgrey", fill = "darkgrey") +
     xlim(-170, -50) +
     ylim(20, 80) +
-    geom_rect(
-      mapping = aes(
-        xmin = -160,
-        xmax = -130,
-        ymin = 55,
-        ymax = 62
-      ),
+    annotate(
+      "rect",
+      xmin = -160,
+      xmax = -130,
+      ymin = 55,
+      ymax = 62,
       color = "darkblue", fill = NA, lwd = 0.5
     ) +
     theme_minimal() +
@@ -241,13 +240,15 @@ if (make_total_surv_map) {
       panel.border = element_blank(),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
-      
+
       # border (for inset plotting)
-      plot.background = element_rect(fill = "white", colour = "black", 
-                                     size = 0.5)
+      plot.background = element_rect(
+        fill = "white", colour = "black",
+        linewidth = 0.5
+      )
     )
 
-  station_map <- station_map1 + 
+  station_map <- station_map1 +
     inset_element(inset_map, -0.78, 0.5, 1, 1, align_to = "panel")
 
   png(
@@ -456,7 +457,7 @@ if (make_cpue_bubbles) {
       )
     reg_data <- reg_dat_goa
   }
-  
+
   if (SRVY == "AI") {
     reg_dat_ai <- akgfmaps::get_base_layers(
       select.region = "ai",
@@ -470,7 +471,7 @@ if (make_cpue_bubbles) {
       )
     reg_data <- reg_dat_ai
   }
-  
+
   list_cpue_bubbles <- list()
 
   for (i in 1:nrow(report_species)) {
@@ -493,8 +494,8 @@ if (make_cpue_bubbles) {
       key.title = "",
       row0 = 2, reg_dat = reg_data, dist_unit = "nm", # nautical miles
       col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
-    ) + theme(plot.margin = margin(-2,0,-2,0,"cm"))
-    
+    ) + theme(plot.margin = margin(-2, 0, -2, 0, "cm"))
+
     list_cpue_bubbles[[i]] <- fig
 
     png(filename = paste0(
@@ -577,132 +578,51 @@ if (make_joy_division_length) {
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
-    len2plot <- report_pseudolengths %>%
-      filter(SPECIES_CODE == report_species$species_code[i])
+    if (report_species$species_code[i] == 78403) {
+      joyplot <- ggplot() +
+        theme_void()
+    } else {
+      len2plot <- report_pseudolengths %>%
+        filter(SPECIES_CODE == report_species$species_code[i])
 
-    if (SRVY == "AI" & report_species$species_code[i] %in% c(10110, 10112)) {
-      len2plot <- len2plot %>%
-        dplyr::filter(YEAR >= 1994)
-    }
+      if (SRVY == "AI" & report_species$species_code[i] %in% c(10110, 10112)) {
+        len2plot <- len2plot %>%
+          dplyr::filter(YEAR >= 1994)
+      }
 
-    # Only sexed lengths included, unless it's SSTH
-    if (report_species$species_code[i] != 30020) {
-      len2plot <- len2plot %>%
-        filter(Sex != "Unsexed")
-    }
+      # Only sexed lengths included, unless it's SSTH
+      if (report_species$species_code[i] != 30020) {
+        len2plot <- len2plot %>%
+          filter(Sex != "Unsexed")
+      }
 
-    # Save median lengths by year and sex for species i
-    medlines_sp <- report_pseudolengths %>%
-      filter(SPECIES_CODE == report_species$species_code[i]) %>%
-      group_by(YEAR, Sex) %>%
-      dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-      ungroup()
-
-    write.csv(
-      x = medlines_sp,
-      file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
-      row.names = FALSE
-    )
-
-    len2plot2 <- len2plot %>%
-      left_join(sample_sizes %>%
-        filter(SPECIES_CODE == report_species$species_code[i]))
-
-    yrbreaks <- unique(len2plot2$YEAR)
-    lengthlimits <- range(len2plot2$LENGTH)
-
-    testlabdf <- len2plot2 %>%
-      distinct(YEAR, Sex, .keep_all = TRUE)
-
-
-
-    joyplot <- len2plot2 %>%
-      ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
-      ggridges::geom_density_ridges_gradient(
-        bandwidth = 5,
-        rel_min_height = 0,
-        quantile_lines = T,
-        quantile_fun = median,
-        vline_color = "white",
-        vline_size = 0.6,
-        vline_linetype = "dotted" # "A1"
-      ) +
-      scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
-        scale_x_continuous(expand = c(0,0), limits = lengthlimits) +
-      scale_linetype_manual(values = c("solid", "dashed")) +
-      facet_grid(~Sex) +
-      xlab("Length (mm)") +
-      ylab("Year") +
-      theme_ridges(font_size = 10) +
-      scale_fill_gradientn(colours = joypal) +
-      geom_label(
-        data = testlabdf,
-        mapping = aes(label = paste0("n = ", n), x = Inf),
-        fill = "white", label.size = NA,
-        nudge_x = 0, nudge_y = 1,
-        hjust = "inward",
-        size = 3,
-        alpha = 0.6
-      ) +
-      # labs(title = paste(report_species$spp_name_informal[i])) +
-      theme(
-        strip.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        legend.position = "none",
-        axis.title.x = element_text(hjust = 0.5),
-        axis.title.y = element_text(hjust = 0.5),
-        panel.spacing.x = unit(4, "mm"),
-        axis.line.x = element_line(lineend = "square")
-      )
-
-
-    # lookup table is referenced below
-
-    # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
-    if (report_species$species_code[i] %in% complex_lookup$polycode) {
-      # Add label to plot of the species so ppl can compare it with the combined one
-      joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
-      # Make a title for the combined plot (single species + combined congeners)
-
-      plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
-      complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
-      polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
-      star_yr <- switch(complex_sp,
-        nrs_srs = 1996,
-        kam_atf = 1992,
-        rebs = 2006
-      )
-      yrlabels <- yrbreaks
-      yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
-      yrlabels <- as.character(yrlabels)
-
+      # Save median lengths by year and sex for species i
       medlines_sp <- report_pseudolengths %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
+        filter(SPECIES_CODE == report_species$species_code[i]) %>%
         group_by(YEAR, Sex) %>%
         dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
         ungroup()
 
+      write.csv(
+        x = medlines_sp,
+        file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
+        row.names = FALSE
+      )
 
-      sample_sizes_comb <- sample_sizes %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
-        group_by(YEAR, Sex) %>%
-        dplyr::summarize(n = sum(n)) %>%
-        ungroup()
+      len2plot2 <- len2plot %>%
+        left_join(sample_sizes %>%
+          filter(SPECIES_CODE == report_species$species_code[i]))
 
-      len2plot_comb <- report_pseudolengths %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
-        filter(Sex != "Unsexed") %>%
-        left_join(sample_sizes_comb)
+      yrbreaks <- unique(len2plot2$YEAR)
+      lengthlimits <- range(len2plot2$LENGTH)
 
-      testlabdf_comb <- len2plot_comb %>%
+      testlabdf <- len2plot2 %>%
         distinct(YEAR, Sex, .keep_all = TRUE)
 
-      joyplot2 <- len2plot_comb %>%
-        ggplot(
-          mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
-          fill = "grey"
-        ) +
+
+
+      joyplot <- len2plot2 %>%
+        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
         ggridges::geom_density_ridges_gradient(
           bandwidth = 5,
           rel_min_height = 0,
@@ -712,20 +632,24 @@ if (make_joy_division_length) {
           vline_size = 0.6,
           vline_linetype = "dotted" # "A1"
         ) +
-        scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
+        scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
+        scale_x_continuous(expand = c(0, 0), limits = lengthlimits) +
         scale_linetype_manual(values = c("solid", "dashed")) +
-        geom_label(
-          data = testlabdf_comb,
-          mapping = aes(label = paste0("n = ", n), x = Inf),
-          fill = "white", label.size = NA,
-          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3,
-          alpha = 0.6
-        ) +
         facet_grid(~Sex) +
         xlab("Length (mm)") +
         ylab("Year") +
-        theme_ridges(font_size = 7) +
-        labs(title = plot_title) +
+        theme_ridges(font_size = 10) +
+        scale_fill_gradientn(colours = joypal) +
+        geom_label(
+          data = testlabdf,
+          mapping = aes(label = paste0("n = ", n), x = Inf),
+          fill = "white", label.size = NA,
+          nudge_x = 0, nudge_y = 1,
+          hjust = "inward",
+          size = 3,
+          alpha = 0.6
+        ) +
+        # labs(title = paste(report_species$spp_name_informal[i])) +
         theme(
           strip.background = element_blank(),
           panel.grid.major = element_blank(),
@@ -737,9 +661,90 @@ if (make_joy_division_length) {
           axis.line.x = element_line(lineend = "square")
         )
 
-      joyplot <- joyplot + joyplot2
-    }
 
+      # lookup table is referenced below
+
+      # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
+      if (report_species$species_code[i] %in% complex_lookup$polycode) {
+        # Add label to plot of the species so ppl can compare it with the combined one
+        joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
+        # Make a title for the combined plot (single species + combined congeners)
+
+        plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
+        complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
+        polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
+        star_yr <- switch(complex_sp,
+          nrs_srs = 1996,
+          kam_atf = 1992,
+          rebs = 2006
+        )
+        yrlabels <- yrbreaks
+        yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
+        yrlabels <- as.character(yrlabels)
+
+        medlines_sp <- report_pseudolengths %>%
+          filter(SPECIES_CODE %in% polycode_vec) %>%
+          group_by(YEAR, Sex) %>%
+          dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+          ungroup()
+
+
+        sample_sizes_comb <- sample_sizes %>%
+          filter(SPECIES_CODE %in% polycode_vec) %>%
+          group_by(YEAR, Sex) %>%
+          dplyr::summarize(n = sum(n)) %>%
+          ungroup()
+
+        len2plot_comb <- report_pseudolengths %>%
+          filter(SPECIES_CODE %in% polycode_vec) %>%
+          filter(Sex != "Unsexed") %>%
+          left_join(sample_sizes_comb)
+
+        testlabdf_comb <- len2plot_comb %>%
+          distinct(YEAR, Sex, .keep_all = TRUE)
+
+        joyplot2 <- len2plot_comb %>%
+          ggplot(
+            mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
+            fill = "grey"
+          ) +
+          ggridges::geom_density_ridges_gradient(
+            bandwidth = 5,
+            rel_min_height = 0,
+            quantile_lines = T,
+            quantile_fun = median,
+            vline_color = "white",
+            vline_size = 0.6,
+            vline_linetype = "dotted" # "A1"
+          ) +
+          scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
+          scale_linetype_manual(values = c("solid", "dashed")) +
+          geom_label(
+            data = testlabdf_comb,
+            mapping = aes(label = paste0("n = ", n), x = Inf),
+            fill = "white", label.size = NA,
+            nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3,
+            alpha = 0.6
+          ) +
+          facet_grid(~Sex) +
+          xlab("Length (mm)") +
+          ylab("Year") +
+          theme_ridges(font_size = 7) +
+          labs(title = plot_title) +
+          theme(
+            strip.background = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = "none",
+            axis.title.x = element_text(hjust = 0.5),
+            axis.title.y = element_text(hjust = 0.5),
+            panel.spacing.x = unit(4, "mm"),
+            axis.line.x = element_line(lineend = "square")
+          )
+
+        joyplot <- joyplot + joyplot2
+      }
+    } # \end if() statement about inverts / octopus
 
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
@@ -761,46 +766,52 @@ if (make_joy_division_length) {
 
 if (make_ldcloud) {
   list_ldcloud <- list()
-  #depth_trend_df <- data.frame(report_species = NA, depth_trend = NA)
-  load(paste0(dir_in_tables,"/sizecomps_expanded.RDS"))
-  
-  for (i in 1:nrow(report_species)) {
-    ltoplot <- sizecomps_expanded |> 
-      filter(SPECIES_CODE==report_species$species_code[i])
-    
-    ltoplot2 <- ltoplot |>
-      mutate(AREA_NAME = "All districts") |>
-      bind_rows(ltoplot)
+  # depth_trend_df <- data.frame(report_species = NA, depth_trend = NA)
+  load(paste0(dir_in_tables, "/sizecomps_expanded.RDS"))
 
-    ltoplot2$AREA_NAME <- factor(ltoplot2$AREA_NAME, 
-                                 levels = c(district_order, "All districts"))
-    ltoplot2$depth_range <- factor(ltoplot2$depth_range, 
-                                   levels = rev(unique(ltoplot2$depth_range)))
-    
-    plot <- ltoplot2 |>
-      ggplot(aes(depth_range, LENGTH_CM)) +
-      ggdist::stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) + 
-      geom_boxplot(width = .1, outlier.shape = NA) +
-      coord_flip() + 
-      facet_wrap(~AREA_NAME) +
-      xlab("Bottom depth") +
-      ylab("Length (cm)") +
-      theme_light(base_size = 14) +
-      theme(
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        legend.position = "none",
-        strip.background = element_blank(),
-        strip.text = element_text(colour = 'black')
+  for (i in 1:nrow(report_species)) {
+    if (report_species$species_code[i] == 78403) {
+      ldscatter <- ggplot() +
+        theme_void()
+    } else {
+      ltoplot <- sizecomps_expanded |>
+        filter(SPECIES_CODE == report_species$species_code[i])
+
+      ltoplot2 <- ltoplot |>
+        mutate(AREA_NAME = "All districts") |>
+        bind_rows(ltoplot)
+
+      ltoplot2$AREA_NAME <- factor(ltoplot2$AREA_NAME,
+        levels = c(district_order, "All districts")
       )
-    
+      ltoplot2$depth_range <- factor(ltoplot2$depth_range,
+        levels = rev(unique(ltoplot2$depth_range))
+      )
+
+      ldscatter <- ltoplot2 |>
+        ggplot(aes(depth_range, LENGTH_CM)) +
+        ggdist::stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) +
+        geom_boxplot(width = .1, outlier.shape = NA) +
+        coord_flip() +
+        facet_wrap(~AREA_NAME) +
+        xlab("Bottom depth") +
+        ylab("Length (cm)") +
+        theme_light(base_size = 14) +
+        theme(
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = "none",
+          strip.background = element_blank(),
+          strip.text = element_text(colour = "black")
+        )
+    }
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_ldcloud.png"
     ), width = 9, height = 2, units = "in", res = 200)
     print(ldscatter)
     dev.off()
-    
+
     list_ldscatter[[i]] <- ldscatter
     print(paste("Done with length by depth raincloud plot of", report_species$spp_name_informal[i]))
   }
@@ -816,71 +827,75 @@ if (make_ldscatter) {
   list_ldscatter <- list()
   # L_maxyr is subsetted to region (SRVY) and the year you're making the report for
   for (i in 1:nrow(report_species)) {
-    ltoplot <- L_maxyr %>%
-      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
-      dplyr::left_join(haul2, by = c(
-        "CRUISEJOIN", "HAULJOIN", "HAUL",
-        "REGION", "VESSEL", "CRUISE"
-      )) %>%
-      dplyr::left_join(region_lu, by = "STRATUM") %>%
-      dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
-      dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
-    # make a new INPFC_AREA that is all of them combined
-    ltoplot <- ltoplot %>%
-      mutate(INPFC_AREA = "All districts") %>%
-      bind_rows(ltoplot)
-
-    ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
-    ltoplot$INPFC_AREA <- as.factor(ltoplot$INPFC_AREA)
-    ltoplot$dummy_var <- 0
-
-    nknots <- 4
-
-    if (nrow(ltoplot) < nknots * 2) {
-      ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
-        geom_point(alpha = 0.2, size = 0.8) +
-        xlab(paste("Bottom depth (x", dscale, "m)")) +
-        ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-        facet_wrap(~INPFC_AREA, nrow = 1) +
-        theme_light(base_size = 10) +
-        theme(
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          legend.position = "none",
-          strip.background = element_blank(),
-          strip.text = element_text(colour = "black")
-        )
-      cat("NOTE: Not enough data to fit a GAM for", report_species$spp_name_informal[i], "- saving just the scatterplot \n")
+    if (report_species$species_code[i] == 78403) {
+      ldscatter <- ggplot() +
+        theme_void()
     } else {
-      mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = INPFC_AREA, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
+      ltoplot <- L_maxyr %>%
+        dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
+        dplyr::left_join(haul2, by = c(
+          "CRUISEJOIN", "HAULJOIN", "HAUL",
+          "REGION", "VESSEL", "CRUISE"
+        )) %>%
+        dplyr::left_join(region_lu, by = "STRATUM") %>%
+        dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
+        dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
+      # make a new INPFC_AREA that is all of them combined
+      ltoplot <- ltoplot %>%
+        mutate(INPFC_AREA = "All districts") %>%
+        bind_rows(ltoplot)
 
-      ltoplot[c("predicted", "se")] <- stats::predict(mod1, newdata = ltoplot, se.fit = TRUE)
+      ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
+      ltoplot$INPFC_AREA <- as.factor(ltoplot$INPFC_AREA)
+      ltoplot$dummy_var <- 0
 
-      ltoplot$INPFC_AREA <- factor(ltoplot$INPFC_AREA, levels = c(district_order, "All districts"))
+      nknots <- 4
 
-      # color scale
-      ncols <- length(unique(ltoplot$INPFC_AREA))
-      pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
+      if (nrow(ltoplot) < nknots * 2) {
+        ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
+          geom_point(alpha = 0.2, size = 0.8) +
+          xlab(paste("Bottom depth (x", dscale, "m)")) +
+          ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
+          facet_wrap(~INPFC_AREA, nrow = 1) +
+          theme_light(base_size = 10) +
+          theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = "none",
+            strip.background = element_blank(),
+            strip.text = element_text(colour = "black")
+          )
+        cat("NOTE: Not enough data to fit a GAM for", report_species$spp_name_informal[i], "- saving just the scatterplot \n")
+      } else {
+        mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = INPFC_AREA, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
 
-      ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
-        geom_point(alpha = 0.2, size = 0.8) +
-        geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = INPFC_AREA), alpha = 0.2) +
-        geom_line(aes(y = predicted / lscale, color = INPFC_AREA), linewidth = 1) +
-        scale_color_manual(values = pal) +
-        scale_fill_manual(values = pal) +
-        xlab(paste("Bottom depth (x", dscale, "m)")) +
-        ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-        facet_wrap(~INPFC_AREA, nrow = 1) +
-        theme_light(base_size = 10) +
-        theme(
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          legend.position = "none",
-          strip.background = element_blank(),
-          strip.text = element_text(colour = "black")
-        )
+        ltoplot[c("predicted", "se")] <- stats::predict(mod1, newdata = ltoplot, se.fit = TRUE)
+
+        ltoplot$INPFC_AREA <- factor(ltoplot$INPFC_AREA, levels = c(district_order, "All districts"))
+
+        # color scale
+        ncols <- length(unique(ltoplot$INPFC_AREA))
+        pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
+
+        ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
+          geom_point(alpha = 0.2, size = 0.8) +
+          geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = INPFC_AREA), alpha = 0.2) +
+          geom_line(aes(y = predicted / lscale, color = INPFC_AREA), linewidth = 1) +
+          scale_color_manual(values = pal) +
+          scale_fill_manual(values = pal) +
+          xlab(paste("Bottom depth (x", dscale, "m)")) +
+          ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
+          facet_wrap(~INPFC_AREA, nrow = 1) +
+          theme_light(base_size = 10) +
+          theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = "none",
+            strip.background = element_blank(),
+            strip.text = element_text(colour = "black")
+          )
+      }
     }
-
     png(filename = paste0(
       dir_out_figures, maxyr, "_",
       report_species$spp_name_informal[i], "_ldscatter.png"
@@ -957,7 +972,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
-    theme_light(base_size=15) +
+    theme_light(base_size = 15) +
     geom_segment(data = bottom_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
@@ -990,7 +1005,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
-    theme_light(base_size=15) +
+    theme_light(base_size = 15) +
     geom_segment(data = surface_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
@@ -1022,7 +1037,7 @@ if (make_temp_plot) {
 
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
-  
+
   # For TSC
   # png(
   #   filename = paste0(dir_out_figures,"TempPlots_TSC.png"),
