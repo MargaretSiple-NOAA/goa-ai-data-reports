@@ -1,4 +1,3 @@
-
 \newpage
 ## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
 
@@ -46,15 +45,15 @@ table4s_list[[as.character({{ species_code }})]] %>%
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
-```{r echo=FALSE,fig.cap='Relative abundance of {{spp_name_informal}} in units of catch-per-unit-effort (CPUE, kg/ha; X = no catch) in the {{year}} {{region}} RACE GAP summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5, dpi=300}
+```{r echo=FALSE,fig.cap='Catch-per-unit effort (CPUE, kg/ha; X = no catch) of {{spp_name_informal}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5, dpi=300}
 list_cpue_bubbles[[as.character({{species_code}})]]
 ```
 <!---BLOCK_LANDSCAPE_STOP--->
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey since the start of the sampling stanza. The dotted vertical line indicates median length. {{combo_id_sentence}}', fig.id=paste0("lengthcomp-",{{species_code}}), fig.width=6.5, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey since the start of the sampling stanza. The dotted vertical line indicates median length. {{combo_id_sentence}}', fig.id=paste0("lengthcomp-",{{species_code}}), fig.width=6.5, tab.cap.style = "Figure Caption", eval = octopus}
 list_joy_length[[as.character({{species_code}})]]
 ```
 <br/>
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent a GAM of length by depth with a random haul effect, added to show trends in length. Shaded bands indicate 95% confidence intervals. Black points indicate raw (measured) lengths, not expanded to the full population.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent a GAM of length by depth with a random haul effect, added to show trends in length. Shaded bands indicate 95% confidence intervals. Black points indicate raw (measured) lengths, not expanded to the full population.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption", , eval = octopus}
 list_ldscatter[[as.character({{species_code}})]]
 ```
