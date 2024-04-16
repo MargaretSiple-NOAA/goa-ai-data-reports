@@ -351,13 +351,13 @@ prep_tab3 <- function(speciescode, premade = TRUE) {
       stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")
     }
     x <- read.csv(file = filepath)
+    # Fix this later
+    if (SRVY == "AI") {
+      x <- x %>%
+        dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
+    } #/ AI exception
+    
     cleaned_tab <- x %>%
-      # want to eventually fix these so they are the right number of digits but... not urgent for now.
-      # dplyr::mutate(CPUE..kg.ha. = case_when(CPUE..kg.ha. != "---" &
-      #                                          CPUE..kg.ha. != "< 0.01" ~ round(as.numeric(CPUE..kg.ha.),digits = 1),
-      #                                        TRUE ~ as.character(CPUE..kg.ha.))
-      #                           ),
-      #      dplyr::mutate(Weight...kg. = round(Weight...kg.,digits = 2))
       dplyr::rename(
         `Survey district` = Survey.District,
         `Depth (m)` = Depth..m.,
@@ -371,10 +371,6 @@ prep_tab3 <- function(speciescode, premade = TRUE) {
       ) |>
       dplyr::filter(`Depth (m)` != "701 - 1000")
     
-    if (SRVY == "AI") {
-      x <- x %>%
-        dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
-    } #/ AI exception
     
   } #/ if(premade)
   
