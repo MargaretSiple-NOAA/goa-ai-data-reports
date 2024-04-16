@@ -358,14 +358,14 @@ write.csv(x,
           file = paste0("./data/local_", tolower(SRVY), "_processed/table_3_allspps.csv"), 
           row.names = FALSE)
 
-
+print("Finished processing local tables to draft table 3.")
 # Table 4 ingredients -----------------------------------------------------
 
 
 
 
 
-print("Finished processing local tables to draft table 3.")
+
 ################## CHECK LOCAL FOLDERS FOR RODBC ERRORS ########################
 # This doesn't work yet and I can't figure it out yet-- need to use system() to look for error text.
 # search_phrase <- "RODBC"

@@ -1,5 +1,7 @@
 # This script builds all the tables needed for the report. It is intended to be run after all the preceding files (00 thru 06) so don't try to run it on its own.
-if(!maxyr){print("This script requires objects that aren't in the environment yet - make sure you run all the preceding files (00_report_settings.R thru 06_prep_data.R).")}
+if (!maxyr) {
+  print("This script requires objects that aren't in the environment yet - make sure you run all the preceding files (00_report_settings.R thru 06_prep_data.R).")
+}
 
 # Tables are labeled / ordered based on the historical data reports order of tables (currently based on the 2018 AI report, because that's the most recent one I have access to)
 # Table 1 is the target sample sizes for different species categories
@@ -12,19 +14,20 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 
 
 # Length targets ----------------------------------------------------------
-targetn <- read.csv(here::here("data","target_n.csv"))
+targetn <- read.csv(here::here("data", "target_n.csv"))
 
 # Otolith targets ---------------------------------------------------------
-if(SRVY == "GOA"){
-df <- read.csv(here::here("data",paste0(SRVY,maxyr,"_otolith_targets.csv")))
+if (SRVY == "GOA") {
+  df <- read.csv(here::here("data", paste0(SRVY, maxyr, "_otolith_targets.csv")))
 
-otos_target_sampled <- df |>
-  dplyr::mutate(percent.diff = round((collection-target)/target * 100)) |>
-  dplyr::select(species, collection, target, percent.diff)}else{
-    otos_target_sampled <- data.frame(test = c(1,2,3), replace_me = letters[1:3])
+  otos_target_sampled <- df |>
+    dplyr::mutate(percent.diff = round((collection - target) / target * 100)) |>
+    dplyr::select(species, collection, target, percent.diff)
+} else {
+  otos_target_sampled <- data.frame(test = c(1, 2, 3), replace_me = letters[1:3])
 }
 # Experiment: try creating a kableExtra table and saving it as an image.
-#otos_target_sampled$percent.diff <- color_bar("lightgreen")(otos_target_sampled$percent.diff)
+# otos_target_sampled$percent.diff <- color_bar("lightgreen")(otos_target_sampled$percent.diff)
 
 
 # Sp richness by subregion and family ------------------------------------------
@@ -41,13 +44,16 @@ subregion_fam_div <- appB %>%
 # "Table 2": Mean CPUE 20 most abundant groundfish spps ------------------------
 # Can convert this into a function later
 biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
-area_gp <- read.csv("data/local_gap_products/area.csv")
+
+area_gp <- read.csv("data/local_gap_products/area.csv") |>
+  dplyr::filter(DESIGN_YEAR == 1984) |>
+  dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION"))
 topn <- 20
 
+# NEED TO FIX!
 top_CPUE <- biomass_gp |>
   dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
-  left_join(area_gp, by = c("AREA_ID")) |>
-  filter(AREA_TYPE == "INPFC" | AREA_ID ==99903) |>
+  dplyr::right_join(area_gp, by = c("AREA_ID")) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename(
     "INPFC_AREA" = AREA_NAME,
@@ -62,7 +68,7 @@ top_CPUE <- biomass_gp |>
     "common_name" = COMMON_NAME
   ) |>
   dplyr::ungroup() |>
-  dplyr::mutate(INPFC_AREA = ifelse(INPFC_AREA=="All","All areas",INPFC_AREA))
+  dplyr::mutate(INPFC_AREA = ifelse(INPFC_AREA == "All", "All areas", INPFC_AREA))
 
 
 top_CPUE <- top_CPUE %>%
@@ -80,25 +86,29 @@ write.csv(
 
 head(biomass_total)
 
-compare_tab <- biomass_total %>% 
-  filter(YEAR %in% c(maxyr, compareyr) & 
-           SPECIES_CODE %in% report_species$species_code) %>%
+compare_tab <- biomass_total %>%
+  filter(YEAR %in% c(maxyr, compareyr) &
+    SPECIES_CODE %in% report_species$species_code) %>%
   dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
   dplyr::arrange(YEAR) %>%
-  tidyr::pivot_wider(names_from = YEAR,
-                     values_from = TOTAL_BIOMASS,
-                     names_prefix = "yr_") %>%
+  tidyr::pivot_wider(
+    names_from = YEAR,
+    values_from = TOTAL_BIOMASS,
+    names_prefix = "yr_"
+  ) %>%
   as.data.frame()
 
-compare_tab$percent_change <- round((compare_tab[,3] - compare_tab[,2]) / compare_tab[,2] * 100, digits = 1)
+compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
 names(compare_tab)
 
 compare_tab2 <- compare_tab %>%
-  left_join(report_species, by = c("SPECIES_CODE"="species_code")) %>%
-  arrange(-SPECIES_CODE) 
+  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
+  arrange(-SPECIES_CODE)
 
-write.csv(x = compare_tab2,
-          file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_year.csv"))
+write.csv(
+  x = compare_tab2,
+  file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_year.csv")
+)
 
 # Stations allocated, attempted, succeeded --------------------------------
 
@@ -130,7 +140,7 @@ inpfc_depth_areas <- region_lu %>%
 
 piece1 <- all_allocation %>%
   filter(YEAR == maxyr & SURVEY == SRVY) %>%
-  left_join(region_lu,by = c("SURVEY", "STRATUM")) %>%
+  left_join(region_lu, by = c("SURVEY", "STRATUM")) %>%
   group_by(INPFC_AREA, `Depth range`) %>%
   dplyr::count(name = "allocated") %>%
   ungroup() %>%
@@ -152,12 +162,12 @@ depth_areas <- piece1 %>%
 allocated_prep <- piece1 %>%
   bind_rows(depth_areas) %>%
   arrange(INPFC_AREA, `Depth range`) %>%
-  dplyr::arrange(factor(INPFC_AREA,levels = district_order)) %>%
+  dplyr::arrange(factor(INPFC_AREA, levels = district_order)) %>%
   mutate(stations_per_1000km2 = (succeeded / AREA) * 1000) %>%
   mutate(
     AREA = round(AREA, digits = 1),
     stations_per_1000km2 = round(stations_per_1000km2, digits = 2)
-  ) 
+  )
 
 
 all_areas <- allocated_prep %>%
@@ -178,30 +188,32 @@ all_areas_depths <- all_areas %>%
   tibble::add_column(`Depth range` = "All depths", .before = "allocated") %>%
   ungroup() %>%
   mutate(stations_per_1000km2 = succeeded / AREA) %>%
-  tibble::add_column(INPFC_AREA = "All areas", .before = "Depth range") 
+  tibble::add_column(INPFC_AREA = "All areas", .before = "Depth range")
 
 allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths) %>%
-  dplyr::arrange(factor(INPFC_AREA,levels = c(district_order,"All areas"))) %>%
-  dplyr::mutate(`Depth range` = gsub(" m","",`Depth range`))
+  dplyr::arrange(factor(INPFC_AREA, levels = c(district_order, "All areas"))) %>%
+  dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`))
 
-colnames(allocated_sampled) <- c("Survey district", "Depth range (m)", 
-                                 "Stations allocated", "Stations attempted", "Stations completed", 
-                                 "Total area", "Stations per 1,000 km^2")
+colnames(allocated_sampled) <- c(
+  "Survey district", "Depth range (m)",
+  "Stations allocated", "Stations attempted", "Stations completed",
+  "Total area", "Stations per 1,000 km^2"
+)
 
 # Statement about assigned sampling densities - vector of two
-depthrange_hisamplingdensity <- allocated_sampled  |>
+depthrange_hisamplingdensity <- allocated_sampled |>
   filter(`Depth range (m)` != "All depths" & `Survey district` == "All areas") |>
-  slice_max(n = 2,order_by = `Stations per 1,000 km^2` ) |>
-  dplyr::select(`Depth range (m)`) |> 
+  slice_max(n = 2, order_by = `Stations per 1,000 km^2`) |>
+  dplyr::select(`Depth range (m)`) |>
   unlist()
 
-stationdensity_hisamplingdensity <- allocated_sampled  |>
+stationdensity_hisamplingdensity <- allocated_sampled |>
   filter(`Depth range (m)` != "All depths" & `Survey district` == "All areas") |>
-  slice_max(n = 2,order_by = `Stations per 1,000 km^2`) |>
+  slice_max(n = 2, order_by = `Stations per 1,000 km^2`) |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   unlist()
 
-surveywide_samplingdensity <- allocated_sampled  |>
+surveywide_samplingdensity <- allocated_sampled |>
   filter(`Depth range (m)` == "All depths" & `Survey district` == "All areas") |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   as.numeric() |>
@@ -218,7 +230,7 @@ matches <- unique(grep(paste(toMatch, collapse = "|"),
 print("Checking for tables missing from the G Drive...")
 # which species are there tables for?
 x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
-y <- sub(pattern = paste0("*_",maxyr,".csv"), replacement = "", x = x)
+y <- sub(pattern = paste0("*_", maxyr, ".csv"), replacement = "", x = x)
 
 lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
 
@@ -251,10 +263,12 @@ sizecomp_gp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE)
 # Create a full uncounted dataframe of lengths - this is the expanded lengths from the sizecomp table
 sizecomps_expanded <- sizecomp_gp |>
   dplyr::filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) & YEAR == maxyr) |>
-  dplyr::mutate(pop_expander = round(POPULATION_COUNT / 1e4),
-                LENGTH_CM = LENGTH_MM/10) |>
-  dplyr::left_join(area_gp, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
-  dplyr::filter(AREA_TYPE == "INPFC BY DEPTH") |>
+  dplyr::mutate(
+    pop_expander = round(POPULATION_COUNT / 1e4),
+    LENGTH_CM = LENGTH_MM / 10
+  ) |>
+  dplyr::right_join(area_gp, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
+  dplyr::filter(AREA_TYPE == "INPFC") |> # AREA_TYPE == "INPFC BY DEPTH"
   dplyr::select(
     AREA_NAME, DESCRIPTION, DEPTH_MIN_M, DEPTH_MAX_M,
     SPECIES_CODE, LENGTH_CM, SEX, pop_expander
@@ -269,8 +283,8 @@ sizecomps_expanded <- sizecomp_gp |>
 list_tables <- list()
 
 list_tables[["allocated_sampled"]] <- allocated_sampled # Stations allocated and successfully sampled
-list_tables[["length-sample-sizes"]] <- targetn  # Target length size for species/species groups
-list_tables[["top_CPUE"]] <- top_CPUE 
+list_tables[["length-sample-sizes"]] <- targetn # Target length size for species/species groups
+list_tables[["top_CPUE"]] <- top_CPUE
 list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
 list_tables[["sizecomp_stratum"]] <- sizecomp_stratum
 
