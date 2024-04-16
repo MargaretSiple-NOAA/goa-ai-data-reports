@@ -223,10 +223,9 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
-  species_code <- report_species$species_code[i]
-  
-  octopus <- species_code!=78403 # true/false, if it's for octopus don't make length comp or length scatter figs
+for (i in 17:19) { # nrow(report_species)
+
+   species_code <- report_species$species_code[i]
     
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
@@ -298,6 +297,9 @@ for (i in 1:3) { # nrow(report_species)
 
   middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
 
+   if(species_code==78403){# true/false, if it's for octopus don't make length comp or length scatter figs and use a different template maybe
+   src[[i]] <- knitr::knit_expand(here::here("markdown", "InvertebrateResultTemplate.Rmd"))
+ }else{
   region_longest <- meanlengths_area %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     top_n(1, `Mean length`) %>%
@@ -346,8 +348,9 @@ for (i in 1:3) { # nrow(report_species)
    show.text <- FALSE
  }
   
-  src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesResultTemplate.Rmd"))
-}
+  src[[i]] <- knitr::knit_expand(here::here("markdown", "FishResultTemplate.Rmd"))
+ }
+} #/ end if() statement about invertebrates (octopus!)
 
 res <- knitr::knit_child(text = unlist(src), quiet = TRUE,options = )
 cat(res, sep = "\n")
