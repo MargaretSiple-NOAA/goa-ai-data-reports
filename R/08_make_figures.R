@@ -335,23 +335,52 @@ if (make_catch_comp) {
 
 # 3. CPUE bubble maps - strata colored in (presented at GPT 2022) ----------------------------------------------------------
 if (make_cpue_bubbles_strata) {
+  if (SRVY == "GOA") {
+    reg_dat_goa <- akgfmaps::get_base_layers(
+      select.region = "goa",
+      set.crs = "EPSG:3338"
+    )
+    reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+      dplyr::mutate(
+        SRVY = "GOA",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Gulf of Alaska"
+      )
+    reg_data <- reg_dat_goa
+  }
+  
+  if (SRVY == "AI") {
+    reg_dat_ai <- akgfmaps::get_base_layers(
+      select.region = "ai",
+      set.crs = "EPSG:3338"
+    )
+    reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
+      dplyr::mutate(
+        SRVY = "AI",
+        color = scales::alpha(colour = "grey80", 0.7),
+        SURVEY = "Aleutian Islands"
+      )
+    reg_data <- reg_dat_ai
+  }
+  
   list_cpue_bubbles_strata <- list()
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
     namebubble <- report_species$spp_name_informal[i]
 
     thisyrshauldata <- cpue_raw %>%
-      filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
+      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
-        coords = c("start_longitude", "start_latitude"), # TODO NEED TO CHANGE TO THE RIGHT COORDS
+        coords = c("start_longitude", "start_latitude"),
         crs = "EPSG:4326"
       ) %>%
-      st_transform(crs = ai_east$crs)
+      st_transform(crs = reg_data$crs)
 
     # MAPS
     p3a <- ggplot() +
       geom_sf(
-        data = ai_east$survey.grid,
+        data = reg_data$survey.grid,
         mapping = aes(
           fill = factor(floor(STRATUM / 10)),
           color = factor(floor(STRATUM / 10))
@@ -359,16 +388,16 @@ if (make_cpue_bubbles_strata) {
       ) +
       scale_fill_manual(values = stratumpal) +
       scale_color_manual(values = stratumpal) +
-      geom_sf(data = ai_east$akland) +
+      geom_sf(data = reg_data$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
       scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
       coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
+        xlim = reg_data$plot.boundary$x,
+        ylim = reg_data$plot.boundary$y
       ) +
-      scale_x_continuous(breaks = ai_east$lon.breaks) +
-      scale_y_continuous(breaks = ai_east$lat.breaks) +
-      labs(subtitle = "Eastern Aleutians and Southern Bering Sea") +
+      scale_x_continuous(breaks = reg_data$lon.breaks) +
+      scale_y_continuous(breaks = reg_data$lat.breaks) +
+     # labs(subtitle = "Eastern Aleutians and Southern Bering Sea") +
       bubbletheme
 
     p3b <- ggplot() +
