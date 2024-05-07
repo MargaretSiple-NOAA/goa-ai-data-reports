@@ -972,7 +972,7 @@ if (make_temp_plot) {
 
   plotdat <- haul %>%
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
-    filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
+    filter( REGION == SRVY & YEAR != 1997) %>% #YEAR >= 1994 &
     filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
 
