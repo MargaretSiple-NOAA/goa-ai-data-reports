@@ -50,7 +50,7 @@ area_gp <- read.csv("data/local_gap_products/area.csv") |>
   dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION"))
 topn <- 20
 
-# NEED TO FIX!
+# Make table of top CPUE
 top_CPUE <- biomass_gp |>
   dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
   dplyr::right_join(area_gp, by = c("AREA_ID")) |>
