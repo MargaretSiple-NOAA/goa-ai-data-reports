@@ -60,6 +60,6 @@ list_joy_length[[as.character({{species_code}})]]
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent a GAM of length by depth with a random haul effect, added to show trends in length. Shaded bands indicate 95% confidence intervals. Black points indicate raw (measured) lengths, not expanded to the full population.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent a GAM of length by depth with a random haul effect, added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths, not expanded to the full population.', fig.id=paste0("lengthdepth-",{{species_code}}), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
 list_ldscatter[[as.character({{species_code}})]]
 ```
