@@ -32,7 +32,7 @@ This is the second year we have instituted some important changes to our survey 
 
 7 yrs of charter experience
 
-Cpt Loren Reynolds, ~28 yrs experience
+Cpt Brian Beaver, ~XXX yrs experience
 :::
 
 ::: {.column}
@@ -146,7 +146,8 @@ Highlighting a couple of the Special Projects - INSERT SPECIAL COLLECTIONS TO ME
 
 ## Automated data reports
 
-![Flow of new automated data reports](../img/DataReportFlowChart.png)
+![Flow of new automated data reports.](../img/DataReportFlowChart.png)
+
 In progress at the AFSC GAP products [GitHub page](https://www.github.com/afsc-gap-products/goa-ai-data-reports/).
 
 :::notes

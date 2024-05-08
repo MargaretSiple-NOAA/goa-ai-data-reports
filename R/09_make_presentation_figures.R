@@ -29,9 +29,9 @@ make_special_rebs <- TRUE
 source("R/00_report_settings.R")
 source("R/01_directories.R")
 
-SRVY <- "GOA"
-maxyr <- 2023 # Change this for the year!
-compareyr <- 2021
+SRVY <- "AI"
+maxyr <- 2022 # Change this for the year!
+compareyr <- 2018
 dates_conducted <- "May 18th through August 6th, 2023" # EDIT
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
@@ -220,6 +220,10 @@ if (SRVY == "GOA") {
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
   nstrata <- length(unique(a$STRATUM))
+}else{
+  a <- read.csv("data/goa_strata.csv")
+  a <- dplyr::filter(a, SURVEY == "AI")
+  nstrata <- length(unique(a$STRATUM))
 }
 
 
@@ -257,7 +261,7 @@ bubbletheme <- theme(
 linetheme <- theme_bw(base_size = 16)
 
 
-bartheme <- ggpubr::theme_classic2(base_size = 12) +
+bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
 
 # Palettes!
@@ -464,7 +468,7 @@ if (make_cpue_bubbles | make_cpue_ianelli) {
         color = scales::alpha(colour = "grey80", 0.7),
         SURVEY = "Aleutian Islands"
       )
-    reg_data <- reg_data_ai
+    reg_data <- reg_dat_ai
   }
 }
 
@@ -774,6 +778,7 @@ if (make_joy_division_length) {
   }else{
     cat("Pseudolength file not found. Sourcing data prep file... \n")
     source("R/06_prep_data.R")}
+  
   # This is repeated; deal with it later
   L <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L %>%
@@ -983,6 +988,7 @@ if (make_joy_division_length) {
           axis.title.y = element_text(hjust = 0.5),
           panel.spacing.x = unit(4, "mm"),
           axis.line.x = element_line(lineend = "square")
+          #axis.ticks.x = element_line(color = "black")
         )
 
       joyplot <- joyplot + joyplot2
@@ -1298,8 +1304,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2023-09-11" # hard coded, **k it!
-tabledate <- "2023-09-11"
+figuredate <- "2024-05-07" # hard coded, **k it!
+tabledate <- "2023-05-07"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
@@ -1307,9 +1313,9 @@ cat(
 )
 
 # If some plots aren't loaded into the environment, load them:
-if (!exists("list_idw_cpue")) {
-  load(paste0("output/", figuredate, "/", "figures/", "list_idw_cpue.rdata"))
-}
+# if (!exists("list_idw_cpue")) {
+#   load(paste0("output/", figuredate, "/", "figures/", "list_idw_cpue.rdata"))
+# }
 
 if (!exists("list_biomass_ts")) {
   load(paste0("output/", figuredate, "/", "figures/", "list_biomass_ts.rdata"))

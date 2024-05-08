@@ -30,10 +30,8 @@ list_joy_length[[as.character({{species_code}})]]
 ```{r echo=FALSE}
 if(exists("list_idw_cpue")){
  list_idw_cpue[[as.character({{species_code}})]]
-}else{
-  # knitr::include_graphics(paste0("output/",figuredate,"/","figures/", as.character({{spp_name_informal}}),
-  #                                "_", maxyr,"_cpue_idw.png"))
-  print("eek, problem with IDW maps")
+}else{ 
+ list_cpue_bubbles[[as.character({{species_code}})]]
 }
 ```
 
