@@ -16,7 +16,7 @@ if ({{ species_code }} %in% c(30050, 30051, 30052)) {
 
 ::: {.column}
 ```{r echo=FALSE}
-list_joy_length[[as.character({{species_code}})]]
+print(list_joy_length[[as.character({{species_code}})]])
 ```
 :::
 ::::::
