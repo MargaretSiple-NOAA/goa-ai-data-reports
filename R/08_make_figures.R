@@ -758,7 +758,7 @@ if (make_joy_division_length) {
           facet_grid(~Sex) +
           xlab("Length (mm)") +
           ylab("Year") +
-          theme_ridges(font_size = 7) +
+          theme_ridges(font_size = 10) +
           labs(title = plot_title) +
           theme(
             strip.background = element_blank(),
