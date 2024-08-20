@@ -44,10 +44,10 @@ source("R/02_load_packages.R")
 source("R/03_functions.R")
 
 # Get data from RACEBASE --------------------------------------------------
-x <- FALSE
+x <- TRUE
 if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
-  source("R/03_download_data_from_oracle.R")
+  source("R/05_download_data_from_oracle.R")
 }
 
 # General data -----------------------------------------------------------------
@@ -860,8 +860,7 @@ if (make_joy_division_length) {
     len2plot2 <- len2plot %>%
       left_join(sample_sizes %>%
         filter(SPECIES_CODE == report_species$species_code[i]))
-    # %>%
-    #   left_join(ylocs)
+
 
     yrbreaks <- unique(len2plot2$YEAR)
     lengthlimits <- range(len2plot2$LENGTH)
@@ -934,7 +933,6 @@ if (make_joy_division_length) {
         filter(SPECIES_CODE %in% polycode_vec) %>%
         group_by(YEAR, Sex) %>%
         dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-        # dplyr::mutate(yloc = medlength * multiplier) %>%
         ungroup()
 
 
@@ -988,7 +986,6 @@ if (make_joy_division_length) {
           axis.title.y = element_text(hjust = 0.5),
           panel.spacing.x = unit(4, "mm"),
           axis.line.x = element_line(lineend = "square")
-          #axis.ticks.x = element_line(color = "black")
         )
 
       joyplot <- joyplot + joyplot2
