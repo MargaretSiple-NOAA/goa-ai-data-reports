@@ -30,9 +30,9 @@ This is the second year we have instituted some important changes to our survey 
 
 2013-2016, 2021-Present
 
-7 yrs of charter experience
+8 yrs of charter
 
-Cpt Brian Beaver, ~XXX yrs experience
+Cpt Brian Beaver, first year on AI survey
 :::
 
 ::: {.column}
@@ -40,9 +40,9 @@ Cpt Brian Beaver, ~XXX yrs experience
 
 2010-2012, 2017-present
 
-9 yrs of charter experience
+10 yrs of charter experience
 
-Cpt Dan Carney, ~9 yrs experience
+Cpt Dan Carney, ~10 yrs experience on survey
 :::
 ::::::
 
@@ -60,7 +60,7 @@ To collect standardized and fishery-independent time series of:
 -   Distribution
 -   Age and biological condition
 
-There are `r nrow(report_species)` managed species or species groups in the Gulf of Alaska that are presented here.
+There are `r nrow(report_species)` managed species or species groups in the `r SRVY_long` presented here.
 
 :::notes
 The purpose of our survey is to assess the status of groundfish and invertebrate populations in the Gulf of Alaska by describing their distribution and abundance along with the length and age composition of the populations
@@ -163,7 +163,7 @@ p2
 ```
 
 :::notes
-Overall species composition in 2023 was similar to past years with arrowtooth flounder and POP dominating the catches.
+Overall species composition in `r maxyr` was similar to past years with arrowtooth flounder and POP dominating the catches. (NOTE: CHANGE THESE)
 Total biomass for these taxa appears to be slightly higher than during the last couple of GOA surveys
 :::
 
