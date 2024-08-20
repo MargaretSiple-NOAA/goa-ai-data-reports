@@ -22,10 +22,6 @@ if(!"MetBrewer" %in% installed.packages()){
   devtools::install_github("BlakeRMills/MetBrewer")
 }
 
-if(!"qrcode" %in% installed.packages()){
-  devtools::install_github("BlakeRMills/MetBrewer")
-}
-
 # List and load required packages -----------------------------------------
 
 PKG <- c(

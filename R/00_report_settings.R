@@ -17,6 +17,7 @@ reportvaluesdate <- "2024-04-11"
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
 SRVY <- "GOA" # Options: "GOA", "AI"
+SRVY_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 
 # Check survey year and region combo:
 if(maxyr %% 2 == 0 && SRVY == "GOA"){
@@ -99,7 +100,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
-report_authors <- "M. Siple, P. von Szalay, N. Raring, W. Palsson, B. Riggle"
+report_authors <- "M. Siple, A. Dowlin, P. von Szalay, N. Raring, W. Palsson, B. Riggle"
 report_yr <- maxyr
 
 
@@ -120,3 +121,4 @@ report_species <- report_species |>
 
 # Reorder based on specified spps order
 report_species <- report_species[order(report_species$reportorder), ]
+

@@ -32,7 +32,7 @@ source("R/01_directories.R")
 SRVY <- "AI"
 maxyr <- 2022 # Change this for the year!
 compareyr <- 2018
-dates_conducted <- "May 18th through August 6th, 2023" # EDIT
+dates_conducted <- "May 18th through August 6th, 2022" # EDIT
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
   preassignedstationstatement <- "This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
@@ -172,7 +172,7 @@ specimen_maxyr <- S %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
 otos_collected <- specimen_maxyr %>%
-  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # SAMPLE_TYPE==1 means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN", "HAUL",
     "REGION", "VESSEL", "YEAR"
@@ -740,34 +740,7 @@ write.csv(
 
 
 # 6. Length frequency by area/depth stratum ------------------------------------
-# Uses only the most recent year (no comparison)
-
-if (make_length_freqs) {
-  # Load expanded lengths. If these aren't generated above, they can be made in the prep_data file.
-  # lengths_expanded <- read.csv(paste0("data/",maxyr,"_",SRVY,"_report_pseudolengths.csv"))
-  # dat2plot <- lengths_expanded %>%
-  #   filter(YEAR==maxyr)
-  #
-  # list_length_freq <- list()
-  #
-  # for(i in 1:nrow(report_species)){
-  #   dat_sp <- dat2plot %>%
-  #     dplyr::filter(SPECIES_CODE==report_species$species_code[i])
-  #  # p1 <-
-  # }
-  #
-  #
-  #   png(filename = paste0(
-  #     dir_out_figures, maxyr, "_",
-  #     report_species$spp_name_informal[i], "_lengthfreqhist.png"
-  #   ), width = 9, height = 9, units = "in", res = 200)
-  #   print(lfplot2)
-  #   dev.off()
-  #
-  #   list_length_freq[[i]] <- lfplot2
-  # }
-  # save(list_length_freq, file = paste0(dir_out_figures, "list_length_freq.rdata"))
-}
+# This is old and maybe deprecated? May remove.
 
 # 7. Joy division plots - Length frequency -----------------------------
 
@@ -1301,8 +1274,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-05-07" # hard coded, **k it!
-tabledate <- "2023-05-07"
+figuredate <- "2024-08-20" # hard coded, **k it!
+tabledate <- "2024-08-20"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
