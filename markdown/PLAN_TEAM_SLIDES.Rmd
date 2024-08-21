@@ -1,8 +1,8 @@
 ---
-title: "2023 Gulf of Alaska Biennial Bottom Trawl Survey"
+title: "2024 Aleutian Islands Biennial Bottom Trawl Survey"
 subtitle: "Groundfish Plan Team Meeting"
-author: "Ned Laman, Paul von Szalay, Nate Raring, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
-date: "September 19, 2023"
+author: "Susanne Mc Dermott, Ned Laman, Paul von Szalay, Nate Raring, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
+date: "September 17, 2024"
 output: 
   powerpoint_presentation:
     reference_doc: styles_reference.pptx
