@@ -1,0 +1,16 @@
+Add to data reports once we have a finished Markdown output:
+
+- Go through and quickly double-check the figures; make sure map figure is centered, etc.
+- Find/replace "first most abundant species" or "1st most abundant species" - change to "most abundant species"
+- Check Appendix C for correct equation formatting and column widths
+- Check page numbers and make sure intro pages have the special kind
+- Add TOC; make sure it's just called Contents
+- Double check asterisk comments for NRS, kam/atf, and other complexes
+- Add cover page 
+- Make sure vessel names are italicized in bullet points
+- Confirm that species names in TOC are italicized
+- Make sure all table and figure captions are left-justified the way they're supposed to be in TMs and DPRs. Use the "table caption" formatting button in the Home tab of Word. I don't know why the figure captions automatically format and the table captions don't. Tooooo lazy to figure it out.
+- See if you can get the two temperature figures on the same page
+- Check/create hyperlinks to other sections -- e.g., citations to appendices should hyperlink internally to that appendix. 
+- LAST: Update the TOC so that the page numbers and stuff are correct.
+- LAST: Edit the abstract and make sure the language is right. 
