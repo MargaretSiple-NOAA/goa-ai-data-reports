@@ -2,10 +2,10 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2023 # Change this for the year!
+maxyr <- 2022 # Change this for the year!
 minyr <- 1990 # This is the min year for the "data stanza" - 1991 for AI and 1993 for GOA
-compareyr <- 2021 # Change this for the year!
-pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
+compareyr <- 2018 # Change this for the year!
+pres_or_report <- "pres" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_sql_cpue <- FALSE # Do we want to use CPUE values from BIOMASS_TOTAL or "build our own" from RACEBASE catch, haul, etc tables? The default, TRUE, uses CPUE values from BIOMASS_TOTAL.
 
 # When did you save the last version of the figures and tables you want to use?
@@ -16,8 +16,8 @@ reportvaluesdate <- "2024-04-11"
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
-SRVY <- "GOA" # Options: "GOA", "AI"
-SRVY_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
+SRVY <- "AI" # Options: "GOA", "AI"
+survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 
 # Check survey year and region combo:
 if(maxyr %% 2 == 0 && SRVY == "GOA"){
@@ -28,7 +28,7 @@ if(maxyr %% 2 != 0 && SRVY =="AI"){
 
 
 if (SRVY == "AI") {
-  dates_conducted <- "the 6th of June through the 14th of August, 2022" # Change this for the year!
+  dates_conducted <- "the 5th of June through the 3rd of August, 2024" # Change this for the year!
 } else {
   dates_conducted <- "the 18th of May through the 6th of August, 2023"
 }
@@ -50,7 +50,7 @@ YEAR <- maxyr
 vessel1 <- "Ocean Explorer"
 vessel2 <- "Alaska Provider"
 captain1 <- "Dan Carney"
-captain2 <- "Loren Reynolds"
+captain2 <- "Brian Beaver"
 
 # Internal reviewers
 reviewer1 <- "Sarah T. Friedman"
@@ -60,14 +60,12 @@ ref_compareyr <- "@von_szalay_data_2017" # should be included in cite/bibliograp
 
 if (SRVY == "GOA") {
   dir_googledrive <- "1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC"
-  survname_long <- "Gulf of Alaska"
 }
 # Link to folder:  https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC
 # This is where all the text files live and are edited.
 
 if (SRVY == "AI") {
   dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"
-  survname_long <- "Aleutian Islands"
 }
 
 # Folder containing blurb files
