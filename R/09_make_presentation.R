@@ -19,7 +19,7 @@ make_length_freqs <- FALSE
 # 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
 make_joy_division_length <- TRUE
 # 6. CPUE IDW maps
-make_cpue_idw <- TRUE
+make_cpue_idw <- FALSE
 # 7. Plots of surface and bottom temperature
 make_temp_plot <- TRUE
 # make a special combined biomass plot for rebs
@@ -59,7 +59,7 @@ if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
 report_species <- dplyr::filter(report_species, presentation == 1)
 
 # Get a table of the strata and depths / regions
-dat <- read.csv("data/goa_strata.csv", header = TRUE) #includes GOA and AI strata
+dat <- read.csv("data/goa_strata.csv", header = TRUE) # includes GOA and AI strata
 
 # Prep values and prelim tables -------------------------------------------
 source("R/06_prep_data.R")
@@ -84,12 +84,12 @@ report_species <- report_species %>%
 common_names <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
 
 # Load total biomass data (currently taking from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
-if (SRVY == "AI") {
-  biomass_total <- read.csv("data/local_ai/biomass_total.csv")
-}
-if (SRVY == "GOA") {
-  biomass_total <- read.csv("data/local_goa/biomass_total.csv")
-}
+# if (SRVY == "AI") {
+#   biomass_total <- read.csv("data/local_ai/biomass_total.csv")
+# }
+# if (SRVY == "GOA") {
+#   biomass_total <- read.csv("data/local_goa/biomass_total.csv")
+# }
 
 # Haul data from RACEBASE
 haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
@@ -158,33 +158,44 @@ nfishlengths <- sum(length_maxyr %>%
   sum() %>%
   format(big.mark = ",")
 
-nfishlengths_reportspps <- length_maxyr %>%
-  filter(LENGTH_TYPE %in% c(1, 5, 11)) %>%
-  filter(SPECIES_CODE %in% report_species$species_code) %>%
-  dplyr::select(FREQUENCY) %>%
-  sum() %>%
+nfishlengths_reportspps <- length_maxyr |>
+  filter(LENGTH_TYPE %in% c(1, 5, 11)) |>
+  filter(SPECIES_CODE %in% report_species$species_code) |>
+  dplyr::select(FREQUENCY) |>
+  sum() |>
   format(big.mark = ",")
 
-nsquidlengths <- sum(length_maxyr %>%
-  filter(LENGTH_TYPE == 12) %>% dplyr::select(FREQUENCY)) %>%
+nsquidlengths <- sum(length_maxyr |>
+  dplyr::filter(LENGTH_TYPE == 12) |>
+  dplyr::select(FREQUENCY)) |>
   format(big.mark = ",")
 
 # Otoliths collected
 S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
-specimen_maxyr <- S %>%
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
+specimen_maxyr <- S |>
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
   filter(YEAR == maxyr & REGION == SRVY)
 
-otos_collected <- specimen_maxyr %>%
-  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # SAMPLE_TYPE==1 means it's an oto collection
+total_otos_collected <- specimen_maxyr |>
+  filter(SPECIMEN_SAMPLE_TYPE == 1) |>
+  nrow() |>
+  format(big.mark = ",")
+
+n_oto_species <- specimen_maxyr |>
+  filter(SPECIMEN_SAMPLE_TYPE == 1) |>
+  count(SPECIES_CODE) |>
+  nrow()
+
+otos_collected <- specimen_maxyr |>
+  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # SAMPLE_TYPE==1 means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN", "HAUL",
     "REGION", "VESSEL", "YEAR"
-  )) %>%
-  dplyr::left_join(region_lu, by = c("STRATUM")) %>%
-  group_by(INPFC_AREA, `Depth range`) %>%
-  dplyr::summarize("Pairs of otoliths collected" = n()) %>%
-  ungroup() %>%
+  )) |>
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  group_by(INPFC_AREA, `Depth range`) |>
+  dplyr::summarize("Pairs of otoliths collected" = n()) |>
+  ungroup() |>
   arrange(factor(INPFC_AREA, levels = district_order))
 
 # Temperature info
@@ -224,7 +235,7 @@ if (SRVY == "GOA") {
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
   nstrata <- length(unique(a$STRATUM))
-}else{
+} else {
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, SURVEY == "AI")
   nstrata <- length(unique(a$STRATUM))
@@ -271,7 +282,7 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
 # Palettes!
 # MetBrewer (dark colors)
 stratumpal <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(palette_name = "Hokusai1", type = "continuous"),
+  shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
   x = 1:nstrata
 )
 
@@ -285,7 +296,7 @@ joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"
 # Palette for species colors and fills
 # speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
 speciescolors <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(palette_name = "VanGogh2", type = "discrete", direction = -1),
+  shortpal = MetBrewer::met.brewer(name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
 )
 
@@ -743,19 +754,20 @@ write.csv(
 )
 
 
-# 6. Length frequency by area/depth stratum ------------------------------------
+# 6. Length frequency by area/depth stratum ----------------------------
 # This is old and maybe deprecated? May remove.
 
 # 7. Joy division plots - Length frequency -----------------------------
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-  if(file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))){
-  report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
-  }else{
+  if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
+    report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
+  } else {
     cat("Pseudolength file not found. Sourcing data prep file... \n")
-    source("R/06_prep_data.R")}
-  
+    source("R/06_prep_data.R")
+  }
+
   # This is repeated; deal with it later
   L <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L %>%
@@ -988,7 +1000,7 @@ if (make_joy_division_length) {
 # 8. Surface and bottom temperatures --------------------------------------
 if (make_temp_plot) {
   list_temperature <- list()
-  
+
   sstdat <- haul %>%
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(YEAR >= 1990 & REGION == SRVY & YEAR != 1997) %>%
@@ -1000,24 +1012,24 @@ if (make_temp_plot) {
     ungroup() %>%
     as.data.frame() %>%
     mutate(YEAR = as.numeric(YEAR))
-  
+
   if (SRVY == "GOA") {
     sstdat <- sstdat %>% filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
   }
-  
+
   sst_summary <- sstdat %>%
     mutate(
       bottom_stz = bottom - mean(bottom, na.rm = T),
       surface_stz = surface - mean(surface, na.rm = T)
     ) %>%
     pivot_longer(cols = bottom:surface_stz)
-  
+
   plotdat <- haul %>%
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
-    filter(REGION == SRVY & YEAR != 1997 & YEAR >=1990) %>% 
+    filter(REGION == SRVY & YEAR != 1997 & YEAR >= 1990) %>%
     filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
-  
+
   howmanyboats <- haul |>
     dplyr::filter(REGION == SRVY) |>
     mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
@@ -1035,10 +1047,10 @@ if (make_temp_plot) {
       nboats == 4 ~ "*"
     )) |>
     dplyr::filter(YEAR %in% unique(plotdat$YEAR))
-  
-  
-  
-  
+
+
+
+
   bottom_temp_20yr <- plotdat |>
     filter(YEAR >= (maxyr - 20)) |>
     dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
@@ -1052,27 +1064,32 @@ if (make_temp_plot) {
     "Value" = c(bottom_temp_20yr, bottom_temp_10yr),
     Start_year = c(maxyr - 10, maxyr - 20)
   )
-  
+
   bottom_temp_plot <- plotdat %>%
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
     ggdist::stat_halfeye(
       fill = "tan", alpha = 0.5,
-      interval_color = "grey27", point_color = "grey27") +
+      interval_color = "grey27", point_color = "grey27"
+    ) +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
-    labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + 
-    scale_x_continuous(breaks = howmanyboats$YEAR, # add labels w nboats
-                     labels = paste0(howmanyboats$YEAR,
-                                     howmanyboats$annotation_star))  +
+    labs(x = "Year", y = expression("Bottom temperature "(degree * C))) +
+    scale_x_continuous(
+      breaks = howmanyboats$YEAR, # add labels w nboats
+      labels = paste0(
+        howmanyboats$YEAR,
+        howmanyboats$annotation_star
+      )
+    ) +
     geom_segment(data = bottom_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
       x = Start_year, xend = maxyr
-    ))+
-    theme_light(base_size = 14) + 
-    theme(axis.text.x = element_text(angle = 45,hjust=1))
-  
+    )) +
+    theme_light(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
   surface_temp_20yr <- plotdat |>
     filter(YEAR >= (maxyr - 20)) |>
     dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
@@ -1086,7 +1103,7 @@ if (make_temp_plot) {
     "Value" = c(surface_temp_20yr, surface_temp_10yr),
     "Start_year" = c(maxyr - 10, maxyr - 20)
   )
-  
+
   surface_temp_plot <- plotdat %>%
     ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
@@ -1101,13 +1118,17 @@ if (make_temp_plot) {
       y = Value, yend = Value,
       linetype = Average,
       x = Start_year, xend = maxyr
-    ))+
-    scale_x_continuous(breaks = howmanyboats$YEAR,
-                     labels = paste0(howmanyboats$YEAR,
-                                     howmanyboats$annotation_star))  +
-    theme_light(base_size = 14) + 
-    theme(axis.text.x = element_text(angle = 45,hjust=1))
-  
+    )) +
+    scale_x_continuous(
+      breaks = howmanyboats$YEAR,
+      labels = paste0(
+        howmanyboats$YEAR,
+        howmanyboats$annotation_star
+      )
+    ) +
+    theme_light(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
   png(
     filename = paste0(
       dir_out_figures, maxyr, "_bottomtemp.png"
@@ -1116,7 +1137,7 @@ if (make_temp_plot) {
   )
   print(bottom_temp_plot)
   dev.off()
-  
+
   png(
     filename = paste0(
       dir_out_figures, maxyr, "_surfacetemp.png"
@@ -1125,20 +1146,20 @@ if (make_temp_plot) {
   )
   print(surface_temp_plot)
   dev.off()
-  
+
   list_temperature[[1]] <- bottom_temp_plot
   list_temperature[[2]] <- surface_temp_plot
-  
+
   names(list_temperature) <- c("bottomtemp", "surfacetemp")
-  
+
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
-  
+
   # list_temperature <- list()
-  # 
+  #
   # # haul info (source: RACEBASE)
   # haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
-  # 
+  #
   # sstdat <- haul %>%
   #   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
   #   filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
@@ -1150,20 +1171,20 @@ if (make_temp_plot) {
   #   ungroup() %>%
   #   as.data.frame() %>%
   #   mutate(YEAR = as.numeric(YEAR))
-  # 
+  #
   # sst_summary <- sstdat %>%
   #   mutate(
   #     bottom_stz = bottom - mean(bottom, na.rm = T),
   #     surface_stz = surface - mean(surface, na.rm = T)
   #   ) %>%
   #   pivot_longer(cols = bottom:surface_stz)
-  # 
+  #
   # plotdat <- haul %>%
   #   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
   #   filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
   #   filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
   #   filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
-  # 
+  #
   # howmanyboats <- haul |>
   #   dplyr::filter(REGION == SRVY) |>
   #   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
@@ -1179,7 +1200,7 @@ if (make_temp_plot) {
   #                                             nboats==3 ~ "*",
   #                                             nboats==4 ~ "*")) |>
   #   dplyr::filter(YEAR %in% unique(plotdat$YEAR))
-  # 
+  #
   # bottom_temp_20yr <- plotdat |>
   #   filter(YEAR >= (maxyr - 20)) |>
   #   dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
@@ -1193,7 +1214,7 @@ if (make_temp_plot) {
   #   "Value" = c(bottom_temp_20yr, bottom_temp_10yr),
   #   Start_year = c(maxyr - 10, maxyr - 20)
   # )
-  # 
+  #
   # bottom_temp_plot <- plotdat %>%
   #   ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
   #   ggdist::stat_interval(linewidth = 3) +
@@ -1213,7 +1234,7 @@ if (make_temp_plot) {
   #     linetype = Average,
   #     x = Start_year, xend = maxyr
   #   ))
-  # 
+  #
   # surface_temp_20yr <- plotdat |>
   #   filter(YEAR >= (maxyr - 20)) |>
   #   dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
@@ -1226,7 +1247,7 @@ if (make_temp_plot) {
   #   "Average" = c("10-year", "20-year"),
   #   "Value" = c(surface_temp_20yr, surface_temp_10yr)
   # )
-  # 
+  #
   # surface_temp_plot <- plotdat %>%
   #   ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
   #   ggdist::stat_interval(linewidth = 3) +
@@ -1244,7 +1265,7 @@ if (make_temp_plot) {
   #     linetype = Average,
   #     x = Start_year, xend = maxyr
   #   ))
-  # 
+  #
   # png(
   #   filename = paste0(
   #     dir_out_figures, maxyr, "_bottomtemp.png"
@@ -1253,7 +1274,7 @@ if (make_temp_plot) {
   # )
   # print(bottom_temp_plot)
   # dev.off()
-  # 
+  #
   # png(
   #   filename = paste0(
   #     dir_out_figures, maxyr, "_surfacetemp.png"
@@ -1262,12 +1283,12 @@ if (make_temp_plot) {
   # )
   # print(surface_temp_plot)
   # dev.off()
-  # 
+  #
   # list_temperature[[1]] <- bottom_temp_plot
   # list_temperature[[2]] <- surface_temp_plot
-  # 
+  #
   # names(list_temperature) <- c("bottomtemp", "surfacetemp")
-  # 
+  #
   # save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   # print("Done with temperature plots.")
 }
@@ -1278,8 +1299,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-08-20" # hard coded, **k it!
-tabledate <- "2024-08-20"
+figuredate <- "2024-09-03" # hard coded, **k it!
+tabledate <- "2024-09-03"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
@@ -1303,17 +1324,16 @@ if (!exists("list_temperature")) {
 if (!exists("p2")) {
   load(paste0("output/", figuredate, "/", "figures/", "catch_comp.rdata"))
 }
-if (!exists("rebs_biomass")) {
+if (!exists("rebs_biomass") & make_special_rebs) {
   load(paste0("output/", figuredate, "/", "figures/", "rebs_biomass.rdata"))
 }
 
 
-# Make sure you have the list of species
-if (!exists("report_species")) {
-  if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
-  if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
-}
-
+# # Make sure you have the list of species
+# if (!exists("report_species")) {
+#   if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
+#   if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
+# }
 
 # Render the Markdown file
 starttime <- Sys.time() # timer in case you want to know how long everything takes
