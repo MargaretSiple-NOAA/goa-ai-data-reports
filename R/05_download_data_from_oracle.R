@@ -218,10 +218,10 @@ if (SRVY == "GOA") {
 # make_tab4 function comes from the 03_functions.R file
 lapply(X = unique(report_species$species_code), FUN = make_tab4, survey = SRVY, year = maxyr)
 
-# Table 3 is built down below with GAP_PRODUCTS
+# Table 3 is built below with GAP_PRODUCTS
 
 ################## USE GAPINDEX TO GET SIZECOMPS ###############################
-# Use gapindex to get size comps - these will be used to
+# Use gapindex to get size comps
 sql_channel <- gapindex::get_connected()
 
 xx <- gapindex::get_data(
@@ -359,11 +359,6 @@ write.csv(x,
           row.names = FALSE)
 
 print("Finished processing local tables to draft table 3.")
-# Table 4 ingredients -----------------------------------------------------
-
-
-
-
 
 
 ################## CHECK LOCAL FOLDERS FOR RODBC ERRORS ########################
