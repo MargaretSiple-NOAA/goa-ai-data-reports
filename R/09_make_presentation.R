@@ -51,9 +51,6 @@ if (x) {
 }
 
 
-# Prep values and prelim tables -------------------------------------------
-source("R/06_prep_data.R")
-
 # General data -----------------------------------------------------------------
 # Get species table
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
@@ -63,6 +60,9 @@ report_species <- dplyr::filter(report_species, presentation == 1)
 
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv", header = TRUE) #includes GOA and AI strata
+
+# Prep values and prelim tables -------------------------------------------
+source("R/06_prep_data.R")
 
 # region_lu <- dat %>%
 #   filter(SURVEY == SRVY) %>%
@@ -119,12 +119,12 @@ if (SRVY == "AI") {
   x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
 
   # This is already 0-filled
-  cpue_raw <- x %>%
-    left_join(common_names) %>%
-    dplyr::select(-YEAR_ADDED) %>%
-    dplyr::left_join(haul) %>%
-    janitor::clean_names() %>% # need to add common name lookup
-    dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
+  cpue_raw <- x |>
+    left_join(common_names) |>
+    dplyr::select(-YEAR_ADDED) |>
+    dplyr::left_join(haul) |>
+    janitor::clean_names() |> # need to add common name lookup
+    dplyr::rename(cpue_kgkm2 = wgtcpue) |>
     janitor::clean_names()
 }
 
@@ -132,12 +132,12 @@ if (SRVY == "GOA") {
   x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
 
   # This is already 0-filled
-  cpue_raw <- x %>%
-    left_join(common_names) %>%
-    dplyr::select(-YEAR_ADDED) %>%
-    dplyr::left_join(haul) %>%
-    janitor::clean_names() %>% # need to add common name lookup
-    dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
+  cpue_raw <- x |>
+    left_join(common_names) |>
+    dplyr::select(-YEAR_ADDED) |>
+    dplyr::left_join(haul) |>
+    janitor::clean_names() |> # need to add common name lookup
+    dplyr::rename(cpue_kgkm2 = wgtcpue) |>
     janitor::clean_names()
 }
 
