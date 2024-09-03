@@ -127,7 +127,7 @@ One of the changes we instituted this summer to reduce ergonomic strain was base
 
 ------------------------------------------------------------------------
 
-## Species otoliths collected
+## Otolith collections
 
 ```{r echo=FALSE,tab.cap='Otoliths collected for each species in this presentation.', tab.id='otoliths-species',  tab.cap.style = "Table caption"}
 otos_collected |>
