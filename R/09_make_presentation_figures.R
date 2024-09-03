@@ -32,7 +32,7 @@ source("R/01_directories.R")
 SRVY <- "AI"
 maxyr <- 2022 # Change this for the year!
 compareyr <- 2018
-dates_conducted <- "May 18th through August 6th, 2022" # EDIT
+dates_conducted <- "June 5th through August 3rd 2024" # EDIT
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
   preassignedstationstatement <- "This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
@@ -43,12 +43,16 @@ and this will become a permanent feature of our station allocations in the futur
 source("R/02_load_packages.R")
 source("R/03_functions.R")
 
-# Get data from RACEBASE --------------------------------------------------
-x <- TRUE
+# Get data from RACEBASE ------------------------------------------------------
+x <- FALSE
 if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
   source("R/05_download_data_from_oracle.R")
 }
+
+
+# Prep values and prelim tables -------------------------------------------
+source("R/06_prep_data.R")
 
 # General data -----------------------------------------------------------------
 # Get species table
@@ -60,15 +64,15 @@ report_species <- dplyr::filter(report_species, presentation == 1)
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv", header = TRUE) #includes GOA and AI strata
 
-region_lu <- dat %>%
-  filter(SURVEY == SRVY) %>%
-  dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH) %>%
-  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
-  mutate(`Depth range` = paste0(`Depth range`, " m"))
+# region_lu <- dat %>%
+#   filter(SURVEY == SRVY) %>%
+#   dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH) %>%
+#   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
+#   mutate(`Depth range` = paste0(`Depth range`, " m"))
 
-if (SRVY == "AI") {
-  region_lu <- region_lu %>% filter(STRATUM >= 211 & STRATUM <= 794)
-}
+# if (SRVY == "AI") {
+#   region_lu <- region_lu %>% filter(STRATUM >= 211 & STRATUM <= 794)
+# }
 
 # Data to plot ------------------------------------------------------------
 # All the species for which we want to make plots

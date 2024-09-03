@@ -95,7 +95,7 @@ We randomly allocate stations within this design framework from a pool of previo
 -   Collaboration with SMART group to improve data pull and processing steps
 
 :::notes
-For the first time, this year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in RACEBase. 
+This year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in RACEBASE. 
 We achieved this through some important innovations (like in-season data editing) and a lot of hard work by our Survey Team
 
 
@@ -127,7 +127,7 @@ One of the changes we instituted this summer to reduce ergonomic strain was base
 ## Species otoliths collected
 
 :::notes
-We also collected almost 8000 pairs of otoliths this summer from 16 groundfish species and this number was on par with other recent surveys
+We also collected almost 8000 pairs of otoliths this summer from 16 groundfish species.
 :::
 
 ------------------------------------------------------------------------

@@ -231,13 +231,13 @@ if (SRVY == "AI") {
 nstations <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
-  nrow() # for 2022: 398
+  nrow() 
 
 # Number of "successful hauls":
 #   Subset 2022 HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
-  nrow() # for 2022: 398
+  nrow() 
 
 # Number of attempted tows:
 nattemptedhauls <- haul2 %>%

@@ -7,6 +7,7 @@ GOA and AI data reports summarize data from the trawl survey each year. These re
 To create the full report: 
 
 - Confirm the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`. 
+- If there are changes to the stocks you want to include in the report, edit them in `data/[region]_report_specieslist.csv`
 - start with `10_create_report_contents.R` and run the whole script from the top. This builds the tables, figures, and in-text values used in the report. It will save figures and tables to your project directory so you can look at them.
 - When you're ready to build a draft of the full report in .docx, double-check the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`, then run `11_knit_report.R`. This will produce one .docx for the body of the report, and will draw in appendices from their sources.
 - Some post-processing is needed in Word: check table widths, order of appendices, and the headers (in navigation pane) to confirm that the scripts have run and the report draft is ready. You may also have to revise some text in the abstract. There is a list of these "post-processing" checks in [To_do_after_knitting_datareport.txt](To_do_after_knitting_datareport.txt). I could automate some of these but honestly it would take a long time to figure out and would only make peoples' lives easier for like 2 days out of the whole year.
