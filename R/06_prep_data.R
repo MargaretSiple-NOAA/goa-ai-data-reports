@@ -65,6 +65,7 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
 nhauls_no_stemp <- haul_maxyr %>%
   filter(is.na(SURFACE_TEMPERATURE)) %>%
   nrow()
+
 nhauls_no_btemp <- haul_maxyr %>%
   filter(is.na(GEAR_TEMPERATURE)) %>%
   nrow()
@@ -73,7 +74,6 @@ nhauls_no_btemp <- haul_maxyr %>%
 # write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
 
 # Econ info ---------------------------------------------------------------
-
 dat <- read.csv("data/AI_planning_species_2020.csv")
 sp_prices <- dat %>%
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) %>%
@@ -323,6 +323,23 @@ otos_collected <- specimen_maxyr %>%
 L_maxyr <- L %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
+lengths_species <- L_maxyr |>
+  dplyr::left_join(haul_maxyr, by = c(
+    "CRUISEJOIN", "HAULJOIN",
+    "REGION", "VESSEL", "CRUISE"
+  )) |>
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  group_by(SPECIES_CODE) |>
+  dplyr::summarize(
+    "N" = sum(FREQUENCY, na.rm = TRUE)
+  ) |>
+  ungroup() |>
+  dplyr::filter(SPECIES_CODE %in% report_species$species_code) |>
+  dplyr::left_join(report_species, by=c("SPECIES_CODE" = "species_code")) |>
+  dplyr::select(spp_name_informal, N) |>
+  dplyr::rename("Common name" = spp_name_informal,
+                "Lengths collected" = N)
+  
 meanlengths_area <- L_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
