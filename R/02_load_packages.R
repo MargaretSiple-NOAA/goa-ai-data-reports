@@ -96,6 +96,7 @@ PKG <- c(
   "officer", 
   "flextable", 
   "fuzzyjoin",
+  "rlang",
   # "kableExtra",
   # "formattable",
   

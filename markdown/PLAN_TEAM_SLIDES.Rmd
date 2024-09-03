@@ -9,17 +9,15 @@ output:
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = FALSE,dpi=300,fig.width=7,warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, dpi = 300, fig.width = 7, warning = FALSE, message = FALSE)
 ```
-
-## `r maxyr` `r SRVY` bottom trawl survey
 
 The `r maxyr` `r SRVY` bottom trawl survey took place between `r dates_conducted`. The previous `r SRVY` survey was in `r compareyr`.
 
 We surveyed **`r nstations`** stations in total, with a total of **`r nsuccessfulhauls`** successful hauls across the two survey vessels.
 
 :::notes
-This is the second year we have instituted some important changes to our survey in an attempt to slow the work pace and reduce the repetitive motion injuries that have been on the rise in recent years.
+This is the third year we have instituted some important changes to our survey in an attempt to slow the work pace and reduce the repetitive motion injuries that have been on the rise in recent years.
 :::
 
 ## Survey charter vessels
@@ -60,10 +58,10 @@ To collect standardized and fishery-independent time series of:
 -   Distribution
 -   Age and biological condition
 
-There are `r nrow(report_species)` managed species or species groups in the `r SRVY_long` presented here.
+There are `r nrow(report_species)` managed species or species groups in the `r survname_long` presented here.
 
 :::notes
-The purpose of our survey is to assess the status of groundfish and invertebrate populations in the Gulf of Alaska by describing their distribution and abundance along with the length and age composition of the populations
+The purpose of our survey is to assess the status of groundfish and invertebrate populations in the `r survname_long` by describing their distribution and abundance along with the length and age composition of the populations
 :::
 
 ------------------------------------------------------------------------
@@ -79,7 +77,7 @@ The purpose of our survey is to assess the status of groundfish and invertebrate
 
 :::notes
 Our survey is a stratified random design that allocates stations to strata based on abundance, variance, stratum area, and economic value
-The strata are primarily based on depth and extend down to 500m; strata are further divided by geography and statistical sampling areas
+The strata are based on depth, major bathymetric features, and historical INPFC statistical areas.
 We randomly allocate stations within this design framework from a pool of previously successfully trawled locations
 
 `r preassignedstationstatement`
@@ -95,7 +93,7 @@ We randomly allocate stations within this design framework from a pool of previo
 -   Collaboration with SMART group to improve data pull and processing steps
 
 :::notes
-This year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in RACEBASE. 
+This year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in RACEBASE.
 We achieved this through some important innovations (like in-season data editing) and a lot of hard work by our Survey Team
 
 
@@ -117,17 +115,27 @@ Now for a quick summary of our collections
 
 ## Species lengths collected
 
+```{r echo=FALSE,tab.cap='Lengths collected for each species in this presentation.', tab.id='lengths-species',  tab.cap.style = "Table caption"}
+lengths_species |> 
+  flextable(cwidth = 2)
+```
 :::notes
 For the `r nrow(report_species)` species included in this summary, we collected more than `r nfishlengths_reportspps` lengths and a total of around `r nfishlengths` lengths collected overall
 One of the changes we instituted this summer to reduce ergonomic strain was based on a stock assessment - survey team collaboration who determined that we could reduce the number of lengths per species and the number of sexed lengths measured
 :::
 
+
 ------------------------------------------------------------------------
 
 ## Species otoliths collected
 
+```{r echo=FALSE,tab.cap='Otoliths collected for each species in this presentation.', tab.id='otoliths-species',  tab.cap.style = "Table caption"}
+otos_collected |>
+  flextable(cwidth = 2)
+```
+
 :::notes
-We also collected almost 8000 pairs of otoliths this summer from 16 groundfish species.
+We also collected `r total_otos_collected` pairs of otoliths this summer from `r n_oto_species` groundfish species.
 :::
 
 ------------------------------------------------------------------------
@@ -151,7 +159,7 @@ Highlighting a couple of the Special Projects - INSERT SPECIAL COLLECTIONS TO ME
 In progress at the AFSC GAP products [GitHub page](https://www.github.com/afsc-gap-products/goa-ai-data-reports/).
 
 :::notes
-Our data report (and the slides for this presentation) were made in RMarkdown using a new (as of last year) framework for reproducible reports. In this process, R code is used to draw from shared drives and our survey database, compile them, create figures and tables, and format them for presentation. 
+Our data report (and the slides for this presentation) were made in RMarkdown using a relatively new (as of 2022) framework for reproducible reports. In this process, R code is used to draw from shared drives and our survey database, compile them, create figures and tables, and format them for presentation.
 :::
 
 ------------------------------------------------------------------------
@@ -163,8 +171,7 @@ p2
 ```
 
 :::notes
-Overall species composition in `r maxyr` was similar to past years with arrowtooth flounder and POP dominating the catches. (NOTE: CHANGE THESE)
-Total biomass for these taxa appears to be slightly higher than during the last couple of GOA surveys
+Overall species composition in `r maxyr` was similar to past years with `r highest_biomass_overall` and `r second_highest_biomass_overall` dominating the catches. (INSERT NOTE ABOUT TRENDS IF YOU WANT)
 :::
 
 ## Bottom temperature (°C)
@@ -176,7 +183,7 @@ Total biomass for these taxa appears to be slightly higher than during the last 
 :::notes
 Water temperatures measured at the trawl net this summer remain above the long term average at both the bottom and the surface.
 
-This plot shows the full distribution of observed bottom temperatures in the survey. The heat colors show the quantiles of the distribution, and the shaded area is the shape of the full distribution. Surveys with more than 2 boats (i.e., surveys where the max depth was 1000m) are marked with asterisks.
+This plot shows the full distribution of observed bottom temperatures in the survey. The heat colors show the quantiles of the distribution, and the shaded area is the shape of the full distribution. Surveys with more than 2 boats (these are surveys where the max depth was 1000m) are marked with asterisks.
 
 Min bottom temp: `r minbottomtemp` deg C
 Max bottom temp: `r maxbottomtemp` deg C
@@ -194,23 +201,23 @@ Max bottom temp: `r maxbottomtemp` deg C
 ## Biomass trends
 
 :::notes
-Now we’ll take a look at biomass trends, length frequencies, and distribution & abundance for several species
+Now we’ll take a look at biomass trends, length frequencies, and distribution & abundance for several species.
 :::
 
 ---
 
 ```{r, echo=FALSE, results='asis'}
 # NEED TO ADD HERE: CHECKS IF THINGS ARE LOADED INTO ENV AND LOAD THEM IF NOT
-# report_species contains the list of species in the report 
-
+# report_species contains the list of species in the report
+#
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # 
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
-  
+
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesSlideTemplate.Rmd"))
 }
 
