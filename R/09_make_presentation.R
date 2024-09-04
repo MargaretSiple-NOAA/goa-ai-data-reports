@@ -257,9 +257,9 @@ bubbletheme <- theme(
     size = 16
   ),
   plot.subtitle = element_text(
-    size = 16 #,
-  #margin = margin(b = -30)
-)
+    size = 16
+  ),
+  legend.title = element_text(size = 14)
 )
 
 
@@ -556,8 +556,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = reg_data$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 / 1000), alpha = 0.5) + # USED TO BE cpue_kgha
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2) / 1000), guide = "none") +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -578,8 +578,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(bquote('CPUE'~ (kg/km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 / 1000), alpha = 0.5) +
+      scale_size(bquote("CPUE" ~ (mt / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2) / 1000)) +
       coord_sf(
         xlim = ai_central$plot.boundary$x,
         ylim = ai_central$plot.boundary$y
@@ -600,8 +600,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 / 1000), alpha = 0.5) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2) / 1000), guide = "none") +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -1085,8 +1085,8 @@ if (make_joy_division_length) {
 
 
     png(filename = paste0(
-      dir_out_figures, 
-      report_species$spp_name_informal[i],"_",maxyr, "_joyfreqhist.png"
+      dir_out_figures,
+      report_species$spp_name_informal[i], "_", maxyr, "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
@@ -1402,8 +1402,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-09-03" # hard coded, **k it!
-tabledate <- "2024-09-03"
+figuredate <- "2024-09-04" # hard coded, **k it!
+tabledate <- "2024-09-04"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
