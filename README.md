@@ -4,7 +4,15 @@
 GOA and AI data reports summarize data from the trawl survey each year. These reports provide detailed survey summaries for a technical audience. The scripts in this repo pull text from [Google Docs](https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC), turn them into R Markdown files, and knit a report in .docx format summarizing survey data and some basic information about the survey. 
 
 ## General workflow
-To create the full report: 
+
+### To create the Plan Team presentation draft
+
+- Confirm the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`. 
+- Check which figures are desired (bubble plots? catch composition? Etc.)
+- If there are changes to the stocks you want to include in the report, edit them in `data/[region]_report_specieslist.csv`
+- Run `09_make_presentation.R` from top to bottom
+
+### To create the full report 
 
 - Confirm the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`. 
 - If there are changes to the stocks you want to include in the report, edit them in `data/[region]_report_specieslist.csv`
