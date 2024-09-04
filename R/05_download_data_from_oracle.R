@@ -188,7 +188,7 @@ a <- filter(
 
 write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
 
-# size comps
+# stratum groups
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
 a <- dplyr::filter(
   a,
@@ -197,58 +197,11 @@ a <- dplyr::filter(
 
 write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
+# a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.CPUE")
+# 
+# write.csv(x = a, "./data/local_gap_products/cpue.csv", row.names = FALSE)
 
 print("Finished downloading GAP_PRODUCTS tables.")
-
-
-# Make from gapindex ------------------------------------------------------
-# You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet.
-if(use_gapindex){
-  library(gapindex)
-  
-  ## Connect to Oracle
-  sql_channel <- gapindex::get_connected()
-  
-  yrs_to_pull <- minyr:maxyr
-  
-  ## Pull data.
-  rpt_data <- gapindex::get_data(
-    year_set = yrs_to_pull,
-    survey_set = SRVY,
-    spp_codes = data.frame(
-      SPECIES_CODE = c(30050, 30051, 30052),
-      GROUP = "REBS" #  GROUP has to be numeric
-    ),
-    haul_type = 3,
-    abundance_haul = "Y",
-    pull_lengths = TRUE,
-    sql_channel = sql_channel
-  )
-  
-  cpue_table_rebs <- gapindex::calc_cpue(racebase_tables = rebs_data)
-  
-  biomass_stratum <- gapindex::calc_biomass_stratum(
-    racebase_tables = rebs_data,
-    cpue = cpue_table_rebs
-  )
-  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
-  biomass_subarea <- gapindex::calc_biomass_subarea(
-    racebase_tables = rebs_data,
-    biomass_strata = biomass_stratum
-  )
-  
-  rebs_biomass_df <- biomass_subarea |>
-    dplyr::filter(AREA_ID == 99903) |> # total B only
-    mutate(
-      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-    ) |>
-    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-  head(rebs_biomass_df)
-  
-  lta <- mean(rebs_biomass_df$BIOMASS_MT)
-}
-
 
 # Ex-vessel prices --------------------------------------------------------
 
@@ -263,12 +216,6 @@ if (SRVY == "GOA") {
   print("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
 }
 
-################## BUILD TABLES FROM ORACLE ####################################
-# Table 4's (built w SQL) -------------------------------------------------
-# make_tab4 function comes from the 03_functions.R file
-lapply(X = unique(report_species$species_code), FUN = make_tab4, survey = SRVY, year = maxyr)
-
-# Table 3 is built below with GAP_PRODUCTS
 
 ################## USE GAPINDEX TO GET SIZECOMPS ###############################
 # Use gapindex to get size comps
@@ -308,6 +255,8 @@ write.csv(sizecomp_stratum,
 
 print("Finished downloading local versions of all tables.")
 
+################## BUILD TABLES FROM ORACLE ####################################
+# Table 3 is built with GAP_PRODUCTS
 # Table 3 ingredients -----------------------------------------------------
 # Add a column to the CPUE table with mean individual fish weight (for 'Table 3')
 cpue$ind_wt_kg <- cpue$WEIGHT_KG / cpue$COUNT
@@ -410,6 +359,10 @@ write.csv(x,
 
 print("Finished processing local tables to draft table 3.")
 
+# Table 4's (built w SQL) -------------------------------------------------
+# make_tab4 function comes from the 03_functions.R file
+lapply(X = unique(report_species$species_code), FUN = make_tab4, survey = SRVY, year = maxyr)
+print("Finished creating table 4 for each species.")
 
 ################## CHECK LOCAL FOLDERS FOR RODBC ERRORS ########################
 # This doesn't work yet and I can't figure it out yet-- need to use system() to look for error text.
