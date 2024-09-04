@@ -88,15 +88,13 @@ sp_prices <- dat %>%
 pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), ])
 
 # AI/GOA tables    ----------------------------------------------
+
+local_folder <- ifelse(SRVY == "AI", "local_ai", "local_goa")
+
 # cpue (source: AI or GOA schema)
 # NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
-if (SRVY == "AI") {
-  x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
+x <- read.csv(file = here::here("data", local_folder, "cpue.csv"), header = TRUE)
   # This is already 0-filled
-}
-if (SRVY == "GOA") {
-  x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
-}
 
 cpue_raw <- x %>%
   left_join(common_names) %>%
@@ -107,14 +105,71 @@ cpue_raw <- x %>%
   janitor::clean_names()
 
 # Biomass by stratum (source: AI or GOA schema)
-local_folder <- ifelse(SRVY == "AI", "local_ai", "local_goa")
-
 biomass_stratum <- read.csv(here::here("data", local_folder, "biomass_stratum.csv"))
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
 
 # Total biomass across survey area - currently reads from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
 biomass_total <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
 
+
+###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
+# You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet.
+if(use_gapindex){
+  library(gapindex)
+  
+  ## Connect to Oracle
+  sql_channel <- gapindex::get_connected()
+  
+  yrs_to_pull <- minyr:maxyr
+  
+  ## Pull data.
+  rpt_data <- gapindex::get_data(
+    year_set = yrs_to_pull,
+    survey_set = SRVY,
+    spp_codes = data.frame(
+      SPECIES_CODE = report_species$species_code,
+      GROUP = report_species$species_code 
+    ),
+    haul_type = 3,
+    abundance_haul = "Y",
+    pull_lengths = TRUE,
+    sql_channel = sql_channel
+  )
+  
+  cpue_raw_caps <- gapindex::calc_cpue(racebase_tables = rpt_data) 
+  
+  biomass_stratum <- gapindex::calc_biomass_stratum(
+    racebase_tables = rpt_data,
+    cpue = cpue_raw_caps
+  )
+  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
+  biomass_subarea <- gapindex::calc_biomass_subarea(
+    racebase_tables = rpt_data,
+    biomass_strata = biomass_stratum
+  )
+  
+  biomass_df <- biomass_subarea |>
+    dplyr::filter(AREA_ID == ifelse(SRVY=="GOA",99903,99904)) |> # total B only
+    mutate(
+      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+    ) |>
+    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+  
+  head(biomass_df)
+  
+  # cpue table
+  cpue_raw <- cpue_raw_caps |>
+    janitor::clean_names() # This table is used for lots of stuff
+  
+  # total biomass table
+  biomass_total <- biomass_df 
+  
+  print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should turn this off and use the GAP_PRODUCTS tables instead.")
+}
+
+
+# -------------------------------------------------------------------------
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
@@ -459,13 +514,6 @@ highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[
 second_highest_biomass_overall <- highest_biomass$common_name[2]
 third_highest_biomass_overall <- highest_biomass$common_name[3]
 fourth_highest_biomass_overall <- highest_biomass$common_name[4]
-
-# Biomass stats ------------------------------------
-head(report_species)
-report_biomasses <- biomass_total %>%
-  filter(YEAR == maxyr) %>%
-  janitor::clean_names() %>%
-  right_join(report_species)
 
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
