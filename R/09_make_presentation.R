@@ -13,6 +13,8 @@ make_biomass_timeseries <- TRUE
 make_catch_comp <- TRUE
 # 3. CPUE bubble map (Aleutians only)
 make_cpue_bubbles <- TRUE
+make_cpue_bubbles_strata <- TRUE
+# The map that Jim I requested a while ago. It has bars instead of bubbles. Some assessment ppl like it:
 make_cpue_ianelli <- FALSE
 # 4. Length frequency plots by region and depth stratum (probably deprecated - not annual increments)
 make_length_freqs <- FALSE
@@ -44,7 +46,7 @@ source("R/02_load_packages.R")
 source("R/03_functions.R")
 
 # Get data from RACEBASE ------------------------------------------------------
-x <- TRUE
+x <- FALSE
 if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
   source("R/05_download_data_from_oracle.R")
@@ -97,31 +99,33 @@ nsuccessfulhauls <- haul2 %>%
   nrow()
 
 # CPUE
-if (SRVY == "AI") {
-  x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
-
-  # This is already 0-filled
-  cpue_raw <- x |>
-    left_join(common_names) |>
-    dplyr::select(-YEAR_ADDED) |>
-    dplyr::left_join(haul) |>
-    janitor::clean_names() |> # need to add common name lookup
-    dplyr::rename(cpue_kgkm2 = wgtcpue) |>
-    janitor::clean_names()
-}
-
-if (SRVY == "GOA") {
-  x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
-
-  # This is already 0-filled
-  cpue_raw <- x |>
-    left_join(common_names) |>
-    dplyr::select(-YEAR_ADDED) |>
-    dplyr::left_join(haul) |>
-    janitor::clean_names() |> # need to add common name lookup
-    dplyr::rename(cpue_kgkm2 = wgtcpue) |>
-    janitor::clean_names()
-}
+# if(!use_gapindex){
+# if (SRVY == "AI") {
+#   x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
+#
+#   # This is already 0-filled
+#   cpue_raw <- x |>
+#     left_join(common_names) |>
+#     dplyr::select(-YEAR_ADDED) |>
+#     dplyr::left_join(haul) |>
+#     janitor::clean_names() |> # need to add common name lookup
+#     dplyr::rename(cpue_kgkm2 = wgtcpue) |>
+#     janitor::clean_names()
+# }
+#
+# if (SRVY == "GOA") {
+#   x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
+#
+#   # This is already 0-filled
+#   cpue_raw <- x |>
+#     left_join(common_names) |>
+#     dplyr::select(-YEAR_ADDED) |>
+#     dplyr::left_join(haul) |>
+#     janitor::clean_names() |> # need to add common name lookup
+#     dplyr::rename(cpue_kgkm2 = wgtcpue) |>
+#     janitor::clean_names()
+# }
+# }
 
 # Data for text ---------------------------------------------------
 # Length data from racebase:
@@ -213,7 +217,6 @@ if (SRVY == "AI") {
 }
 
 if (SRVY == "GOA") {
-  # From Ned
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
   nstrata <- length(unique(a$STRATUM))
@@ -227,7 +230,6 @@ if (SRVY == "GOA") {
 # Aesthetic settings ------------------------------------------------------
 
 bubbletheme <- theme(
-  legend.position = "none",
   panel.background = element_rect(
     fill = "white",
     colour = NA
@@ -236,10 +238,10 @@ bubbletheme <- theme(
     fill = NA,
     colour = "grey20"
   ),
-  axis.text = element_text(size = 8),
+  axis.text = element_text(size = 12),
   strip.background = element_blank(),
-  strip.text = element_text(size = 10, face = "bold"),
-  legend.text = element_text(size = 10),
+  strip.text = element_text(size = 12, face = "bold"),
+  legend.text = element_text(size = 12),
   legend.background = element_rect(
     colour = "transparent",
     fill = "transparent"
@@ -251,7 +253,10 @@ bubbletheme <- theme(
   legend.box = "horizontal",
   axis.title.x = element_blank(),
   axis.title.y = element_blank(),
-  plot.title = element_text(margin = margin(b = -30))
+  plot.title = element_text(
+    size = 14,
+    margin = margin(b = -30)
+  )
 )
 
 
@@ -263,10 +268,18 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
 
 # Palettes!
 # MetBrewer (dark colors)
-stratumpal <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
-  x = 1:nstrata
-)
+if (SRVY == "AI") {
+  stratumpal <- lengthen_pal(
+    shortpal = MetBrewer::met.brewer(name = "Renoir", type = "continuous"), # I like Nizami too
+    x = 1:nstrata
+  ) |>
+    colorspace::lighten(amount = 0.3, space = "HCL")
+} else {
+  stratumpal <- lengthen_pal(
+    shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
+    x = 1:nstrata
+  )
+}
 
 # Palette for lines
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
@@ -296,10 +309,10 @@ if (make_biomass_timeseries) {
 
     dat <- biomass_total %>%
       filter(SPECIES_CODE == report_species$species_code[i])
-    lta <- mean(dat$TOTAL_BIOMASS)
+    lta <- mean(dat$BIOMASS_MT)
 
     p1 <- dat %>%
-      ggplot(aes(x = YEAR, y = TOTAL_BIOMASS)) +
+      ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
@@ -364,7 +377,7 @@ if (make_special_rebs) {
   )
 
   rebs_biomass_df <- biomass_subarea |>
-    dplyr::filter(AREA_ID == ifelse(SRVY=="GOA",99903,99904)) |> # total B only 
+    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
     mutate(
       MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
       MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
@@ -414,7 +427,7 @@ if (make_catch_comp) {
   )
 
   p2 <- biomass_total_filtered %>%
-    ggplot(aes(fill = spp_name_informal, y = TOTAL_BIOMASS / 1e6, x = YEAR)) +
+    ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 1e6, x = YEAR)) +
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
@@ -434,9 +447,8 @@ if (make_catch_comp) {
 }
 
 # 3. CPUE bubble maps  ------------------------------------------------
-# Load map stuff if making bubble maps or Ianelli maps
-
-if (make_cpue_bubbles | make_cpue_ianelli) {
+# Load map stuff if making any kind of bubble maps
+if (make_cpue_bubbles | make_cpue_ianelli | make_cpue_bubbles_strata) {
   if (SRVY == "GOA") {
     reg_dat_goa <- akgfmaps::get_base_layers(
       select.region = "goa",
@@ -478,7 +490,7 @@ if (make_cpue_bubbles) {
       dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
-        coords = c("start_longitude", "start_latitude"),
+        coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
       ) %>%
       st_transform(crs = reg_data$crs)
@@ -505,16 +517,119 @@ if (make_cpue_bubbles) {
   }
   names(list_cpue_bubbles) <- report_species$species_code
   save(list_cpue_bubbles, file = paste0(dir_out_figures, "list_cpue_bubbles.rdata"))
-  
+
   # Special bubble map for REBS rockfish
   # if(make_special_rebs){
-  #   rebs_haul_data <- 
+  #   rebs_haul_data <-
   # }
-  
+
   print("Done with bubble maps of CPUE.")
 }
 
+if (make_cpue_bubbles_strata) {
+  list_cpue_bubbles_strata <- list()
+  for (i in 1:nrow(report_species)) { # nrow(report_species)
+    spbubble <- report_species$species_code[i]
+    namebubble <- report_species$spp_name_informal[i]
 
+    thisyrshauldata <- cpue_raw %>%
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
+      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
+      st_as_sf(
+        coords = c("longitude_dd_start", "latitude_dd_start"),
+        crs = "EPSG:4326"
+      ) %>%
+      st_transform(crs = reg_data$crs)
+
+    # MAPS
+    p3a <- ggplot() +
+      geom_sf(
+        data = ai_east$survey.strata,
+        mapping = aes(
+          fill = factor(STRATUM),
+          color = factor(STRATUM)
+        )
+      ) +
+      scale_fill_manual(values = stratumpal, guide = "none") +
+      scale_color_manual(values = stratumpal, guide = "none") +
+      geom_sf(data = reg_data$akland) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      coord_sf(
+        xlim = ai_east$plot.boundary$x,
+        ylim = ai_east$plot.boundary$y
+      ) +
+      scale_x_continuous(breaks = reg_data$lon.breaks) +
+      scale_y_continuous(breaks = reg_data$lat.breaks) +
+      labs(subtitle = "Eastern Aleutians and Southern Bering Sea") +
+      bubbletheme
+
+    p3b <- ggplot() +
+      geom_sf(
+        data = ai_central$survey.strata,
+        mapping = aes(
+          fill = factor(STRATUM),
+          color = factor(STRATUM)
+        )
+      ) +
+      scale_fill_manual(values = stratumpal, guide = "none") +
+      scale_color_manual(values = stratumpal, guide = "none") +
+      geom_sf(data = ai_central$akland) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(bquote('CPUE'~ (kg/km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
+      coord_sf(
+        xlim = ai_central$plot.boundary$x,
+        ylim = ai_central$plot.boundary$y
+      ) +
+      scale_x_continuous(breaks = ai_central$lon.breaks) +
+      scale_y_continuous(breaks = ai_central$lat.breaks) +
+      labs(subtitle = "Central Aleutians") +
+      bubbletheme
+
+    p3c <- ggplot() +
+      geom_sf(
+        data = ai_west$survey.strata,
+        mapping = aes(
+          fill = factor(STRATUM),
+          color = factor(STRATUM)
+        )
+      ) +
+      scale_fill_manual(values = stratumpal, guide = "none") +
+      scale_color_manual(values = stratumpal, guide = "none") +
+      geom_sf(data = ai_west$akland) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      coord_sf(
+        xlim = ai_east$plot.boundary$x,
+        ylim = ai_east$plot.boundary$y
+      ) +
+      coord_sf(
+        xlim = ai_west$plot.boundary$x,
+        ylim = ai_west$plot.boundary$y
+      ) +
+      scale_x_continuous(breaks = ai_west$lon.breaks) +
+      scale_y_continuous(breaks = ai_west$lat.breaks) +
+      labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
+      bubbletheme
+
+    toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
+    bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
+    final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
+
+    png(
+      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
+      width = 10, height = 10, units = "in", res = 200
+    )
+    print(final_obj)
+
+    dev.off()
+
+    list_cpue_bubbles_strata[[i]] <- final_obj # save fig to list
+  } # /end species loop
+  names(list_cpue_bubbles_strata) <- report_species$species_code
+  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
+  print("Done with CPUE bubble maps showing stratum areas.")
+}
 
 # 4. CPUE IDW plots -------------------------------------------------------
 
@@ -716,11 +831,11 @@ head(biomass_total)
 compare_tab <- biomass_total %>%
   filter(YEAR %in% c(maxyr, compareyr) &
     SPECIES_CODE %in% report_species$species_code) %>%
-  dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
+  dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) %>%
   dplyr::arrange(YEAR) %>%
   tidyr::pivot_wider(
     names_from = YEAR,
-    values_from = TOTAL_BIOMASS,
+    values_from = BIOMASS_MT,
     names_prefix = "yr_"
   ) %>%
   as.data.frame()
@@ -749,7 +864,7 @@ if (make_joy_division_length) {
   if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
     report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
   } else {
-    cat("Pseudolength file not found. Sourcing data prep file... \n")
+    cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
     source("R/06_prep_data.R")
   }
 

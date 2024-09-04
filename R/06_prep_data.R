@@ -496,7 +496,7 @@ biomass_maxyr <- biomass_total %>%
   filter(YEAR == maxyr & SURVEY == SRVY)
 
 highest_biomass <- biomass_maxyr %>%
-  dplyr::slice_max(n = 50, order_by = TOTAL_BIOMASS, with_ties = FALSE) %>%
+  dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names)
 
@@ -508,7 +508,7 @@ highest_elasmos <- biomass_total %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%
   filter(major_group == "Chondrichthyans") %>%
-  dplyr::slice_max(n = 3, order_by = total_biomass, with_ties = FALSE)
+  dplyr::slice_max(n = 3, order_by = biomass_mt, with_ties = FALSE)
 
 highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[1])
 second_highest_biomass_overall <- highest_biomass$common_name[2]
