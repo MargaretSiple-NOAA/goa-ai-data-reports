@@ -1,5 +1,5 @@
 # 05_download_data_from_oracle
-# This script contains everything you need an Oracle connection to run for the reports. You should be able to connect, download local versions of all the stuff you need, and then disconnect (or whatever) and
+# This script contains everything you need an Oracle connection to run for the reports. You should be able to connect, download local versions of all the stuff you need, and then disconnect (or whatever) and continue to work on the report.
 
 # Setup folders for local files -------------------------------------------
 if (!file.exists("data/local_racebase")) dir.create("data/local_racebase", recursive = TRUE)
@@ -199,6 +199,56 @@ write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FAL
 
 
 print("Finished downloading GAP_PRODUCTS tables.")
+
+
+# Make from gapindex ------------------------------------------------------
+# You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet.
+if(use_gapindex){
+  library(gapindex)
+  
+  ## Connect to Oracle
+  sql_channel <- gapindex::get_connected()
+  
+  yrs_to_pull <- minyr:maxyr
+  
+  ## Pull data.
+  rpt_data <- gapindex::get_data(
+    year_set = yrs_to_pull,
+    survey_set = SRVY,
+    spp_codes = data.frame(
+      SPECIES_CODE = c(30050, 30051, 30052),
+      GROUP = "REBS" #  GROUP has to be numeric
+    ),
+    haul_type = 3,
+    abundance_haul = "Y",
+    pull_lengths = TRUE,
+    sql_channel = sql_channel
+  )
+  
+  cpue_table_rebs <- gapindex::calc_cpue(racebase_tables = rebs_data)
+  
+  biomass_stratum <- gapindex::calc_biomass_stratum(
+    racebase_tables = rebs_data,
+    cpue = cpue_table_rebs
+  )
+  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
+  biomass_subarea <- gapindex::calc_biomass_subarea(
+    racebase_tables = rebs_data,
+    biomass_strata = biomass_stratum
+  )
+  
+  rebs_biomass_df <- biomass_subarea |>
+    dplyr::filter(AREA_ID == 99903) |> # total B only
+    mutate(
+      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+    ) |>
+    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+  head(rebs_biomass_df)
+  
+  lta <- mean(rebs_biomass_df$BIOMASS_MT)
+}
+
 
 # Ex-vessel prices --------------------------------------------------------
 
