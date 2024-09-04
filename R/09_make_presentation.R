@@ -238,9 +238,9 @@ bubbletheme <- theme(
     fill = NA,
     colour = "grey20"
   ),
-  axis.text = element_text(size = 14),
+  axis.text = element_text(size = 12),
   strip.background = element_blank(),
-  strip.text = element_text(size = 14, face = "bold"),
+  strip.text = element_text(size = 12, face = "bold"),
   legend.text = element_text(size = 14),
   legend.background = element_rect(
     colour = "transparent",
@@ -254,10 +254,10 @@ bubbletheme <- theme(
   axis.title.x = element_blank(),
   axis.title.y = element_blank(),
   plot.title = element_text(
-    size = 16
+    size = 12
   ),
   plot.subtitle = element_text(
-    size = 16
+    size = 12
   ),
   legend.title = element_text(size = 14)
 )
@@ -1168,6 +1168,8 @@ if (make_temp_plot) {
     Start_year = c(maxyr - 10, maxyr - 20)
   )
 
+  #ylims <- range(plotdat$GEAR_TEMPERATURE,na.rm=TRUE)
+  
   bottom_temp_plot <- plotdat %>%
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
@@ -1190,6 +1192,7 @@ if (make_temp_plot) {
       linetype = Average,
       x = Start_year, xend = maxyr
     )) +
+    ylim(c(0,7)) + # NEED TO CHANGE IN THE FUTURE
     theme_light(base_size = 14) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
