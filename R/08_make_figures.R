@@ -11,7 +11,7 @@ make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
 # 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022
-make_cpue_bubbles_strata <- FALSE
+make_cpue_bubbles_strata <- TRUE
 # 3b. CPUE bubble maps, Emily M edition - strata not shown. Bubbles are purple. Scale bar and legend with CPUE scale are shown clearly.
 make_cpue_bubbles <- TRUE
 # 5. Length frequency plots as joy division plots
@@ -87,7 +87,7 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
 # Palettes!
 # MetBrewer (dark colors)
 stratumpal <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(palette_name = "Hokusai1", type = "continuous"),
+  shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
   x = 1:nstrata
 )
 
@@ -103,7 +103,7 @@ joypal_grey <- grey.colors(n = 7)
 
 # Palette for survey regions
 dispal <- c(met.brewer(
-  palette_name = "Nizami", type = "discrete", n = 4,
+  name = "Nizami", type = "discrete", n = 4,
   direction = -1
 ), "black")
 
@@ -111,7 +111,7 @@ dispal <- c("#441151", "#90be6d", "#de541e", "#a7a5c6", "#2d3047")
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(palette_name = "VanGogh2", type = "discrete", direction = -1),
+  shortpal = MetBrewer::met.brewer(name = "VanGogh2", type = "discrete", direction = -1),
   x = 1:(nrow(report_species) + 1)
 )
 
@@ -176,7 +176,7 @@ if (make_total_surv_map) {
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
 
   geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
-  palette_map <- MetBrewer::met.brewer(palette_name = "Nizami", n = 6, type = "discrete", direction = 1)[c(1, 4, 2, 5, 3)]
+  palette_map <- MetBrewer::met.brewer(name = "Nizami", n = 6, type = "discrete", direction = 1)[c(1, 4, 2, 5, 3)]
 
   thisyrshauldata <- cpue_raw %>%
     dplyr::filter(year == maxyr & survey == SRVY) %>%
