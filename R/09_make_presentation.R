@@ -238,10 +238,10 @@ bubbletheme <- theme(
     fill = NA,
     colour = "grey20"
   ),
-  axis.text = element_text(size = 12),
+  axis.text = element_text(size = 14),
   strip.background = element_blank(),
-  strip.text = element_text(size = 12, face = "bold"),
-  legend.text = element_text(size = 12),
+  strip.text = element_text(size = 14, face = "bold"),
+  legend.text = element_text(size = 14),
   legend.background = element_rect(
     colour = "transparent",
     fill = "transparent"
@@ -254,9 +254,12 @@ bubbletheme <- theme(
   axis.title.x = element_blank(),
   axis.title.y = element_blank(),
   plot.title = element_text(
-    size = 14,
-    margin = margin(b = -30)
-  )
+    size = 16
+  ),
+  plot.subtitle = element_text(
+    size = 16 #,
+  #margin = margin(b = -30)
+)
 )
 
 
@@ -965,7 +968,7 @@ if (make_joy_division_length) {
         quantile_lines = T,
         quantile_fun = median,
         vline_color = "white",
-        vline_size = 0.6,
+        vline_width = 0.6,
         vline_linetype = "dotted"
         # "A1"
       ) +
@@ -1050,7 +1053,7 @@ if (make_joy_division_length) {
           quantile_lines = T,
           quantile_fun = median,
           vline_color = "white",
-          vline_size = 0.6,
+          vline_width = 0.6,
           vline_linetype = "dotted" # "A1"
         ) +
         scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
@@ -1082,8 +1085,8 @@ if (make_joy_division_length) {
 
 
     png(filename = paste0(
-      dir_out_figures, maxyr, "_",
-      report_species$spp_name_informal[i], "_joyfreqhist.png"
+      dir_out_figures, 
+      report_species$spp_name_informal[i],"_",maxyr, "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
