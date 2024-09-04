@@ -30,8 +30,8 @@ source("R/00_report_settings.R")
 source("R/01_directories.R")
 
 SRVY <- "AI"
-maxyr <- 2022 # Change this for the year!
-compareyr <- 2018
+maxyr <- 2024 # Change this for the year!
+compareyr <- 2022
 dates_conducted <- "June 5th through August 3rd 2024" # EDIT
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
@@ -44,7 +44,7 @@ source("R/02_load_packages.R")
 source("R/03_functions.R")
 
 # Get data from RACEBASE ------------------------------------------------------
-x <- FALSE
+x <- TRUE
 if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
   source("R/05_download_data_from_oracle.R")
@@ -64,16 +64,6 @@ dat <- read.csv("data/goa_strata.csv", header = TRUE) # includes GOA and AI stra
 # Prep values and prelim tables -------------------------------------------
 source("R/06_prep_data.R")
 
-# region_lu <- dat %>%
-#   filter(SURVEY == SRVY) %>%
-#   dplyr::select(SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH) %>%
-#   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
-#   mutate(`Depth range` = paste0(`Depth range`, " m"))
-
-# if (SRVY == "AI") {
-#   region_lu <- region_lu %>% filter(STRATUM >= 211 & STRATUM <= 794)
-# }
-
 # Data to plot ------------------------------------------------------------
 # All the species for which we want to make plots
 head(report_species)
@@ -82,14 +72,6 @@ report_species <- report_species %>%
 
 # Get key/table of names (common, scientific, etc)
 common_names <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
-
-# Load total biomass data (currently taking from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
-# if (SRVY == "AI") {
-#   biomass_total <- read.csv("data/local_ai/biomass_total.csv")
-# }
-# if (SRVY == "GOA") {
-#   biomass_total <- read.csv("data/local_goa/biomass_total.csv")
-# }
 
 # Haul data from RACEBASE
 haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
@@ -351,17 +333,14 @@ if (make_special_rebs) {
   ## Connect to Oracle
   sql_channel <- gapindex::get_connected()
 
-  yrs_to_pull <- c(
-    2003L, 1993L, 2015L, 1996L, 1999L, 2001L, 1990L, 2023L, 1984L,
-    2021L, 2017L, 1987L, 2011L, 2013L, 2019L, 2009L, 2005L, 2007L
-  )
+  yrs_to_pull <- minyr:maxyr
 
   # 30051 (rougheye), 30052 (blackspotted), 30050 (combo)
 
   ## Pull data.
   rebs_data <- gapindex::get_data(
     year_set = yrs_to_pull,
-    survey_set = "GOA",
+    survey_set = SRVY,
     spp_codes = data.frame(
       SPECIES_CODE = c(30050, 30051, 30052),
       GROUP = "REBS" #  GROUP has to be numeric
@@ -372,11 +351,11 @@ if (make_special_rebs) {
     sql_channel = sql_channel
   )
 
-  cpue_table <- gapindex::calc_cpue(racebase_tables = rebs_data)
+  cpue_table_rebs <- gapindex::calc_cpue(racebase_tables = rebs_data)
 
   biomass_stratum <- gapindex::calc_biomass_stratum(
     racebase_tables = rebs_data,
-    cpue = cpue_table
+    cpue = cpue_table_rebs
   )
   # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
   biomass_subarea <- gapindex::calc_biomass_subarea(
@@ -385,7 +364,7 @@ if (make_special_rebs) {
   )
 
   rebs_biomass_df <- biomass_subarea |>
-    dplyr::filter(AREA_ID == 99903) |> # total B only
+    dplyr::filter(AREA_ID == ifelse(SRVY=="GOA",99903,99904)) |> # total B only 
     mutate(
       MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
       MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
@@ -526,6 +505,12 @@ if (make_cpue_bubbles) {
   }
   names(list_cpue_bubbles) <- report_species$species_code
   save(list_cpue_bubbles, file = paste0(dir_out_figures, "list_cpue_bubbles.rdata"))
+  
+  # Special bubble map for REBS rockfish
+  # if(make_special_rebs){
+  #   rebs_haul_data <- 
+  # }
+  
   print("Done with bubble maps of CPUE.")
 }
 
