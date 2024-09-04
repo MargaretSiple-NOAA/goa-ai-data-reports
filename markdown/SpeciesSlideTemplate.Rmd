@@ -28,10 +28,8 @@ print(list_joy_length[[as.character({{species_code}})]])
 ## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
 
 ```{r echo=FALSE}
-if(exists("list_idw_cpue") & make_cpue_idw){
- list_idw_cpue[[as.character({{species_code}})]]
-}else{ 
- list_cpue_bubbles[[as.character({{species_code}})]]
+if(exists("list_cpue_buubles_strata")){
+ list_cpue_bubbles_strata[[as.character({{species_code}})]]
 }
 ```
 
