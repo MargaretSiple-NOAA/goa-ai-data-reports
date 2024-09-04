@@ -468,13 +468,4 @@ report_biomasses <- biomass_total %>%
   right_join(report_species)
 
 
-
-# Get species blurb interior sentences ------------------------------------
-
-blurbs <- read.csv(here::here(
-  "data",
-  paste0(SRVY, maxyr, "_SpeciesBlurbMiddleSentences.csv")
-))
-
-
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
