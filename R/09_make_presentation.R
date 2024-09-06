@@ -45,7 +45,7 @@ and this will become a permanent feature of our station allocations in the futur
 source("R/02_load_packages.R")
 source("R/03_functions.R")
 
-# Get data from RACEBASE ------------------------------------------------------
+# Get data from Oracle --------------------------------------------------------
 x <- FALSE
 if (x) {
   dir.create("data/local_racebase", recursive = TRUE)
@@ -587,7 +587,8 @@ if (make_cpue_bubbles_strata) {
       scale_x_continuous(breaks = ai_central$lon.breaks) +
       scale_y_continuous(breaks = ai_central$lat.breaks) +
       labs(subtitle = "Central Aleutians") +
-      bubbletheme
+      bubbletheme +
+      theme(legend.position = "bottom")
 
     p3c <- ggplot() +
       geom_sf(
