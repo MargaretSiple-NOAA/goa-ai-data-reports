@@ -183,8 +183,7 @@ write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
 a <- dplyr::filter(
   a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-    AREA_ID == ifelse(SRVY == "GOA", 99903, 99904) &
-    YEAR == maxyr) |>
+    AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
   dplyr::mutate(SURVEY = SRVY, SEX = case_when(SEX == 1 ~ "MALES", 
                                                SEX == 2 ~ "FEMALES", 
                                                SEX == 3 ~ "UNSEXED")) |>
