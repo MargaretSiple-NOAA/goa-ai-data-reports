@@ -158,6 +158,34 @@ if(use_gapindex){
   
   head(biomass_df)
   
+  size_comp_stratum <- gapindex::calc_sizecomp_stratum(
+    racebase_tables = rpt_data,
+    racebase_cpue = cpue_raw_caps,
+    racebase_stratum_popn = biomass_stratum,
+    spatial_level = "stratum",
+    fill_NA_method = "AIGOA")
+  
+  ## Calculate aggregated size compositon across subareas, management areas, and
+  ## regions
+  size_comp_subareas <- gapindex::calc_sizecomp_subarea(
+    racebase_tables = rpt_data,
+    size_comps = size_comp_stratum)
+  
+  sizecomp_gapindex <- size_comp_subareas |>
+    dplyr::filter(
+      SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+        AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
+    dplyr::mutate(SURVEY = SRVY, SEX = case_when(SEX == 1 ~ "MALES", 
+                                                 SEX == 2 ~ "FEMALES", 
+                                                 SEX == 3 ~ "UNSEXED")) |>
+    dplyr::rename(LENGTH = LENGTH_MM) |>
+    tidyr::pivot_wider(names_from = "SEX",
+                       values_from = "POPULATION_COUNT",
+                       values_fill = 0) |>
+    dplyr::mutate(TOTAL = MALES + FEMALES + UNSEXED,
+                  SUMMARY_AREA = 999) |>
+    as.data.frame()
+  
   # cpue table
   cpue_raw <- cpue_raw_caps |>
     janitor::clean_names() # This table is used for lots of stuff
@@ -429,16 +457,12 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
 # Length comps from size comp table ---------------------------------------
 # Expand length table to make freqs -- these should be used for joy division and other length hist plots
 
-#if (SRVY == "AI") {
-  sizecomp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE) %>%
-    filter(SURVEY == SRVY & YEAR >= minyr)
-#}
+sizecomp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE) %>%
+  filter(SURVEY == SRVY & YEAR >= minyr)
 
-# if (SRVY == "GOA") {
-#   sizecomp <- read.csv("data/local_goa/sizecomp_total.csv", header = TRUE) %>%
-#     filter(SURVEY == SRVY & YEAR >= minyr)
-# }
-
+if (use_gapindex) {
+  sizecomp <- sizecomp_gapindex
+}
 
 # Janky but I am in a rush so will have to deal. See notes below.
 report_pseudolengths <- data.frame()
