@@ -178,13 +178,22 @@ a <- dplyr::filter(
 
 write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
-# size comps
+# size comps - recreate the sizecomp table as it was in AI and GOA schemas
+# MAY NEED TO WORK ON THIS MORE LATER
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
-a <- filter(
-  a,
-  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-    YEAR == maxyr
-)
+a <- dplyr::filter(
+  a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+    AREA_ID == ifelse(SRVY == "GOA", 99903, 99904) &
+    YEAR == maxyr) |>
+  dplyr::mutate(SURVEY = SRVY, SEX = case_when(SEX == 1 ~ "MALES", 
+                                               SEX == 2 ~ "FEMALES", 
+                                               SEX == 3 ~ "UNSEXED")) |>
+  dplyr::rename(LENGTH = LENGTH_MM) |>
+  tidyr::pivot_wider(names_from = "SEX",
+                     values_from = "POPULATION_COUNT",
+                     values_fill = 0) |>
+  dplyr::mutate(TOTAL = MALES + FEMALES + UNSEXED,
+                SUMMARY_AREA = 999)
 
 write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
 
