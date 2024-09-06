@@ -238,10 +238,10 @@ bubbletheme <- theme(
     fill = NA,
     colour = "grey20"
   ),
-  axis.text = element_text(size = 12),
+  axis.text = element_text(size = 9),
   strip.background = element_blank(),
-  strip.text = element_text(size = 12, face = "bold"),
-  legend.text = element_text(size = 14),
+  strip.text = element_text(size = 10, face = "bold"),
+  legend.text = element_text(size = 8),
   legend.background = element_rect(
     colour = "transparent",
     fill = "transparent"
@@ -254,12 +254,12 @@ bubbletheme <- theme(
   axis.title.x = element_blank(),
   axis.title.y = element_blank(),
   plot.title = element_text(
-    size = 12
+    size = 10
   ),
   plot.subtitle = element_text(
-    size = 12
+    size = 11
   ),
-  legend.title = element_text(size = 14)
+  legend.title = element_text(size = 10)
 )
 
 
@@ -564,7 +564,7 @@ if (make_cpue_bubbles_strata) {
       ) +
       scale_x_continuous(breaks = reg_data$lon.breaks) +
       scale_y_continuous(breaks = reg_data$lat.breaks) +
-      labs(subtitle = "Eastern Aleutians and Southern Bering Sea") +
+      labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
       bubbletheme
 
     p3b <- ggplot() +
@@ -1405,8 +1405,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-09-04" # hard coded, **k it!
-tabledate <- "2024-09-04"
+figuredate <- "2024-09-05" # hard coded, **k it!
+tabledate <- "2024-09-05"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
