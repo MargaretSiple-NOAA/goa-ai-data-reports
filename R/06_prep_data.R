@@ -35,9 +35,9 @@ survnumber <- cruises %>%
     "Gulf of Alaska Bottom Trawl Survey"
   )) %>%
   filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) %>% # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
-  #filter(CRUISE != 199309) %>%
+  # filter(CRUISE != 199309) %>%
   distinct(CRUISE) %>%
-  arrange(CRUISE)  %>%
+  arrange(CRUISE) %>%
   nrow() %>%
   scales::ordinal()
 
@@ -94,7 +94,7 @@ local_folder <- ifelse(SRVY == "AI", "local_ai", "local_goa")
 # cpue (source: AI or GOA schema)
 # NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
 x <- read.csv(file = here::here("data", local_folder, "cpue.csv"), header = TRUE)
-  # This is already 0-filled
+# This is already 0-filled
 
 cpue_raw <- x %>%
   left_join(common_names) %>%
@@ -114,30 +114,30 @@ biomass_total <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
-if(use_gapindex){
+if (use_gapindex) {
   library(gapindex)
-  
+
   ## Connect to Oracle
   sql_channel <- gapindex::get_connected()
-  
+
   yrs_to_pull <- minyr:maxyr
-  
+
   ## Pull data.
   rpt_data <- gapindex::get_data(
     year_set = yrs_to_pull,
     survey_set = SRVY,
     spp_codes = data.frame(
       SPECIES_CODE = report_species$species_code,
-      GROUP = report_species$species_code 
+      GROUP = report_species$species_code
     ),
     haul_type = 3,
     abundance_haul = "Y",
     pull_lengths = TRUE,
     sql_channel = sql_channel
   )
-  
-  cpue_raw_caps <- gapindex::calc_cpue(racebase_tables = rpt_data) 
-  
+
+  cpue_raw_caps <- gapindex::calc_cpue(racebase_tables = rpt_data)
+
   biomass_stratum <- gapindex::calc_biomass_stratum(
     racebase_tables = rpt_data,
     cpue = cpue_raw_caps
@@ -147,55 +147,64 @@ if(use_gapindex){
     racebase_tables = rpt_data,
     biomass_strata = biomass_stratum
   )
-  
+
   biomass_df <- biomass_subarea |>
-    dplyr::filter(AREA_ID == ifelse(SRVY=="GOA",99903,99904)) |> # total B only
+    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
     mutate(
       MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
       MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
     ) |>
     mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-  
+
   head(biomass_df)
-  
+
   sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
     racebase_tables = rpt_data,
     racebase_cpue = cpue_raw_caps,
     racebase_stratum_popn = biomass_stratum,
     spatial_level = "stratum",
-    fill_NA_method = "AIGOA")
-  
+    fill_NA_method = "AIGOA"
+  )
+
   ## Calculate aggregated size compositon across subareas, management areas, and
   ## regions
   sizecomp_subareas <- gapindex::calc_sizecomp_subarea(
     racebase_tables = rpt_data,
-    size_comps = sizecomp_stratum)
-  
+    size_comps = sizecomp_stratum
+  )
+
   sizecomp_gapindex <- sizecomp_subareas |>
     dplyr::filter(
       SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-        AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
-    dplyr::mutate(SURVEY = SRVY, SEX = case_when(SEX == 1 ~ "MALES", 
-                                                 SEX == 2 ~ "FEMALES", 
-                                                 SEX == 3 ~ "UNSEXED")) |>
+        AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
+    ) |>
+    dplyr::mutate(SURVEY = SRVY, SEX = case_when(
+      SEX == 1 ~ "MALES",
+      SEX == 2 ~ "FEMALES",
+      SEX == 3 ~ "UNSEXED"
+    )) |>
     dplyr::rename(LENGTH = LENGTH_MM) |>
-    tidyr::pivot_wider(names_from = "SEX",
-                       values_from = "POPULATION_COUNT",
-                       values_fill = 0) |>
-    dplyr::mutate(TOTAL = MALES + FEMALES + UNSEXED,
-                  SUMMARY_AREA = 999) |>
+    tidyr::pivot_wider(
+      names_from = "SEX",
+      values_from = "POPULATION_COUNT",
+      values_fill = 0
+    ) |>
+    dplyr::mutate(
+      TOTAL = MALES + FEMALES + UNSEXED,
+      SUMMARY_AREA = 999
+    ) |>
     as.data.frame()
-  
+
   # cpue table
   cpue_raw <- cpue_raw_caps |>
     janitor::clean_names() # This table is used for lots of stuff
-  
+
   # total biomass table
-  biomass_total <- biomass_df 
-  
+  biomass_total <- biomass_df
+
   # sizecomp table
   sizecomp <- sizecomp_gapindex
-  
+
   print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
 
@@ -223,7 +232,7 @@ region_lu <- dat %>%
   mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
   mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
-#For AI years, add abbreviated area names:
+# For AI years, add abbreviated area names:
 region_lu2 <- region_lu %>%
   dplyr::group_by(INPFC_AREA) %>%
   dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) %>%
@@ -236,17 +245,17 @@ region_lu2 <- region_lu %>%
   ))
 
 # If it's an AI year, add Aleutian areas:
-if(SRVY=="AI"){
-INPFC_areas <- region_lu2 %>%
-  tibble::add_row(
-    INPFC_AREA = "All Aleutian Districts",
-    INPFC_AREA_AREA_km2 = sum(filter(region_lu2, INPFC_AREA != "Southern Bering Sea")$INPFC_AREA_AREA_km2)
-  ) %>%
-  tibble::add_row(
-    INPFC_AREA = "All Districts",
-    INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
-  )
-}else{
+if (SRVY == "AI") {
+  INPFC_areas <- region_lu2 %>%
+    tibble::add_row(
+      INPFC_AREA = "All Aleutian Districts",
+      INPFC_AREA_AREA_km2 = sum(filter(region_lu2, INPFC_AREA != "Southern Bering Sea")$INPFC_AREA_AREA_km2)
+    ) %>%
+    tibble::add_row(
+      INPFC_AREA = "All Districts",
+      INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
+    )
+} else {
   INPFC_areas <- region_lu2 %>%
     tibble::add_row(
       INPFC_AREA = "All Districts",
@@ -285,7 +294,6 @@ nnewstations <- all_allocation %>%
 
 if (nnewstations == 0) {
   print("Code says no new stations were sampled this year. Is this correct?")
-  
 }
 
 # Of the new stations allocated to the different vessels, which ones were successfully sampled?
@@ -305,7 +313,7 @@ new_successfully_sampled <- test %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
 
-# In the AI, we assign boat to investigate new stations that haven't been trawled before. In the GOA survey, that doesn't happen. 
+# In the AI, we assign boat to investigate new stations that haven't been trawled before. In the GOA survey, that doesn't happen.
 if (SRVY == "AI") {
   newstationsentence <- paste(nnewstations / 2, "previously untrawled locations were assigned to each vessel in", maxyr, ". Among the", nnewstations, "total new stations assigned in the survey,", new_successfully_sampled, "were found and successfully trawled.")
 } else {
@@ -317,13 +325,13 @@ if (SRVY == "AI") {
 nstations <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
-  nrow() 
+  nrow()
 
 # Number of "successful hauls":
 #   Subset 2022 HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
-  nrow() 
+  nrow()
 
 # Number of attempted tows:
 nattemptedhauls <- haul2 %>%
@@ -421,11 +429,13 @@ lengths_species <- L_maxyr |>
   ) |>
   ungroup() |>
   dplyr::filter(SPECIES_CODE %in% report_species$species_code) |>
-  dplyr::left_join(report_species, by=c("SPECIES_CODE" = "species_code")) |>
+  dplyr::left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
   dplyr::select(spp_name_informal, N) |>
-  dplyr::rename("Common name" = spp_name_informal,
-                "Lengths collected" = N)
-  
+  dplyr::rename(
+    "Common name" = spp_name_informal,
+    "Lengths collected" = N
+  )
+
 meanlengths_area <- L_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",

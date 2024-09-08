@@ -172,8 +172,8 @@ write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
 a <- dplyr::filter(
   a,
-  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) #&
-    #YEAR == maxyr
+  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) # &
+  # YEAR == maxyr
 )
 
 write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
@@ -183,16 +183,23 @@ write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
 a <- dplyr::filter(
   a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-    AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
-  dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(SEX == 1 ~ "MALES", 
-                                               SEX == 2 ~ "FEMALES", 
-                                               SEX == 3 ~ "UNSEXED")) |>
+    AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
+) |>
+  dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(
+    SEX == 1 ~ "MALES",
+    SEX == 2 ~ "FEMALES",
+    SEX == 3 ~ "UNSEXED"
+  )) |>
   dplyr::rename(LENGTH = LENGTH_MM) |>
-  tidyr::pivot_wider(names_from = "SEX",
-                     values_from = "POPULATION_COUNT",
-                     values_fill = 0) |>
-  dplyr::mutate(TOTAL = MALES + FEMALES + UNSEXED,
-                SUMMARY_AREA = 999)
+  tidyr::pivot_wider(
+    names_from = "SEX",
+    values_from = "POPULATION_COUNT",
+    values_fill = 0
+  ) |>
+  dplyr::mutate(
+    TOTAL = MALES + FEMALES + UNSEXED,
+    SUMMARY_AREA = 999
+  )
 
 write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
 
@@ -247,8 +254,10 @@ biomass_stratum <- gapindex::calc_biomass_stratum(
   cpue = cpue
 )
 
-biomass_subarea <- gapindex::calc_biomass_subarea(racebase_tables = xx, 
-                                                  biomass_strata = biomass_stratum)
+biomass_subarea <- gapindex::calc_biomass_subarea(
+  racebase_tables = xx,
+  biomass_strata = biomass_stratum
+)
 
 sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
   racebase_cpue = cpue,
@@ -353,18 +362,23 @@ mean_sp_wts <- dplyr::bind_rows(cpue_inpfc, cpue_depth, cpue_inpfcdepth, cpue_re
 # Second piece: cpue, biomass, and confidence intervals for each area, depth, area+depth, and the whole survey area.
 x <- biomass_subarea |>
   dplyr::filter(AREA_ID %in% unique(mean_sp_wts$AREA_ID)) |>
-  dplyr::left_join(mean_sp_wts, by = c('AREA_ID','SPECIES_CODE')) |>
+  dplyr::left_join(mean_sp_wts, by = c("AREA_ID", "SPECIES_CODE")) |>
   dplyr::rowwise() |>
-  dplyr::mutate(LCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[1],
-                HCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[2]) |>
-  dplyr::left_join(area,by = c('SURVEY_DEFINITION_ID','AREA_ID'), relationship = "many-to-many") |>
-  dplyr::select(SURVEY, YEAR, SPECIES_CODE, AREA_NAME, DESCRIPTION, AREA_TYPE, 
-                N_HAUL, N_COUNT, CPUE_KGKM2_MEAN, 
-                BIOMASS_MT, LCL, HCL, mean_ind_wt_kg, BIOMASS_VAR)
+  dplyr::mutate(
+    LCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[1],
+    HCL = lognorm_ci(mean = BIOMASS_MT, variance = BIOMASS_VAR)[2]
+  ) |>
+  dplyr::left_join(area, by = c("SURVEY_DEFINITION_ID", "AREA_ID"), relationship = "many-to-many") |>
+  dplyr::select(
+    SURVEY, YEAR, SPECIES_CODE, AREA_NAME, DESCRIPTION, AREA_TYPE,
+    N_HAUL, N_COUNT, CPUE_KGKM2_MEAN,
+    BIOMASS_MT, LCL, HCL, mean_ind_wt_kg, BIOMASS_VAR
+  )
 
-write.csv(x, 
-          file = paste0("./data/local_", tolower(SRVY), "_processed/table_3_allspps.csv"), 
-          row.names = FALSE)
+write.csv(x,
+  file = paste0("./data/local_", tolower(SRVY), "_processed/table_3_allspps.csv"),
+  row.names = FALSE
+)
 
 print("Finished processing local tables to draft table 3.")
 

@@ -348,7 +348,7 @@ if (make_cpue_bubbles_strata) {
       )
     reg_data <- reg_dat_goa
   }
-  
+
   if (SRVY == "AI") {
     reg_dat_ai <- akgfmaps::get_base_layers(
       select.region = "ai",
@@ -362,7 +362,7 @@ if (make_cpue_bubbles_strata) {
       )
     reg_data <- reg_dat_ai
   }
-  
+
   list_cpue_bubbles_strata <- list()
   for (i in 1:nrow(report_species)) {
     spbubble <- report_species$species_code[i]
@@ -397,7 +397,7 @@ if (make_cpue_bubbles_strata) {
       ) +
       scale_x_continuous(breaks = reg_data$lon.breaks) +
       scale_y_continuous(breaks = reg_data$lat.breaks) +
-     # labs(subtitle = "Eastern Aleutians and Southern Bering Sea") +
+      # labs(subtitle = "Eastern Aleutians and Southern Bering Sea") +
       bubbletheme
 
     p3b <- ggplot() +
@@ -972,7 +972,7 @@ if (make_temp_plot) {
 
   plotdat <- haul %>%
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
-    filter( REGION == SRVY & YEAR != 1997) %>% #YEAR >= 1994 &
+    filter(REGION == SRVY & YEAR != 1997) %>% # YEAR >= 1994 &
     filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
 
