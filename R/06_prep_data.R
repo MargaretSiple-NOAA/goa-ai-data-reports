@@ -126,10 +126,14 @@ biomass_total <- x |>
 
 x <- read.csv(here::here("data","local_gap_products","cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
 
-# filter to correct region and do names
-cpue_raw <- test |> 
+# Filter and rename some columns (may clean up later)
+cpue_raw <- x |> 
   dplyr::right_join(haul) |>
   dplyr::filter(REGION == SRVY) |>
+  dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
+  dplyr::rename(survey = 'REGION',
+                longitude_dd_start = 'START_LONGITUDE',
+                latitude_dd_start = 'START_LATITUDE') |>
   janitor::clean_names()
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########

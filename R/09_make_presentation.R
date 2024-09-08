@@ -1,7 +1,7 @@
 # PRESENTATION FIGURES ----------------------------------------------------
 # Project: Automated GOA-AI data reports and slides
 # Author: Megsie Siple
-# Notes: Use this to make pptx slides for the Joint Groundfish Plan Team presentation. This uses tables from Oracle (RACEBASE, AI and GOA schemas) and builds the figures and some summary stats.
+# Notes: Use this to make pptx slides for the Joint Groundfish Plan Team presentation. This uses tables from Oracle (RACEBASE, GAP_PRODUCTS, and AI and GOA schemas [though these should soon be deprecated]) and builds the figures and some summary stats.
 # ---
 
 
@@ -12,7 +12,7 @@ make_biomass_timeseries <- TRUE
 # 2. Catch composition
 make_catch_comp <- TRUE
 # 3. CPUE bubble map (Aleutians only)
-make_cpue_bubbles <- TRUE
+make_cpue_bubbles <- FALSE
 make_cpue_bubbles_strata <- TRUE
 # The map that Jim I requested a while ago. It has bars instead of bubbles. Some assessment ppl like it:
 make_cpue_ianelli <- FALSE
@@ -66,7 +66,7 @@ dat <- read.csv("data/goa_strata.csv", header = TRUE) # includes GOA and AI stra
 # Prep values and prelim tables -------------------------------------------
 source("R/06_prep_data.R")
 
-# Data to plot ------------------------------------------------------------
+# Data for plots ------------------------------------------------------------
 # All the species for which we want to make plots
 head(report_species)
 report_species <- report_species %>%
@@ -521,11 +521,6 @@ if (make_cpue_bubbles) {
   names(list_cpue_bubbles) <- report_species$species_code
   save(list_cpue_bubbles, file = paste0(dir_out_figures, "list_cpue_bubbles.rdata"))
 
-  # Special bubble map for REBS rockfish
-  # if(make_special_rebs){
-  #   rebs_haul_data <-
-  # }
-
   print("Done with bubble maps of CPUE.")
 }
 
@@ -556,8 +551,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = reg_data$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 / 1000), alpha = 0.5) + # USED TO BE cpue_kgha
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2) / 1000), guide = "none") +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -578,8 +573,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 / 1000), alpha = 0.5) +
-      scale_size(bquote("CPUE" ~ (mt / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2) / 1000)) +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(bquote("CPUE" ~ (mt / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
       coord_sf(
         xlim = ai_central$plot.boundary$x,
         ylim = ai_central$plot.boundary$y
@@ -588,7 +583,7 @@ if (make_cpue_bubbles_strata) {
       scale_y_continuous(breaks = ai_central$lat.breaks) +
       labs(subtitle = "Central Aleutians") +
       bubbletheme +
-      theme(legend.position = "bottom")
+      theme(legend.position = "left")
 
     p3c <- ggplot() +
       geom_sf(
@@ -601,8 +596,8 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2 / 1000), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2) / 1000), guide = "none") +
+      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -1406,8 +1401,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-09-05" # hard coded, **k it!
-tabledate <- "2024-09-05"
+figuredate <- "2024-09-08" # hard coded, **k it!
+tabledate <- "2024-09-08"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
@@ -1432,7 +1427,7 @@ if (!exists("p2")) {
   load(paste0("output/", figuredate, "/", "figures/", "catch_comp.rdata"))
 }
 if (!exists("rebs_biomass") & make_special_rebs) {
-  load(paste0("output/", figuredate, "/", "figures/", "rebs_biomass.rdata"))
+  load(paste0("output/", figuredate, "/", "figures/", "rebs_biomass_ts.rdata"))
 }
 
 
