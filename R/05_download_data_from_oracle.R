@@ -235,43 +235,43 @@ if (SRVY == "GOA") {
 
 ################## USE GAPINDEX TO GET SIZECOMPS ###############################
 # Use gapindex to get size comps
-sql_channel <- gapindex::get_connected()
-
-xx <- gapindex::get_data(
-  year_set = maxyr,
-  haul_type = 3,
-  survey_set = SRVY,
-  spp_codes = report_species$species_code,
-  abundance_haul = "Y",
-  sql_channel = sql_channel,
-  pull_lengths = TRUE
-)
-
-cpue <- gapindex::calc_cpue(racebase_tables = xx)
-
-biomass_stratum <- gapindex::calc_biomass_stratum(
-  racebase_tables = xx,
-  cpue = cpue
-)
-
-biomass_subarea <- gapindex::calc_biomass_subarea(
-  racebase_tables = xx,
-  biomass_strata = biomass_stratum
-)
-
-sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
-  racebase_cpue = cpue,
-  racebase_stratum_popn = biomass_stratum,
-  racebase_tables = xx
-)
-
-# Save to the local folder for SRVY:
-write.csv(sizecomp_stratum,
-  file = paste0("./data/local_", tolower(SRVY), "/sizecomp_stratum.csv"),
-  row.names = FALSE
-)
-
-print("Finished downloading local versions of all tables.")
+# sql_channel <- gapindex::get_connected()
+# 
+# xx <- gapindex::get_data(
+#   year_set = maxyr,
+#   haul_type = 3,
+#   survey_set = SRVY,
+#   spp_codes = report_species$species_code,
+#   abundance_haul = "Y",
+#   sql_channel = sql_channel,
+#   pull_lengths = TRUE
+# )
+# 
+# cpue <- gapindex::calc_cpue(racebase_tables = xx)
+# 
+# biomass_stratum <- gapindex::calc_biomass_stratum(
+#   racebase_tables = xx,
+#   cpue = cpue
+# )
+# 
+# biomass_subarea <- gapindex::calc_biomass_subarea(
+#   racebase_tables = xx,
+#   biomass_strata = biomass_stratum
+# )
+# 
+# sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
+#   racebase_cpue = cpue,
+#   racebase_stratum_popn = biomass_stratum,
+#   racebase_tables = xx
+# )
+# 
+# # Save to the local folder for SRVY:
+# write.csv(sizecomp_stratum,
+#   file = paste0("./data/local_", tolower(SRVY), "/sizecomp_stratum.csv"),
+#   row.names = FALSE
+# )
+# 
+# print("Finished downloading local versions of all tables.")
 
 ################## BUILD TABLES FROM ORACLE ####################################
 # Table 3 is built with GAP_PRODUCTS
