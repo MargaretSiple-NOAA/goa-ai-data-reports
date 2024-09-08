@@ -113,7 +113,7 @@ biomass_total <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
 
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
-# You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet.
+# You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
 if(use_gapindex){
   library(gapindex)
   
@@ -158,7 +158,7 @@ if(use_gapindex){
   
   head(biomass_df)
   
-  size_comp_stratum <- gapindex::calc_sizecomp_stratum(
+  sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
     racebase_tables = rpt_data,
     racebase_cpue = cpue_raw_caps,
     racebase_stratum_popn = biomass_stratum,
@@ -167,11 +167,11 @@ if(use_gapindex){
   
   ## Calculate aggregated size compositon across subareas, management areas, and
   ## regions
-  size_comp_subareas <- gapindex::calc_sizecomp_subarea(
+  sizecomp_subareas <- gapindex::calc_sizecomp_subarea(
     racebase_tables = rpt_data,
-    size_comps = size_comp_stratum)
+    size_comps = sizecomp_stratum)
   
-  sizecomp_gapindex <- size_comp_subareas |>
+  sizecomp_gapindex <- sizecomp_subareas |>
     dplyr::filter(
       SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
         AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
@@ -193,7 +193,10 @@ if(use_gapindex){
   # total biomass table
   biomass_total <- biomass_df 
   
-  print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should turn this off and use the GAP_PRODUCTS tables instead.")
+  # sizecomp table
+  sizecomp <- sizecomp_gapindex
+  
+  print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
 
 
