@@ -109,8 +109,28 @@ biomass_stratum <- read.csv(here::here("data", local_folder, "biomass_stratum.cs
 # where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
 
 # Total biomass across survey area - currently reads from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
-biomass_total <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
+#biomass_total_orig <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
 
+
+# GAP_PRODUCTS tables -----------------------------------------------------
+# biomass, cpue
+x <- read.csv(here::here("data","local_gap_products","biomass.csv"))
+biomass_total <- x |> 
+  dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
+  mutate(
+    MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+  ) |>
+  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+
+
+x <- read.csv(here::here("data","local_gap_products","cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
+
+# filter to correct region and do names
+cpue_raw <- test |> 
+  dplyr::right_join(haul) |>
+  dplyr::filter(REGION == SRVY) |>
+  janitor::clean_names()
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
@@ -202,8 +222,7 @@ if (use_gapindex) {
   # total biomass table
   biomass_total <- biomass_df
 
-  # sizecomp table
-  sizecomp <- sizecomp_gapindex
+  # sizecomps will be assigned later
 
   print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
@@ -531,7 +550,7 @@ catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
 
 # Species with highest est'd biomass --------------------------------------
 biomass_maxyr <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY == SRVY)
+  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52))
 
 highest_biomass <- biomass_maxyr %>%
   dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) %>%
@@ -542,7 +561,7 @@ highest_biomass_flatfish <- highest_biomass %>%
   filter(major_group == "Flatfish")
 
 highest_elasmos <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY == SRVY) %>%
+  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52)) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%
   filter(major_group == "Chondrichthyans") %>%
@@ -555,3 +574,4 @@ fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
+
