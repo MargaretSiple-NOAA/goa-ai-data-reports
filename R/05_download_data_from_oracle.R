@@ -172,19 +172,19 @@ write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
 a <- dplyr::filter(
   a,
-  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-    YEAR == maxyr
+  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) #&
+    #YEAR == maxyr
 )
 
 write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
 # size comps - recreate the sizecomp table as it was in AI and GOA schemas
-# MAY NEED TO WORK ON THIS MORE LATER
+# MAY NEED TO WORK ON THIS MORE LATER. THIS SHOULD DOWNLOAD THE RAW TABLE AND THAT SHOULD BE PROCESSED LATER.
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
 a <- dplyr::filter(
   a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
     AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
-  dplyr::mutate(SURVEY = SRVY, SEX = case_when(SEX == 1 ~ "MALES", 
+  dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(SEX == 1 ~ "MALES", 
                                                SEX == 2 ~ "FEMALES", 
                                                SEX == 3 ~ "UNSEXED")) |>
   dplyr::rename(LENGTH = LENGTH_MM) |>
@@ -205,9 +205,10 @@ a <- dplyr::filter(
 
 write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
-# a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.CPUE")
-# 
-# write.csv(x = a, "./data/local_gap_products/cpue.csv", row.names = FALSE)
+# CPUE table
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.CPUE")
+
+write.csv(x = a, "./data/local_gap_products/cpue.csv", row.names = FALSE)
 
 print("Finished downloading GAP_PRODUCTS tables.")
 
