@@ -574,7 +574,7 @@ if (make_cpue_bubbles_strata) {
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_central$akland) +
       geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(bquote("CPUE" ~ (mt / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
+      scale_size(bquote("CPUE" ~ (kg / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
       coord_sf(
         xlim = ai_central$plot.boundary$x,
         ylim = ai_central$plot.boundary$y
