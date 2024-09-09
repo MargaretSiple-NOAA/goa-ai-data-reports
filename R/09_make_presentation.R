@@ -615,9 +615,10 @@ if (make_cpue_bubbles_strata) {
     bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
     final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
 
+    #,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
-      width = 10, height = 10, units = "in", res = 200
+      width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
 
