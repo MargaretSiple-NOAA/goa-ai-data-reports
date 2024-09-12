@@ -171,7 +171,7 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 <br />
 
-```{r fig.cap='Bottom temperatures as measured at the trawl. Brown points represent the median.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Gear temperature measured at the headrope of the trawl. Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Dotted lines show the mean gear temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 if(SRVY=="AI"){ #janky; get rid of this after AI 2022 report
   list_temperature[['bottomtemp']]}else{
 bottom_temp_plot}

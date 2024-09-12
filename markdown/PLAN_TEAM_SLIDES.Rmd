@@ -181,13 +181,12 @@ Overall species composition in `r maxyr` was similar to past years with `r highe
 ```
 
 :::notes
-Water temperatures measured at the trawl net this summer remain above the long term average at both the bottom and the surface.
-
 This plot shows the full distribution of observed bottom temperatures in the survey. The heat colors show the quantiles of the distribution, and the shaded area is the shape of the full distribution. Surveys with more than 2 boats (these are surveys where the max depth was 1000m) are marked with asterisks.
 
 Min bottom temp: `r minbottomtemp` deg C
 Max bottom temp: `r maxbottomtemp` deg C
 
+Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Dotted lines show the mean gear temperature over the past 10 and 20 years.
 :::
 
 ## Surface temperature (°C)
