@@ -294,7 +294,7 @@ joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"
 # Palette for species colors and fills
 # speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
 speciescolors <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "VanGogh2", type = "discrete", direction = -1),
+  shortpal = MetBrewer::met.brewer(name = "Nizami", type = "discrete", direction = 1),
   x = 1:(nrow(report_species) + 1)
 )
 
