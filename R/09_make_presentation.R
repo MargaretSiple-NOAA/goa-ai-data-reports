@@ -64,12 +64,12 @@ report_species <- dplyr::filter(report_species, presentation == 1)
 dat <- read.csv("data/goa_strata.csv", header = TRUE) # includes GOA and AI strata
 
 # Prep values and prelim tables -------------------------------------------
-source("R/06_prep_data.R")
+source("R/06_prep_data.R") # takes a min
 
 # Data for plots ------------------------------------------------------------
 # All the species for which we want to make plots
 head(report_species)
-report_species <- report_species %>%
+report_species <- report_species |>
   arrange(-species_code)
 
 # Get key/table of names (common, scientific, etc)
@@ -414,7 +414,9 @@ if (make_special_rebs) {
   dev.off()
 
   save(rebs_biomass, file = paste0(dir_out_figures, "rebs_biomass_ts.rdata"))
-  
+
+
+  # see later for REBS CPUE plot?
 }
 
 # 2. Catch composition -------------------------------------------------------
@@ -490,13 +492,13 @@ if (make_cpue_bubbles) {
     spbubble <- report_species$species_code[i]
 
     # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
-    thisyrshauldata <- cpue_raw %>%
+    thisyrshauldata <- cpue_raw |>
       dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
-      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
+      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
       st_as_sf(
         coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
-      ) %>%
+      ) |>
       st_transform(crs = reg_data$crs)
 
     fig <- plot_pa_xbyx(
@@ -525,19 +527,22 @@ if (make_cpue_bubbles) {
   print("Done with bubble maps of CPUE.")
 }
 
+
+# 3b. CPUE bubble maps with strata --------------------------------------------
+
 if (make_cpue_bubbles_strata) {
   list_cpue_bubbles_strata <- list()
   for (i in 1:nrow(report_species)) { # nrow(report_species)
     spbubble <- report_species$species_code[i]
     namebubble <- report_species$spp_name_informal[i]
 
-    thisyrshauldata <- cpue_raw %>%
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
-      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
+    thisyrshauldata <- cpue_raw |>
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
       st_as_sf(
         coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
-      ) %>%
+      ) |>
       st_transform(crs = reg_data$crs)
 
     # MAPS
@@ -552,8 +557,18 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = reg_data$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf(
+        data = filter(thisyrshauldata, kgkm2 > 0),
+        aes(size = cpue_kgkm2), alpha = 0.5
+      ) + # USED TO BE cpue_kgha
+      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf( # x's for places where cpue=0
+        data = filter(thisyrshauldata, cpue_kgha == 0),
+        alpha = 0.5,
+        color = "grey5",
+        shape = 4,
+        size = 1
+      ) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -574,8 +589,17 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(bquote("CPUE" ~ (kg / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
+      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+              aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(bquote("CPUE" ~ (kg / km^2)), 
+                 limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
+      geom_sf( # x's for places where cpue=0
+        data = filter(thisyrshauldata, cpue_kgha == 0),
+        alpha = 0.5,
+        color = "grey5",
+        shape = 4,
+        size = 1
+      ) +
       coord_sf(
         xlim = ai_central$plot.boundary$x,
         ylim = ai_central$plot.boundary$y
@@ -597,8 +621,16 @@ if (make_cpue_bubbles_strata) {
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+              aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf( # x's for places where cpue=0
+        data = filter(thisyrshauldata, cpue_kgha == 0),
+        alpha = 0.5,
+        color = "grey5",
+        shape = 4,
+        size = 1
+      ) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -616,7 +648,7 @@ if (make_cpue_bubbles_strata) {
     bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
     final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
 
-    #,out.width=9,out.height=8
+    # ,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
@@ -629,21 +661,21 @@ if (make_cpue_bubbles_strata) {
   } # /end species loop
   names(list_cpue_bubbles_strata) <- report_species$species_code
   save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
-  
-  if(make_special_rebs){
+
+  if (make_special_rebs) {
     # CPUE map
     namebubble <- "Rougheye/blackspotted rockfish"
-    
-    thisyrshauldata <- cpue_table_rebs %>%
+
+    thisyrshauldata <- cpue_table_rebs |>
       janitor::clean_names() |>
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
-      dplyr::filter(year == maxyr & survey == SRVY) %>%
+      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+      dplyr::filter(year == maxyr & survey == SRVY) |>
       st_as_sf(
         coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
       ) %>%
       st_transform(crs = reg_data$crs)
-    
+
     # MAPS
     p3a <- ggplot() +
       geom_sf(
@@ -666,7 +698,7 @@ if (make_cpue_bubbles_strata) {
       scale_y_continuous(breaks = reg_data$lat.breaks) +
       labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
       bubbletheme
-    
+
     p3b <- ggplot() +
       geom_sf(
         data = ai_central$survey.strata,
@@ -689,7 +721,7 @@ if (make_cpue_bubbles_strata) {
       labs(subtitle = "Central Aleutians") +
       bubbletheme +
       theme(legend.position = "left")
-    
+
     p3c <- ggplot() +
       geom_sf(
         data = ai_west$survey.strata,
@@ -715,18 +747,18 @@ if (make_cpue_bubbles_strata) {
       scale_y_continuous(breaks = ai_west$lat.breaks) +
       labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
       bubbletheme
-    
+
     toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
     bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
     final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
-    
-    #,out.width=9,out.height=8
+
+    # ,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
-    
+
     dev.off()
   }
   print("Done with CPUE bubble maps showing stratum areas.")
@@ -1266,8 +1298,8 @@ if (make_temp_plot) {
     Start_year = c(maxyr - 10, maxyr - 20)
   )
 
-  #ylims <- range(plotdat$GEAR_TEMPERATURE,na.rm=TRUE)
-  
+  # ylims <- range(plotdat$GEAR_TEMPERATURE,na.rm=TRUE)
+
   bottom_temp_plot <- plotdat %>%
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
@@ -1290,7 +1322,7 @@ if (make_temp_plot) {
       linetype = Average,
       x = Start_year, xend = maxyr
     )) +
-    ylim(c(0,7)) + # NEED TO CHANGE IN THE FUTURE
+    ylim(c(0, 7)) + # NEED TO CHANGE IN THE FUTURE
     theme_light(base_size = 14) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
