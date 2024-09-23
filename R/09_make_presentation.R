@@ -204,7 +204,7 @@ if (SRVY == "AI") {
   ai_east <- akgfmaps::get_base_layers(
     select.region = "ai.east",
     set.crs = "auto"
-  )
+  ) 
   ai_central <- akgfmaps::get_base_layers(
     select.region = "ai.central",
     set.crs = "auto"
@@ -213,6 +213,11 @@ if (SRVY == "AI") {
     select.region = "ai.west",
     set.crs = "auto"
   )
+  
+  # Make a category that is just the depth of the stratum, for easy labeling
+  ai_east$survey.strata <- ai_east$survey.strata |>
+    mutate(strat_depth = substr(STRATUM, 3, 3))
+  
   nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
 }
 
@@ -288,11 +293,13 @@ if (SRVY == "AI") {
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
+# Palette for depth shading for strata
+depthcolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:4]
+
 # Palette for joy div plot
 joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 
 # Palette for species colors and fills
-# speciescolors <- nmfspalette::nmfs_palette("regional web")(nrow(report_species) + 1)
 speciescolors <- lengthen_pal(
   shortpal = MetBrewer::met.brewer(name = "Nizami", type = "discrete", direction = 1),
   x = 1:(nrow(report_species) + 1)
@@ -543,22 +550,22 @@ if (make_cpue_bubbles_strata) {
         coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
       ) |>
-      st_transform(crs = reg_data$crs)
+      st_transform(crs = reg_data$crs) 
 
     # MAPS
     p3a <- ggplot() +
       geom_sf(
         data = ai_east$survey.strata,
         mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
+          fill = factor(strat_depth),
+          color = factor(strat_depth)
         )
       ) +
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = reg_data$akland) +
       geom_sf(
-        data = filter(thisyrshauldata, kgkm2 > 0),
+        data = filter(thisyrshauldata, cpue_kgkm2 > 0),
         aes(size = cpue_kgkm2), alpha = 0.5
       ) + # USED TO BE cpue_kgha
       scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
