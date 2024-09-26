@@ -826,7 +826,7 @@ if (make_cpue_idw) {
 if (make_cpue_ianelli) {
   ianelli_style <- TRUE
   key.title <- ""
-  yrs <- unique(cpue_raw$year) #
+  yrs <- 2024#unique(cpue_raw$year) #
   row0 <- 2 # default
   legendtitle <- bquote(CPUE(kg / ha)) # inside fn
 
@@ -853,8 +853,8 @@ if (make_cpue_ianelli) {
       ) +
       geom_sf( # x's for places where we sampled but didn't catch any of that species
         data = dplyr::filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.5,
-        color = "#525252", # grey5
+        alpha = 0.8,
+        color = "red", # grey5
         shape = 4,
         size = 1
       )
