@@ -15,7 +15,7 @@ make_catch_comp <- TRUE
 make_cpue_bubbles <- FALSE
 make_cpue_bubbles_strata <- TRUE
 # The map that Jim I requested a while ago. It has bars instead of bubbles. Some assessment ppl like it:
-make_cpue_ianelli <- FALSE
+make_cpue_ianelli <- TRUE
 # 4. Length frequency plots by region and depth stratum (probably deprecated - not annual increments)
 make_length_freqs <- FALSE
 # 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
@@ -825,47 +825,43 @@ if (make_cpue_idw) {
 
 if (make_cpue_ianelli) {
   ianelli_style <- TRUE
-  # reg_dat <- reg_dat_goa
   key.title <- ""
-  yrs <- c(2023)
+  yrs <- unique(cpue_raw$year) #
   row0 <- 2 # default
   legendtitle <- bquote(CPUE(kg / ha)) # inside fn
 
 
   list_ianelli <- list()
   for (i in 1:nrow(report_species)) {
+    # i = 8
     thisyrshauldata <- cpue_raw |>
       dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
-      dplyr::filter(year == maxyr & survey == SRVY & species_code == report_species$species_code[i]) |>
+      dplyr::filter(year %in% yrs & 
+                      survey == SRVY & 
+                      species_code == report_species$species_code[i]) |>
       sf::st_as_sf(
-        coords = c("start_longitude", "start_latitude"),
+        coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
       ) |>
-      sf::st_transform(crs = reg_dat_goa$crs)
+      sf::st_transform(crs = reg_data$crs)
 
     f1 <- ggplot() +
       geom_sf(
-        data = reg_dat$akland,
+        data = reg_data$akland,
         color = NA,
         fill = "grey40"
       ) +
-      # geom_sf(
-      #   data = filter(thisyrshauldata, cpue_kgha > 0),
-      #   aes(size = cpue_kgha),
-      #   alpha = 0.5,
-      #   color = mako(n = 1, begin = .25, end = .75)
-      # ) +
       geom_sf( # x's for places where we sampled but didn't catch any of that species
         data = dplyr::filter(thisyrshauldata, cpue_kgha == 0),
         alpha = 0.5,
-        color = "#B8B8B8", # grey5
+        color = "#525252", # grey5
         shape = 4,
         size = 1
       )
 
     f2 <- f1 +
       geom_sf(
-        data = reg_dat$survey.area,
+        data = reg_data$survey.area,
         mapping = aes(color = SURVEY),
         fill = NA,
         shape = NA,
@@ -874,21 +870,21 @@ if (make_cpue_ianelli) {
       ) +
       scale_color_manual(
         name = key.title,
-        values = reg_dat$survey.area$color,
-        breaks = rev(reg_dat$survey.area$SURVEY),
-        labels = rev((reg_dat$survey.area$SRVY))
+        values = reg_data$survey.area$color,
+        breaks = rev(reg_data$survey.area$SURVEY),
+        labels = rev((reg_data$survey.area$SRVY))
       )
 
     f3 <- f2 +
       ggplot2::scale_y_continuous(
         name = "", # "Latitude",
-        limits = reg_dat$plot.boundary$y,
-        breaks = reg_dat$lat.breaks
+        limits = reg_data$plot.boundary$y,
+        breaks = reg_data$lat.breaks
       ) +
       ggplot2::scale_x_continuous(
         name = "", # "Longitude",
-        limits = reg_dat$plot.boundary$x,
-        breaks = reg_dat$lon.breaks
+        limits = reg_data$plot.boundary$x,
+        breaks = reg_data$lon.breaks
       )
 
     f4 <- f3 +
@@ -944,16 +940,16 @@ if (make_cpue_ianelli) {
         legend.position = "bottom",
         legend.box = "horizontal"
       ) +
-      labs(size = legendtitle)
+      labs(size = legendtitle) +
+      facet_wrap(~year)
 
     png(
-      filename = paste0(dir_out_figures, report_species$spp_name_informal[i], "_", maxyr, "_cpue_ianelli.png"),
-      width = 11, height = 10, units = "in", res = 200
+      filename = paste0(dir_out_figures, report_species$spp_name_informal[i], "_", max(yrs), "_cpue_ianelli.png"),
+      width = 10, height = 7, units = "in", res = 200
     )
     print(figure)
 
     dev.off()
-
     list_ianelli[[i]] <- figure
   } # /species loop
   names(list_ianelli) <- report_species$species_code
