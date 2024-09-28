@@ -826,136 +826,174 @@ if (make_cpue_idw) {
 if (make_cpue_ianelli) {
   ianelli_style <- TRUE
   key.title <- ""
-  yrs <- 2024#unique(cpue_raw$year) #
+  yrs <- unique(cpue_raw$year[cpue_raw$year>minyr]) ##
   row0 <- 2 # default
   legendtitle <- bquote(CPUE(kg / ha)) # inside fn
 
 
   list_ianelli <- list()
   for (i in 1:nrow(report_species)) {
-    # i = 8
-    thisyrshauldata <- cpue_raw |>
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
-      dplyr::filter(year %in% yrs & 
-                      survey == SRVY & 
-                      species_code == report_species$species_code[i]) |>
-      sf::st_as_sf(
-        coords = c("longitude_dd_start", "latitude_dd_start"),
-        crs = "EPSG:4326"
-      ) |>
-      sf::st_transform(crs = reg_data$crs)
+    for (y in 1:length(yrs)) {
+      # i = 8
+      thisyrshauldata <- cpue_raw |>
+        dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+        dplyr::filter(year %in% yrs[y] &
+          survey == SRVY &
+          species_code == report_species$species_code[i]) |>
+        sf::st_as_sf(
+          coords = c("longitude_dd_start", "latitude_dd_start"),
+          crs = "EPSG:4326"
+        ) |>
+        sf::st_transform(crs = reg_data$crs)
 
-    f1 <- ggplot() +
-      geom_sf(
-        data = reg_data$akland,
-        color = NA,
-        fill = "grey40"
-      ) +
-      geom_sf( # x's for places where we sampled but didn't catch any of that species
-        data = dplyr::filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.8,
-        color = "red", # grey5
-        shape = 4,
-        size = 1
-      )
+      if (nrow(thisyrshauldata) == 0) {
+        print(paste0("No data for this year; skipping ", yrs[y]))
+        next
+      }
 
-    f2 <- f1 +
-      geom_sf(
-        data = reg_data$survey.area,
-        mapping = aes(color = SURVEY),
-        fill = NA,
-        shape = NA,
-        size = .25,
-        show.legend = FALSE
-      ) +
-      scale_color_manual(
-        name = key.title,
-        values = reg_data$survey.area$color,
-        breaks = rev(reg_data$survey.area$SURVEY),
-        labels = rev((reg_data$survey.area$SRVY))
-      )
-
-    f3 <- f2 +
-      ggplot2::scale_y_continuous(
-        name = "", # "Latitude",
-        limits = reg_data$plot.boundary$y,
-        breaks = reg_data$lat.breaks
-      ) +
-      ggplot2::scale_x_continuous(
-        name = "", # "Longitude",
-        limits = reg_data$plot.boundary$x,
-        breaks = reg_data$lon.breaks
-      )
-
-    f4 <- f3 +
-      guides(
-        size = guide_legend(
-          order = 1,
-          title.position = "top",
-          label.position = "top",
-          title.hjust = 0.5,
-          nrow = 1
+      f1 <- ggplot() +
+        geom_sf(
+          data = reg_data$akland,
+          color = NA,
+          fill = "grey40"
+        ) +
+        geom_sf( # x's for places where we sampled but didn't catch any of that species
+          data = dplyr::filter(thisyrshauldata, cpue_kgha == 0),
+          alpha = 0.8,
+          color = "red",
+          shape = 4,
+          size = 1
         )
-      )
 
-    if (ianelli_style) {
-      pos_cpue <- thisyrshauldata # filter(thisyrshauldata, cpue_kgkm2>0)
-
-      # get coordinates into dataframe from so you can use
-      coords_df <- data.frame(st_coordinates(pos_cpue[, "geometry"]))
-      pos_cpue2 <- bind_cols(pos_cpue, coords_df)
-      scale <- 20 # 10
-      width <- 9000
-
-      f5 <- f4 +
-        geom_rect(data = pos_cpue2, aes(xmin = X - width / 2, xmax = X + width / 2, ymin = Y, ymax = Y + cpue_kgkm2 * scale), fill = "#797EF6AA") # "#3E356BFF"
-      # f5
-    } else {
-      f5 <- f4
-    }
-
-    # Add theme and background and stuff
-    figure <- f5 +
-      theme( # set legend position and vertical arrangement
-        panel.background = element_rect(
-          fill = "white",
-          colour = NA
-        ),
-        panel.border = element_rect(
+      f2 <- f1 +
+        geom_sf(
+          data = reg_data$survey.area,
+          mapping = aes(color = SURVEY),
           fill = NA,
-          colour = "grey20"
-        ),
-        axis.text = element_text(size = ifelse(length(yrs) > 4 & row0 == 1, 10, 12)),
-        strip.background = element_blank(),
-        strip.text = element_text(size = 12, face = "bold"),
-        legend.text = element_text(size = 12),
-        legend.background = element_rect(
-          colour = "transparent",
-          fill = "transparent"
-        ),
-        legend.key = element_rect(
-          colour = "transparent",
-          fill = "transparent"
-        ),
-        legend.position = "bottom",
-        legend.box = "horizontal"
-      ) +
-      labs(size = legendtitle) +
-      facet_wrap(~year)
+          shape = NA,
+          size = .25,
+          show.legend = FALSE
+        ) +
+        scale_color_manual(
+          name = key.title,
+          values = reg_data$survey.area$color,
+          breaks = rev(reg_data$survey.area$SURVEY),
+          labels = rev((reg_data$survey.area$SRVY))
+        )
 
-    png(
-      filename = paste0(dir_out_figures, report_species$spp_name_informal[i], "_", max(yrs), "_cpue_ianelli.png"),
-      width = 10, height = 7, units = "in", res = 200
-    )
-    print(figure)
+      f3 <- f2 +
+        ggplot2::scale_y_continuous(
+          name = "", # "Latitude",
+          limits = reg_data$plot.boundary$y,
+          breaks = reg_data$lat.breaks
+        ) +
+        ggplot2::scale_x_continuous(
+          name = "", # "Longitude",
+          limits = reg_data$plot.boundary$x,
+          breaks = reg_data$lon.breaks
+        )
 
-    dev.off()
+      f4 <- f3 +
+        guides(
+          size = guide_legend(
+            order = 1,
+            title.position = "top",
+            label.position = "top",
+            title.hjust = 0.5,
+            nrow = 1
+          )
+        )
+
+      if (ianelli_style) {
+        pos_cpue <- thisyrshauldata # filter(thisyrshauldata, cpue_kgkm2>0)
+
+        # get coordinates into dataframe from so you can use
+        coords_df <- data.frame(st_coordinates(pos_cpue[, "geometry"]))
+        pos_cpue2 <- bind_cols(pos_cpue, coords_df)
+        pos_cpue2$bar_ymax <- pos_cpue2$Y + pos_cpue2$cpue_kgkm2 * scale
+
+        pos_cpue3 <- pos_cpue2 |> 
+          dplyr::filter(bar_ymax<reg_data$plot.boundary$y[2])    
+        
+        scale <- 1 # 10
+        width <- 9000
+
+        f5 <- f4 +
+          geom_rect(
+            data = pos_cpue3, aes(
+              xmin = X - width / 2,
+              xmax = X + width / 2,
+              ymin = Y,
+              ymax = bar_ymax
+            ),
+            fill = "#797EF6AA"
+          ) # "#3E356BFF"
+
+        # Plot CPUE values that go off the chart with an arrow at the top
+        veryhighcpue <- pos_cpue2 |>
+          dplyr::filter(bar_ymax>reg_data$plot.boundary$y[2]) |>
+          mutate(arrow_ymax = reg_data$plot.boundary$y[2]*0.99)
+        # print(veryhighcpue)
+        if (nrow(veryhighcpue) > 0) {
+          f5b <- f5 + geom_segment(
+            data = veryhighcpue,
+            aes(x = X, y = Y, yend = arrow_ymax),
+            arrow = arrow(length = unit(0.2, "cm")),
+            color = "#797EF6"
+          )
+          # f5b <- f5 + geom_point(
+          #   data = veryhighcpue,
+          #   aes(x = X, y = Y),
+          #   color = "orange"
+          # )
+        }
+      } else {
+        f5b <- f4
+      }
+
+      # Add theme and background and stuff
+      figure <- f5b +
+        theme( # set legend position and vertical arrangement
+          panel.background = element_rect(
+            fill = "white",
+            colour = NA
+          ),
+          panel.border = element_rect(
+            fill = NA,
+            colour = "grey20"
+          ),
+          axis.text = element_text(size = ifelse(length(yrs) > 4 & row0 == 1, 10, 12)),
+          strip.background = element_blank(),
+          strip.text = element_text(size = 12, face = "bold"),
+          legend.text = element_text(size = 12),
+          legend.background = element_rect(
+            colour = "transparent",
+            fill = "transparent"
+          ),
+          legend.key = element_rect(
+            colour = "transparent",
+            fill = "transparent"
+          ),
+          legend.position = "bottom",
+          legend.box = "horizontal"
+        ) +
+        labs(size = legendtitle) +
+        ggtitle(paste(yrs[y]))
+
+      png(
+        filename = paste0(dir_out_figures, report_species$spp_name_informal[i], "_", yrs[y], "_cpue_ianelli.png"),
+        width = 11, height = 8, units = "in", res = 200
+      )
+      print(figure)
+
+      dev.off()
+    } # /yr loop
+    
     list_ianelli[[i]] <- figure
   } # /species loop
   names(list_ianelli) <- report_species$species_code
   save(list_ianelli, file = paste0(dir_out_figures, "list_ianelli.rdata"))
 }
-
 
 
 
