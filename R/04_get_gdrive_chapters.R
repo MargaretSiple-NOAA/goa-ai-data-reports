@@ -19,22 +19,6 @@ for (i in 1:nrow(chaps)) {
 }
 
 
-# Download species blurbs table -------------------------------------------
-blurbs_id_googledrive <- googledrive::as_id(dir_blurbs)
-
-blurbsheet <- googledrive::drive_ls(
-  path = blurbs_id_googledrive,
-  pattern = paste0(SRVY, maxyr, "_SpeciesBlurbMiddleSentences"), type = "spreadsheet"
-)
-
-googledrive::drive_download(
-  file = googledrive::as_id(blurbsheet$id),
-  type = "csv",
-  overwrite = TRUE,
-  path = paste0("data", "/", blurbsheet$name)
-)
-
-
 # Download table with the oto target and collection numbers ---------------
 # This target and collection goal form only started in 2023 and beyond.
 if(maxyr >= 2023){
