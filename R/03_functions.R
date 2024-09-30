@@ -291,7 +291,9 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     )) |>
     dplyr::select(AREA_NAME, DEPTH_RANGE, 
                   N_HAUL, N_WEIGHT, 
-                  CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
+                  CPUE_KGKM2_MEAN,
+                  BIOMASS_MT,
+                  #BIOMASS_VAR,
                   AVG_WEIGHT_KG)
   # Format the columns
   combo <- combo0 |>
@@ -301,13 +303,70 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
-      "CPUE variance (kg/km2)" = CPUE_KGKM2_VAR,
+      "Biomass (mt)" = BIOMASS_MT,
+      #"Biomass variance (mt)" = BIOMASS_VAR,
       "Average weight (kg)" = AVG_WEIGHT_KG
-    )
+    ) 
+  
+  # Format numbers in CPUE and biomass columns
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`,digits = 2)
+  combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
+  
+  
   return(combo)
 }
 
-#' Make a rough draft of Table 4
+#' Makr Table 4 - summary of CPUE and biomass by stratum
+#'
+#' @param species_code five-digit species code
+#' @param survey "GOA" or "AI"
+#' @param year  Year of survey
+#' @param biomass_tbl BIOMASS table, taken straight from GAP_PRODUCTS, then filtered to the survey definition ID in report_settings.R
+#' @param area_tbl AREA table taken straight from GAP_PRODUCTS
+#'
+#' @return a draft of Table 4 for the data report - CPUE summarized by stratum
+#' @export
+#'
+#' @examples
+make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
+  if (length(unique(biomass_tbl$SURVEY_DEFINITION_ID)) > 1) {
+    stop("More than one survey definition ID.")
+  }
+
+  # Filter the two raw tables
+  biomass_yr <- biomass_tbl |> # might take this out of the function, not sure yet
+    dplyr::filter(YEAR == year & SPECIES_CODE == species_code)
+
+  area_lookup <- area_tbl |>
+    dplyr::filter(AREA_TYPE == "STRATUM") |>
+    dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M))
+
+  combo0 <- area_lookup |>
+    dplyr::left_join(biomass_yr, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
+    dplyr::select(
+      AREA_NAME, DEPTH_RANGE,
+      N_HAUL, N_WEIGHT,
+      CPUE_KGKM2_MEAN, BIOMASS_MT
+    )
+
+  combo <- combo0 |>
+    dplyr::rename(
+      "Stratum name" = AREA_NAME,
+      "Depth (m)" = DEPTH_RANGE,
+      "Total haul count" = N_HAUL,
+      "Hauls with positive catch" = N_WEIGHT,
+      "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
+      "Biomass (mt)" = BIOMASS_MT
+    ) |>
+    dplyr::filter(`Hauls with positive catch` > 0) # only show lines for strata where the species appeared
+
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 2)
+  combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
+
+  return(combo)
+}
+
+#' Make a rough draft of Table 4 with SQL - old and likely going to be deprecated bc uses old tables
 #'
 #' @param species_code species code (numeric)
 #' @param survey survey code, "AI" or "GOA" (character)
@@ -317,21 +376,20 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 #' @export
 #' @details
 #' This function uses a table called GOA_STRATA but that table does contain all strata (both AI and GOA)
-#' 
 #'
 #' @examples
 #' source("R/get_connected.R")
 #' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
 #'
-make_tab4 <- function(species_code = NULL, survey = NULL, year = NULL) {
-  a <- RODBC::sqlQuery(channel, paste0(
-    "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey,"\' and b.YEAR = ", year," and b.SPECIES_CODE = ",species_code," and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
-  ))
-  
-  dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
-  
-  write.csv(x = a, file = dir_out, row.names = FALSE)
-}
+# make_tab4_sql <- function(species_code = NULL, survey = NULL, year = NULL) {
+#   a <- RODBC::sqlQuery(channel, paste0(
+#     "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey,"\' and b.YEAR = ", year," and b.SPECIES_CODE = ",species_code," and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
+#   ))
+#   
+#   dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
+#   
+#   write.csv(x = a, file = dir_out, row.names = FALSE)
+# }
 
 
 # format appendix b contents so they will fit easily in a flextable

@@ -194,19 +194,22 @@ surveywide_samplingdensity <- allocated_sampled |>
 # "Table 3" -----------------------------------------------------------
 # biomass_gp already loaded above
 # area_gp loaded above
-
 table3s_list <- list()
 
-for(i in 1:nrow(report_species)){
-  tab3 <- make_tab3(species_code = report_species$species_code[i],
-                    year = maxyr,
-                    biomass_tbl = biomass_gp,
-                    area_tbl = area_gp)
+for (i in 1:nrow(report_species)) {
+  tab3 <- make_tab3(
+    species_code = report_species$species_code[i],
+    year = maxyr,
+    biomass_tbl = biomass_gp,
+    area_tbl = area_gp
+  )
   tab3_ord <- tab3 |>
     dplyr::arrange(factor(`Survey district`, levels = district_order))
-  
-  write.csv(x = tab3_ord,file = paste0(dir_out_todaysrun,"tables/tab3_",
-                                   report_species$species_code[i],"_",maxyr,".csv"))
+
+  write.csv(x = tab3_ord, file = paste0(
+    dir_out_todaysrun, "tables/tab3_",
+    report_species$species_code[i], "_", maxyr, ".csv"
+  ))
   table3s_list[[i]] <- tab3_ord
 }
 
@@ -222,24 +225,46 @@ print("Done creating Table 3s")
 #   list.files(paste0(dir_in_premadetabs, "Table 3/")),
 #   value = TRUE
 # ))
-# 
+#
 # print("Checking for tables missing from the G Drive...")
 # # which species are there tables for?
 # x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
 # y <- sub(pattern = paste0("*_", maxyr, ".csv"), replacement = "", x = x)
-# 
+#
 # lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
-# 
+#
 # if (length(lookforme) > 0) {
 #   print(paste("Table 3: Check for species", lookforme))
 # }
-# 
+#
 # table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
 # names(table3s_list) <- report_species$species_code
-# 
+#
 # table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
 # names(table4s_list) <- report_species$species_code
 
+# "Table 4"  --------------------------------------------------------------
+
+table4s_list <- list()
+
+for (i in 1:nrow(report_species)) {
+  tab4 <- make_tab4(
+    species_code = report_species$species_code[i],
+    year = maxyr,
+    biomass_tbl = biomass_gp,
+    area_tbl = area_gp
+  )
+
+  write.csv(x = tab4, file = paste0(
+    dir_out_todaysrun, "tables/tab4_",
+    report_species$species_code[i], "_", maxyr, ".csv"
+  ))
+  table4s_list[[i]] <- tab4
+}
+
+names(table4s_list) <- report_species$species_code
+
+print("Done creating Table 4s")
 
 # Size comps for summaries ------------------------------------------------
 # Table sizecomp_stratum is from gapindex which queries Oracle, so the code to do it is in 05_download_data_from_oracle.R
