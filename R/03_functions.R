@@ -18,33 +18,6 @@ divmforft <- 0.3048
 divftform <- 3.28084
 
 
-# Text generation ---------------------------------------------------------
-# size_depth_statement <- function(raw_lengths = ltoplot){
-#   # Test 
-#   #raw_lengths <- ltoplot %>% dplyr::select(REGION, SPECIES_CODE, SEX, BOTTOM_DEPTH, LENGTH)
-#   
-#   #raw_lengths should be filtered to region, year, and species_code when it goes in.
-#   # test df ltoplot comes from the make_figures script. For now.
-#   if (length(unique(raw_lengths$REGION)) > 1) {
-#     stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
-#   }
-#   
-#   if (length(unique(raw_lengths$SPECIES_CODE)) > 1) {
-#     stop("Error in size_depth_statement(). This dataset contains size data for more than one region. Fix the function or the dataset.")
-#   }
-#   #plot(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH)
-#   x <- cor.test(raw_lengths$BOTTOM_DEPTH, raw_lengths$LENGTH) #pearson
-#   y <- ""
-#   if(x$p.value < 0.05 & x$statistic>0.5){ #slightly arbitrary cutoff for correlation
-#     y <- "There is a positive relationship between length and depth."
-#   }
-#   if(x$p.value < 0.05 & x$statistic < (-0.5)){
-#     y <- "There is a negative relationship between length and depth."
-#   }
-#   return(y)
-# }
-
-
 #' Test whether there is a difference in mean size between the sexes
 #'
 #' @param species_lengths a data frame with columns "SURVEY"       "YEAR"         "SPECIES_CODE" "SUMMARY_AREA" "LENGTH"       "MALES"        "FEMALES"      "UNSEXED"    "TOTAL", filtered to the species and year that you are interested in. Can get it from the SIZECOMP table in the AI or GOA schemas or from GAP_PRODUCTS (currently it comes from the GOA and AI schemas)
@@ -88,6 +61,18 @@ sex_diff_size_statement <- function(species_lengths) {
   return(statement)
 }
 
+# Function to calculate confidence intervals for lognormal distribution - hopefully will be deprecated starting with the AI 2024 DPR.
+lognorm_ci <- function(mean, variance, alpha = 0.05) {
+  sigma <- sqrt(log(1 + variance/mean^2)) # Calculate standard deviation
+  z <- qnorm(1 - alpha/2) # Calculate z-value for given alpha (two-tailed)
+  
+  # Calculate lower and upper confidence bounds
+  lower <- exp(log(mean) - z * sigma)
+  upper <- exp(log(mean) + z * sigma)
+  
+  return(c(lower, upper))
+}
+
 
 # Text formatting -------------------------------------------------------
 #' Fix inserted text when there are two areas or depths with the "greatest biomass" (i.e., if it's the same for both and they're both the max).
@@ -127,138 +112,6 @@ chr_to_num <- function(x) {
 
 
 # Tables -----------------------------------------------
-
-#' #' Make a list of the top 20 species by CPUE
-#' #'
-#' #' @param YEAR numeric - year for which you want the top spps
-#' #' @param SRVY character - "GOA" or "AI"
-#' #' @param cpue_raw dataframe or tibble containing raw CPUE data. Can be from FOSS or GOA/AI schemae. Columnscurrently include...
-#' # c("survey", "year", "catchjoin", "hauljoin", "vessel", "cruise",
-#' #   "haul", "stratum", "distance_fished", "net_width", "species_code",
-#' #   "weight", "number_fish", "effort", "cpue_kgkm2", "numcpue", "species_name",
-#' #   "common_name", "cruisejoin", "region", "haul_type", "performance",
-#' #   "duration", "net_measured", "net_height", "start_latitude", "end_latitude",
-#' #   "start_longitude", "end_longitude", "stationid", "gear_depth",
-#' #   "bottom_depth", "bottom_type", "surface_temperature", "gear_temperature",
-#' #   "wire_length", "gear", "accessories", "subsample", "abundance_haul",
-#' #   "auditjoin", "start_time")
-#' #' @param topn how many of the top species do you want? For the report it's the top 20; can be adjusted as needed
-#' #' @return a tibble with CPUE and some other stuff by species, for the 20 most abundant spps in the survey.
-#' #' @export
-#' #'
-#' #' @examples
-#' make_top_cpue <- function(YEAR, SRVY, cpue_raw, topn = 20) { # Gives top 20 spps for each region
-#'
-#'   cpue_districts <- cpue_raw %>%
-#'     filter(year == YEAR & survey == SRVY & abundance_haul == "Y") %>% #
-#'     dplyr::mutate(taxon = dplyr::case_when(
-#'       species_code <= 31550 ~ "fish",
-#'       species_code >= 40001 ~ "invert"
-#'     )) %>%
-#'     dplyr::mutate(common_name = case_when(
-#'       species_code >= 30050 & species_code <= 30052 ~ "Rougheye / blackspotted rockfish complex",
-#'       species_code == 405 ~ "Bathyraja sp.",
-#'       TRUE ~ common_name
-#'     )) %>%
-#'     # Old skate check
-#'     # dplyr::filter(species_code >=400 & species_code<=495) %>%
-#'     left_join(region_lu, by = c("stratum" = "STRATUM")) %>%
-#'     dplyr::group_by(
-#'       survey, year, stratum, species_code,
-#'       species_name, common_name, taxon,
-#'       SURVEY, INPFC_AREA, `Depth range`,
-#'       REGULATORY_AREA_NAME, AREA
-#'     ) %>% # AREA is the area in km^2 of the stratum
-#'     dplyr::summarize(
-#'       stratum_cpue_kgkm2 = mean(cpue_kgkm2),
-#'       stratum_cpue_kgkm2_var = var(cpue_kgkm2)
-#'     ) %>%
-#'     # mean cpue by stratum (not yet weighted)
-#'     ungroup() %>%
-#'     dplyr::left_join(INPFC_areas) %>%
-#'     mutate(weight_for_mean = AREA / INPFC_AREA_AREA_km2)
-#'
-#'   # what we want: a table with CPUE calculated for each region, based on the area-based weightings in the INPFC_areas table.
-#'   districts <- cpue_districts %>%
-#'     dplyr::group_by(INPFC_AREA, species_code) %>%
-#'     dplyr::summarize(
-#'       wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * weight_for_mean)
-#'     ) %>%
-#'     ungroup() %>%
-#'     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-#'     group_by(INPFC_AREA) %>%
-#'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-#'     dplyr::ungroup() %>%
-#'     dplyr::left_join(species_names)
-#'
-#'   if(SRVY=="AI"){
-#'   total_aleutians_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Aleutian Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
-#'
-#'   aleutian_areas <- cpue_districts %>%
-#'     mutate(survey_weight = AREA / total_aleutians_area_km2) %>%
-#'     dplyr::group_by(species_code) %>%
-#'     dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
-#'     ungroup() %>%
-#'     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-#'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-#'     dplyr::left_join(species_names) %>%
-#'     mutate(INPFC_AREA = "All Aleutian Districts")
-#'   }  else{
-#'     aleutian_areas <- data.frame()
-#'   }
-#'
-#'   total_survey_area_km2 <- INPFC_areas[which(INPFC_areas$INPFC_AREA == "All Districts"), "INPFC_AREA_AREA_km2"] %>% as.numeric()
-#'
-#'  all_areas <- cpue_districts %>%
-#'     mutate(survey_weight = AREA / total_survey_area_km2) %>%
-#'     dplyr::group_by(species_code) %>%
-#'     dplyr::summarize(wgted_mean_cpue_kgkm2 = sum(stratum_cpue_kgkm2 * survey_weight)) %>%
-#'     ungroup() %>%
-#'     mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) %>%
-#'     dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) %>%
-#'     dplyr::left_join(species_names) %>%
-#'     mutate(INPFC_AREA = "All Areas Combined")
-#'
-#'
-#'   bigtable <- bind_rows(districts, aleutian_areas, all_areas) %>%
-#'     dplyr::mutate(scientific_name = case_when(
-#'       common_name == "Rougheye / blackspotted rockfish complex" ~ "Sebastes aleutianus / Sebastes melanostictus",
-#'       TRUE ~ scientific_name
-#'     )) %>%
-#'     dplyr::mutate(major_group = case_when(
-#'       common_name == "Rougheye / blackspotted rockfish complex" ~ "Rockfishes",
-#'       TRUE ~ major_group
-#'     ))
-#'
-#'   # bigtable
-#'
-#'   return(bigtable)
-#' }
-#'
-
-
-#' Make summary table of biomass by depth range and mgmt area (assessment request)
-#'
-#' @param species_code five-digit species code (numeric)
-#'
-#' @return a table with total biomass in Aleutian and non-Aleutian areas by year for a given species.
-#' @export
-#'
-#' @examples
-#' make_depth_mgmt_area_summary(species_code = 10130)
-make_depth_mgmt_area_summary <- function(species_code) {
-  x <- biomass_stratum %>%
-    dplyr::filter(SPECIES_CODE == species_code) %>%
-    dplyr::left_join(region_lu, by = c("SURVEY", "STRATUM")) %>%
-    dplyr::select(YEAR, REGULATORY_AREA_NAME, `Depth range`, STRATUM_BIOMASS) %>%
-    dplyr::group_by(YEAR, REGULATORY_AREA_NAME, `Depth range`) %>% #
-    dplyr::summarize(total_biomass = sum(STRATUM_BIOMASS, na.rm = TRUE)) %>%
-    dplyr::ungroup()
-
-  return(x)
-}
-
-
 #' Create CPUE table formatted like the one in the AI 2018 report
 #'
 #' @param top_CPUE A dataframe created by either prep_tab2() or make_top_cpue() (still valid but minorly different from the historical cpue tables to we revert to the former in order to be consistent)
@@ -321,19 +174,6 @@ prep_tab2 <- function(filepath = paste0(dir_in_premadetabs, "Table 2/", "Table 2
 }
 
 
-# Function to calculate confidence intervals for lognormal distribution - hopefully will be deprecated starting with the AI 2024 DPR.
-lognorm_ci <- function(mean, variance, alpha = 0.05) {
-  sigma <- sqrt(log(1 + variance/mean^2)) # Calculate standard deviation
-  z <- qnorm(1 - alpha/2) # Calculate z-value for given alpha (two-tailed)
-  
-  # Calculate lower and upper confidence bounds
-  lower <- exp(log(mean) - z * sigma)
-  upper <- exp(log(mean) + z * sigma)
-  
-  return(c(lower, upper))
-}
-
-
 #' Retrieve Table 3's (biomass per area and depth) for a species
 #'
 #' @param species_code (numeric) 5-digit species code
@@ -344,40 +184,40 @@ lognorm_ci <- function(mean, variance, alpha = 0.05) {
 #'
 #' @examples
 #' prep_tab3(30060)
-prep_tab3 <- function(speciescode, premade = TRUE) {
-  if(premade){
-    filepath <- paste0(dir_in_premadetabs, "Table 3/", speciescode, paste0("_", maxyr, ".csv"))
-    if (!file.exists(filepath)) {
-      stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")
-    }
-    x <- read.csv(file = filepath)
-    # Fix this later
-    if (SRVY == "AI") {
-      x <- x %>%
-        dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
-    } #/ AI exception
-    
-    cleaned_tab <- x %>%
-      dplyr::rename(
-        `Survey district` = Survey.District,
-        `Depth (m)` = Depth..m.,
-        `Haul count` = Haul.Count,
-        `Hauls with catch` = Hauls.w.Catch,
-        `CPUE (kg/ha)` = CPUE..kg.ha.,
-        `Biomass (t)` = Biomass...t.,
-        `Lower 95% CL` = X95..LCL..t.,
-        `Upper 95% CL` = X95..UCL..t.,
-        `Mean weight (kg)` = Weight...kg.
-      ) |>
-      dplyr::filter(`Depth (m)` != "701 - 1000")
-    
-    
-  } #/ if(premade)
-  
-  # NOTE: HERE I WANT TO ADD A VERSION THAT TAKES IN TABLE 3 FROM THE *processed/table_3_allspps.csv file that I painstakingly made from GAP_PRODUCTS!
-
-  return(cleaned_tab)
-}
+# prep_tab3 <- function(speciescode, premade = TRUE) {
+#   if(premade){
+#     filepath <- paste0(dir_in_premadetabs, "Table 3/", speciescode, paste0("_", maxyr, ".csv"))
+#     if (!file.exists(filepath)) {
+#       stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")
+#     }
+#     x <- read.csv(file = filepath)
+#     # Fix this later
+#     if (SRVY == "AI") {
+#       x <- x %>%
+#         dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
+#     } #/ AI exception
+#     
+#     cleaned_tab <- x %>%
+#       dplyr::rename(
+#         `Survey district` = Survey.District,
+#         `Depth (m)` = Depth..m.,
+#         `Haul count` = Haul.Count,
+#         `Hauls with catch` = Hauls.w.Catch,
+#         `CPUE (kg/ha)` = CPUE..kg.ha.,
+#         `Biomass (t)` = Biomass...t.,
+#         `Lower 95% CL` = X95..LCL..t.,
+#         `Upper 95% CL` = X95..UCL..t.,
+#         `Mean weight (kg)` = Weight...kg.
+#       ) |>
+#       dplyr::filter(`Depth (m)` != "701 - 1000")
+#     
+#     
+#   } #/ if(premade)
+#   
+#   # NOTE: HERE I WANT TO ADD A VERSION THAT TAKES IN TABLE 3 FROM THE *processed/table_3_allspps.csv file that I painstakingly made from GAP_PRODUCTS!
+# 
+#   return(cleaned_tab)
+# }
 
 # NOTE: If this breaks in the future, it may be because this table contains character values.
 prep_tab4 <- function(speciescode) {
@@ -409,6 +249,62 @@ prep_tab4 <- function(speciescode) {
     arrange(factor(`Survey district`, levels = district_order), `Depth range (m)`)
 
   return(cleaned_tab)
+}
+
+
+#' Make "table 3" - haul count, hauls, CPUE, Biomass, confidence limits, and avg weight per haul
+#'
+#' @param species_code five-digit species code
+#' @param survey "GOA" or "AI"
+#' @param year  Year of survey
+#' @param biomass_tbl BIOMASS table, taken straight from GAP_PRODUCTS, then filtered to the survey definition ID in report_settings.R
+#' @param area_tbl AREA table taken straight from GAP_PRODUCTS
+#'
+#' @return a draft of table 3 like the ones produced by Paul before!
+#' @export
+#'
+#' @examples
+#' 
+#biomass_tbl <- read.csv("./data/local_gap_products/biomass.csv",header=TRUE)
+#area_tbl <- read.csv("./data/local_gap_products/area.csv",header=TRUE)
+make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
+  if (length(unique(biomass_tbl$SURVEY_DEFINITION_ID)) > 1) {
+    stop("More than one survey definition ID.")
+  }
+  # Filter the two raw tables
+  biomass_yr <- biomass_tbl |> # might take this out of the function, not sure yet
+    dplyr::filter(YEAR == year & SPECIES_CODE == species_code) |>
+    dplyr::mutate(AVG_WEIGHT_KG = round((BIOMASS_MT / POPULATION_COUNT) * 1000, digits = 3))
+
+  biomass_yr[which(biomass_yr$POPULATION_COUNT == 0), "AVG_WEIGHT_KG"] <- "--"
+  biomass_yr[which(biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
+
+  area_lookup <- area_tbl |>
+    dplyr::filter(AREA_TYPE %in% c("INPFC BY DEPTH", "INPFC"))
+
+  combo0 <- area_lookup |>
+    left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
+    dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
+    dplyr::mutate(DEPTH_RANGE = case_when(
+      DEPTH_RANGE == "1 - 500" ~ "All depths",
+      TRUE ~ DEPTH_RANGE
+    )) |>
+    dplyr::select(AREA_NAME, DEPTH_RANGE, 
+                  N_HAUL, N_WEIGHT, 
+                  CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
+                  AVG_WEIGHT_KG)
+  # Format the columns
+  combo <- combo0 |>
+    dplyr::rename(
+      "Survey district" = AREA_NAME,
+      "Depth (m)" = DEPTH_RANGE,
+      "Total haul count" = N_HAUL,
+      "Hauls with positive catch" = N_WEIGHT,
+      "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
+      "CPUE variance (kg/km2)" = CPUE_KGKM2_VAR,
+      "Average weight (kg)" = AVG_WEIGHT_KG
+    )
+  return(combo)
 }
 
 #' Make a rough draft of Table 4
@@ -462,40 +358,6 @@ prep_appendix_b <- function(df) {
   }
   return(df2)
 }
-
-
-# make_table_4 <- function(biomass_stratum = biomass_stratum,
-#                          region_lu = region_lu, # This is a modified goa_strata
-#                          species_code) {
-#   x <- region_lu %>%
-#     dplyr::select(SURVEY, INPFC_AREA, STRATUM, DESCRIPTION, MIN_DEPTH, MAX_DEPTH) %>%
-#     left_join(biomass_stratum, by = c("SURVEY", "STRATUM")) %>%
-#     filter(YEAR == maxyr & SPECIES_CODE == species_code) %>%
-#     dplyr::select(
-#       INPFC_AREA, MIN_DEPTH, MAX_DEPTH, DESCRIPTION, HAUL_COUNT,
-#       CATCH_COUNT, MEAN_WGT_CPUE,
-#       STRATUM_BIOMASS, MIN_BIOMASS, MAX_BIOMASS
-#     ) %>%
-#     arrange(desc(MEAN_WGT_CPUE))
-#   
-#   # Format and rename columns
-#   xx <- x %>%
-#     tidyr::unite("Depth (m)", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
-#     mutate(MEAN_WGT_CPUE_KGHA = MEAN_WGT_CPUE / 100) %>% # convert CPUE from  kg/km2 to kg/ha
-#     dplyr::rename(
-#       `Number of hauls` = HAUL_COUNT,
-#       `Survey district` = INPFC_AREA,
-#       `Hauls with catch` = CATCH_COUNT,
-#       `Mean CPUE (kg/ha)` = MEAN_WGT_CPUE_KGHA,
-#       `Biomass (t)` = STRATUM_BIOMASS,
-#       `LCL (t)` = MIN_BIOMASS,
-#       `UCL (t)` = MAX_BIOMASS
-#     ) %>%
-#     dplyr::select(-MIN_DEPTH, -MAX_DEPTH)
-#   
-#   return(xx)
-# }
-# 
 
 
 

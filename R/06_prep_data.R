@@ -87,31 +87,6 @@ sp_prices <- dat %>%
 
 pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), ])
 
-# AI/GOA tables    ----------------------------------------------
-
-local_folder <- ifelse(SRVY == "AI", "local_ai", "local_goa")
-
-# cpue (source: AI or GOA schema)
-# NOTE: This does not contain inverts and weird stuff! There are only 76 spps in here.
-x <- read.csv(file = here::here("data", local_folder, "cpue.csv"), header = TRUE)
-# This is already 0-filled
-
-cpue_raw <- x %>%
-  left_join(common_names) %>%
-  dplyr::select(-YEAR_ADDED) %>%
-  dplyr::left_join(haul) %>%
-  janitor::clean_names() %>% # need to add common name lookup
-  dplyr::rename(cpue_kgkm2 = wgtcpue) %>%
-  janitor::clean_names()
-
-# Biomass by stratum (source: AI or GOA schema)
-biomass_stratum <- read.csv(here::here("data", local_folder, "biomass_stratum.csv"))
-# where biomass_stratum.csv is GOA.BIOMASS_STRATUM or AI.BIOMASS_STRATUM downloaded from Oracle as csv - janky but will have to work for now
-
-# Total biomass across survey area - currently reads from local copy; download/update to new one by running the setup script again and downloading fresh tables from oracle)
-#biomass_total_orig <- read.csv(here::here("data", local_folder, "biomass_total.csv"))
-
-
 # GAP_PRODUCTS tables -----------------------------------------------------
 # biomass, cpue
 x <- read.csv(here::here("data","local_gap_products","biomass.csv"))
@@ -242,24 +217,25 @@ if (SRVY == "GOA") {
 
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
+# This like a lookup table for allocating strata to the correct area and depth
 dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
 
-region_lu <- dat %>%
-  filter(SURVEY == SRVY) %>%
+region_lu <- dat |>
+  dplyr::filter(SURVEY == SRVY) |>
   dplyr::select(
     SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH,
     REGULATORY_AREA_NAME, AREA, DESCRIPTION
-  ) %>%
-  filter(STRATUM <= 794) %>%
-  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) %>%
-  mutate(`Depth range` = paste0(`Depth range`, " m")) %>%
-  mutate(INPFC_AREA = str_trim(INPFC_AREA))
+  ) |>
+  dplyr::filter(STRATUM <= 794) |>
+  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
+  dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
+  dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
 # For AI years, add abbreviated area names:
-region_lu2 <- region_lu %>%
-  dplyr::group_by(INPFC_AREA) %>%
-  dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) %>%
-  dplyr::ungroup() %>%
+region_lu2 <- region_lu |>
+  dplyr::group_by(INPFC_AREA) |>
+  dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
+  dplyr::ungroup() |>
   mutate(INPFC_AREA_ABBREV = case_when(
     INPFC_AREA == "Central Aleutians" ~ "Central AI",
     INPFC_AREA == "Eastern Aleutians" ~ "Eastern AI",

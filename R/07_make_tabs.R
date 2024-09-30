@@ -26,9 +26,6 @@ if (SRVY == "GOA") {
 } else {
   otos_target_sampled <- data.frame(test = c(1, 2, 3), replace_me = letters[1:3])
 }
-# Experiment: try creating a kableExtra table and saving it as an image.
-# otos_target_sampled$percent.diff <- color_bar("lightgreen")(otos_target_sampled$percent.diff)
-
 
 # Sp richness by subregion and family ------------------------------------------
 subregion_fam_div <- appB %>%
@@ -45,15 +42,18 @@ subregion_fam_div <- appB %>%
 # Can convert this into a function later
 biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
 
-area_gp <- read.csv("data/local_gap_products/area.csv") |>
-  dplyr::filter(DESIGN_YEAR == 1984) |>
+area_gp <- read.csv("data/local_gap_products/area.csv") #|>
+  #dplyr::filter(DESIGN_YEAR == 1984) |>
+  
+area_gp_inpfc_region <- area_gp |>
   dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION"))
 topn <- 20
 
 # Make table of top CPUE
 top_CPUE <- biomass_gp |>
-  dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
-  dplyr::right_join(area_gp, by = c("AREA_ID")) |>
+  dplyr::filter(SPECIES_CODE < 40001 & YEAR == maxyr) |> # take out inverts
+  dplyr::right_join(area_gp_inpfc_region) |>
+  dplyr::filter(!is.na(AREA_TYPE)) |> # only want the total across AI and biomass for each region (EAI, CAI, etc)
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename(
     "INPFC_AREA" = AREA_NAME,
@@ -81,34 +81,6 @@ write.csv(
   row.names = FALSE
 )
 
-
-# Presentation: % changes in biomass since last survey --------------------
-
-head(biomass_total)
-
-compare_tab <- biomass_total %>%
-  filter(YEAR %in% c(maxyr, compareyr) &
-    SPECIES_CODE %in% report_species$species_code) %>%
-  dplyr::select(YEAR, SPECIES_CODE, TOTAL_BIOMASS) %>%
-  dplyr::arrange(YEAR) %>%
-  tidyr::pivot_wider(
-    names_from = YEAR,
-    values_from = TOTAL_BIOMASS,
-    names_prefix = "yr_"
-  ) %>%
-  as.data.frame()
-
-compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
-names(compare_tab)
-
-compare_tab2 <- compare_tab %>%
-  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
-  arrange(-SPECIES_CODE)
-
-write.csv(
-  x = compare_tab2,
-  file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_year.csv")
-)
 
 # Stations allocated, attempted, succeeded --------------------------------
 
@@ -219,30 +191,54 @@ surveywide_samplingdensity <- allocated_sampled |>
   as.numeric() |>
   round(digits = 4)
 
-# "Table 3" and "Table 4" ------------------------------------------------------
-# Check to see if all the species in the list are in the folder
-toMatch <- report_species$species_code
-matches <- unique(grep(paste(toMatch, collapse = "|"),
-  list.files(paste0(dir_in_premadetabs, "Table 3/")),
-  value = TRUE
-))
+# "Table 3" -----------------------------------------------------------
+# biomass_gp already loaded above
+# area_gp loaded above
 
-print("Checking for tables missing from the G Drive...")
-# which species are there tables for?
-x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
-y <- sub(pattern = paste0("*_", maxyr, ".csv"), replacement = "", x = x)
+table3s_list <- list()
 
-lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
-
-if (length(lookforme) > 0) {
-  print(paste("Table 3: Check for species", lookforme))
+for(i in 1:nrow(report_species)){
+  tab3 <- make_tab3(species_code = report_species$species_code[i],
+                    year = maxyr,
+                    biomass_tbl = biomass_gp,
+                    area_tbl = area_gp)
+  tab3_ord <- tab3 |>
+    dplyr::arrange(factor(`Survey district`, levels = district_order))
+  
+  write.csv(x = tab3_ord,file = paste0(dir_out_todaysrun,"tables/tab3_",
+                                   report_species$species_code[i],"_",maxyr,".csv"))
+  table3s_list[[i]] <- tab3_ord
 }
 
-table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
 names(table3s_list) <- report_species$species_code
 
-table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
-names(table4s_list) <- report_species$species_code
+print("Done creating Table 3s")
+
+# OLD CODE WHEN PULLING DRAFT TABLES FROM G DRIVE
+# We did this in 2023 and earlier
+# Check to see if all the species in the list are in the folder
+# toMatch <- report_species$species_code
+# matches <- unique(grep(paste(toMatch, collapse = "|"),
+#   list.files(paste0(dir_in_premadetabs, "Table 3/")),
+#   value = TRUE
+# ))
+# 
+# print("Checking for tables missing from the G Drive...")
+# # which species are there tables for?
+# x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
+# y <- sub(pattern = paste0("*_", maxyr, ".csv"), replacement = "", x = x)
+# 
+# lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
+# 
+# if (length(lookforme) > 0) {
+#   print(paste("Table 3: Check for species", lookforme))
+# }
+# 
+# table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
+# names(table3s_list) <- report_species$species_code
+# 
+# table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
+# names(table4s_list) <- report_species$species_code
 
 
 # Size comps for summaries ------------------------------------------------
@@ -267,7 +263,7 @@ sizecomps_expanded <- sizecomp_gp |>
     pop_expander = round(POPULATION_COUNT / 1e4),
     LENGTH_CM = LENGTH_MM / 10
   ) |>
-  dplyr::right_join(area_gp, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
+  dplyr::right_join(area_gp_inpfc_region, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
   dplyr::filter(AREA_TYPE == "INPFC") |> # AREA_TYPE == "INPFC BY DEPTH"
   dplyr::select(
     AREA_NAME, DESCRIPTION, DEPTH_MIN_M, DEPTH_MAX_M,
