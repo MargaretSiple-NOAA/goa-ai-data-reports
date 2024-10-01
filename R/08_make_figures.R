@@ -379,7 +379,7 @@ if (make_cpue_bubbles_strata) {
       geom_sf( # x's for places where cpue=0
         data = filter(thisyrshauldata, cpue_kgha == 0),
         alpha = 0.5,
-        color = "grey5",
+        color = "red",
         shape = 4,
         size = 1
       ) +
@@ -410,7 +410,7 @@ if (make_cpue_bubbles_strata) {
       geom_sf( # x's for places where cpue=0
         data = filter(thisyrshauldata, cpue_kgha == 0),
         alpha = 0.5,
-        color = "grey5",
+        color = "red",
         shape = 4,
         size = 1
       ) +
@@ -441,7 +441,7 @@ if (make_cpue_bubbles_strata) {
       geom_sf( # x's for places where cpue=0
         data = filter(thisyrshauldata, cpue_kgha == 0),
         alpha = 0.5,
-        color = "grey5",
+        color = "red",
         shape = 4,
         size = 1
       ) +
