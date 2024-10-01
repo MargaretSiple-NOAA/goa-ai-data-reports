@@ -109,26 +109,23 @@ print("Finished downloading strata file.")
 
 
 if (SRVY == "GOA") {
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_TOTAL")
-  write.csv(x = a, "./data/local_goa/biomass_total.csv", row.names = FALSE)
-
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
-  write.csv(x = a, "./data/local_goa/biomass_stratum.csv", row.names = FALSE)
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_TOTAL")
+  # write.csv(x = a, "./data/local_goa/biomass_total.csv", row.names = FALSE)
+  # 
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
+  # write.csv(x = a, "./data/local_goa/biomass_stratum.csv", row.names = FALSE)
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
 
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.CPUE")
-  write.csv(x = a, "./data/local_goa/cpue.csv", row.names = FALSE)
-
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.SIZECOMP_TOTAL")
-  write.csv(x = a, "./data/local_goa/sizecomp_total.csv", row.names = FALSE)
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.CPUE")
+  # write.csv(x = a, "./data/local_goa/cpue.csv", row.names = FALSE)
+  # 
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.SIZECOMP_TOTAL")
+  # write.csv(x = a, "./data/local_goa/sizecomp_total.csv", row.names = FALSE)
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOAGRID")
   write.csv(x = a, "./data/local_goa/goagrid.csv", row.names = FALSE)
-
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
-  write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
 
   print("Finished downloading GOA schema tables")
 }
@@ -136,23 +133,20 @@ if (SRVY == "GOA") {
 
 # AI ----------------------------------------------------------------------
 if (SRVY == "AI") {
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_TOTAL")
-  write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
-
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_STRATUM")
-  write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
-
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
-  write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
-
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
-  write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
-
-  a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.SIZECOMP_TOTAL")
-  write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_TOTAL")
+  # write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
+  # 
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_STRATUM")
+  # write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
+
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
+  # write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
+  # 
+  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.SIZECOMP_TOTAL")
+  # write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
 
   print("Finished downloading AI schema tables")
 }
@@ -180,10 +174,11 @@ write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
 # size comps - recreate the sizecomp table as it was in AI and GOA schemas
 # MAY NEED TO WORK ON THIS MORE LATER. THIS SHOULD DOWNLOAD THE RAW TABLE AND THAT SHOULD BE PROCESSED LATER.
+
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
 a <- dplyr::filter(
-  a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-    AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
+  a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) #&
+    #AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
 ) |>
   dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(
     SEX == 1 ~ "MALES",

@@ -98,35 +98,6 @@ nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
 
-# CPUE
-# if(!use_gapindex){
-# if (SRVY == "AI") {
-#   x <- read.csv(file = here::here("data", "local_ai", "cpue.csv"), header = TRUE)
-#
-#   # This is already 0-filled
-#   cpue_raw <- x |>
-#     left_join(common_names) |>
-#     dplyr::select(-YEAR_ADDED) |>
-#     dplyr::left_join(haul) |>
-#     janitor::clean_names() |> # need to add common name lookup
-#     dplyr::rename(cpue_kgkm2 = wgtcpue) |>
-#     janitor::clean_names()
-# }
-#
-# if (SRVY == "GOA") {
-#   x <- read.csv(file = here::here("data", "local_goa", "cpue.csv"), header = TRUE)
-#
-#   # This is already 0-filled
-#   cpue_raw <- x |>
-#     left_join(common_names) |>
-#     dplyr::select(-YEAR_ADDED) |>
-#     dplyr::left_join(haul) |>
-#     janitor::clean_names() |> # need to add common name lookup
-#     dplyr::rename(cpue_kgkm2 = wgtcpue) |>
-#     janitor::clean_names()
-# }
-# }
-
 # Data for text ---------------------------------------------------
 # Length data from racebase:
 L <- read.csv(here::here("data/local_racebase/length.csv"))
