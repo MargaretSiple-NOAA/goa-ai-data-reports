@@ -414,6 +414,16 @@ otos_collected <- specimen_maxyr %>%
   ungroup() %>%
   arrange(factor(INPFC_AREA, levels = district_order))
 
+otos_by_species <- specimen_maxyr %>%
+  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+  dplyr::left_join(haul_maxyr, by = c(
+    "CRUISEJOIN","CRUISE", "HAULJOIN", "HAUL",
+    "REGION", "VESSEL", "YEAR"
+  )) %>%
+  dplyr::group_by(SPECIES_CODE) |>
+  dplyr::summarize("Pairs of otoliths collected" = n()) |>
+  ungroup()
+
 L_maxyr <- L %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
