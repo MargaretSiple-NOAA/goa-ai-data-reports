@@ -132,7 +132,7 @@ list_tables[["length-sample-sizes"]] %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2022 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', 'Map of the GOA 2023 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
+```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', 'Map of the GOA 2023 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
 if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 ```
 
@@ -238,10 +238,11 @@ for (i in 1:3) { # nrow(report_species)
     dplyr::arrange(-BIOMASS_MT)
   xth <- which(spps_ordered_by_biomass$SPECIES_CODE == species_code)
 
-  species_biomass <- format(
+  species_biomass0 <- format(
     round(spps_ordered_by_biomass$BIOMASS_MT[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
     big.mark = ","
   )
+  species_biomass <- paste0(species_biomass0,"&nbsp;","mt")
   
   # Percent change in B since compareyr and maxyr
   spp_percent_change1 <- compare_tab$percent_change[which(compare_tab$SPECIES_CODE == species_code)]
@@ -282,7 +283,7 @@ for (i in 1:3) { # nrow(report_species)
     } %>%
    magrittr::extract2(1)
 
-  depth_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
+  depth_highest_biomass0 <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     #mutate(`Survey district` = na_if(`Survey district`, "")) %>%
     #tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Survey district` == "All areas" & `Depth (m)` != "All depths") %>% # take out the total
@@ -290,7 +291,7 @@ for (i in 1:3) { # nrow(report_species)
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Depth (m)`) %>%
     as.character()
-  depth_highest_biomass <- paste(depth_highest_biomass, "m")
+  depth_highest_biomass <- paste0(depth_highest_biomass0,"&nbsp;","m")
 
    if(species_code==78403){# true/false, if it's for octopus don't make length comp or length scatter figs and use a different template maybe
    src[[i]] <- knitr::knit_expand(here::here("markdown", "InvertebrateResultTemplate.Rmd"))
@@ -303,11 +304,12 @@ for (i in 1:3) { # nrow(report_species)
     } %>%
     as.character()
 
-  depth_longest <- meanlengths_depth %>%
+  depth_longest0 <- meanlengths_depth %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
     top_n(1, `Mean length`) %>%
     dplyr::select(`Depth range`) %>%
-    as.character()
+    as.character() 
+  depth_longest <- gsub(pattern = " ",replacement ="&nbsp;",x = depth_longest)
 
   spp_n_length <- meanlengths_area %>%
     dplyr::filter(SPECIES_CODE == species_code) %>%
