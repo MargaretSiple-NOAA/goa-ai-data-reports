@@ -266,38 +266,6 @@ names(table4s_list) <- report_species$species_code
 
 print("Done creating Table 4s")
 
-# Size comps for summaries ------------------------------------------------
-# Table sizecomp_stratum is from gapindex which queries Oracle, so the code to do it is in 05_download_data_from_oracle.R
-sizecomp_stratum <- read.csv(file = paste0("./data/local_", tolower(SRVY), "/sizecomp_stratum.csv"), header = TRUE)
-strata <- read.csv(file = "data/goa_strata.csv", header = TRUE)
-sc <- strata |>
-  dplyr::filter(SURVEY == SRVY) |>
-  dplyr::right_join(sizecomp_stratum) |>
-  dplyr::mutate(DEPTH_RANGE = paste(MIN_DEPTH, "-", MAX_DEPTH, "m")) |>
-  dplyr::select(
-    STRATUM, INPFC_AREA, STRATUM, SPECIES_CODE,
-    LENGTH_MM, SEX, POPULATION_COUNT, DEPTH_RANGE
-  )
-
-sizecomp_gp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE)
-
-# Create a full uncounted dataframe of lengths - this is the expanded lengths from the sizecomp table
-sizecomps_expanded <- sizecomp_gp |>
-  dplyr::filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) & YEAR == maxyr) |>
-  dplyr::mutate(
-    pop_expander = round(POPULATION_COUNT / 1e4),
-    LENGTH_CM = LENGTH_MM / 10
-  ) |>
-  dplyr::right_join(area_gp_inpfc_region, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
-  dplyr::filter(AREA_TYPE == "INPFC") |> # AREA_TYPE == "INPFC BY DEPTH"
-  dplyr::select(
-    AREA_NAME, DESCRIPTION, DEPTH_MIN_M, DEPTH_MAX_M,
-    SPECIES_CODE, LENGTH_CM, SEX, pop_expander
-  ) |>
-  dplyr::group_by(AREA_NAME, DESCRIPTION, DEPTH_MIN_M, DEPTH_MAX_M, SPECIES_CODE, SEX) |>
-  tidyr::uncount(pop_expander) |>
-  dplyr::ungroup() |>
-  dplyr::mutate(depth_range = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M, "m"))
 
 # Assemble and save tables -----------------------------------------------------
 
@@ -307,7 +275,7 @@ list_tables[["allocated_sampled"]] <- allocated_sampled # Stations allocated and
 list_tables[["length-sample-sizes"]] <- targetn # Target length size for species/species groups
 list_tables[["top_CPUE"]] <- top_CPUE
 list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
-list_tables[["sizecomp_stratum"]] <- sizecomp_stratum
+#list_tables[["sizecomp_stratum"]] <- sizecomp_stratum
 
 
 save(list_tables,
@@ -322,6 +290,3 @@ save(table4s_list,
   file = paste0(dir_out_tables, "table4s_list.rdata")
 )
 
-save(sizecomps_expanded,
-  file = paste0(dir_out_tables, "sizecomps_expanded.RDS")
-)

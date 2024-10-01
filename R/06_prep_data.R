@@ -90,6 +90,7 @@ pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), 
 # GAP_PRODUCTS tables -----------------------------------------------------
 # biomass, cpue
 x <- read.csv(here::here("data","local_gap_products","biomass.csv"))
+
 biomass_total <- x |> 
   dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
   mutate(
@@ -469,11 +470,11 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
 # Length comps from size comp table ---------------------------------------
 # Expand length table to make freqs -- these should be used for joy division and other length hist plots
 
-sizecomp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE) %>%
-  filter(SURVEY == SRVY & YEAR >= minyr)
-
 if (use_gapindex) {
   sizecomp <- sizecomp_gapindex
+}else{
+  sizecomp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE) |>
+    dplyr::filter(SURVEY == SRVY & YEAR >= minyr)
 }
 
 # Janky but I am in a rush so will have to deal. See notes below.

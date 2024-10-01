@@ -18,7 +18,6 @@ make_cpue_bubbles <- TRUE
 make_joy_division_length <- TRUE
 # 5b. Length vs. depth, faceted by district
 make_ldscatter <- TRUE
-make_ldcloud <- FALSE
 # 6. Plot of surface and bottom SST with long term avg
 make_temp_plot <- TRUE
 # XX. Make a map of the full survey area with strata and stations
@@ -53,14 +52,6 @@ if (SRVY == "GOA") {
 } else {
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, SURVEY == "AI")
-  nstrata <- length(unique(a$STRATUM))
-}
-
-
-if (SRVY == "GOA") {
-  # From Ned
-  a <- read.csv("data/goa_strata.csv")
-  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
   nstrata <- length(unique(a$STRATUM))
 }
 
@@ -473,7 +464,7 @@ if (make_cpue_bubbles_strata) {
     
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", namebubble, "_CPUEstratabubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
@@ -627,7 +618,7 @@ if (make_cpue_bubbles) {
       dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
       st_as_sf(
-        coords = c("start_longitude", "start_latitude"),
+        coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
       ) %>%
       st_transform(crs = reg_data$crs)
@@ -667,32 +658,32 @@ if (make_joy_division_length) {
     source("R/06_prep_data.R")
   }
   # This is repeated; deal with it later
-  L <- read.csv(here::here("data/local_racebase/length.csv"))
-  L <- L %>%
-    mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
+  L0 <- read.csv(here::here("data/local_racebase/length.csv"))
+  L <- L0 |>
+    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
   length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
 
-  length2 <- L %>% # L is the big length table from RACEBASE
+  L2 <- L |> # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
 
-  length3 <- length2 %>%
-    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
-    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
-    left_join(region_lu, by = "STRATUM") %>%
+  L3 <- L2 |>
+    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
+    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
+    left_join(region_lu, by = "STRATUM") |>
     mutate(Sex = case_when(
       SEX == 1 ~ "Male",
       SEX == 2 ~ "Female",
       SEX == 3 ~ "Unsexed"
-    )) %>%
+    )) |>
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
 
-  sample_sizes <- length3 %>%
-    filter(YEAR >= minyr) %>%
-    dplyr::group_by(YEAR, SPECIES_CODE, Sex) %>%
-    dplyr::summarize(n = sum(FREQUENCY)) %>%
-    ungroup() %>%
+  sample_sizes <- L3 |>
+    filter(YEAR >= minyr) |>
+    dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
+    dplyr::summarize(n = sum(FREQUENCY)) |>
+    ungroup() |>
     mutate(YEAR = as.integer(YEAR))
 
   # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
@@ -707,7 +698,7 @@ if (make_joy_division_length) {
       # rep("kam_atf", times = 2),
       rep("rebs", times = 3)
     )
-  ) %>%
+  ) |>
     mutate(complex_name = case_when(
       complex == "nrs_srs" ~ "Northern and southern rock sole",
       complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
@@ -774,7 +765,7 @@ if (make_joy_division_length) {
           quantile_lines = T,
           quantile_fun = median,
           vline_color = "white",
-          vline_size = 0.6,
+          vline_width = 0.6,
           vline_linetype = "dotted" # "A1"
         ) +
         scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
@@ -859,7 +850,7 @@ if (make_joy_division_length) {
             quantile_lines = T,
             quantile_fun = median,
             vline_color = "white",
-            vline_size = 0.6,
+            vline_width = 0.6,
             vline_linetype = "dotted" # "A1"
           ) +
           scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
@@ -907,64 +898,7 @@ if (make_joy_division_length) {
 }
 
 
-# 5b. Scatter plots of length by depth by region --------------------------
-
-if (make_ldcloud) {
-  list_ldcloud <- list()
-  # depth_trend_df <- data.frame(report_species = NA, depth_trend = NA)
-  load(paste0(dir_in_tables, "/sizecomps_expanded.RDS"))
-
-  for (i in 1:nrow(report_species)) {
-    if (report_species$species_code[i] == 78403) {
-      ldscatter <- ggplot() +
-        theme_void()
-    } else {
-      ltoplot <- sizecomps_expanded |>
-        filter(SPECIES_CODE == report_species$species_code[i])
-
-      ltoplot2 <- ltoplot |>
-        mutate(AREA_NAME = "All districts") |>
-        bind_rows(ltoplot)
-
-      ltoplot2$AREA_NAME <- factor(ltoplot2$AREA_NAME,
-        levels = c(district_order, "All districts")
-      )
-      ltoplot2$depth_range <- factor(ltoplot2$depth_range,
-        levels = rev(unique(ltoplot2$depth_range))
-      )
-
-      ldscatter <- ltoplot2 |>
-        ggplot(aes(depth_range, LENGTH_CM)) +
-        ggdist::stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) +
-        geom_boxplot(width = .1, outlier.shape = NA) +
-        coord_flip() +
-        facet_wrap(~AREA_NAME) +
-        xlab("Bottom depth") +
-        ylab("Length (cm)") +
-        theme_light(base_size = 14) +
-        theme(
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          legend.position = "none",
-          strip.background = element_blank(),
-          strip.text = element_text(colour = "black")
-        )
-    }
-    png(filename = paste0(
-      dir_out_figures, maxyr, "_",
-      report_species$spp_name_informal[i], "_ldcloud.png"
-    ), width = 9, height = 2, units = "in", res = 200)
-    print(ldscatter)
-    dev.off()
-
-    list_ldscatter[[i]] <- ldscatter
-    print(paste("Done with length by depth raincloud plot of", report_species$spp_name_informal[i]))
-  }
-  names(list_ldscatter) <- report_species$species_code
-  save(list_ldscatter, file = paste0(dir_out_figures, "list_ldcloud.rdata"))
-  print("Done with length by depth raincloud plots.")
-}
-
+# 5b. Scatter plot of length by depth -----------------------------------------
 if (make_ldscatter) {
   lscale <- 10
   dscale <- 100
