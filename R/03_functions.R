@@ -280,13 +280,16 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   biomass_yr[which(biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
 
   area_lookup <- area_tbl |>
-    dplyr::filter(AREA_TYPE %in% c("INPFC BY DEPTH", "INPFC"))
+    dplyr::filter(AREA_TYPE %in% c("INPFC BY DEPTH", 
+                                   "INPFC", 
+                                   "DEPTH", "REGION"))
 
   combo0 <- area_lookup |>
     left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
     dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
     dplyr::mutate(DEPTH_RANGE = case_when(
       DEPTH_RANGE == "1 - 500" ~ "All depths",
+      DEPTH_RANGE =="NA - NA" ~ "All depths",
       TRUE ~ DEPTH_RANGE
     )) |>
     dplyr::select(AREA_NAME, DEPTH_RANGE, 
@@ -295,6 +298,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
                   BIOMASS_MT,
                   #BIOMASS_VAR,
                   AVG_WEIGHT_KG)
+  
   # Format the columns
   combo <- combo0 |>
     dplyr::rename(
@@ -311,9 +315,13 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   # Format numbers in CPUE and biomass columns
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`,digits = 2)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
+
+  combo_ord <- combo |>
+    dplyr::arrange(factor(`Survey district`, levels = c(district_order, "All")))
+
+  combo_ord$`Survey district`[which(combo_ord$`Survey district`=="All")] <- "All areas"
   
-  
-  return(combo)
+  return(combo_ord)
 }
 
 #' Makr Table 4 - summary of CPUE and biomass by stratum

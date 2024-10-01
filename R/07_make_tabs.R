@@ -199,14 +199,12 @@ for (i in 1:nrow(report_species)) {
     biomass_tbl = biomass_gp,
     area_tbl = area_gp
   )
-  tab3_ord <- tab3 |>
-    dplyr::arrange(factor(`Survey district`, levels = district_order))
 
-  write.csv(x = tab3_ord, file = paste0(
+  write.csv(x = tab3, file = paste0(
     dir_out_todaysrun, "tables/tab3_",
     report_species$species_code[i], "_", maxyr, ".csv"
   ))
-  table3s_list[[i]] <- tab3_ord
+  table3s_list[[i]] <- tab3
 }
 
 names(table3s_list) <- report_species$species_code
