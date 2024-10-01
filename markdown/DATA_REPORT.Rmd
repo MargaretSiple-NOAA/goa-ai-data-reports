@@ -162,9 +162,9 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
     align(align = "center", part = "all") %>%
     align(j = 1, align = "left", part = "body") %>%
     autofit()
-} else {
-  x <- data.frame(test = 1:3, replace_me = letters[1:3])
-  flextable(x)
+# } else {
+#   x <- data.frame(test = 1:3, replace_me = letters[1:3])
+#   flextable(x)
 #}
 ```
 
@@ -223,23 +223,23 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 # report_species contains the list of species in the report 
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
 
    species_code <- report_species$species_code[i]
     
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
-  middle_sentences <- blurbs$middle_sentences[which(blurbs$species_code == species_code)]
+  
   year <- maxyr
   region <- survname_long
 
   spps_ordered_by_biomass <- biomass_maxyr %>% # biomass_maxyr comes from AI.BIOMASS_TOTAL, subsetted to this year
-    dplyr::arrange(-TOTAL_BIOMASS)
+    dplyr::arrange(-BIOMASS_MT)
   xth <- which(spps_ordered_by_biomass$SPECIES_CODE == species_code)
 
   species_biomass <- format(
-    round(spps_ordered_by_biomass$TOTAL_BIOMASS[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
+    round(spps_ordered_by_biomass$BIOMASS_MT[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
     big.mark = ","
   )
   
@@ -250,13 +250,10 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
 
   inpfc_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     mutate(`Survey district` = na_if(`Survey district`, "")) %>%
-    tidyr::fill(`Survey district`, .direction = "down") %>%
+    #tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Depth (m)` == "All depths") %>%
     filter(`Survey district` != "All areas") %>% # take out the total
-    {
-      if (SRVY == "AI") filter(., `Survey district` != "Combined Aleutian Districts") else .
-    } %>%
-    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (t)`))) %>%
+    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (mt)`))) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
     {
@@ -272,7 +269,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     {
       if (SRVY == "AI") filter(., `Survey district` != "Combined Aleutian Districts") else .
     } %>%
-    mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/ha)`))) %>%
+    mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/km2)`))) %>%
     dplyr::slice_max(cpue_numeric, n = 2) %>%
     dplyr::select(`Survey district`) %>%
     {
@@ -286,16 +283,14 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
    magrittr::extract2(1)
 
   depth_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
-    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
-    tidyr::fill(`Survey district`, .direction = "down") %>%
+    #mutate(`Survey district` = na_if(`Survey district`, "")) %>%
+    #tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Survey district` == "All areas" & `Depth (m)` != "All depths") %>% # take out the total
-    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (t)`)) %>%
+    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (mt)`)) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Depth (m)`) %>%
     as.character()
   depth_highest_biomass <- paste(depth_highest_biomass, "m")
-
-  middle_sentences <- blurbs[which(blurbs$species_code == species_code), "middle_sentences"]
 
    if(species_code==78403){# true/false, if it's for octopus don't make length comp or length scatter figs and use a different template maybe
    src[[i]] <- knitr::knit_expand(here::here("markdown", "InvertebrateResultTemplate.Rmd"))
