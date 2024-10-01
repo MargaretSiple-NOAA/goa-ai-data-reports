@@ -23,6 +23,8 @@ top_CPUE <- read.csv(
     paste0(dir_in_tables, "top_CPUE_", maxyr, ".csv")
 ) # /topcpue
 
+compare_tab <- read.csv(paste0(dir_in_tables, maxyr, "_","comparison_w_previous_survey.csv"))
+
 
 # Load figures ------------------------------------------------------------
 # Static map of region - already loaded?
