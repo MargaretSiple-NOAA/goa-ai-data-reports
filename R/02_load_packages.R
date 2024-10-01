@@ -35,15 +35,15 @@ PKG <- c(
   "ggplot2", 
   "patchwork",
   "png",
-  #"extrafont", # ADD BACK IN IF NEEDED
+  "broom",
   "ggpubr",
-  "nmfspalette",
+  #"nmfspalette", #add back in if needed
   "ggridges",
   "RColorBrewer",
   "MetBrewer",
   "scales",
   "ggridges",
-  "rcartocolor",
+  "rcartocolor", 
   "ggdist",
   "qrcode",
   

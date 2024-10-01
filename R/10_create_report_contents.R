@@ -17,7 +17,7 @@ if (y) {
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
 # x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
-x <- FALSE
+x <- TRUE
 if (x) {
   source("R/05_download_data_from_oracle.R")
 }
@@ -46,7 +46,7 @@ if(SRVY=="AI"){ai_map_layers <- c("ai_central", "ai_east", "ai_west")}else{ai_ma
 
 rm(list = c(
   ai_map_layers, "bartheme", "bubbletheme", "catch", "fig", "haul",
-  "joyplot", "length2", "length3", "linetheme", 
+  "joyplot", "L2", "L3", "linetheme", 
   "list_cpue_bubbles", "list_joy_length","list_temperature", "list_ldscatter",
   "list_tables", "S", "table3s_list", "table4s_list",  "tabledate", 
   "figuredate", "reportvaluesdate"

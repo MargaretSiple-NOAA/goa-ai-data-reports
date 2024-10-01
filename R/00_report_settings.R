@@ -5,13 +5,13 @@ usePNGPDF <- "png"
 maxyr <- 2024 # Change this for the year!
 minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 1993 for GOA
 compareyr <- 2022 # Change this for the year!
-pres_or_report <- "pres" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
+pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GOA and AI schemas.
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <-"2024-09-08"  #"2023-11-10"
-figuredate <- "2024-09-08"
-reportvaluesdate <- "2024-09-08"
+tabledate <-"2024-10-01"  #"2023-11-10"
+figuredate <- "2024-10-01"
+reportvaluesdate <- "2024-10-01"
 
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
@@ -36,11 +36,9 @@ if (SRVY == "AI") {
 
 # Pre-assigned stations
 if (SRVY == "GOA") {
-  # all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
   preassignedstationstatement <- "This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
 and this will become a permanent feature of our station allocations in the future."
 } else {
-  # all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
   preassignedstationstatement <- ""
 }
 

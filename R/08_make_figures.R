@@ -23,27 +23,29 @@ make_temp_plot <- TRUE
 # XX. Make a map of the full survey area with strata and stations
 make_total_surv_map <- FALSE
 
+make_special_rebs <- FALSE
+
 # Base maps ---------------------------------------------------------------
-# if (SRVY == "AI") {
-#   ai_east <- akgfmaps::get_base_layers(
-#     select.region = "ai.east",
-#     set.crs = "auto"
-#   ) 
-#   ai_central <- akgfmaps::get_base_layers(
-#     select.region = "ai.central",
-#     set.crs = "auto"
-#   )
-#   ai_west <- akgfmaps::get_base_layers(
-#     select.region = "ai.west",
-#     set.crs = "auto"
-#   )
-#   
-#   # Make a category that is just the depth of the stratum, for easy labeling
-#   ai_east$survey.strata <- ai_east$survey.strata |>
-#     mutate(strat_depth = substr(STRATUM, 3, 3))
-#   
-#   nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
-# }
+if (SRVY == "AI") {
+  ai_east <- akgfmaps::get_base_layers(
+    select.region = "ai.east",
+    set.crs = "auto"
+  )
+  ai_central <- akgfmaps::get_base_layers(
+    select.region = "ai.central",
+    set.crs = "auto"
+  )
+  ai_west <- akgfmaps::get_base_layers(
+    select.region = "ai.west",
+    set.crs = "auto"
+  )
+
+  # Make a category that is just the depth of the stratum, for easy labeling
+  ai_east$survey.strata <- ai_east$survey.strata |>
+    mutate(strat_depth = substr(STRATUM, 3, 3))
+
+  #nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
+}
 
 if (SRVY == "GOA") {
   a <- read.csv("data/goa_strata.csv")
@@ -53,6 +55,39 @@ if (SRVY == "GOA") {
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, SURVEY == "AI")
   nstrata <- length(unique(a$STRATUM))
+}
+
+if (SRVY == "GOA") {
+  reg_dat_goa <- akgfmaps::get_base_layers(
+    select.region = "goa",
+    set.crs = "EPSG:3338"
+  )
+  reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+    dplyr::mutate(
+      SRVY = "GOA",
+      color = scales::alpha(colour = "grey80", 0.7),
+      SURVEY = "Gulf of Alaska"
+    )
+  reg_data <- reg_dat_goa
+  
+  goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
+  goa_inpfc <- goa_all$inpfc.strata
+  
+  geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
+}
+
+if (SRVY == "AI") {
+  reg_dat_ai <- akgfmaps::get_base_layers(
+    select.region = "ai",
+    set.crs = "EPSG:3338"
+  )
+  reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
+    dplyr::mutate(
+      SRVY = "AI",
+      color = scales::alpha(colour = "grey80", 0.7),
+      SURVEY = "Aleutian Islands"
+    )
+  reg_data <- reg_dat_ai
 }
 
 # Aesthetic settings ------------------------------------------------------
@@ -151,41 +186,6 @@ img1 <- png::readPNG(img1_path)
 
 # 0b: INPFC areas with stations sampled -----------------------------------
 if (make_total_surv_map) {
-  if (SRVY == "GOA") {
-    reg_dat_goa <- akgfmaps::get_base_layers(
-      select.region = "goa",
-      set.crs = "EPSG:3338"
-    )
-    reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
-      dplyr::mutate(
-        SRVY = "GOA",
-        color = scales::alpha(colour = "grey80", 0.7),
-        SURVEY = "Gulf of Alaska"
-      )
-    reg_data <- reg_dat_goa
-    
-    goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
-    goa_inpfc <- goa_all$inpfc.strata
-    
-    geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
-  }
-
-  if (SRVY == "AI") {
-    reg_dat_ai <- akgfmaps::get_base_layers(
-      select.region = "ai",
-      set.crs = "EPSG:3338"
-    )
-    reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
-      dplyr::mutate(
-        SRVY = "AI",
-        color = scales::alpha(colour = "grey80", 0.7),
-        SURVEY = "Aleutian Islands"
-      )
-    reg_data <- reg_dat_ai
-  }
-
-  
-
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
   palette_map <- MetBrewer::met.brewer(name = "Nizami", n = 6, type = "discrete", direction = 1)[c(1, 4, 2, 5, 3)]
 

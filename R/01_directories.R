@@ -56,7 +56,6 @@ for (i in 1:length(dirs)) {
 }
 
 
-
 # Get tables and figures you already made ---------------------------------
 
 if(is.na(tabledate) | is.na(figuredate)){
