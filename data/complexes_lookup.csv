@@ -1,0 +1,36 @@
+complex,species_code,species_name,common_name
+OROX,30010,Sebastolobus sp.,thornyhead unid.
+OROX,30020,Sebastolobus alascanus,shortspine thornyhead
+OROX,30025,Sebastolobus macrochir,broadfin thornyhead
+OROX,30330,Sebastes melanops,black rockfish
+OROX,30430,Sebastes proriger,redstripe rockfish
+OROX,30470,Sebastes ruberrimus,yelloweye rockfish
+OROX,30475,Sebastes babcocki,redbanded rockfish
+OROX,30535,Sebastes variegatus,harlequin rockfish
+OROX,30560,Sebastes zacentrus,sharpchin rockfish
+OROX,30600,Sebastes reedi,yellowmouth rockfish
+OROX,30030,Sebastolobus altivelis,longspine thornyhead
+OROX,30040,Sebastes sp.,rockfish unid.
+OROX,30100,Sebastes brevispinis,silvergray rockfish
+OROX,30150,NA,dusky and dark rockfishes unid.
+OROX,30152,Sebastes variabilis,dusky rockfish
+OROX,30170,Sebastes crameri,darkblotched rockfish
+OROX,30270,Sebastes helvomaculatus,rosethorn rockfish
+OFLATS,10155,Liopsetta glacialis,Arctic flounder
+OFLATS,10270,Isopsetta isolepis,butter sole
+OFLATS,10280,Pleuronichthys decurrens,curlfin sole
+OFLATS,10190,Embassichthys bathybius,deepsea sole
+OFLATS,10180,Microstomus pacificus,Dover sole
+OFLATS,10170,Parophrys vetulus,English sole
+OFLATS,10211,Limanda proboscidea,longhead dab
+OFLATS,10010,Citharichthys sordidus,Pacific sanddab
+OFLATS,10200,Glyptocephalus zachirus,petrale sole
+OFLATS,10200,Glyptocephalus zachirus,rex sole
+OFLATS,10240,Clidoderma asperrimum,roughscale sole
+OFLATS,10250,Psettichthys melanostictus,sand sole
+OFLATS,10150,Lyopsetta exilis,slender sole
+OFLATS,10220,Platichthys stellatus,starry flounder
+OFLATS,10212,Limanda sakhalinensis,Sakhalin sole
+REBS,30051,Sebastes aleutianus,rougheye rockfish
+REBS,30052,Sebastes melanostictus,blackspotted rockfish
+REBS,30050,NA,rougheye and blackspotted rockfish unid
