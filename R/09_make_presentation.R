@@ -170,6 +170,33 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
   na.rm = T
 )
 
+
+# Table with FMP species biomass from largest to smallest -----------------
+compare_tab <- biomass_total %>%
+  filter(YEAR %in% c(maxyr, compareyr) &
+           SPECIES_CODE %in% report_species$species_code) %>%
+  dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) %>%
+  dplyr::arrange(YEAR) %>%
+  tidyr::pivot_wider(
+    names_from = YEAR,
+    values_from = BIOMASS_MT,
+    names_prefix = "yr_"
+  ) %>%
+  as.data.frame()
+
+compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
+names(compare_tab)
+
+compare_tab2 <- compare_tab %>%
+  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
+  arrange(-SPECIES_CODE) %>%
+  dplyr::select(-(presentation:reportorder))
+
+compare_tab_pres <- compare_tab2 |>
+  dplyr::select(spp_name_informal, yr_2022, yr_2024, percent_change) |>
+  dplyr::arrange(-yr_2024)
+
+
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
   ai_east <- akgfmaps::get_base_layers(
@@ -1402,145 +1429,6 @@ if (make_temp_plot) {
 
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
-
-  # list_temperature <- list()
-  #
-  # # haul info (source: RACEBASE)
-  # haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
-  #
-  # sstdat <- haul %>%
-  #   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-  #   filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
-  #   group_by(YEAR) %>%
-  #   dplyr::summarize(
-  #     bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
-  #     surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
-  #   ) %>%
-  #   ungroup() %>%
-  #   as.data.frame() %>%
-  #   mutate(YEAR = as.numeric(YEAR))
-  #
-  # sst_summary <- sstdat %>%
-  #   mutate(
-  #     bottom_stz = bottom - mean(bottom, na.rm = T),
-  #     surface_stz = surface - mean(surface, na.rm = T)
-  #   ) %>%
-  #   pivot_longer(cols = bottom:surface_stz)
-  #
-  # plotdat <- haul %>%
-  #   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-  #   filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
-  #   filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
-  #   filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
-  #
-  # howmanyboats <- haul |>
-  #   dplyr::filter(REGION == SRVY) |>
-  #   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-  #   dplyr::group_by(YEAR) |>
-  #   dplyr::distinct(VESSEL) |>
-  #   dplyr::ungroup() |>
-  #   dplyr::group_by(YEAR) |>
-  #   dplyr::summarize(nboats = length(VESSEL)) %>%
-  #   dplyr::ungroup() |>
-  #   filter(YEAR>=1994) |> # filter to fit the same years as above
-  #   dplyr::mutate(annotation_star = case_when(nboats==1 ~ "",
-  #     nboats==2 ~ "",
-  #                                             nboats==3 ~ "*",
-  #                                             nboats==4 ~ "*")) |>
-  #   dplyr::filter(YEAR %in% unique(plotdat$YEAR))
-  #
-  # bottom_temp_20yr <- plotdat |>
-  #   filter(YEAR >= (maxyr - 20)) |>
-  #   dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
-  #   as.numeric()
-  # bottom_temp_10yr <- plotdat |>
-  #   filter(YEAR >= (maxyr - 10)) |>
-  #   dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
-  #   as.numeric()
-  # bottom_temp_avgs <- data.frame(
-  #   "Average" = c("10-year", "20-year"),
-  #   "Value" = c(bottom_temp_20yr, bottom_temp_10yr),
-  #   Start_year = c(maxyr - 10, maxyr - 20)
-  # )
-  #
-  # bottom_temp_plot <- plotdat %>%
-  #   ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
-  #   ggdist::stat_interval(linewidth = 3) +
-  #   ggdist::stat_halfeye(
-  #     fill = "tan", alpha = 0.5,
-  #     interval_color = "grey27", point_color = "grey27"
-  #   ) +
-  #   #geom_point(size = 0.5, color = "gray5") +
-  #   rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
-  #   scale_fill_ramp_discrete(na.translate = FALSE) +
-  #   labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
-  #   scale_x_discrete(breaks = howmanyboats$YEAR,
-  #                    labels = paste0(howmanyboats$YEAR,howmanyboats$annotation_star)) +
-  #   theme_light() +
-  #   geom_segment(data = bottom_temp_avgs, aes(
-  #     y = Value, yend = Value,
-  #     linetype = Average,
-  #     x = Start_year, xend = maxyr
-  #   ))
-  #
-  # surface_temp_20yr <- plotdat |>
-  #   filter(YEAR >= (maxyr - 20)) |>
-  #   dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
-  #   as.numeric()
-  # surface_temp_10yr <- plotdat |>
-  #   filter(YEAR >= (maxyr - 10)) |>
-  #   dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
-  #   as.numeric()
-  # surface_temp_avgs <- data.frame(
-  #   "Average" = c("10-year", "20-year"),
-  #   "Value" = c(surface_temp_20yr, surface_temp_10yr)
-  # )
-  #
-  # surface_temp_plot <- plotdat %>%
-  #   ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
-  #   ggdist::stat_interval(linewidth = 3) +
-  #   ggdist::stat_halfeye(fill = "tan", alpha = 0.5,
-  #                        interval_color = "grey27", point_color = "grey27") +
-  #   #geom_point(size = 0.5, color = "gray5") +
-  #   rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
-  #   scale_fill_ramp_discrete(na.translate = FALSE) +
-  #   labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
-  #   scale_x_discrete(breaks = howmanyboats$YEAR,
-  #                    labels = paste0(howmanyboats$YEAR,howmanyboats$annotation_star)) +
-  #   theme_light() +
-  #   geom_segment(data = surface_temp_avgs, aes(
-  #     y = Value, yend = Value,
-  #     linetype = Average,
-  #     x = Start_year, xend = maxyr
-  #   ))
-  #
-  # png(
-  #   filename = paste0(
-  #     dir_out_figures, maxyr, "_bottomtemp.png"
-  #   ),
-  #   width = 8, height = 5.5, units = "in", res = 200
-  # )
-  # print(bottom_temp_plot)
-  # dev.off()
-  #
-  # png(
-  #   filename = paste0(
-  #     dir_out_figures, maxyr, "_surfacetemp.png"
-  #   ),
-  #   width = 8, height = 5.5, units = "in", res = 200
-  # )
-  # print(surface_temp_plot)
-  # dev.off()
-  #
-  # list_temperature[[1]] <- bottom_temp_plot
-  # list_temperature[[2]] <- surface_temp_plot
-  #
-  # names(list_temperature) <- c("bottomtemp", "surfacetemp")
-  #
-  # save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
-  # print("Done with temperature plots.")
-}
-
 
 # ################### SLIDE PRODUCTION #######################################
 # If you already made all the figures and you just need to knit them into a presentation, you can start here. Make sure you modify figuredate and tabledate to reflect the date you want to use figs and tables from.
