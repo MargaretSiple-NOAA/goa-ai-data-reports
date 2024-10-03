@@ -66,8 +66,8 @@ if (SRVY == "AI") {
   dir_googledrive <- "11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J"
 }
 
-# Folder containing blurb files
-dir_blurbs <- "1jl0YXfsUNi-bKRoIKiaa3b0opLbmBTIg"
+# Folder containing oto tables
+dir_googledrive_otos <- "1jl0YXfsUNi-bKRoIKiaa3b0opLbmBTIg"
 
 # Link to folder: https://drive.google.com/drive/folders/11RBHMEQtkq4BsuzY7AeNdX8IQPr5bv_J
 

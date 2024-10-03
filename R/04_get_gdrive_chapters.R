@@ -4,6 +4,7 @@ googledrive::drive_auth()
 
 # Download the chapters from google drive ---------------------------------
 id_googledrive <- googledrive::as_id(dir_googledrive)
+id_googledrive_otos <- googledrive::as_id(dir_googledrive_otos)
 
 # List all files in the google drive
 chaps <- googledrive::drive_ls(path = id_googledrive, type = "document")
@@ -22,7 +23,7 @@ for (i in 1:nrow(chaps)) {
 # Download table with the oto target and collection numbers ---------------
 # This target and collection goal form only started in 2023 and beyond.
 if(maxyr >= 2023){
-otosheet <- googledrive::drive_ls(path = blurbs_id_googledrive,
+otosheet <- googledrive::drive_ls(path = id_googledrive_otos,
                                   pattern = paste0(SRVY, maxyr, "_otolith_targets"),
                                   type = "spreadsheet")
 
