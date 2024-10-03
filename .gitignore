@@ -48,7 +48,6 @@ gdrive/
 output/
 bonus/
 /data/cpue_station.csv
-/data/SpeciesBlurbMiddleStences.csv
 
 # Ignore reformatted length data
 *report_pseudolengths.csv
