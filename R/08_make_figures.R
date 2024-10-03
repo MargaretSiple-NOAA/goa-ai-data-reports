@@ -473,6 +473,7 @@ if (make_cpue_bubbles_strata) {
     
     list_cpue_bubbles_strata[[i]] <- final_obj # save fig to list
   } # /end species loop
+  
   names(list_cpue_bubbles_strata) <- report_species$species_code
   save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
   
@@ -574,6 +575,7 @@ if (make_cpue_bubbles_strata) {
     print(final_obj)
     
     dev.off()
+    
   }
   print("Done with CPUE bubble maps showing stratum areas.")
 }
