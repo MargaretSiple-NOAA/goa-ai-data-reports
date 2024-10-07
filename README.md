@@ -1,7 +1,7 @@
 # goa-ai-data-reports (in progress)
 
 ## Overview
-GOA and AI data reports summarize data from the trawl survey each year. These reports provide detailed survey summaries for a technical audience. The scripts in this repo pull text from [Google Docs](https://drive.google.com/drive/folders/1UAQKChSuKohsRJ5enOloHPk3qFtk5kVC), turn them into R Markdown files, and knit a report in .docx format summarizing survey data and some basic information about the survey. 
+GOA and AI data reports summarize data from the trawl survey each year. These reports provide detailed survey summaries for a technical audience. The scripts in this repo pull text from [Google Docs](https://drive.google.com/drive/folders/1jl0YXfsUNi-bKRoIKiaa3b0opLbmBTIg?usp=drive_link), turn them into R Markdown files, and knit a report in .docx format summarizing survey data and some basic information about the survey. 
 
 ## General workflow
 
