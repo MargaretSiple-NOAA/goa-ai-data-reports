@@ -208,14 +208,13 @@ if (use_gapindex) {
 }
 
 
-# -------------------------------------------------------------------------
+# Station allocation, lookups, historical stations -----------------------------
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
 } else {
   all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
 }
-
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 # This like a lookup table for allocating strata to the correct area and depth

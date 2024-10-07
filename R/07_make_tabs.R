@@ -211,31 +211,6 @@ names(table3s_list) <- report_species$species_code
 
 print("Done creating Table 3s")
 
-# OLD CODE WHEN PULLING DRAFT TABLES FROM G DRIVE
-# We did this in 2023 and earlier
-# Check to see if all the species in the list are in the folder
-# toMatch <- report_species$species_code
-# matches <- unique(grep(paste(toMatch, collapse = "|"),
-#   list.files(paste0(dir_in_premadetabs, "Table 3/")),
-#   value = TRUE
-# ))
-#
-# print("Checking for tables missing from the G Drive...")
-# # which species are there tables for?
-# x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
-# y <- sub(pattern = paste0("*_", maxyr, ".csv"), replacement = "", x = x)
-#
-# lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
-#
-# if (length(lookforme) > 0) {
-#   print(paste("Table 3: Check for species", lookforme))
-# }
-#
-# table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
-# names(table3s_list) <- report_species$species_code
-#
-# table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
-# names(table4s_list) <- report_species$species_code
 
 # "Table 4"  --------------------------------------------------------------
 
@@ -288,6 +263,10 @@ write.csv(
 )
 
 
+# COMPLEXES --------------------------------------------------------------------
+
+
+
 # Assemble and save tables -----------------------------------------------------
 
 list_tables <- list()
@@ -310,4 +289,31 @@ save(table3s_list,
 save(table4s_list,
   file = paste0(dir_out_tables, "table4s_list.rdata")
 )
+
+
+# OLD CODE WHEN PULLING DRAFT TABLES FROM G DRIVE
+# We did this in 2023 and earlier
+# Check to see if all the species in the list are in the folder
+# toMatch <- report_species$species_code
+# matches <- unique(grep(paste(toMatch, collapse = "|"),
+#   list.files(paste0(dir_in_premadetabs, "Table 3/")),
+#   value = TRUE
+# ))
+#
+# print("Checking for tables missing from the G Drive...")
+# # which species are there tables for?
+# x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
+# y <- sub(pattern = paste0("*_", maxyr, ".csv"), replacement = "", x = x)
+#
+# lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
+#
+# if (length(lookforme) > 0) {
+#   print(paste("Table 3: Check for species", lookforme))
+# }
+#
+# table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
+# names(table3s_list) <- report_species$species_code
+#
+# table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
+# names(table4s_list) <- report_species$species_code
 
