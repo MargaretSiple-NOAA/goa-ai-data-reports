@@ -25,7 +25,8 @@ make_cpue_idw <- FALSE
 # 7. Plots of surface and bottom temperature
 make_temp_plot <- TRUE
 # make a special combined biomass plot for rebs
-make_special_rebs <- TRUE
+make_complexes_figs <- TRUE
+
 
 # Report settings -------------------------------------------------------------
 source("R/00_report_settings.R")
@@ -344,27 +345,30 @@ if (make_biomass_timeseries) {
   print("Done with biomass time series plots.")
 }
 
-# 1b. REBS biomass & CPUE map --------------------------------------------------
-# Use gapindex package with GROUP variable to plot biomass for the REBS complex through time. These species are assessed as a complex so Jane and other assessment folks want to see Plan Team plots for the complex together. The length frequencies already do this.
-if (make_special_rebs) {
-  # Special area for dealing with REBS
-  # library(tidyverse)
+# 1b. Complexes: Biomass & CPUE maps--------------------------------------------------
+# Use gapindex package with GROUP variable to plot biomass for the complexes through time. Complexes like REBS don't get generated automatically for tables in GAP_PRODUCTS so we have to make them by hand here. These species are assessed as a complex so assessment folks want to see Plan Team plots for the complex together. 
+if (make_complexes_figs) {
   library(gapindex)
+
+  # Load complexes lookup table
+  complex_lookup0 <- read.csv("data/complexes_lookup.csv") 
+  complex_lookup <- complex_lookup0 |>
+    dplyr::filter(region == SRVY)
+  
+  print(paste("Generating figs for", unique(complex_lookup$complex)))
 
   ## Connect to Oracle
   sql_channel <- gapindex::get_connected()
 
   yrs_to_pull <- minyr:maxyr
 
-  # 30051 (rougheye), 30052 (blackspotted), 30050 (combo)
-
   ## Pull data.
-  rebs_data <- gapindex::get_data(
+  complexes_data <- gapindex::get_data(
     year_set = yrs_to_pull,
     survey_set = SRVY,
     spp_codes = data.frame(
-      SPECIES_CODE = c(30050, 30051, 30052),
-      GROUP = "REBS" #  GROUP has to be numeric
+      SPECIES_CODE = complex_lookup$species_code,
+      GROUP = complex_lookup$complex #  GROUP has to be numeric
     ),
     haul_type = 3,
     abundance_haul = "Y",
@@ -372,53 +376,69 @@ if (make_special_rebs) {
     sql_channel = sql_channel
   )
 
-  cpue_table_rebs <- gapindex::calc_cpue(racebase_tables = rebs_data)
+  cpue_table_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
 
   biomass_stratum <- gapindex::calc_biomass_stratum(
-    racebase_tables = rebs_data,
-    cpue = cpue_table_rebs
+    racebase_tables = complexes_data,
+    cpue = cpue_table_complexes
   )
+
   # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
   biomass_subarea <- gapindex::calc_biomass_subarea(
-    racebase_tables = rebs_data,
+    racebase_tables = complexes_data,
     biomass_strata = biomass_stratum
   )
 
-  rebs_biomass_df <- biomass_subarea |>
+  complex_biomass_df <- biomass_subarea |>
     dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
     mutate(
       MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
       MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
     ) |>
     mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-  head(rebs_biomass_df)
+  head(complex_biomass_df)
 
-  lta <- mean(rebs_biomass_df$BIOMASS_MT)
+  lta <- complex_biomass_df |>
+    group_by(SPECIES_CODE) |>
+    summarize(lta_biomass = mean(BIOMASS_MT)) |>
+    ungroup()
+
+  biomass_ts_complexes <- list()
+
+  for (i in 1:length(unique(complex_lookup$complex))) {
+    complex <- unique(complex_lookup$complex)[i]
+    p1 <- complex_biomass_df |>
+      dplyr::filter(SPECIES_CODE == complex) |>
+      ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
+      geom_hline(
+        yintercept = as.numeric(lta[which(lta$SPECIES_CODE == complex), "lta_biomass"]),
+        color = accentline, lwd = 0.7, lty = 2
+      ) +
+      geom_point(color = linecolor, size = 2) +
+      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
+        color = linecolor, linewidth = 0.9, width = 0.7
+      ) +
+      ylab("Estimated total biomass (mt)") +
+      xlab("Year") +
+      scale_y_continuous(labels = scales::label_comma()) +
+      linetheme +
+      annotate("text",
+        x = 2000, y = 50000,
+        label = "* Uses 2SD approximation for confidence intervals"
+      )
+
+    png(
+      filename = paste0(dir_out_figures, complex, "_", SRVY, "_", maxyr, "_biomass_ts.png"),
+      width = 7, height = 7, units = "in", res = 150
+    )
+    print(p1)
+    dev.off()
+
+    biomass_ts_complexes[[i]] <- p1
+  }
 
 
-  rebs_biomass <- rebs_biomass_df |>
-    ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
-    geom_hline(yintercept = lta, color = "#505050", lwd = 0.7, lty = 2) +
-    geom_point(color = "darkgrey", size = 2) +
-    geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
-      color = "darkgrey", linewidth = 0.9, width = 0.7
-    ) +
-    ylab("Estimated total biomass (mt)") +
-    xlab("Year") +
-    scale_y_continuous(labels = scales::label_comma()) +
-    linetheme +
-    annotate("text", x = 1995, y = 120000, label = "* Uses 2SD approximation for confidence intervals")
-
-  rebs_biomass
-
-  png(
-    filename = paste0(dir_out_figures, "Rougheye_blackspotted_complex", "_", SRVY, "_", maxyr, "_biomass_ts.png"),
-    width = 7, height = 7, units = "in", res = 150
-  )
-  print(rebs_biomass)
-  dev.off()
-
-  save(rebs_biomass, file = paste0(dir_out_figures, "rebs_biomass_ts.rdata"))
+  save(biomass_ts_complexes, file = paste0(dir_out_figures, "complexes_biomass_ts.rdata"))
 
 
   # see later for REBS CPUE plot?
