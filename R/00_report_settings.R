@@ -7,6 +7,7 @@ minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 199
 compareyr <- 2022 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GOA and AI schemas.
+complexes <- TRUE
 
 # When did you save the last version of the figures and tables you want to use?
 tabledate <-"2024-10-03"  #"2023-11-10"

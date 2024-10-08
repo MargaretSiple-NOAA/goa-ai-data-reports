@@ -486,43 +486,135 @@ if (use_gapindex) {
     dplyr::filter(SURVEY == SRVY & YEAR >= minyr)
 }
 
-# Janky but I am in a rush so will have to deal. See notes below.
+
+# Sizecomps for the complexes ----------------------------------------------
+if (complexes) {
+  # Load complexes lookup table
+  complex_lookup0 <- read.csv("data/complexes_lookup.csv")
+  complex_lookup <- complex_lookup0 |>
+    dplyr::filter(region == SRVY)
+
+  ## Connect to Oracle
+  sql_channel <- gapindex::get_connected()
+
+  yrs_to_pull <- minyr:maxyr
+
+  ## Pull data.
+  rpt_data_complexes <- gapindex::get_data(
+    year_set = yrs_to_pull,
+    survey_set = SRVY,
+    spp_codes = data.frame(
+      SPECIES_CODE = complex_lookup$species_code,
+      GROUP = complex_lookup$complex
+    ),
+    haul_type = 3,
+    abundance_haul = "Y",
+    pull_lengths = TRUE,
+    sql_channel = sql_channel
+  )
+
+  cpue_raw_caps_complexes <- gapindex::calc_cpue(racebase_tables = rpt_data_complexes)
+
+  biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
+    racebase_tables = rpt_data_complexes,
+    cpue = cpue_raw_caps_complexes
+  )
+  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
+  biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
+    racebase_tables = rpt_data_complexes,
+    biomass_strata = biomass_stratum_complexes
+  )
+
+  biomass_df_complexes <- biomass_subarea_complexes |>
+    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
+    mutate(
+      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+    ) |>
+    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+
+  head(biomass_df_complexes)
+
+  sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
+    racebase_tables = rpt_data_complexes,
+    racebase_cpue = cpue_raw_caps_complexes,
+    racebase_stratum_popn = biomass_stratum_complexes,
+    spatial_level = "stratum",
+    fill_NA_method = "AIGOA"
+  )
+
+  ## Calculate aggregated size compositon across subareas, management areas, and
+  ## regions
+  sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
+    racebase_tables = rpt_data_complexes,
+    size_comps = sizecomp_stratum_complexes
+  )
+
+  sizecomp_complexes <- sizecomp_subareas_complexes |>
+    dplyr::filter(
+      SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+        AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
+    ) |>
+    dplyr::mutate(SURVEY = SRVY, SEX = case_when(
+      SEX == 1 ~ "MALES",
+      SEX == 2 ~ "FEMALES",
+      SEX == 3 ~ "UNSEXED"
+    )) |>
+    dplyr::rename(LENGTH = LENGTH_MM) |>
+    tidyr::pivot_wider(
+      names_from = "SEX",
+      values_from = "POPULATION_COUNT",
+      values_fill = 0
+    ) |>
+    dplyr::mutate(
+      TOTAL = MALES + FEMALES + UNSEXED,
+      SUMMARY_AREA = 999
+    ) |>
+    as.data.frame()
+
+  sizecomp <- rbind(sizecomp, sizecomp_complexes)
+  if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
+    print("Eek! Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
+  }
+}
+
+# Janky but I am in a rush so will have to deal. See notes below. This table is needed for joy division figs.
 report_pseudolengths <- data.frame()
 
 for (i in 1:nrow(report_species)) {
   sp_code <- report_species$species_code[i]
 
-  males <- sizecomp %>%
-    filter(SPECIES_CODE == sp_code) %>%
-    dplyr::group_by(YEAR) %>%
-    dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) %>%
-    dplyr::mutate(prop_10k = round(prop_10k)) %>%
-    arrange(-YEAR, LENGTH) %>%
-    dplyr::mutate(prop_10k = ifelse(MALES == 0, 0, prop_10k)) %>%
-    tidyr::uncount(prop_10k, .id = "id") %>%
-    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) %>%
+  males <- sizecomp |>
+    filter(SPECIES_CODE == sp_code) |>
+    dplyr::group_by(YEAR) |>
+    dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) |>
+    dplyr::mutate(prop_10k = round(prop_10k)) |>
+    arrange(-YEAR, LENGTH) |>
+    dplyr::mutate(prop_10k = ifelse(MALES == 0, 0, prop_10k)) |>
+    tidyr::uncount(prop_10k, .id = "id") |>
+    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
     mutate(Sex = "Male")
 
-  females <- sizecomp %>%
-    filter(SPECIES_CODE == sp_code) %>%
-    dplyr::group_by(YEAR) %>%
-    dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) %>% # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
-    dplyr::mutate(prop_10k = round(prop_10k)) %>%
-    arrange(-YEAR, LENGTH) %>%
-    dplyr::mutate(prop_10k = ifelse(FEMALES == 0, 0, prop_10k)) %>%
-    uncount(prop_10k, .id = "id") %>%
-    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) %>%
+  females <- sizecomp |>
+    filter(SPECIES_CODE == sp_code) |>
+    dplyr::group_by(YEAR) |>
+    dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) |> # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
+    dplyr::mutate(prop_10k = round(prop_10k)) |>
+    arrange(-YEAR, LENGTH) |>
+    dplyr::mutate(prop_10k = ifelse(FEMALES == 0, 0, prop_10k)) |>
+    uncount(prop_10k, .id = "id") |>
+    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
     mutate(Sex = "Female")
 
-  unsexed <- sizecomp %>%
-    filter(SPECIES_CODE == sp_code) %>%
-    dplyr::group_by(YEAR) %>%
-    dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) %>%
-    dplyr::mutate(prop_10k = round(prop_10k)) %>%
-    arrange(-YEAR, LENGTH) %>%
-    dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) %>%
-    uncount(prop_10k, .id = "id") %>%
-    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) %>%
+  unsexed <- sizecomp |>
+    filter(SPECIES_CODE == sp_code) |>
+    dplyr::group_by(YEAR) |>
+    dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) |>
+    dplyr::mutate(prop_10k = round(prop_10k)) |>
+    arrange(-YEAR, LENGTH) |>
+    dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) |>
+    uncount(prop_10k, .id = "id") |>
+    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id)|>
     mutate(Sex = "Unsexed")
   all <- bind_rows(males, females, unsexed)
 
