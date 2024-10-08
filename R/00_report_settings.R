@@ -5,14 +5,14 @@ usePNGPDF <- "png"
 maxyr <- 2024 # Change this for the year!
 minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 1993 for GOA
 compareyr <- 2022 # Change this for the year!
-pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
+pres_or_report <- "pres" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GOA and AI schemas.
 complexes <- TRUE
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <-"2024-10-03"  #"2023-11-10"
-figuredate <- "2024-10-03"
-reportvaluesdate <- "2024-10-03"
+tabledate <-"2024-10-07"  #"2023-11-10"
+figuredate <- "2024-10-07"
+reportvaluesdate <- "2024-10-07"
 
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
@@ -109,12 +109,15 @@ vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m LOA with a 1,500 HP ma
 
 # Species to include ------------------------------------------------------
 # Get species table
-if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
-if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
+if (SRVY == "AI") report_species0 <- read.csv("data/ai_report_specieslist.csv")
+if (SRVY == "GOA") report_species0 <- read.csv("data/goa_report_specieslist.csv")
 
-report_species <- report_species |>
-  dplyr::arrange(-species_code) |>
-  dplyr::filter(report == 1)
+
+if(pres_or_report=="pres"){
+  report_species <- report_species0 |> filter(presentation==1)
+}else{
+  report_species <- report_species0 |> filter(report==1)
+}
 
 # Reorder based on specified spps order
 report_species <- report_species[order(report_species$reportorder), ]
