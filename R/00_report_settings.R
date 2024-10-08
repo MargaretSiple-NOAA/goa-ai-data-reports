@@ -10,7 +10,7 @@ use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using 
 complexes <- TRUE
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <-"2024-10-07"  #"2023-11-10"
+tabledate <- "2024-10-07" # "2023-11-10"
 figuredate <- "2024-10-07"
 reportvaluesdate <- "2024-10-07"
 
@@ -21,9 +21,10 @@ SRVY <- "AI" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 
 # Check survey year and region combo:
-if(maxyr %% 2 == 0 && SRVY == "GOA"){
-  print("Even year should not be for GOA survey. Double check your maxyr and SRVY designations in 00_report_settings.R")}
-if(maxyr %% 2 != 0 && SRVY =="AI"){
+if (maxyr %% 2 == 0 && SRVY == "GOA") {
+  print("Even year should not be for GOA survey. Double check your maxyr and SRVY designations in 00_report_settings.R")
+}
+if (maxyr %% 2 != 0 && SRVY == "AI") {
   print("Odd year should not be used for AI survey. Double check your maxyr and SRVY designations in 00_report_settings.R")
 }
 
@@ -113,12 +114,11 @@ if (SRVY == "AI") report_species0 <- read.csv("data/ai_report_specieslist.csv")
 if (SRVY == "GOA") report_species0 <- read.csv("data/goa_report_specieslist.csv")
 
 
-if(pres_or_report=="pres"){
-  report_species <- report_species0 |> filter(presentation==1)
-}else{
-  report_species <- report_species0 |> filter(report==1)
+if (pres_or_report == "pres") {
+  report_species <- report_species0 |> filter(presentation == 1)
+} else {
+  report_species <- report_species0 |> filter(report == 1)
 }
 
 # Reorder based on specified spps order
 report_species <- report_species[order(report_species$reportorder), ]
-
