@@ -126,16 +126,15 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
 
 # Palettes!
-# MetBrewer (dark colors)
 if (SRVY == "AI") {
   stratumpal <- lengthen_pal(
-    shortpal = MetBrewer::met.brewer(name = "Renoir", type = "continuous"), # I like Nizami too
+    shortpal = PNWColors::pnw_palette(name="Shuksan",n=7,type="discrete"), # I like Nizami from MetBrewer too but MetBrewer is on ice at the moment
     x = 1:nstrata
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
 } else {
   stratumpal <- lengthen_pal(
-    shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
+    shortpal = PNWColors::pnw_palette(name="Shuksan",n=7,type="discrete"),
     x = 1:nstrata
   )
 }
@@ -151,17 +150,13 @@ joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#
 joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
 joypal_grey <- grey.colors(n = 7)
 
-# Palette for survey regions
-dispal <- c(met.brewer(
-  name = "Nizami", type = "discrete", n = 4,
-  direction = -1
-), "black")
-
+# Palette for survey regions - 2 options
+dispal <- c("#1d4497", "#5773c0", "#8cc8bc", "#b83326", "black")
 dispal <- c("#441151", "#90be6d", "#de541e", "#a7a5c6", "#2d3047")
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "Nizami", type = "discrete", direction = 1),
+  shortpal = PNWColors::pnw_palette(name="Starfish",n=7,type="discrete"),
   x = 1:(nrow(report_species) + 1)
 )
 
@@ -187,7 +182,7 @@ img1 <- png::readPNG(img1_path)
 # 0b: INPFC areas with stations sampled -----------------------------------
 if (make_total_surv_map) {
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
-  palette_map <- MetBrewer::met.brewer(name = "Nizami", n = 6, type = "discrete", direction = 1)[c(1, 4, 2, 5, 3)]
+  palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
 
 
 #  Base map

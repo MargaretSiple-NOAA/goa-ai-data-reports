@@ -18,8 +18,8 @@ if(!"knitcitations" %in% installed.packages()){
   devtools::install_github("cboettig/knitcitations")
 }
 
-if(!"MetBrewer" %in% installed.packages()){
-  devtools::install_github("BlakeRMills/MetBrewer")
+if(!"PNWColors" %in% installed.packages()){
+  devtools::install_github("jakelawlor/PNWColors")
 }
 
 # List and load required packages -----------------------------------------
