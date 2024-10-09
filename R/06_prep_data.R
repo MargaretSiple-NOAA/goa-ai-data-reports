@@ -89,9 +89,9 @@ pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), 
 
 # GAP_PRODUCTS tables -----------------------------------------------------
 # biomass, cpue
-x <- read.csv(here::here("data","local_gap_products","biomass.csv"))
+x <- read.csv(here::here("data", "local_gap_products", "biomass.csv"))
 
-biomass_total <- x |> 
+biomass_total <- x |>
   dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
   mutate(
     MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
@@ -100,17 +100,70 @@ biomass_total <- x |>
   mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
 
 
-x <- read.csv(here::here("data","local_gap_products","cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
+x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
 
 # Filter and rename some columns (may clean up later)
-cpue_raw <- x |> 
+cpue_raw <- x |>
   dplyr::right_join(haul) |>
   dplyr::filter(REGION == SRVY) |>
   dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
-  dplyr::rename(survey = 'REGION',
-                longitude_dd_start = 'START_LONGITUDE',
-                latitude_dd_start = 'START_LATITUDE') |>
+  dplyr::rename(
+    survey = "REGION",
+    longitude_dd_start = "START_LONGITUDE",
+    latitude_dd_start = "START_LATITUDE"
+  ) |>
   janitor::clean_names()
+
+
+# For complexes, create biomass_total and cpue tables from gapindex -------
+if (complexes) {
+  library(gapindex)
+
+  ## Connect to Oracle
+  sql_channel <- gapindex::get_connected()
+
+  yrs_to_pull <- minyr:maxyr
+
+  ## Pull data.
+  complexes_data <- gapindex::get_data(
+    year_set = yrs_to_pull,
+    survey_set = SRVY,
+    spp_codes = data.frame(
+      SPECIES_CODE = complex_lookup$species_code,
+      GROUP = complex_lookup$complex #  GROUP has to be numeric
+    ),
+    haul_type = 3,
+    abundance_haul = "Y",
+    pull_lengths = TRUE,
+    sql_channel = sql_channel
+  )
+
+  cpue_table_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
+
+  biomass_stratum <- gapindex::calc_biomass_stratum(
+    racebase_tables = complexes_data,
+    cpue = cpue_table_complexes
+  )
+
+  biomass_subarea <- gapindex::calc_biomass_subarea(
+    racebase_tables = complexes_data,
+    biomass_strata = biomass_stratum
+  )
+
+  biomass_df_complexes <- biomass_subarea |>
+    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
+    mutate(
+      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+    ) |>
+    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+
+  #head(biomass_df_complexes)
+  
+  biomass_total_complexes <- biomass_df_complexes
+  
+  print("Created cpue_table_complexes and biomass_total_complexes.")
+}
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
@@ -416,7 +469,7 @@ otos_collected <- specimen_maxyr %>%
 otos_by_species <- specimen_maxyr %>%
   filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
-    "CRUISEJOIN","CRUISE", "HAULJOIN", "HAUL",
+    "CRUISEJOIN", "CRUISE", "HAULJOIN", "HAUL",
     "REGION", "VESSEL", "YEAR"
   )) %>%
   dplyr::group_by(SPECIES_CODE) |>
@@ -438,6 +491,7 @@ lengths_species <- L_maxyr |>
   ) |>
   ungroup() |>
   dplyr::filter(SPECIES_CODE %in% report_species$species_code) |>
+  dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
   dplyr::left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
   dplyr::select(spp_name_informal, N) |>
   dplyr::rename(
@@ -481,9 +535,13 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
 
 if (use_gapindex) {
   sizecomp <- sizecomp_gapindex
-}else{
-  sizecomp <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE) |>
-    dplyr::filter(SURVEY == SRVY & YEAR >= minyr)
+} else {
+  sizecomp0 <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE)
+
+  sizecomp <- sizecomp0 |>
+    dplyr::filter(SURVEY == SRVY & YEAR >= minyr) |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
+    dplyr::filter(SPECIES_CODE %in% report_species$species_code)
 }
 
 
@@ -576,6 +634,7 @@ if (complexes) {
   if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
     print("Eek! Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
   }
+  
 }
 
 # Janky but I am in a rush so will have to deal. See notes below. This table is needed for joy division figs.
@@ -583,8 +642,15 @@ report_pseudolengths <- data.frame()
 
 for (i in 1:nrow(report_species)) {
   sp_code <- report_species$species_code[i]
-
-  males <- sizecomp |>
+  
+  # Is the species code for a complex? 
+  if(sp_code %in% c("OROX","REBS","OFLATS")){
+    sizecomp1 <- sizecomp_complexes
+  }else{
+    sizecomp1 <- sizecomp
+  }
+  
+  males <- sizecomp1 |>
     filter(SPECIES_CODE == sp_code) |>
     dplyr::group_by(YEAR) |>
     dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) |>
@@ -595,7 +661,7 @@ for (i in 1:nrow(report_species)) {
     dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
     mutate(Sex = "Male")
 
-  females <- sizecomp |>
+  females <- sizecomp1 |>
     filter(SPECIES_CODE == sp_code) |>
     dplyr::group_by(YEAR) |>
     dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) |> # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
@@ -606,7 +672,7 @@ for (i in 1:nrow(report_species)) {
     dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
     mutate(Sex = "Female")
 
-  unsexed <- sizecomp |>
+  unsexed <- sizecomp1 |>
     filter(SPECIES_CODE == sp_code) |>
     dplyr::group_by(YEAR) |>
     dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) |>
@@ -614,7 +680,7 @@ for (i in 1:nrow(report_species)) {
     arrange(-YEAR, LENGTH) |>
     dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) |>
     uncount(prop_10k, .id = "id") |>
-    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id)|>
+    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
     mutate(Sex = "Unsexed")
   all <- bind_rows(males, females, unsexed)
 
@@ -632,7 +698,7 @@ catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
 
 # Species with highest est'd biomass --------------------------------------
 biomass_maxyr <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52))
+  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
 
 highest_biomass <- biomass_maxyr %>%
   dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) %>%
@@ -643,7 +709,7 @@ highest_biomass_flatfish <- highest_biomass %>%
   filter(major_group == "Flatfish")
 
 highest_elasmos <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY=="GOA", 47, 52)) %>%
+  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%
   filter(major_group == "Chondrichthyans") %>%
@@ -656,4 +722,3 @@ fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
-
