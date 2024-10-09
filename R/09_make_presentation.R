@@ -59,7 +59,7 @@ if (x) {
 if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
 if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
 
-report_species <- dplyr::filter(report_species, presentation == 1)
+#report_species <- dplyr::filter(report_species, presentation == 1)
 
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv", header = TRUE) # includes GOA and AI strata
@@ -70,8 +70,6 @@ source("R/06_prep_data.R") # takes a min
 # Data for plots ------------------------------------------------------------
 # All the species for which we want to make plots
 head(report_species)
-report_species <- report_species |>
-  arrange(-species_code)
 
 # Get key/table of names (common, scientific, etc)
 common_names <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
@@ -188,9 +186,10 @@ compare_tab <- biomass_total %>%
 compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
 names(compare_tab)
 
-compare_tab2 <- compare_tab %>%
-  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
-  arrange(-SPECIES_CODE) %>%
+compare_tab2 <- compare_tab |>
+  dplyr::mutate_at('SPECIES_CODE',as.character) |>
+  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
+  dplyr::arrange(reportorder) |>
   dplyr::select(-(presentation:reportorder))
 
 compare_tab_pres <- compare_tab2 |>
@@ -305,16 +304,15 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
 
 # Palettes!
-# MetBrewer (dark colors)
 if (SRVY == "AI") {
   stratumpal <- lengthen_pal(
-    shortpal = MetBrewer::met.brewer(name = "Renoir", type = "continuous"), # I like Nizami too
+    shortpal = PNWColors::pnw_palette(name = "Shuksan",n = 8), 
     x = 1:nstrata
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
 } else {
   stratumpal <- lengthen_pal(
-    shortpal = MetBrewer::met.brewer(name = "Hokusai1", type = "continuous"),
+    shortpal =PNWColors::pnw_palette(name = "Shuksan",n = 8),
     x = 1:nstrata
   )
 }
@@ -327,17 +325,18 @@ accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 depthcolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:4]
 
 # Palette for joy div plot
-joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
+joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), 
+                       x = 1:nyears)
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
-  shortpal = MetBrewer::met.brewer(name = "Nizami", type = "discrete", direction = 1),
+  shortpal = c("#084c61","#db504a","#e3b505","#4d8b31","#56a3a6"),
   x = 1:(nrow(report_species) + 1)
 )
 
 ################### CHUNKS ##################################################
 # These can be run individually as needed. For example, if you want to modify all the biomass time series plots at once. If you know you already have satisfactory versions of all these plots, you don't need to re-run this code! The presentation knitting section will check if figs are available and will load them if not.
-# ~###########################################################################
+# ###########################################################################
 
 # 1. Biomass index relative to LT mean ---------------------------------------
 
@@ -376,64 +375,18 @@ if (make_biomass_timeseries) {
   print("Done with biomass time series plots.")
 }
 
-# 1b. Complexes: Biomass & CPUE maps--------------------------------------------------
+# 1b. Complexes: Biomass & CPUE maps------------------------------------------
 # Use gapindex package with GROUP variable to plot biomass for the complexes through time. Complexes like REBS don't get generated automatically for tables in GAP_PRODUCTS so we have to make them by hand here. These species are assessed as a complex so assessment folks want to see Plan Team plots for the complex together. 
-if (make_complexes_figs) {
-  library(gapindex)
-
-  # Load complexes lookup table
-  complex_lookup0 <- read.csv("data/complexes_lookup.csv") 
-  complex_lookup <- complex_lookup0 |>
-    dplyr::filter(region == SRVY)
-  
+if(make_complexes_figs){
   print(paste("Generating figs for", unique(complex_lookup$complex)))
-
-  ## Connect to Oracle
-  sql_channel <- gapindex::get_connected()
-
-  yrs_to_pull <- minyr:maxyr
-
-  ## Pull data.
-  complexes_data <- gapindex::get_data(
-    year_set = yrs_to_pull,
-    survey_set = SRVY,
-    spp_codes = data.frame(
-      SPECIES_CODE = complex_lookup$species_code,
-      GROUP = complex_lookup$complex #  GROUP has to be numeric
-    ),
-    haul_type = 3,
-    abundance_haul = "Y",
-    pull_lengths = TRUE,
-    sql_channel = sql_channel
-  )
-
-  cpue_table_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
-
-  biomass_stratum <- gapindex::calc_biomass_stratum(
-    racebase_tables = complexes_data,
-    cpue = cpue_table_complexes
-  )
-
-  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
-  biomass_subarea <- gapindex::calc_biomass_subarea(
-    racebase_tables = complexes_data,
-    biomass_strata = biomass_stratum
-  )
-
-  complex_biomass_df <- biomass_subarea |>
-    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-    mutate(
-      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-    ) |>
-    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-  head(complex_biomass_df)
-
-  lta <- complex_biomass_df |>
+  
+  # Long term averages
+  lta <- biomass_df_complexes |>
     group_by(SPECIES_CODE) |>
     summarize(lta_biomass = mean(BIOMASS_MT)) |>
     ungroup()
-
+  
+  # Biomass time series
   biomass_ts_complexes <- list()
 
   for (i in 1:length(unique(complex_lookup$complex))) {
@@ -470,9 +423,8 @@ if (make_complexes_figs) {
 
   save(biomass_ts_complexes, file = paste0(dir_out_figures, "biomass_ts_complexes.rdata"))
 
-  # Now CPUE figs!
+
   # CPUE maps
-  
   cpue_strata_complexes <- list()
   
   for (i in 1:length(unique(complex_lookup$complex))) {
@@ -570,7 +522,7 @@ if (make_complexes_figs) {
     
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, complex_code, "_", maxyr, "_stratabubble.png"),
+      filename = paste0(dir_out_figures, complex_code, "_", maxyr, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
@@ -587,6 +539,7 @@ if (make_complexes_figs) {
 if (make_catch_comp) {
   head(biomass_total)
   biomass_total_filtered <- biomass_total %>%
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
     ) %>%
@@ -666,6 +619,8 @@ if (make_cpue_bubbles) {
 if (make_cpue_bubbles_strata) {
   list_cpue_bubbles_strata <- list()
   for (i in 1:nrow(report_species)) { # nrow(report_species)
+    if(report_species$species_code[i] %in% c("OROX","REBS","OFLATS")){next} # These are generated above
+    
     spbubble <- report_species$species_code[i]
     namebubble <- report_species$spp_name_informal[i]
 
@@ -792,7 +747,7 @@ if (make_cpue_bubbles_strata) {
 
     list_cpue_bubbles_strata[[i]] <- final_obj # save fig to list
   } # /end species loop
-  names(list_cpue_bubbles_strata) <- report_species$species_code
+  names(list_cpue_bubbles_strata) <- report_species$species_code[1:length(which(!report_species$species_code %in% c("OROX","OFLATS","REBS")))]
   save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
 
   print("Done with CPUE bubble maps showing stratum areas.")
@@ -846,7 +801,7 @@ if (make_cpue_idw) {
 }
 
 
-# 4b. CPUE Ianelli plots --------------------------------------------------
+# 5. CPUE Ianelli plots --------------------------------------------------
 # Same base layer as the bubble plot but with bars for each haul
 
 
@@ -1025,7 +980,7 @@ if (make_cpue_ianelli) {
 
 
 
-# 5. Percent changes in biomass since last survey ----------------------------
+# 6. Percent changes in biomass since last survey ----------------------------
 
 head(biomass_total)
 
@@ -1053,10 +1008,6 @@ write.csv(
   x = compare_tab2,
   file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_survey.csv")
 )
-
-
-# 6. Length frequency by area/depth stratum ----------------------------
-# This is old and maybe deprecated? May remove.
 
 # 7. Joy division plots - Length frequency -----------------------------
 
@@ -1095,36 +1046,16 @@ if (make_joy_division_length) {
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) %>%
     dplyr::summarize(n = sum(FREQUENCY)) %>%
     ungroup() %>%
-    mutate(YEAR = as.integer(YEAR))
-
-  # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
-  complex_lookup <- data.frame(
-    polycode = c(
-      c(10260, 10261, 10262, 10263),
-      c(10110, 10112),
-      c(30050, 30051, 30052)
-    ),
-    complex = c(
-      rep("nrs_srs", times = 4),
-      rep("kam_atf", times = 2),
-      rep("rebs", times = 3)
-    )
-  ) %>%
-    mutate(complex_name = case_when(
-      complex == "nrs_srs" ~ "Northern and southern rock sole",
-      complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
-      complex == "rebs" ~ "Rougheye/blackspotted rockfish"
-    ))
-
-  # If Gulf survey, don't do the combined plot for ATF/kam (there aren't enough kam)
-  if (SRVY == "GOA") {
-    complex_lookup <- filter(complex_lookup, complex != "kam_atf")
-  }
+    mutate(YEAR = as.integer(YEAR),
+           SPECIES_CODE = as.character(SPECIES_CODE))
 
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
-
+    if(report_species$species_code[i] %in% c("OROX","OFLATS","REBS")){
+      next
+    }
+    
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
@@ -1151,7 +1082,7 @@ if (make_joy_division_length) {
       left_join(sample_sizes %>%
         filter(SPECIES_CODE == report_species$species_code[i]))
 
-
+    
     yrbreaks <- unique(len2plot2$YEAR)
     lengthlimits <- range(len2plot2$LENGTH)
 
@@ -1201,85 +1132,85 @@ if (make_joy_division_length) {
     # lookup table is referenced below
 
     # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
-    if (report_species$species_code[i] %in% complex_lookup$polycode) {
-      # Add label to plot of the species so ppl can compare it with the combined one
-      joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
-
-      # Make a title for the combined plot (single species + combined congeners)
-      plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
-
-      complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
-      polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
-      star_yr <- switch(complex_sp,
-        nrs_srs = 1996,
-        kam_atf = 1992,
-        rebs = 2006
-      )
-      yrlabels <- yrbreaks
-      yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
-      yrlabels <- as.character(yrlabels)
-
-      medlines_sp <- report_pseudolengths %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
-        group_by(YEAR, Sex) %>%
-        dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-        ungroup()
-
-
-      sample_sizes_comb <- sample_sizes %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
-        group_by(YEAR, Sex) %>%
-        dplyr::summarize(n = sum(n)) %>%
-        ungroup()
-
-      len2plot_comb <- report_pseudolengths %>%
-        filter(SPECIES_CODE %in% polycode_vec) %>%
-        filter(Sex != "Unsexed") %>%
-        left_join(sample_sizes_comb)
-
-      testlabdf_comb <- len2plot_comb %>%
-        distinct(YEAR, Sex, .keep_all = TRUE)
-
-      joyplot2 <- len2plot_comb %>%
-        ggplot(
-          mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
-          fill = "grey"
-        ) +
-        ggridges::geom_density_ridges_gradient(
-          bandwidth = 5,
-          rel_min_height = 0,
-          quantile_lines = T,
-          quantile_fun = median,
-          vline_color = "white",
-          vline_width = 0.6,
-          vline_linetype = "dotted" # "A1"
-        ) +
-        scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
-        scale_linetype_manual(values = c("solid", "dashed")) +
-        geom_label(
-          data = testlabdf_comb,
-          mapping = aes(label = paste0("n = ", n), x = Inf),
-          fill = "white", label.size = NA,
-          nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3
-        ) +
-        facet_grid(~Sex) +
-        xlab("Length (mm)") +
-        ylab("Year") +
-        theme_ridges(font_size = 7) +
-        labs(title = plot_title) +
-        theme(
-          strip.background = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          legend.position = "none",
-          axis.title.x = element_text(hjust = 0.5),
-          axis.title.y = element_text(hjust = 0.5),
-          panel.spacing.x = unit(4, "mm"),
-          axis.line.x = element_line(lineend = "square")
-        )
-
-      joyplot <- joyplot + joyplot2
-    }
+    # if (report_species$species_code[i] %in% complex_lookup$polycode) {
+    #   # Add label to plot of the species so ppl can compare it with the combined one
+    #   joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
+    # 
+    #   # Make a title for the combined plot (single species + combined congeners)
+    #   plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
+    # 
+    #   complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
+    #   polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
+    #   star_yr <- switch(complex_sp,
+    #     nrs_srs = 1996,
+    #     kam_atf = 1992,
+    #     rebs = 2006
+    #   )
+    #   yrlabels <- yrbreaks
+    #   yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
+    #   yrlabels <- as.character(yrlabels)
+    # 
+    #   medlines_sp <- report_pseudolengths %>%
+    #     filter(SPECIES_CODE %in% polycode_vec) %>%
+    #     group_by(YEAR, Sex) %>%
+    #     dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+    #     ungroup()
+    # 
+    # 
+    #   sample_sizes_comb <- sample_sizes %>%
+    #     filter(SPECIES_CODE %in% polycode_vec) %>%
+    #     group_by(YEAR, Sex) %>%
+    #     dplyr::summarize(n = sum(n)) %>%
+    #     ungroup()
+    # 
+    #   len2plot_comb <- report_pseudolengths %>%
+    #     filter(SPECIES_CODE %in% polycode_vec) %>%
+    #     filter(Sex != "Unsexed") %>%
+    #     left_join(sample_sizes_comb)
+    # 
+    #   testlabdf_comb <- len2plot_comb %>%
+    #     distinct(YEAR, Sex, .keep_all = TRUE)
+    # 
+    #   joyplot2 <- len2plot_comb %>%
+    #     ggplot(
+    #       mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
+    #       fill = "grey"
+    #     ) +
+    #     ggridges::geom_density_ridges_gradient(
+    #       bandwidth = 5,
+    #       rel_min_height = 0,
+    #       quantile_lines = T,
+    #       quantile_fun = median,
+    #       vline_color = "white",
+    #       vline_width = 0.6,
+    #       vline_linetype = "dotted" # "A1"
+    #     ) +
+    #     scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
+    #     scale_linetype_manual(values = c("solid", "dashed")) +
+    #     geom_label(
+    #       data = testlabdf_comb,
+    #       mapping = aes(label = paste0("n = ", n), x = Inf),
+    #       fill = "white", label.size = NA,
+    #       nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3
+    #     ) +
+    #     facet_grid(~Sex) +
+    #     xlab("Length (mm)") +
+    #     ylab("Year") +
+    #     theme_ridges(font_size = 7) +
+    #     labs(title = plot_title) +
+    #     theme(
+    #       strip.background = element_blank(),
+    #       panel.grid.major = element_blank(),
+    #       panel.grid.minor = element_blank(),
+    #       legend.position = "none",
+    #       axis.title.x = element_text(hjust = 0.5),
+    #       axis.title.y = element_text(hjust = 0.5),
+    #       panel.spacing.x = unit(4, "mm"),
+    #       axis.line.x = element_line(lineend = "square")
+    #     )
+    # 
+    #   joyplot <- joyplot + joyplot2
+    # }
 
 
     png(filename = paste0(
@@ -1291,7 +1222,7 @@ if (make_joy_division_length) {
 
     list_joy_length[[i]] <- joyplot
   }
-  names(list_joy_length) <- report_species$species_code
+  names(list_joy_length) <- report_species$species_code[1:(length(report_species$species_code)-3)]
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
   print("Done with joy division plots for length comp.")
