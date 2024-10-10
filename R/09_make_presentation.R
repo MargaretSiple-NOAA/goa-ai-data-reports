@@ -309,13 +309,13 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
 # Palettes!
 if (SRVY == "AI") {
   stratumpal <- lengthen_pal(
-    shortpal = PNWColors::pnw_palette(name = "Shuksan",n = 8), 
+    shortpal = PNWColors::pnw_palette(name = "Winter",n = 8), 
     x = 1:nstrata
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
 } else {
   stratumpal <- lengthen_pal(
-    shortpal =PNWColors::pnw_palette(name = "Shuksan",n = 8),
+    shortpal =PNWColors::pnw_palette(name = "Winter",n = 8),
     x = 1:nstrata
   )
 }
@@ -394,7 +394,7 @@ if(make_complexes_figs){
 
   for (i in 1:length(unique(complex_lookup$complex))) {
     complex <- unique(complex_lookup$complex)[i]
-    p1 <- complex_biomass_df |>
+    p1 <- biomass_df_complexes |>
       dplyr::filter(SPECIES_CODE == complex) |>
       ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
       geom_hline(
@@ -422,8 +422,9 @@ if(make_complexes_figs){
     dev.off()
 
     biomass_ts_complexes[[i]] <- p1
-  }
-
+    names(biomass_ts_complexes)[i] <- complex
+    }
+  
   save(biomass_ts_complexes, file = paste0(dir_out_figures, "biomass_ts_complexes.rdata"))
 
 
@@ -459,8 +460,16 @@ if(make_complexes_figs){
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = reg_data$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+              aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
+      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf( # x's for places where cpue=0
+        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+        alpha = 1,
+        color = "red",
+        shape = 4,
+        size = 1
+      ) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -481,8 +490,17 @@ if(make_complexes_figs){
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(bquote("CPUE" ~ (kg / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
+      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+              aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(bquote("CPUE" ~ (kg / km^2)), 
+                 limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
+      geom_sf( # x's for places where cpue=0
+        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+        alpha = 1,
+        color = "red",
+        shape = 4,
+        size = 1
+      ) +
       coord_sf(
         xlim = ai_central$plot.boundary$x,
         ylim = ai_central$plot.boundary$y
@@ -504,8 +522,16 @@ if(make_complexes_figs){
       scale_fill_manual(values = stratumpal, guide = "none") +
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+              aes(size = cpue_kgkm2), alpha = 0.5) +
+      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+      geom_sf( # x's for places where cpue=0
+        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+        alpha = 1,
+        color = "red",
+        shape = 4,
+        size = 1
+      ) +
       coord_sf(
         xlim = ai_east$plot.boundary$x,
         ylim = ai_east$plot.boundary$y
@@ -533,6 +559,7 @@ if(make_complexes_figs){
     dev.off()
     
     cpue_strata_complexes[[i]] <- final_obj
+    names(cpue_strata_complexes)[i] <- complex_code
   }#/all complexes cpue loop
   
   
@@ -654,9 +681,9 @@ if (make_cpue_bubbles_strata) {
       ) + # USED TO BE cpue_kgha
       scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
       geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.5,
-        color = "grey5",
+        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+        alpha = 1,
+        color = "red",
         shape = 4,
         size = 1
       ) +
@@ -685,9 +712,9 @@ if (make_cpue_bubbles_strata) {
       scale_size(bquote("CPUE" ~ (kg / km^2)), 
                  limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
       geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.5,
-        color = "grey5",
+        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+        alpha = 1,
+        color = "red",
         shape = 4,
         size = 1
       ) +
@@ -716,9 +743,9 @@ if (make_cpue_bubbles_strata) {
               aes(size = cpue_kgkm2), alpha = 0.5) +
       scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
       geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.5,
-        color = "grey5",
+        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+        alpha = 1,
+        color = "red",
         shape = 4,
         size = 1
       ) +
@@ -1237,7 +1264,7 @@ if (make_joy_division_length) {
 
     list_joy_length[[i]] <- joyplot
   }
-  names(list_joy_length) <- report_species$species_code[1:(length(report_species$species_code)-3)]
+  names(list_joy_length) <- report_species$species_code
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
   print("Done with joy division plots for length comp.")
@@ -1441,8 +1468,8 @@ if (!exists("p2")) {
 if (!exists("biomass_ts_complexes") & make_complexes_figs) {
   load(paste0("output/", figuredate, "/", "figures/", "biomass_ts_complexes.rdata"))
 }
-if (!exists("complexes_cpue") & make_complexes_figs) {
-  load(paste0("output/", figuredate, "/", "figures/", "complexes_cpue_bubble.rdata"))
+if (!exists("cpue_strata_complexes") & make_complexes_figs) {
+  load(paste0("output/", figuredate, "/", "figures/", "cpue_strata_complexes.rdata"))
 }
 
 
