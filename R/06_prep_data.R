@@ -102,7 +102,7 @@ biomass_total <- x |>
 
 x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
 
-# Filter and rename some columns (may clean up later)
+# Filter and rename some columns 
 cpue_raw <- x |>
   dplyr::right_join(haul) |>
   dplyr::filter(REGION == SRVY) |>
@@ -119,6 +119,10 @@ cpue_raw <- x |>
 if (complexes) {
   library(gapindex)
 
+  complex_lookup0 <- read.csv("data/complex_lookup.csv")
+  complex_lookup <- complex_lookup0 |>
+    dplyr::filter(region == SRVY)
+  
   ## Connect to Oracle
   sql_channel <- gapindex::get_connected()
 
@@ -431,9 +435,10 @@ if (any(is.na(haul2$NET_WIDTH))) {
 
 
 # Lengths and otos sampled -------------------------------------------
-L <- read.csv(here::here("data/local_racebase/length.csv"))
-L <- L %>%
+L0 <- read.csv(here::here("data/local_racebase/length.csv"))
+L <- L0 %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
+
 length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
 # Number of lengths collected per area
@@ -450,6 +455,7 @@ nsquidlengths <- sum(length_maxyr %>%
 
 # Number of otoliths sampled per area
 S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
+
 specimen_maxyr <- S %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
   filter(YEAR == maxyr & REGION == SRVY)
@@ -476,10 +482,7 @@ otos_by_species <- specimen_maxyr %>%
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup()
 
-L_maxyr <- L %>%
-  filter(YEAR == maxyr & REGION == SRVY)
-
-lengths_species <- L_maxyr |>
+lengths_species <- length_maxyr |>
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
@@ -499,7 +502,7 @@ lengths_species <- L_maxyr |>
     "Lengths collected" = N
   )
 
-meanlengths_area <- L_maxyr %>%
+meanlengths_area <- length_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
@@ -513,7 +516,7 @@ meanlengths_area <- L_maxyr %>%
   ungroup() %>%
   dplyr::left_join(region_lu2)
 
-meanlengths_depth <- L_maxyr %>%
+meanlengths_depth <- length_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
@@ -545,13 +548,9 @@ if (use_gapindex) {
 }
 
 
-# Sizecomps for the complexes ----------------------------------------------
+# For complexes, create sizecomps ----------------------------------------------
 if (complexes) {
   # Load complexes lookup table
-  complex_lookup0 <- read.csv("data/complexes_lookup.csv")
-  complex_lookup <- complex_lookup0 |>
-    dplyr::filter(region == SRVY)
-
   ## Connect to Oracle
   sql_channel <- gapindex::get_connected()
 
