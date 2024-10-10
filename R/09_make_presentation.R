@@ -56,10 +56,13 @@ if (x) {
 
 # General data -----------------------------------------------------------------
 # Get species table
-if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
-if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
+if (SRVY == "AI") report_species0 <- read.csv("data/ai_report_specieslist.csv")
+if (SRVY == "GOA") report_species0 <- read.csv("data/goa_report_specieslist.csv")
 
-#report_species <- dplyr::filter(report_species, presentation == 1)
+report_species <- report_species0 |>
+  dplyr::filter(presentation == 1) |>
+  dplyr::arrange(reportorder)
+
 
 # Get a table of the strata and depths / regions
 dat <- read.csv("data/goa_strata.csv", header = TRUE) # includes GOA and AI strata
@@ -1021,46 +1024,58 @@ if (make_joy_division_length) {
   }
 
   # This is repeated; deal with it later
-  L <- read.csv(here::here("data/local_racebase/length.csv"))
-  L <- L %>%
-    mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
+  L0 <- read.csv(here::here("data/local_racebase/length.csv"))
+  L <- L0 |>
+    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
   length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
-
-  length2 <- L %>% # L is the big length table from RACEBASE
+  
+  
+  L2 <- L |> # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
-
-  length3 <- length2 %>%
-    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) %>%
-    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) %>%
-    left_join(region_lu, by = "STRATUM") %>%
+  
+  L3 <- L2 |>
+    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
+    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
+    left_join(region_lu, by = "STRATUM") |>
     mutate(Sex = case_when(
       SEX == 1 ~ "Male",
       SEX == 2 ~ "Female",
       SEX == 3 ~ "Unsexed"
-    )) %>%
+    )) |>
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
-
-  sample_sizes <- length3 %>%
-    filter(YEAR >= minyr) %>%
-    dplyr::group_by(YEAR, SPECIES_CODE, Sex) %>%
-    dplyr::summarize(n = sum(FREQUENCY)) %>%
-    ungroup() %>%
-    mutate(YEAR = as.integer(YEAR),
-           SPECIES_CODE = as.character(SPECIES_CODE))
+  
+  # sample_sizes_species <- L3 |>
+  #   dplyr::filter(YEAR >= minyr) |>
+  #   dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
+  #   dplyr::summarize(n = sum(FREQUENCY)) |>
+  #   ungroup() |>
+  #   mutate(YEAR = as.integer(YEAR))
+  
+  # add complexes to sample sizes
+  sample_sizes <- L3 |>
+    filter(YEAR >= minyr) |>
+    dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
+                                           .default = as.character(SPECIES_CODE))) |>
+    dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
+    dplyr::summarize(n = sum(FREQUENCY)) |>
+    ungroup() |>
+    mutate(YEAR = as.integer(YEAR))
 
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     # These are multipliers for where the sample size geom_text falls on the y axis
-    if(report_species$species_code[i] %in% c("OROX","OFLATS","REBS")){
-      next
-    }
+    # if(report_species$species_code[i] %in% c("OROX","OFLATS","REBS")){
+    #   next
+    # }
     
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
-    # Only sexed lengths included, unless it's SSTH
-    if (report_species$species_code[i] != 30020) {
+    # Only sexed lengths included, unless it's SSTH or darkfin sculpin
+    if (!report_species$species_code[i] %in% c(30020,21341)) {
       len2plot <- len2plot %>%
         filter(Sex != "Unsexed")
     }
@@ -1396,8 +1411,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-09-08" # hard coded, **k it!
-tabledate <- "2024-09-08"
+figuredate <- "2024-10-09" # hard coded, **k it!
+tabledate <- "2024-10-09"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
@@ -1409,6 +1424,11 @@ cat(
 if (!exists("list_biomass_ts")) {
   load(paste0("output/", figuredate, "/", "figures/", "list_biomass_ts.rdata"))
 }
+
+if (!exists("list_cpue_bubbles_strata")) {
+  load(paste0("output/", figuredate, "/", "figures/", "list_cpue_bubbles_strata.rdata"))
+}
+
 if (!exists("list_joy_length")) {
   load(paste0("output/", figuredate, "/", "figures/", "list_joy_length.rdata"))
 }
@@ -1426,11 +1446,6 @@ if (!exists("complexes_cpue") & make_complexes_figs) {
 }
 
 
-# # Make sure you have the list of species
-# if (!exists("report_species")) {
-#   if (SRVY == "AI") report_species <- read.csv("data/ai_report_specieslist.csv")
-#   if (SRVY == "GOA") report_species <- read.csv("data/goa_report_specieslist.csv")
-# }
 
 # Render the Markdown file
 starttime <- Sys.time() # timer in case you want to know how long everything takes
