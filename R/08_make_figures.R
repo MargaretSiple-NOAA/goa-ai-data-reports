@@ -38,45 +38,16 @@ if (SRVY == "AI") {
   ai_west <- akgfmaps::get_base_layers(
     select.region = "ai.west",
     set.crs = "auto"
-  )
-
-  # Make a category that is just the depth of the stratum, for easy labeling
-  ai_east$survey.strata <- ai_east$survey.strata |>
-    mutate(strat_depth = substr(STRATUM, 3, 3))
-
-  #nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
-}
-
-if (SRVY == "GOA") {
-  a <- read.csv("data/goa_strata.csv")
-  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
-  nstrata <- length(unique(a$STRATUM))
-} else {
+     )
+  
+  # Make a category that is just the depth of the stratum, for easy labeling - THIS IS FOR SOMETHING ON MY TO DO LIST< DONT DELETE
+  # ai_east$survey.strata <- ai_east$survey.strata |>
+  #   mutate(strat_depth = substr(STRATUM, 3, 3))
+  
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, SURVEY == "AI")
   nstrata <- length(unique(a$STRATUM))
-}
-
-if (SRVY == "GOA") {
-  reg_dat_goa <- akgfmaps::get_base_layers(
-    select.region = "goa",
-    set.crs = "EPSG:3338"
-  )
-  reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
-    dplyr::mutate(
-      SRVY = "GOA",
-      color = scales::alpha(colour = "grey80", 0.7),
-      SURVEY = "Gulf of Alaska"
-    )
-  reg_data <- reg_dat_goa
   
-  goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
-  goa_inpfc <- goa_all$inpfc.strata
-  
-  geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
-}
-
-if (SRVY == "AI") {
   reg_dat_ai <- akgfmaps::get_base_layers(
     select.region = "ai",
     set.crs = "EPSG:3338"
@@ -89,6 +60,30 @@ if (SRVY == "AI") {
     )
   reg_data <- reg_dat_ai
 }
+
+if (SRVY == "GOA") {
+  a <- read.csv("data/goa_strata.csv")
+  a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
+  nstrata <- length(unique(a$STRATUM))
+  
+  goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
+  goa_inpfc <- goa_all$inpfc.strata
+  
+  geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
+  
+  reg_dat_goa <- akgfmaps::get_base_layers(
+    select.region = "goa",
+    set.crs = "EPSG:3338"
+  )
+  reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+    dplyr::mutate(
+      SRVY = "GOA",
+      color = scales::alpha(colour = "grey80", 0.7),
+      SURVEY = "Gulf of Alaska"
+    )
+  reg_data <- reg_dat_goa
+}
+
 
 # Aesthetic settings ------------------------------------------------------
 bubbletheme <- theme(
@@ -147,7 +142,7 @@ accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 # Palette for joy div plot
 joypal <- c("#d1eeea", "#a8dbd9", "#85c4c9", "#68abb8", "#4f90a6", "#3b738f", "#2a5674") # Mint palette
 joypal <- c("#d2fbd4", "#a5dbc2", "#7bbcb0", "#559c9e", "#3a7c89", "#235d72", "#123f5a") # more green palette
-joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears)
+joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), x = 1:nyears) # Light blues palette
 joypal_grey <- grey.colors(n = 7)
 
 # Palette for survey regions - 2 options
@@ -648,12 +643,14 @@ if (make_cpue_bubbles) {
 if (make_joy_division_length) {
   list_joy_length <- list()
 
+  # Load the pseudolengths file
   if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
     report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
   } else {
     cat("Pseudolength file not found. Sourcing data prep file... \n")
     source("R/06_prep_data.R")
   }
+  
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L0 |>
@@ -676,13 +673,25 @@ if (make_joy_division_length) {
     )) |>
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
 
+  # sample_sizes_species <- L3 |>
+  #   dplyr::filter(YEAR >= minyr) |>
+  #   dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
+  #   dplyr::summarize(n = sum(FREQUENCY)) |>
+  #   ungroup() |>
+  #   mutate(YEAR = as.integer(YEAR))
+  
+  # add complexes to sample sizes
   sample_sizes <- L3 |>
     filter(YEAR >= minyr) |>
+    dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
+                                           .default = as.character(SPECIES_CODE))) |>
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
     dplyr::summarize(n = sum(FREQUENCY)) |>
     ungroup() |>
     mutate(YEAR = as.integer(YEAR))
-
+  
   # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
   complex_lookup <- data.frame(
     polycode = c(
