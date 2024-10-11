@@ -1,4 +1,4 @@
-# PRESENTATION FIGURES ----------------------------------------------------
+# PRESENTATION FIGURES 
 # Project: Automated GOA-AI data reports and slides
 # Author: Megsie Siple
 # Notes: Use this to make pptx slides for the Joint Groundfish Plan Team presentation. This uses tables from Oracle (RACEBASE, GAP_PRODUCTS, and AI and GOA schemas [though these should soon be deprecated]) and builds the figures and some summary stats.
@@ -60,8 +60,7 @@ if (SRVY == "AI") report_species0 <- read.csv("data/ai_report_specieslist.csv")
 if (SRVY == "GOA") report_species0 <- read.csv("data/goa_report_specieslist.csv")
 
 report_species <- report_species0 |>
-  dplyr::filter(presentation == 1) |>
-  dplyr::arrange(reportorder)
+  dplyr::filter(presentation == 1) 
 
 
 # Get a table of the strata and depths / regions
@@ -173,33 +172,6 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
 )
 
 
-# Table with FMP species biomass from largest to smallest -----------------
-compare_tab <- biomass_total %>%
-  filter(YEAR %in% c(maxyr, compareyr) &
-           SPECIES_CODE %in% report_species$species_code) %>%
-  dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) %>%
-  dplyr::arrange(YEAR) %>%
-  tidyr::pivot_wider(
-    names_from = YEAR,
-    values_from = BIOMASS_MT,
-    names_prefix = "yr_"
-  ) %>%
-  as.data.frame()
-
-compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
-names(compare_tab)
-
-compare_tab2 <- compare_tab |>
-  dplyr::mutate_at('SPECIES_CODE',as.character) |>
-  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
-  dplyr::arrange(reportorder) |>
-  dplyr::select(-(presentation:reportorder))
-
-compare_tab_pres <- compare_tab2 |>
-  dplyr::select(spp_name_informal, yr_2022, yr_2024, percent_change) |>
-  dplyr::arrange(-yr_2024)
-
-
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
   ai_east <- akgfmaps::get_base_layers(
@@ -264,7 +236,7 @@ if (make_cpue_bubbles | make_cpue_ianelli | make_cpue_bubbles_strata | make_comp
 }
 
 
-# Aesthetic settings ------------------------------------------------------
+# Themes ------------------------------------------------------
 
 bubbletheme <- theme(
   panel.background = element_rect(
@@ -306,16 +278,18 @@ linetheme <- theme_bw(base_size = 16)
 bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
 
-# Palettes!
+
+# Palettes ----------------------------------------------------------------
+
 if (SRVY == "AI") {
   stratumpal <- lengthen_pal(
-    shortpal = PNWColors::pnw_palette(name = "Winter",n = 8), 
+    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"), #PNWColors::pnw_palette(name = "Winter",n = 8), 
     x = 1:nstrata
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
 } else {
   stratumpal <- lengthen_pal(
-    shortpal =PNWColors::pnw_palette(name = "Winter",n = 8),
+    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"), #PNWColors::pnw_palette(name = "Winter",n = 8),
     x = 1:nstrata
   )
 }
@@ -361,6 +335,7 @@ if (make_biomass_timeseries) {
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
+      annotate(label = name_bms, geom ="label", x = Inf, y = Inf, hjust = 1, vjust = 1) +
       linetheme
     p1
 
@@ -1010,34 +985,38 @@ if (make_cpue_ianelli) {
 
 
 
-# 6. Percent changes in biomass since last survey ----------------------------
+# 6. % changes in biomass since last survey ----------------------------
 
-head(biomass_total)
-
-compare_tab <- biomass_total %>%
+compare_tab <- biomass_total |>
   filter(YEAR %in% c(maxyr, compareyr) &
-    SPECIES_CODE %in% report_species$species_code) %>%
-  dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) %>%
-  dplyr::arrange(YEAR) %>%
+           SPECIES_CODE %in% report_species$species_code) |>
+  dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) |>
+  dplyr::arrange(YEAR) |>
   tidyr::pivot_wider(
     names_from = YEAR,
     values_from = BIOMASS_MT,
     names_prefix = "yr_"
-  ) %>%
+  ) |>
   as.data.frame()
 
 compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
 names(compare_tab)
 
-compare_tab2 <- compare_tab %>%
-  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
-  arrange(-SPECIES_CODE) %>%
+compare_tab2 <- compare_tab |>
+  dplyr::mutate_at('SPECIES_CODE',as.character) |>
+  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
+  dplyr::arrange(reportorder) |>
   dplyr::select(-(presentation:reportorder))
 
-write.csv(
-  x = compare_tab2,
-  file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_survey.csv")
-)
+compare_tab_pres <- compare_tab2 |>
+  dplyr::select(spp_name_informal, yr_2022, yr_2024, percent_change) |>
+  dplyr::arrange(-yr_2024) |>
+  dplyr::mutate(across(starts_with("yr_"), ~round(.x))) |>
+  dplyr::rename('Biomass in 2024 (mt)' = yr_2024,
+                'Biomass in 2022 (mt)' = yr_2022,
+                'Percent change' = percent_change)
+
+
 
 # 7. Joy division plots - Length frequency -----------------------------
 
@@ -1472,6 +1451,13 @@ if (!exists("cpue_strata_complexes") & make_complexes_figs) {
   load(paste0("output/", figuredate, "/", "figures/", "cpue_strata_complexes.rdata"))
 }
 
+# Order slides in order of highest to lowest biomass
+report_spcies <- biomass_total |>
+  dplyr::filter(YEAR == maxyr) |>
+  dplyr::right_join(report_species, by = c('SPECIES_CODE'='species_code')) |>
+  dplyr::arrange(-BIOMASS_MT) |>
+  dplyr::select(group, spp_name_informal, SPECIES_CODE, spp_name_scientific, BIOMASS_MT) |>
+  janitor::clean_names()
 
 
 # Render the Markdown file
