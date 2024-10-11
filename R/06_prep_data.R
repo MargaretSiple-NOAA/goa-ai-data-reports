@@ -7,7 +7,8 @@
 # haul info (source: RACEBASE)
 haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
-# species ID info (source: RACEBASE)
+
+# species ID info (source: RACEBASE) --------------------------------------
 common_names <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
 species_names <- common_names %>%
   janitor::clean_names() %>%
@@ -19,7 +20,8 @@ species_names <- common_names %>%
     species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
     species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
     species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
-  )) # add column for species category
+  )) %>% # add column for species category
+  dplyr::mutate(species_code = as.character(species_code))
 
 # This year's haul data
 haul_maxyr <- haul %>%
@@ -97,7 +99,8 @@ biomass_total <- x |>
     MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
     MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
   ) |>
-  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
+  mutate_at('SPECIES_CODE',as.character)
 
 
 x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
@@ -167,6 +170,8 @@ if (complexes) {
   biomass_total_complexes <- biomass_df_complexes
   
   print("Created cpue_table_complexes and biomass_total_complexes.")
+  
+  biomass_total <- dplyr::bind_rows(biomass_total, biomass_total_complexes)
 }
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
@@ -630,8 +635,10 @@ if (complexes) {
     as.data.frame()
 
   sizecomp <- rbind(sizecomp, sizecomp_complexes)
-  if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
-    print("Eek! Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
+  
+  # Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
+  if (length(unique(sizecomp$SPECIES_CODE))+length(unique(complex_lookup$complex)) != length(unique(report_species$species_code))) {
+    print("Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
   }
   
 }
