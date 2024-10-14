@@ -11,6 +11,7 @@ output:
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = FALSE, dpi = 300, fig.width = 7, warning = FALSE, message = FALSE)
 ```
+## `r maxyr` `r SRVY` bottom trawl survey
 
 The `r maxyr` `r SRVY` bottom trawl survey took place between `r dates_conducted`. The previous `r SRVY` survey was in `r compareyr`.
 
@@ -174,12 +175,6 @@ p2
 Overall species composition in `r maxyr` was similar to past years with `r highest_biomass_overall` and `r second_highest_biomass_overall` dominating the catches. (INSERT NOTE ABOUT TRENDS IF YOU WANT)
 :::
 
-## Biomass compared to `r compareyr`
-
-```{r compare_tab}
-compare_tab_pres
-```
-
 ## Bottom temperature (°C)
 
 ```{r bottomtemp}
@@ -203,6 +198,13 @@ Larger brown points represent the median, small black points represent individua
 
 ---
 
+## Biomass compared to `r compareyr`
+
+```{r compare_tab}
+compare_tab_pres |>
+  flextable(cwidth = 2)
+```
+
 ## Biomass trends
 
 :::notes
@@ -215,15 +217,16 @@ Now we’ll take a look at biomass trends, length frequencies, and distribution 
 # NEED TO ADD HERE: CHECKS IF THINGS ARE LOADED INTO ENV AND LOAD THEM IF NOT
 # report_species contains the list of species in the report
 #
+
+# IMPORTANT PART
 src <- list()
 
 for (i in 1:nrow(report_species)) { # nrow(report_species)
-
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
-
+  
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesSlideTemplate.Rmd"))
 }
 

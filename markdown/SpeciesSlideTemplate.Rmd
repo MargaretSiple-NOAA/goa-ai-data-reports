@@ -5,23 +5,13 @@
 :::::: {.columns}
 ::: {.column}
 ```{r echo=FALSE, error=TRUE}
-if(as.character({{species_code}}) %in% c("REBS","OROX","OFLATS")){
-  if({{species_code}}=="REBS"){ print(list_biomass_ts[["REBS"]])}
-  if({{species_code}}=="OROX"){ print(list_biomass_ts[["OROX"]])}
-  if({{species_code}}=="OFLATS"){print(list_biomass_ts[["OFLATS"]])}
-}else{
-  print(list_biomass_ts[[as.character({{species_code}})]])
-}
-
-
-#list_biomass_ts[[as.character({{ species_code }})]]
-#print(names(list_biomass_ts))
+print(list_biomass_ts[["{{species_code}}"]])
 ```
 :::
 
 ::: {.column}
 ```{r echo=FALSE, error=TRUE}
-print(list_joy_length[[as.character({{species_code}})]])
+print(list_joy_length[["{{species_code}}"]])
 ```
 :::
 ::::::
@@ -34,7 +24,7 @@ print(list_joy_length[[as.character({{species_code}})]])
 
 
 ```{r echo=FALSE,out.width=9, error=TRUE}
-print(list_cpue_bubbles_strata[[as.character({{species_code}})]])
+print(list_cpue_bubbles_strata[["{{species_code}}"]])
 ```
 
 ----

@@ -15,7 +15,7 @@ make_catch_comp <- TRUE
 make_cpue_bubbles <- FALSE
 make_cpue_bubbles_strata <- TRUE
 # The map that Jim I requested a while ago. It has bars instead of bubbles. Some assessment ppl like it:
-make_cpue_ianelli <- TRUE
+make_cpue_ianelli <- FALSE
 # 4. Length frequency plots by region and depth stratum (probably deprecated - not annual increments)
 make_length_freqs <- FALSE
 # 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
@@ -307,7 +307,7 @@ joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
-  shortpal = c("#084c61","#db504a","#e3b505","#4d8b31","#56a3a6"),
+  shortpal = c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497"),
   x = 1:(nrow(report_species) + 1)
 )
 
@@ -383,6 +383,7 @@ if(make_complexes_figs){
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
+      annotate(label = name_bms, geom ="label", x = Inf, y = Inf, hjust = 1, vjust = 1) +
       linetheme +
       annotate("text",
         x = 2000, y = 50000,
@@ -404,7 +405,7 @@ if(make_complexes_figs){
 
 
   # CPUE maps
-  cpue_strata_complexes <- list()
+  list_cpue_bubbles_strata_complexes <- list()
   
   for (i in 1:length(unique(complex_lookup$complex))) {
     complex_code <- unique(complex_lookup$complex)[i]
@@ -415,7 +416,7 @@ if(make_complexes_figs){
     
     thisyrshauldata <- cpue_table_complexes |>
       janitor::clean_names() |>
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+      #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
       st_as_sf(
         coords = c("longitude_dd_start", "latitude_dd_start"),
@@ -436,7 +437,7 @@ if(make_complexes_figs){
       scale_color_manual(values = stratumpal, guide = "none") +
       geom_sf(data = reg_data$akland) +
       geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
-              aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
+              aes(size = cpue_kgkm2), alpha = 0.5) + 
       scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
       geom_sf( # x's for places where cpue=0
         data = filter(thisyrshauldata, cpue_kgkm2 == 0),
@@ -533,8 +534,8 @@ if(make_complexes_figs){
     
     dev.off()
     
-    cpue_strata_complexes[[i]] <- final_obj
-    names(cpue_strata_complexes)[i] <- complex_code
+    list_cpue_bubbles_strata_complexes[[i]] <- final_obj
+    names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
   }#/all complexes cpue loop
   
   
@@ -584,7 +585,7 @@ if (make_cpue_bubbles) {
 
     # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
     thisyrshauldata <- cpue_raw |>
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
+      #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
       st_as_sf(
         coords = c("longitude_dd_start", "latitude_dd_start"),
@@ -622,15 +623,16 @@ if (make_cpue_bubbles) {
 # 3b. CPUE bubble maps with strata --------------------------------------------
 
 if (make_cpue_bubbles_strata) {
-  list_cpue_bubbles_strata <- list()
-  for (i in 1:nrow(report_species)) { # nrow(report_species)
-    if(report_species$species_code[i] %in% c("OROX","REBS","OFLATS")){next} # These are generated above
-    
-    spbubble <- report_species$species_code[i]
-    namebubble <- report_species$spp_name_informal[i]
+  list_cpue_bubbles_strata_species <- list()
+  bubble_index <- which(!report_species$species_code %in% c("OROX","REBS","OFLATS"))
+  
+  for (i in 1:length(bubble_index)) { # nrow(report_species)
+
+    spbubble <- report_species$species_code[bubble_index[i]]
+    namebubble <- report_species$spp_name_informal[bubble_index[i]]
 
     thisyrshauldata <- cpue_raw |>
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+      #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
       st_as_sf(
         coords = c("longitude_dd_start", "latitude_dd_start"),
@@ -653,7 +655,7 @@ if (make_cpue_bubbles_strata) {
       geom_sf(
         data = filter(thisyrshauldata, cpue_kgkm2 > 0),
         aes(size = cpue_kgkm2), alpha = 0.5
-      ) + # USED TO BE cpue_kgha
+      ) +
       scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
       geom_sf( # x's for places where cpue=0
         data = filter(thisyrshauldata, cpue_kgkm2 == 0),
@@ -750,10 +752,18 @@ if (make_cpue_bubbles_strata) {
 
     dev.off()
 
-    list_cpue_bubbles_strata[[i]] <- final_obj # save fig to list
+    list_cpue_bubbles_strata_species[[i]] <- final_obj # save fig to list
+    
   } # /end species loop
-  names(list_cpue_bubbles_strata) <- report_species$species_code[1:length(which(!report_species$species_code %in% c("OROX","OFLATS","REBS")))]
-  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
+  names(list_cpue_bubbles_strata_species) <- report_species$species_code[bubble_index]
+  
+  if(make_complexes_figs){
+  list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
+  }else{
+    list_cpue_bubbles_strata <- list_cpue_bubbles_strata_species
+  }
+  
+  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata")) # includes 
 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
@@ -823,7 +833,7 @@ if (make_cpue_ianelli) {
     for (y in 1:length(yrs)) {
       # i = 8
       thisyrshauldata <- cpue_raw |>
-        dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+        #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
         dplyr::filter(year %in% yrs[y] &
           survey == SRVY &
           species_code == report_species$species_code[i]) |>
@@ -845,7 +855,7 @@ if (make_cpue_ianelli) {
           fill = "grey40"
         ) +
         geom_sf( # x's for places where we sampled but didn't catch any of that species
-          data = dplyr::filter(thisyrshauldata, cpue_kgha == 0),
+          data = dplyr::filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 0.8,
           color = "red",
           shape = 4,
@@ -1005,8 +1015,7 @@ names(compare_tab)
 compare_tab2 <- compare_tab |>
   dplyr::mutate_at('SPECIES_CODE',as.character) |>
   left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
-  dplyr::arrange(reportorder) |>
-  dplyr::select(-(presentation:reportorder))
+  dplyr::arrange(-biomass_mt)
 
 compare_tab_pres <- compare_tab2 |>
   dplyr::select(spp_name_informal, yr_2022, yr_2024, percent_change) |>
@@ -1016,7 +1025,7 @@ compare_tab_pres <- compare_tab2 |>
                 'Biomass in 2022 (mt)' = yr_2022,
                 'Percent change' = percent_change)
 
-
+write.csv(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.csv"))
 
 # 7. Joy division plots - Length frequency -----------------------------
 
@@ -1035,7 +1044,6 @@ if (make_joy_division_length) {
     dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
   length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
   
-  
   L2 <- L |> # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
@@ -1051,37 +1059,42 @@ if (make_joy_division_length) {
     )) |>
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
   
-  # sample_sizes_species <- L3 |>
-  #   dplyr::filter(YEAR >= minyr) |>
-  #   dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
-  #   dplyr::summarize(n = sum(FREQUENCY)) |>
-  #   ungroup() |>
-  #   mutate(YEAR = as.integer(YEAR))
+  # get samples for individual species
+  species_sample_sizes <- L3 |>
+    dplyr::filter(grepl("[0-9]", SPECIES_CODE)) |># filter to not complexes
+    dplyr::filter(SPECIES_CODE %in% (report_species$species_code)) |> # filter to report species
+    dplyr::filter(YEAR >= minyr) |>
+    dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
+    dplyr::summarize(n = sum(FREQUENCY)) |>
+    ungroup() |>
+    mutate(YEAR = as.integer(YEAR), 
+           SPECIES_CODE = as.character(SPECIES_CODE))
   
-  # add complexes to sample sizes
-  sample_sizes <- L3 |>
-    filter(YEAR >= minyr) |>
+  # get sample sizes for complexes
+  complex_sample_sizes <- L3 |>
+    dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
+    dplyr::filter(YEAR >= minyr) |>
     dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
                                            .default = as.character(SPECIES_CODE))) |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
     dplyr::summarize(n = sum(FREQUENCY)) |>
     ungroup() |>
     mutate(YEAR = as.integer(YEAR))
 
+  sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
   # Loop thru species
   for (i in 1:nrow(report_species)) {
-    # These are multipliers for where the sample size geom_text falls on the y axis
-    # if(report_species$species_code[i] %in% c("OROX","OFLATS","REBS")){
-    #   next
-    # }
     
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
-    # Only sexed lengths included, unless it's SSTH or darkfin sculpin
-    if (!report_species$species_code[i] %in% c(30020,21341)) {
+    # SSTH or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
+    if (report_species$species_code[i] %in% c(30020, 21341)) {
+      len2plot <- len2plot 
+    }else{
       len2plot <- len2plot %>%
         filter(Sex != "Unsexed")
     }
@@ -1092,22 +1105,16 @@ if (make_joy_division_length) {
       group_by(YEAR, Sex) %>%
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
-
-    write.csv(
-      x = medlines_sp,
-      file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
-      row.names = FALSE
-    )
-
+    
+    # Lengths to plot
     len2plot2 <- len2plot %>%
       left_join(sample_sizes %>%
         filter(SPECIES_CODE == report_species$species_code[i]))
-
     
     yrbreaks <- unique(len2plot2$YEAR)
     lengthlimits <- range(len2plot2$LENGTH)
 
-    testlabdf <- len2plot2 %>%
+    n_labels <- len2plot2 %>%
       distinct(YEAR, Sex, .keep_all = TRUE)
 
     joyplot <- len2plot2 %>%
@@ -1131,7 +1138,7 @@ if (make_joy_division_length) {
       theme_ridges(font_size = 10) +
       scale_fill_gradientn(colours = joypal) +
       geom_label(
-        data = testlabdf,
+        data = n_labels,
         mapping = aes(label = paste0("n = ", n), x = Inf),
         fill = "white", label.size = NA,
         nudge_x = 0,
@@ -1417,8 +1424,8 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-10-09" # hard coded, **k it!
-tabledate <- "2024-10-09"
+figuredate <- "2024-10-11" # hard coded, **k it!
+tabledate <- "2024-10-11"
 
 cat(
   "Using report data from", tabledate, "for tables. \n",
@@ -1444,15 +1451,12 @@ if (!exists("list_temperature")) {
 if (!exists("p2")) {
   load(paste0("output/", figuredate, "/", "figures/", "catch_comp.rdata"))
 }
-if (!exists("biomass_ts_complexes") & make_complexes_figs) {
-  load(paste0("output/", figuredate, "/", "figures/", "biomass_ts_complexes.rdata"))
-}
-if (!exists("cpue_strata_complexes") & make_complexes_figs) {
-  load(paste0("output/", figuredate, "/", "figures/", "cpue_strata_complexes.rdata"))
+if (!exists("compare_tab_pres")) {
+  read.csv(file = paste0("output/", tabledate, "/", "tables/", "compare_tab_pres.csv"))
 }
 
-# Order slides in order of highest to lowest biomass
-report_spcies <- biomass_total |>
+# GPT slides special: Order slides in order of highest to lowest biomass
+report_species <- biomass_total |>
   dplyr::filter(YEAR == maxyr) |>
   dplyr::right_join(report_species, by = c('SPECIES_CODE'='species_code')) |>
   dplyr::arrange(-BIOMASS_MT) |>
