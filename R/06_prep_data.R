@@ -637,7 +637,7 @@ if (complexes) {
   sizecomp <- rbind(sizecomp, sizecomp_complexes)
   
   # Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
-  if (length(unique(sizecomp$SPECIES_CODE))+length(unique(complex_lookup$complex)) != length(unique(report_species$species_code))) {
+  if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
     print("Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
   }
   
