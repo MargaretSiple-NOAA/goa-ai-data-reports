@@ -7,7 +7,7 @@ minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 199
 compareyr <- 2022 # Change this for the year!
 pres_or_report <- "pres" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GOA and AI schemas.
-complexes <- TRUE
+complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 
 # When did you save the last version of the figures and tables you want to use?
 tabledate <- "2024-10-07" # "2023-11-10"
@@ -115,9 +115,9 @@ if (SRVY == "GOA") report_species0 <- read.csv("data/goa_report_specieslist.csv"
 
 
 if (pres_or_report == "pres") {
-  report_species <- report_species0 |> filter(presentation == 1)
+  report_species <- report_species0 |> dplyr::filter(presentation == 1)
 } else {
-  report_species <- report_species0 |> filter(report == 1)
+  report_species <- report_species0 |> dplyr::filter(report == 1)
 }
 
 # Reorder based on specified spps order
