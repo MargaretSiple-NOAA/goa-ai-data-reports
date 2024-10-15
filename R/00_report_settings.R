@@ -10,9 +10,9 @@ use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using 
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2024-10-14" # "2023-11-10"
-figuredate <- "2024-10-14"
-reportvaluesdate <- "2024-10-14"
+tabledate <- "2024-10-15" # "2023-11-10"
+figuredate <- "2024-10-15"
+reportvaluesdate <- "2024-10-15"
 
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
