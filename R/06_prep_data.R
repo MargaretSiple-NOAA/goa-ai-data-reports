@@ -153,14 +153,14 @@ if (complexes) {
 
   cpue_table_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
 
-  biomass_stratum <- gapindex::calc_biomass_stratum(
+  biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
     racebase_tables = complexes_data,
     cpue = cpue_table_complexes
   )
 
   biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
     racebase_tables = complexes_data,
-    biomass_strata = biomass_stratum
+    biomass_strata = biomass_stratum_complexes
   )
 
   biomass_df_complexes <- biomass_subarea_complexes |>

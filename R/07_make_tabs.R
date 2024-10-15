@@ -192,10 +192,17 @@ surveywide_samplingdensity <- allocated_sampled |>
 table3s_list <- list()
 
 for (i in 1:nrow(report_species)) {
+  # if single species, use biomass from GAP_PRODUCTS, if complex use biomass from gapindex.
+  if(grepl(pattern = "[0-9]", x = report_species$species_code[i])){
+    bt <- biomass_gp
+  }else{
+    bt <- biomass_subarea
+  }
+  
   tab3 <- make_tab3(
     species_code = report_species$species_code[i],
     year = maxyr,
-    biomass_tbl = biomass_gp,
+    biomass_tbl = bt,
     area_tbl = area_gp
   )
 
@@ -216,10 +223,18 @@ print("Done creating Table 3s")
 table4s_list <- list()
 
 for (i in 1:nrow(report_species)) {
+  # if single species, use biomass from GAP_PRODUCTS, if complex use biomass from gapindex.
+  if(grepl(pattern = "[0-9]", x = report_species$species_code[i])){
+    bt <- biomass_gp
+  }else{
+    bt <- biomass_stratum_complexes |>
+      dplyr::rename("AREA_ID" = "STRATUM")
+  }
+  
   tab4 <- make_tab4(
     species_code = report_species$species_code[i],
     year = maxyr,
-    biomass_tbl = biomass_gp,
+    biomass_tbl = bt,
     area_tbl = area_gp
   )
 
