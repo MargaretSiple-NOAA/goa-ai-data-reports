@@ -247,7 +247,7 @@ if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$specie
 }
 
 
-###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
+############ OPTIONAL: GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
 if (use_gapindex) {
   library(gapindex)
@@ -455,14 +455,14 @@ if (SRVY == "AI") {
 }
 
 # Number of stations "successfully sampled"
-# Subset 2022 HAUL table to abundance_haul=="Y", count the number of unique stations.
+# Subset maxyr HAUL table to abundance_haul=="Y", count the number of unique stations.
 nstations <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
   nrow()
 
 # Number of "successful hauls":
-#   Subset 2022 HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
+#   Subset maxyr HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
 nsuccessfulhauls <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y") %>%
   nrow()
@@ -470,18 +470,18 @@ nsuccessfulhauls <- haul2 %>%
 # Number of attempted tows:
 nattemptedhauls <- haul2 %>%
   filter(HAUL_TYPE == 3) %>%
-  nrow() # for 2022: 451 # 455 if you include test tows
+  nrow() 
 
 # Number of stations attempted:
 nattemptedstations <- haul2 %>%
   distinct(STATIONID, STRATUM) %>%
-  nrow() # for 2022: 420
+  nrow() 
 
 # Number of stations for which Marport net spread was successfully recorded:
 nstations_w_marport_data <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
-  nrow() # for 2022: 397
+  nrow() 
 
 nestimatedspreads <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "N") %>%
@@ -494,17 +494,13 @@ nfailedtows <- haul2 %>%
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
   nrow()
 
-
 # Number of stations with no marport data - this is a phrase
 no_marport_data <- paste(
   nestimatedspreads,
   ifelse(nestimatedspreads == 1, "station", "stations")
 )
 
-# Save for Alex
-# save(nstations, nsuccessfulhauls, nattemptedhauls,nattemptedstations,nstations_w_marport_data, file = "stationinfo2022.RData")
-
-
+# Sentence about estimating haul width and height where needed
 if (any(is.na(haul2$NET_WIDTH))) {
   marportpredsentence <- "For the ~1% of trawl hauls without net width, net spread was predicted from a generalized additive model (GAM) parameterized with successful trawl hauls of similar depth and wire out."
 } else {
@@ -520,7 +516,7 @@ L <- L0 %>%
 length_maxyr_species <- filter(L, YEAR == maxyr & REGION == SRVY) |>
   dplyr::mutate_at(.vars = "SPECIES_CODE", as.character)
 
-length_maxyr_complexes <- length_maxyr |>
+length_maxyr_complexes <- length_maxyr_species |>
   dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
   dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OROX")] ~ "OROX",
     SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "REBS")] ~ "REBS",
@@ -682,7 +678,6 @@ write.csv(report_pseudolengths, paste0("data/", maxyr, "_", SRVY, "_", "report_p
 # Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps
 catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
-# x <- read.csv(here::here("data","local_race_data","species_taxonomics.csv"))
 
 
 # Species with highest est'd biomass --------------------------------------
