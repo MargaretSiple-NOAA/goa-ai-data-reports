@@ -45,9 +45,9 @@ if (z) {
 if(SRVY=="AI"){ai_map_layers <- c("ai_central", "ai_east", "ai_west")}else{ai_map_layers <- NULL}
 
 rm(list = c(
-  ai_map_layers, "bartheme", "bubbletheme", "catch", "fig", "haul",
+  "ai_map_layers", "bartheme", "bubbletheme", "catch", "fig", "haul",
   "joyplot", "L2", "L3", "linetheme", 
-  "list_cpue_bubbles", #"list_cpue_bubbles_strata",
+  "list_cpue_bubbles_strata", #"list_cpue_bubbles_strata",
   "list_joy_length","list_temperature", "list_ldscatter",
   "list_tables", "S", "table3s_list", "table4s_list",  "tabledate", 
   "figuredate", "reportvaluesdate"
