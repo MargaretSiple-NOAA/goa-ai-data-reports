@@ -43,25 +43,24 @@ area_gp <- read.csv("data/local_gap_products/area.csv") #|>
   
 area_gp_inpfc_region <- area_gp |>
   dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION"))
+
 topn <- 20
 
+# biomass_subarea is created in prep_data and includes complexes
+
 # Make table of top CPUE
-top_CPUE <- biomass_gp |>
-  dplyr::filter(SPECIES_CODE < 40001 & YEAR == maxyr) |> # take out inverts
-  dplyr::right_join(area_gp_inpfc_region) |>
-  dplyr::filter(!is.na(AREA_TYPE)) |> # only want the total across AI and biomass for each region (EAI, CAI, etc)
+top_CPUE <- biomass_subarea |>
+  dplyr::filter(YEAR == maxyr) |>
+  dplyr::filter(SPECIES_CODE < 40001 | SPECIES_CODE %in% c("REBS","OFLATS","OROX")) |> # take out inverts
+  dplyr::right_join(area_gp_inpfc_region, by = c("SURVEY_DEFINITION_ID","AREA_ID")) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
-  dplyr::rename(
-    "INPFC_AREA" = AREA_NAME,
-    "wgted_mean_cpue_kgkm2" = CPUE_KGKM2_MEAN
-  ) |>
-  dplyr::mutate(wgted_mean_cpue_kgha = wgted_mean_cpue_kgkm2 / 100) |> # convert to hectares
+  dplyr::rename("INPFC_AREA" = AREA_NAME) |>
+  dplyr::mutate(wgted_mean_cpue_kgha = CPUE_KGKM2_MEAN / 100) |> # convert to hectares
   group_by(INPFC_AREA) |>
   dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) |>
-  left_join(common_names) |>
+  left_join(species_names, by = c("SPECIES_CODE" = "species_code")) |>
   dplyr::rename(
-    "species_code" = SPECIES_CODE,
-    "common_name" = COMMON_NAME
+    "species_code" = SPECIES_CODE
   ) |>
   dplyr::ungroup() |>
   dplyr::mutate(INPFC_AREA = ifelse(INPFC_AREA == "All", "All areas", INPFC_AREA))
@@ -254,7 +253,7 @@ names(compare_tab)
 
 compare_tab2 <- compare_tab %>%
   left_join(report_species, by = c("SPECIES_CODE" = "species_code")) %>%
-  arrange(-SPECIES_CODE) %>%
+  #arrange(-SPECIES_CODE) %>%
   dplyr::select(-(presentation:reportorder))
 
 write.csv(
