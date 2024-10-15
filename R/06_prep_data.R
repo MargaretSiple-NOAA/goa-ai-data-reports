@@ -9,20 +9,24 @@ haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
 
 # species ID info (source: RACEBASE) --------------------------------------
-common_names <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
-species_names <- common_names %>%
+species_names0 <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
+species_names <- species_names0 %>%
   janitor::clean_names() %>%
   dplyr::rename(scientific_name = species_name) %>%
   dplyr::select(-year_added) %>%
   dplyr::mutate(major_group = dplyr::case_when(
     species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
-    species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
+    species_code >= 20000 & species_code <= 29999 ~ "Roundfish",
     species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
     species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
     species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
-  )) %>% # add column for species category
-  dplyr::mutate(species_code = as.character(species_code))
-
+  ),
+    species_code = as.character(species_code)) |> # add column for species category
+  add_row(species_code = c("OROX","OFLATS","REBS"),
+          scientific_name = c("Several species","Several species","Sebastes aleutianus and Sebastes melanosticus"),
+          common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/balckspotted complex"),
+          major_group = c("Rockfish","Flatfish","Rockfish"))
+  
 # This year's haul data
 haul_maxyr <- haul %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
@@ -102,6 +106,8 @@ biomass_total <- x |>
   mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
   mutate_at('SPECIES_CODE',as.character)
 
+biomass_subarea_species <- x |>
+  mutate_at('SPECIES_CODE',as.character)
 
 x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
 
@@ -152,12 +158,12 @@ if (complexes) {
     cpue = cpue_table_complexes
   )
 
-  biomass_subarea <- gapindex::calc_biomass_subarea(
+  biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
     racebase_tables = complexes_data,
     biomass_strata = biomass_stratum
   )
 
-  biomass_df_complexes <- biomass_subarea |>
+  biomass_df_complexes <- biomass_subarea_complexes |>
     dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
     mutate(
       MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
@@ -171,7 +177,11 @@ if (complexes) {
   
   print("Created cpue_table_complexes and biomass_total_complexes.")
   
-  biomass_total <- dplyr::bind_rows(biomass_total, biomass_total_complexes)
+  biomass_total <- dplyr::bind_rows(biomass_total, 
+                                    biomass_total_complexes)
+  
+  biomass_subarea <- dplyr::bind_rows(biomass_subarea_species,
+                                      biomass_subarea_complexes)
 }
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
@@ -557,7 +567,7 @@ if (use_gapindex) {
 if (complexes) {
   # Load complexes lookup table
   ## Connect to Oracle
-  sql_channel <- gapindex::get_connected()
+  #sql_channel <- gapindex::get_connected()
 
   yrs_to_pull <- minyr:maxyr
 
