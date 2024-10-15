@@ -109,20 +109,9 @@ print("Finished downloading strata file.")
 
 
 if (SRVY == "GOA") {
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_TOTAL")
-  # write.csv(x = a, "./data/local_goa/biomass_total.csv", row.names = FALSE)
-  # 
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.BIOMASS_STRATUM")
-  # write.csv(x = a, "./data/local_goa/biomass_stratum.csv", row.names = FALSE)
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_goa/goa_station_allocation.csv", row.names = FALSE)
-
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.CPUE")
-  # write.csv(x = a, "./data/local_goa/cpue.csv", row.names = FALSE)
-  # 
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.SIZECOMP_TOTAL")
-  # write.csv(x = a, "./data/local_goa/sizecomp_total.csv", row.names = FALSE)
 
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOAGRID")
   write.csv(x = a, "./data/local_goa/goagrid.csv", row.names = FALSE)
@@ -133,20 +122,8 @@ if (SRVY == "GOA") {
 
 # AI ----------------------------------------------------------------------
 if (SRVY == "AI") {
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_TOTAL")
-  # write.csv(x = a, "./data/local_ai/biomass_total.csv", row.names = FALSE)
-  # 
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.BIOMASS_STRATUM")
-  # write.csv(x = a, "./data/local_ai/biomass_stratum.csv", row.names = FALSE)
-
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
-
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.CPUE")
-  # write.csv(x = a, "./data/local_ai/cpue.csv", row.names = FALSE)
-  # 
-  # a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.SIZECOMP_TOTAL")
-  # write.csv(x = a, "./data/local_ai/sizecomp_total.csv", row.names = FALSE)
 
   print("Finished downloading AI schema tables")
 }
@@ -156,8 +133,6 @@ if (SRVY == "AI") {
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
 a <- a |>
   dplyr::filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
-# &     DESIGN_YEAR == ifelse(SRVY == "GOA", 1984, 1980))
-# print(paste("Using design year(s):", unique(a$DESIGN_YEAR)))
 
 write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 
@@ -228,44 +203,4 @@ if (SRVY == "GOA") {
   print("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
 }
 
-
-################## USE GAPINDEX TO GET SIZECOMPS ###############################
-# Use gapindex to get size comps
-# sql_channel <- gapindex::get_connected()
-# 
-# xx <- gapindex::get_data(
-#   year_set = maxyr,
-#   haul_type = 3,
-#   survey_set = SRVY,
-#   spp_codes = report_species$species_code,
-#   abundance_haul = "Y",
-#   sql_channel = sql_channel,
-#   pull_lengths = TRUE
-# )
-# 
-# cpue <- gapindex::calc_cpue(racebase_tables = xx)
-# 
-# biomass_stratum <- gapindex::calc_biomass_stratum(
-#   racebase_tables = xx,
-#   cpue = cpue
-# )
-# 
-# biomass_subarea <- gapindex::calc_biomass_subarea(
-#   racebase_tables = xx,
-#   biomass_strata = biomass_stratum
-# )
-# 
-# sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
-#   racebase_cpue = cpue,
-#   racebase_stratum_popn = biomass_stratum,
-#   racebase_tables = xx
-# )
-# 
-# # Save to the local folder for SRVY:
-# write.csv(sizecomp_stratum,
-#   file = paste0("./data/local_", tolower(SRVY), "/sizecomp_stratum.csv"),
-#   row.names = FALSE
-# )
-# 
-# print("Finished downloading local versions of all tables.")
 

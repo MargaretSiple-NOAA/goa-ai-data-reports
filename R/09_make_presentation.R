@@ -1159,7 +1159,7 @@ if (make_joy_division_length) {
 
     # lookup table is referenced below
 
-    # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
+    # did the species used to be ID'ed differently somehow? E.g., arrowtooth and kams
     # if (report_species$species_code[i] %in% complex_lookup$polycode) {
     #   # Add label to plot of the species so ppl can compare it with the combined one
     #   joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))

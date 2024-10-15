@@ -4,9 +4,9 @@ if (!maxyr) {
 }
 
 # Tables are labeled / ordered based on the historical data reports order of tables (currently based on the 2018 AI report, because that's the most recent one I have access to)
-# Table 1 is the target sample sizes for different species categories
-# Table 2 is the number of stations allocated, attempted, and successfully completed.
-# Table 3 onwards are specific to each species.
+# "Table 1" is the target sample sizes for different species categories
+# "Table 2" is the number of stations allocated, attempted, and successfully completed.
+# "Table 3" onwards are specific to each species.
 
 # Aesthetics --------------------------------------------------------------
 # Color of thick border between subdistrict areas
@@ -287,9 +287,8 @@ list_tables <- list()
 
 list_tables[["allocated_sampled"]] <- allocated_sampled # Stations allocated and successfully sampled
 list_tables[["length-sample-sizes"]] <- targetn # Target length size for species/species groups
-list_tables[["top_CPUE"]] <- top_CPUE
+list_tables[["top_CPUE"]] <- top_CPUE # Top 20 species by CPUE in all the INPFC regions
 list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
-#list_tables[["sizecomp_stratum"]] <- sizecomp_stratum
 
 
 save(list_tables,
@@ -303,31 +302,4 @@ save(table3s_list,
 save(table4s_list,
   file = paste0(dir_out_tables, "table4s_list.rdata")
 )
-
-
-# OLD CODE WHEN PULLING DRAFT TABLES FROM G DRIVE
-# We did this in 2023 and earlier
-# Check to see if all the species in the list are in the folder
-# toMatch <- report_species$species_code
-# matches <- unique(grep(paste(toMatch, collapse = "|"),
-#   list.files(paste0(dir_in_premadetabs, "Table 3/")),
-#   value = TRUE
-# ))
-#
-# print("Checking for tables missing from the G Drive...")
-# # which species are there tables for?
-# x <- list.files(paste0(dir_in_premadetabs, "Table 3/"))
-# y <- sub(pattern = paste0("*_", maxyr, ".csv"), replacement = "", x = x)
-#
-# lookforme <- as.character(toMatch)[which(!as.character(toMatch) %in% y)]
-#
-# if (length(lookforme) > 0) {
-#   print(paste("Table 3: Check for species", lookforme))
-# }
-#
-# table3s_list <- lapply(X = report_species$species_code, FUN = prep_tab3)
-# names(table3s_list) <- report_species$species_code
-#
-# table4s_list <- lapply(X = report_species$species_code, FUN = prep_tab4)
-# names(table4s_list) <- report_species$species_code
 
