@@ -455,6 +455,14 @@ L <- L0 %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
 
 length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+# length_maxyr_complexes0
+length_maxyr_complexes <- length_maxyr |> 
+  dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
+  dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
+                                         SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
+                                         SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
+                                         .default = as.character(SPECIES_CODE)))
+unique(length_maxyr_complexes$SPECIES_CODE)
 
 # Number of lengths collected per area
 lengths_collected <- sum(length_maxyr$FREQUENCY) %>%
