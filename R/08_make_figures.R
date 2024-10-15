@@ -11,9 +11,9 @@ make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
 # 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022. 
-make_cpue_bubbles_strata <- FALSE
+make_cpue_bubbles_strata <- TRUE
 # 3b. CPUE bubble maps, Emily M edition - strata not shown. Bubbles are purple. Scale bar and legend with CPUE scale are shown.
-make_cpue_bubbles <- TRUE
+make_cpue_bubbles <- FALSE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
 # 5b. Length vs. depth, faceted by district with GAM-predicted size by depth.
@@ -22,8 +22,9 @@ make_ldscatter <- TRUE
 make_temp_plot <- TRUE
 # XX. Map of the full survey area with strata and stations
 make_total_surv_map <- FALSE
-
-make_special_rebs <- FALSE
+ 
+# in report settings, complexes will usually be set to TRUE
+# complexes = TRUE
 
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
@@ -123,13 +124,13 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
 # Palettes!
 if (SRVY == "AI") {
   stratumpal <- lengthen_pal(
-    shortpal = PNWColors::pnw_palette(name="Shuksan",n=7,type="discrete"), # I like Nizami from MetBrewer too but MetBrewer is on ice at the moment
+    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"), #PNWColors::pnw_palette(name = "Winter",n = 8), 
     x = 1:nstrata
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
 } else {
   stratumpal <- lengthen_pal(
-    shortpal = PNWColors::pnw_palette(name="Shuksan",n=7,type="discrete"),
+    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"), #PNWColors::pnw_palette(name = "Winter",n = 8),
     x = 1:nstrata
   )
 }
@@ -309,7 +310,8 @@ if (make_catch_comp) {
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
     ) %>%
-    mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal, replace = "Other species"))
+    mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal, 
+                                                 replace = "Other species"))
 
   biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
     levels = c(report_species$spp_name_informal, "Other species")
@@ -334,242 +336,152 @@ if (make_catch_comp) {
 }
 
 # 3. CPUE bubble maps - strata colored in (presented at GPT 2022) ----------------------------------------------------------
-if (make_cpue_bubbles_strata) {
-  list_cpue_bubbles_strata <- list()
-  for (i in 1:nrow(report_species)) { # nrow(report_species)
-    spbubble <- report_species$species_code[i]
-    namebubble <- report_species$spp_name_informal[i]
+if (make_cpue_bubbles_strata){  #/ end make stratum bubble figs
+    list_cpue_bubbles_strata_species <- list()
+    bubble_index <- which(!report_species$species_code %in% c("OROX","REBS","OFLATS"))
     
-    thisyrshauldata <- cpue_raw |>
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
-      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
-      st_as_sf(
-        coords = c("longitude_dd_start", "latitude_dd_start"),
-        crs = "EPSG:4326"
-      ) |>
-      st_transform(crs = reg_data$crs) 
+    for (i in 1:length(bubble_index)) { # nrow(report_species)
+      
+      spbubble <- report_species$species_code[bubble_index[i]]
+      namebubble <- report_species$spp_name_informal[bubble_index[i]]
+      
+      thisyrshauldata <- cpue_raw |>
+        #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+        dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
+        st_as_sf(
+          coords = c("longitude_dd_start", "latitude_dd_start"),
+          crs = "EPSG:4326"
+        ) |>
+        st_transform(crs = reg_data$crs) 
+      
+      # MAPS
+      p3a <- ggplot() +
+        geom_sf(
+          data = ai_east$survey.strata,
+          mapping = aes(
+            fill = factor(STRATUM),
+            color = factor(STRATUM)
+          )
+        ) +
+        scale_fill_manual(values = stratumpal, guide = "none") +
+        scale_color_manual(values = stratumpal, guide = "none") +
+        geom_sf(data = reg_data$akland) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.5
+        ) +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        geom_sf( # x's for places where cpue=0
+          data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+          alpha = 1,
+          color = "red",
+          shape = 4,
+          size = 1
+        ) +
+        coord_sf(
+          xlim = ai_east$plot.boundary$x,
+          ylim = ai_east$plot.boundary$y
+        ) +
+        scale_x_continuous(breaks = reg_data$lon.breaks) +
+        scale_y_continuous(breaks = reg_data$lat.breaks) +
+        labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
+        bubbletheme
+      
+      p3b <- ggplot() +
+        geom_sf(
+          data = ai_central$survey.strata,
+          mapping = aes(
+            fill = factor(STRATUM),
+            color = factor(STRATUM)
+          )
+        ) +
+        scale_fill_manual(values = stratumpal, guide = "none") +
+        scale_color_manual(values = stratumpal, guide = "none") +
+        geom_sf(data = ai_central$akland) +
+        geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+                aes(size = cpue_kgkm2), alpha = 0.5) +
+        scale_size(bquote("CPUE" ~ (kg / km^2)), 
+                   limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
+        geom_sf( # x's for places where cpue=0
+          data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+          alpha = 1,
+          color = "red",
+          shape = 4,
+          size = 1
+        ) +
+        coord_sf(
+          xlim = ai_central$plot.boundary$x,
+          ylim = ai_central$plot.boundary$y
+        ) +
+        scale_x_continuous(breaks = ai_central$lon.breaks) +
+        scale_y_continuous(breaks = ai_central$lat.breaks) +
+        labs(subtitle = "Central Aleutians") +
+        bubbletheme +
+        theme(legend.position = "left")
+      
+      p3c <- ggplot() +
+        geom_sf(
+          data = ai_west$survey.strata,
+          mapping = aes(
+            fill = factor(STRATUM),
+            color = factor(STRATUM)
+          )
+        ) +
+        scale_fill_manual(values = stratumpal, guide = "none") +
+        scale_color_manual(values = stratumpal, guide = "none") +
+        geom_sf(data = ai_west$akland) +
+        geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+                aes(size = cpue_kgkm2), alpha = 0.5) +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        geom_sf( # x's for places where cpue=0
+          data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+          alpha = 1,
+          color = "red",
+          shape = 4,
+          size = 1
+        ) +
+        coord_sf(
+          xlim = ai_east$plot.boundary$x,
+          ylim = ai_east$plot.boundary$y
+        ) +
+        coord_sf(
+          xlim = ai_west$plot.boundary$x,
+          ylim = ai_west$plot.boundary$y
+        ) +
+        scale_x_continuous(breaks = ai_west$lon.breaks) +
+        scale_y_continuous(breaks = ai_west$lat.breaks) +
+        labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
+        bubbletheme
+      
+      toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
+      bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
+      final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
+      
+      # ,out.width=9,out.height=8
+      png(
+        filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
+        width = 9, height = 8, units = "in", res = 200
+      )
+      print(final_obj)
+      
+      dev.off()
+      
+      list_cpue_bubbles_strata_species[[i]] <- final_obj # save fig to list
+      
+    } # /end species loop
+    names(list_cpue_bubbles_strata_species) <- report_species$species_code[bubble_index]
     
-    # MAPS
-    p3a <- ggplot() +
-      geom_sf(
-        data = ai_east$survey.strata,
-        mapping = aes(
-          fill = factor(strat_depth),
-          color = factor(strat_depth)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = reg_data$akland) +
-      geom_sf(
-        data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-        aes(size = cpue_kgkm2), alpha = 0.5
-      ) + # USED TO BE cpue_kgha
-      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-      geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.5,
-        color = "red",
-        shape = 4,
-        size = 1
-      ) +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = reg_data$lon.breaks) +
-      scale_y_continuous(breaks = reg_data$lat.breaks) +
-      labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
-      bubbletheme
+    if(make_complexes_figs){
+      list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
+    }else{
+      list_cpue_bubbles_strata <- list_cpue_bubbles_strata_species
+    }
     
-    p3b <- ggplot() +
-      geom_sf(
-        data = ai_central$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = ai_central$akland) +
-      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
-              aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(bquote("CPUE" ~ (kg / km^2)), 
-                 limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
-      geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.5,
-        color = "red",
-        shape = 4,
-        size = 1
-      ) +
-      coord_sf(
-        xlim = ai_central$plot.boundary$x,
-        ylim = ai_central$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_central$lon.breaks) +
-      scale_y_continuous(breaks = ai_central$lat.breaks) +
-      labs(subtitle = "Central Aleutians") +
-      bubbletheme +
-      theme(legend.position = "left")
+    save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata")) # includes 
     
-    p3c <- ggplot() +
-      geom_sf(
-        data = ai_west$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = ai_west$akland) +
-      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
-              aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-      geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgha == 0),
-        alpha = 0.5,
-        color = "red",
-        shape = 4,
-        size = 1
-      ) +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      coord_sf(
-        xlim = ai_west$plot.boundary$x,
-        ylim = ai_west$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_west$lon.breaks) +
-      scale_y_continuous(breaks = ai_west$lat.breaks) +
-      labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-      bubbletheme
-    
-    toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
-    bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
-    final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
-    
-    # ,out.width=9,out.height=8
-    png(
-      filename = paste0(dir_out_figures, maxyr, "_", namebubble, "_CPUEstratabubble.png"),
-      width = 9, height = 8, units = "in", res = 200
-    )
-    print(final_obj)
-    
-    dev.off()
-    
-    list_cpue_bubbles_strata[[i]] <- final_obj # save fig to list
-  } # /end species loop
-  
-  names(list_cpue_bubbles_strata) <- report_species$species_code
-  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "cpue_bubbles_strata.rdata"))
-  
-  if (make_special_rebs) {
-    # CPUE map
-    namebubble <- "Rougheye/blackspotted rockfish"
-    
-    thisyrshauldata <- cpue_table_rebs |>
-      janitor::clean_names() |>
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
-      dplyr::filter(year == maxyr & survey == SRVY) |>
-      st_as_sf(
-        coords = c("longitude_dd_start", "latitude_dd_start"),
-        crs = "EPSG:4326"
-      ) %>%
-      st_transform(crs = reg_data$crs)
-    
-    # MAPS
-    p3a <- ggplot() +
-      geom_sf(
-        data = ai_east$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = reg_data$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) + # USED TO BE cpue_kgha
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = reg_data$lon.breaks) +
-      scale_y_continuous(breaks = reg_data$lat.breaks) +
-      labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
-      bubbletheme
-    
-    p3b <- ggplot() +
-      geom_sf(
-        data = ai_central$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = ai_central$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(bquote("CPUE" ~ (kg / km^2)), limits = c(0, max(thisyrshauldata$cpue_kgkm2))) +
-      coord_sf(
-        xlim = ai_central$plot.boundary$x,
-        ylim = ai_central$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_central$lon.breaks) +
-      scale_y_continuous(breaks = ai_central$lat.breaks) +
-      labs(subtitle = "Central Aleutians") +
-      bubbletheme +
-      theme(legend.position = "left")
-    
-    p3c <- ggplot() +
-      geom_sf(
-        data = ai_west$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = ai_west$akland) +
-      geom_sf(data = thisyrshauldata, aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(limits = c(0, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      coord_sf(
-        xlim = ai_west$plot.boundary$x,
-        ylim = ai_west$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_west$lon.breaks) +
-      scale_y_continuous(breaks = ai_west$lat.breaks) +
-      labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-      bubbletheme
-    
-    toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
-    bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
-    final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
-    
-    # ,out.width=9,out.height=8
-    png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
-      width = 9, height = 8, units = "in", res = 200
-    )
-    print(final_obj)
-    
-    dev.off()
-    
+    print("Done with CPUE bubble maps showing stratum areas.")
   }
-  print("Done with CPUE bubble maps showing stratum areas.")
-}
-
+  
 # 3b. CPUE bubble maps - b&w Emily M style bubble plots ----------------------------------------------------------
 if (make_cpue_bubbles) {
   if (SRVY == "GOA") {
@@ -642,12 +554,10 @@ if (make_cpue_bubbles) {
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-
-  # Load the pseudolengths file
   if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
     report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
   } else {
-    cat("Pseudolength file not found. Sourcing data prep file... \n")
+    cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
     source("R/06_prep_data.R")
   }
   
@@ -655,13 +565,12 @@ if (make_joy_division_length) {
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L0 |>
     dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
-  length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
-
-
+  #length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+  
   L2 <- L |> # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
-
+  
   L3 <- L2 |>
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
     dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
@@ -672,234 +581,116 @@ if (make_joy_division_length) {
       SEX == 3 ~ "Unsexed"
     )) |>
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
-
-  # sample_sizes_species <- L3 |>
-  #   dplyr::filter(YEAR >= minyr) |>
-  #   dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
-  #   dplyr::summarize(n = sum(FREQUENCY)) |>
-  #   ungroup() |>
-  #   mutate(YEAR = as.integer(YEAR))
   
-  # add complexes to sample sizes
-  sample_sizes <- L3 |>
-    filter(YEAR >= minyr) |>
+  # get samples for individual species
+  species_sample_sizes <- L3 |>
+    dplyr::filter(grepl("[0-9]", SPECIES_CODE)) |># filter to not complexes
+    dplyr::filter(SPECIES_CODE %in% (report_species$species_code)) |> # filter to report species
+    dplyr::filter(YEAR >= minyr) |>
+    dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
+    dplyr::summarize(n = sum(FREQUENCY)) |>
+    ungroup() |>
+    mutate(YEAR = as.integer(YEAR), 
+           SPECIES_CODE = as.character(SPECIES_CODE))
+  
+  # get sample sizes for complexes
+  complex_sample_sizes <- L3 |>
+    dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
+    dplyr::filter(YEAR >= minyr) |>
     dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
                                            .default = as.character(SPECIES_CODE))) |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
     dplyr::summarize(n = sum(FREQUENCY)) |>
     ungroup() |>
     mutate(YEAR = as.integer(YEAR))
   
-  # NRS/SRS complex: create a lumped plot with the full complex for the various species that used to be lumped
-  complex_lookup <- data.frame(
-    polycode = c(
-      c(10260, 10261, 10262, 10263),
-      # c(10110, 10112),
-      c(30050, 30051, 30052)
-    ),
-    complex = c(
-      rep("nrs_srs", times = 4),
-      # rep("kam_atf", times = 2),
-      rep("rebs", times = 3)
-    )
-  ) |>
-    mutate(complex_name = case_when(
-      complex == "nrs_srs" ~ "Northern and southern rock sole",
-      complex == "kam_atf" ~ "Kamchatka flounder and arrowtooth flounder",
-      complex == "rebs" ~ "Rougheye/blackspotted rockfish"
-    ))
-
-  # If Gulf survey, don't do the combined plot for ATF/kam (there aren't enough kam)
-  if (SRVY == "GOA") {
-    complex_lookup <- filter(complex_lookup, complex != "kam_atf")
-  }
-
-
+  sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
   # Loop thru species
   for (i in 1:nrow(report_species)) {
-    # These are multipliers for where the sample size geom_text falls on the y axis
-    if (report_species$species_code[i] == 78403) {
-      joyplot <- ggplot() +
-        theme_void()
-    } else {
-      len2plot <- report_pseudolengths %>%
-        filter(SPECIES_CODE == report_species$species_code[i])
-
-      if (SRVY == "AI" & report_species$species_code[i] %in% c(10110, 10112)) {
-        len2plot <- len2plot %>%
-          dplyr::filter(YEAR >= 1994)
-      }
-
-      # Only sexed lengths included, unless it's SSTH
-      if (report_species$species_code[i] != 30020) {
-        len2plot <- len2plot %>%
-          filter(Sex != "Unsexed")
-      }
-
-      # Save median lengths by year and sex for species i
-      medlines_sp <- report_pseudolengths %>%
-        filter(SPECIES_CODE == report_species$species_code[i]) %>%
-        group_by(YEAR, Sex) %>%
-        dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-        ungroup()
-
-      write.csv(
-        x = medlines_sp,
-        file = paste0(dir_out_tables, maxyr, "_", report_species$spp_name_informal[i], "_median_lengths", ".csv"),
-        row.names = FALSE
+    
+    len2plot <- report_pseudolengths %>%
+      filter(SPECIES_CODE == report_species$species_code[i])
+    
+    # SSTH or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
+    if (report_species$species_code[i] %in% c(30020, 21341)) {
+      len2plot <- len2plot 
+    }else{
+      len2plot <- len2plot %>%
+        filter(Sex != "Unsexed")
+    }
+    
+    # Save median lengths by year and sex for species i
+    medlines_sp <- report_pseudolengths %>%
+      filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      group_by(YEAR, Sex) %>%
+      dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+      ungroup()
+    
+    # Lengths to plot
+    len2plot2 <- len2plot %>%
+      left_join(sample_sizes %>%
+                  filter(SPECIES_CODE == report_species$species_code[i]))
+    
+    yrbreaks <- unique(len2plot2$YEAR)
+    lengthlimits <- range(len2plot2$LENGTH)
+    
+    n_labels <- len2plot2 %>%
+      distinct(YEAR, Sex, .keep_all = TRUE)
+    
+    joyplot <- len2plot2 %>%
+      ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
+      ggridges::geom_density_ridges_gradient( #
+        bandwidth = 5,
+        rel_min_height = 0,
+        quantile_lines = T,
+        quantile_fun = median,
+        vline_color = "white",
+        vline_width = 0.6,
+        vline_linetype = "dotted"
+        # "A1"
+      ) +
+      scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
+      scale_x_continuous(expand = c(0, 0), limits = lengthlimits) + #
+      scale_linetype_manual(values = c("solid", "dashed")) +
+      facet_grid(~Sex) +
+      xlab("Length (mm)") +
+      ylab("Year") +
+      theme_ridges(font_size = 10) +
+      scale_fill_gradientn(colours = joypal) +
+      geom_label(
+        data = n_labels,
+        mapping = aes(label = paste0("n = ", n), x = Inf),
+        fill = "white", label.size = NA,
+        nudge_x = 0,
+        nudge_y = 1,
+        hjust = "inward", size = 3
+      ) +
+      theme(
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.title.x = element_text(hjust = 0.5),
+        axis.title.y = element_text(hjust = 0.5),
+        panel.spacing.x = unit(4, "mm"),
+        axis.line.x = element_line(lineend = "square")
       )
-
-      len2plot2 <- len2plot %>%
-        left_join(sample_sizes %>%
-          filter(SPECIES_CODE == report_species$species_code[i]))
-
-      yrbreaks <- unique(len2plot2$YEAR)
-      lengthlimits <- range(len2plot2$LENGTH)
-
-      testlabdf <- len2plot2 %>%
-        distinct(YEAR, Sex, .keep_all = TRUE)
-
-
-
-      joyplot <- len2plot2 %>%
-        ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
-        ggridges::geom_density_ridges_gradient(
-          bandwidth = 5,
-          rel_min_height = 0,
-          quantile_lines = T,
-          quantile_fun = median,
-          vline_color = "white",
-          vline_width = 0.6,
-          vline_linetype = "dotted" # "A1"
-        ) +
-        scale_y_reverse(breaks = yrbreaks, expand = c(0, 0)) +
-        scale_x_continuous(expand = c(0, 0), limits = lengthlimits) +
-        scale_linetype_manual(values = c("solid", "dashed")) +
-        facet_grid(~Sex) +
-        xlab("Length (mm)") +
-        ylab("Year") +
-        theme_ridges(font_size = 10) +
-        scale_fill_gradientn(colours = joypal) +
-        geom_label(
-          data = testlabdf,
-          mapping = aes(label = paste0("n = ", n), x = Inf),
-          fill = "white", label.size = NA,
-          nudge_x = 0, nudge_y = 1,
-          hjust = "inward",
-          size = 3,
-          alpha = 0.6
-        ) +
-        # labs(title = paste(report_species$spp_name_informal[i])) +
-        theme(
-          strip.background = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          legend.position = "none",
-          axis.title.x = element_text(hjust = 0.5),
-          axis.title.y = element_text(hjust = 0.5),
-          panel.spacing.x = unit(4, "mm"),
-          axis.line.x = element_line(lineend = "square")
-        )
-
-
-      # lookup table is referenced below
-
-      # is the species in one of the complexes? (or, species that used to be ID'ed differently somehow)
-      if (report_species$species_code[i] %in% complex_lookup$polycode) {
-        # Add label to plot of the species so ppl can compare it with the combined one
-        joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
-        # Make a title for the combined plot (single species + combined congeners)
-
-        plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
-        complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
-        polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
-        star_yr <- switch(complex_sp,
-          nrs_srs = 1996,
-          kam_atf = 1992,
-          rebs = 2006
-        )
-        yrlabels <- yrbreaks
-        yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
-        yrlabels <- as.character(yrlabels)
-
-        medlines_sp <- report_pseudolengths %>%
-          filter(SPECIES_CODE %in% polycode_vec) %>%
-          group_by(YEAR, Sex) %>%
-          dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
-          ungroup()
-
-
-        sample_sizes_comb <- sample_sizes %>%
-          filter(SPECIES_CODE %in% polycode_vec) %>%
-          group_by(YEAR, Sex) %>%
-          dplyr::summarize(n = sum(n)) %>%
-          ungroup()
-
-        len2plot_comb <- report_pseudolengths %>%
-          filter(SPECIES_CODE %in% polycode_vec) %>%
-          filter(Sex != "Unsexed") %>%
-          left_join(sample_sizes_comb)
-
-        testlabdf_comb <- len2plot_comb %>%
-          distinct(YEAR, Sex, .keep_all = TRUE)
-
-        joyplot2 <- len2plot_comb %>%
-          ggplot(
-            mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
-            fill = "grey"
-          ) +
-          ggridges::geom_density_ridges_gradient(
-            bandwidth = 5,
-            rel_min_height = 0,
-            quantile_lines = T,
-            quantile_fun = median,
-            vline_color = "white",
-            vline_width = 0.6,
-            vline_linetype = "dotted" # "A1"
-          ) +
-          scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
-          scale_linetype_manual(values = c("solid", "dashed")) +
-          geom_label(
-            data = testlabdf_comb,
-            mapping = aes(label = paste0("n = ", n), x = Inf),
-            fill = "white", label.size = NA,
-            nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3,
-            alpha = 0.6
-          ) +
-          facet_grid(~Sex) +
-          xlab("Length (mm)") +
-          ylab("Year") +
-          theme_ridges(font_size = 10) +
-          labs(title = plot_title) +
-          theme(
-            strip.background = element_blank(),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            legend.position = "none",
-            axis.title.x = element_text(hjust = 0.5),
-            axis.title.y = element_text(hjust = 0.5),
-            panel.spacing.x = unit(4, "mm"),
-            axis.line.x = element_line(lineend = "square")
-          )
-
-        joyplot <- joyplot + joyplot2
-      }
-    } # \end if() statement about inverts / octopus
-
+    
     png(filename = paste0(
-      dir_out_figures, maxyr, "_",
-      report_species$spp_name_informal[i], "_joyfreqhist.png"
+      dir_out_figures,
+      report_species$spp_name_informal[i], "_", maxyr, "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
-
+    
     list_joy_length[[i]] <- joyplot
   }
   names(list_joy_length) <- report_species$species_code
-
-  save(list_joy_length, file = paste0(dir_out_figures, "joy_length.rdata"))
+  
+  save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
   print("Done with joy division plots for length comp.")
 }
 
@@ -909,6 +700,10 @@ if (make_ldscatter) {
   lscale <- 10
   dscale <- 100
 
+  length_maxyr_ldscatter <- length_maxyr |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
+    dplyr::bind_rows(length_maxyr_complexes) 
+  
   list_ldscatter <- list()
   # L_maxyr is subsetted to region (SRVY) and the year you're making the report for
   for (i in 1:nrow(report_species)) {
@@ -916,7 +711,7 @@ if (make_ldscatter) {
       ldscatter <- ggplot() +
         theme_void()
     } else {
-      ltoplot <- L_maxyr %>%
+      ltoplot <- length_maxyr_ldscatter %>%
         dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
         dplyr::left_join(haul2, by = c(
           "CRUISEJOIN", "HAULJOIN", "HAUL",
@@ -1132,39 +927,3 @@ if (make_temp_plot) {
   # dev.off()
 }
 
-
-# (7.) GOA CPUE map ----------------------------------------------------------------
-# The function used to generate this CPUE map is Emily's "plot_idw_xbyx()"
-# THIS SHOULD ONLY BE USED FOR THE GOA - in the AI, the area is too narrow for a raster map of CPUE and we should instead be using the bubble plots of CPUE.
-# get cpue table by station for a species
-# sp <- 30060
-# yr <- 2018
-# dat2plot <- cpue_raw %>%
-#   filter(survey == SRVY & species_code == sp & year == yr)
-# colnames(dat2plot)
-# cpue_res <- 0.1 # will take less time
-# # example data:
-# # head(akgfmaps::YFS2017)
-#
-# # This is a dummy figure! Doesn't mean anything because it's for GOA
-# figure1 <- plot_idw_xbyx(
-#   yrs = yr,
-#   dat = dat2plot,
-#   lat = "start_latitude",
-#   lon = "start_longitude",
-#   var = "cpue_kgkm2",
-#   year = "year",
-#   key.title = "POP (kg/km2)",
-#   grid = "extrapolation.grid",
-#   extrap.box = c(xmin = -180, xmax = -135, ymin = 52, ymax = 62),
-#   grid.cell = c(cpue_res, cpue_res),
-#   row0 = 1,
-#   region = "goa"
-# )
-#
-# list_figures <- list()
-# list_figures[[1]] <- figure1
-# names(list_figures)[1] <- "POP" # NOTE: NEED TO MAKE THIS THE WHOLE LIST OF SPECIES
-#
-# # Check that the figure list is filled out
-# length(list_figures)
