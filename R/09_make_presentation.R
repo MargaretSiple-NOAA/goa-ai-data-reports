@@ -645,8 +645,8 @@ if (make_cpue_bubbles_strata) {
       geom_sf(
         data = ai_east$survey.strata,
         mapping = aes(
-          fill = factor(strat_depth),
-          color = factor(strat_depth)
+          fill = factor(STRATUM),
+          color = factor(STRATUM)
         )
       ) +
       scale_fill_manual(values = stratumpal, guide = "none") +
