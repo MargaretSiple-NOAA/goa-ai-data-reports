@@ -34,11 +34,11 @@ if (SRVY == "AI") {
 }
 
 load(file = paste0(
-  dir_in_figures, "cpue_bubbles.rdata"
+  dir_in_figures, "list_cpue_bubbles_strata.rdata"
 )) # object: list_cpue_bubbles
 
 load(file = paste0(
-  dir_in_figures, "joy_length.rdata"
+  dir_in_figures, "list_joy_length.rdata"
 )) # object: list_joy_length
 
 load(file = paste0(
