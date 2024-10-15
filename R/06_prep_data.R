@@ -14,19 +14,23 @@ species_names <- species_names0 %>%
   janitor::clean_names() %>%
   dplyr::rename(scientific_name = species_name) %>%
   dplyr::select(-year_added) %>%
-  dplyr::mutate(major_group = dplyr::case_when(
-    species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
-    species_code >= 20000 & species_code <= 29999 ~ "Roundfish",
-    species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
-    species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
-    species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
-  ),
-    species_code = as.character(species_code)) |> # add column for species category
-  add_row(species_code = c("OROX","OFLATS","REBS"),
-          scientific_name = c("Several species","Several species","Sebastes aleutianus and Sebastes melanosticus"),
-          common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/balckspotted complex"),
-          major_group = c("Rockfish","Flatfish","Rockfish"))
-  
+  dplyr::mutate(
+    major_group = dplyr::case_when(
+      species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
+      species_code >= 20000 & species_code <= 29999 ~ "Roundfish",
+      species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
+      species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
+      species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
+    ),
+    species_code = as.character(species_code)
+  ) |> # add column for species category
+  add_row(
+    species_code = c("OROX", "OFLATS", "REBS"),
+    scientific_name = c("Several species", "Several species", "Sebastes aleutianus and Sebastes melanosticus"),
+    common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/balckspotted complex"),
+    major_group = c("Rockfish", "Flatfish", "Rockfish")
+  )
+
 # This year's haul data
 haul_maxyr <- haul %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
@@ -93,8 +97,7 @@ sp_prices <- dat %>%
 
 pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), ])
 
-# GAP_PRODUCTS tables -----------------------------------------------------
-# biomass, cpue
+# GAP_PRODUCTS: biomass, cpue --------------------------------------------------
 x <- read.csv(here::here("data", "local_gap_products", "biomass.csv"))
 
 biomass_total <- x |>
@@ -104,14 +107,14 @@ biomass_total <- x |>
     MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
   ) |>
   mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
-  mutate_at('SPECIES_CODE',as.character)
+  mutate_at("SPECIES_CODE", as.character)
 
 biomass_subarea_species <- x |>
-  mutate_at('SPECIES_CODE',as.character)
+  mutate_at("SPECIES_CODE", as.character)
 
 x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
 
-# Filter and rename some columns 
+# Filter and rename some columns
 cpue_raw <- x |>
   dplyr::right_join(haul) |>
   dplyr::filter(REGION == SRVY) |>
@@ -123,66 +126,126 @@ cpue_raw <- x |>
   ) |>
   janitor::clean_names()
 
+# GAP_PRODUCTS: sizecomps ---------------------------------------
+# Expand length table to make freqs -- these should be used for joy division and other length hist plots
 
-# For complexes, create biomass_total and cpue tables from gapindex -------
-if (complexes) {
-  library(gapindex)
+if (!use_gapindex) {
+  sizecomp0 <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE)
 
-  complex_lookup0 <- read.csv("data/complex_lookup.csv")
-  complex_lookup <- complex_lookup0 |>
-    dplyr::filter(region == SRVY)
-  
-  ## Connect to Oracle
-  sql_channel <- gapindex::get_connected()
-
-  yrs_to_pull <- minyr:maxyr
-
-  ## Pull data.
-  complexes_data <- gapindex::get_data(
-    year_set = yrs_to_pull,
-    survey_set = SRVY,
-    spp_codes = data.frame(
-      SPECIES_CODE = complex_lookup$species_code,
-      GROUP = complex_lookup$complex #  GROUP has to be numeric
-    ),
-    haul_type = 3,
-    abundance_haul = "Y",
-    pull_lengths = TRUE,
-    sql_channel = sql_channel
-  )
-
-  cpue_table_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
-
-  biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
-    racebase_tables = complexes_data,
-    cpue = cpue_table_complexes
-  )
-
-  biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
-    racebase_tables = complexes_data,
-    biomass_strata = biomass_stratum_complexes
-  )
-
-  biomass_df_complexes <- biomass_subarea_complexes |>
-    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-    mutate(
-      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-    ) |>
-    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-
-  #head(biomass_df_complexes)
-  
-  biomass_total_complexes <- biomass_df_complexes
-  
-  print("Created cpue_table_complexes and biomass_total_complexes.")
-  
-  biomass_total <- dplyr::bind_rows(biomass_total, 
-                                    biomass_total_complexes)
-  
-  biomass_subarea <- dplyr::bind_rows(biomass_subarea_species,
-                                      biomass_subarea_complexes)
+  sizecomp <- sizecomp0 |>
+    dplyr::filter(SURVEY == SRVY & YEAR >= minyr) |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
+    dplyr::filter(SPECIES_CODE %in% report_species$species_code)
 }
+
+# Complexes: create biomass_total and cpue tables from gapindex -------
+complex_lookup0 <- read.csv("data/complex_lookup.csv")
+complex_lookup <- complex_lookup0 |>
+  dplyr::filter(region == SRVY)
+
+## Connect to Oracle
+sql_channel <- gapindex::get_connected()
+
+yrs_to_pull <- minyr:maxyr
+
+## Pull data.
+complexes_data <- gapindex::get_data(
+  year_set = yrs_to_pull,
+  survey_set = SRVY,
+  spp_codes = data.frame(
+    SPECIES_CODE = complex_lookup$species_code,
+    GROUP = complex_lookup$complex #  GROUP has to be numeric
+  ),
+  haul_type = 3,
+  abundance_haul = "Y",
+  pull_lengths = TRUE,
+  sql_channel = sql_channel
+)
+
+cpue_table_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
+
+biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
+  racebase_tables = complexes_data,
+  cpue = cpue_table_complexes
+)
+
+biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
+  racebase_tables = complexes_data,
+  biomass_strata = biomass_stratum_complexes
+)
+
+biomass_df_complexes <- biomass_subarea_complexes |>
+  dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
+  mutate(
+    MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+  ) |>
+  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+
+# head(biomass_df_complexes)
+
+biomass_total_complexes <- biomass_df_complexes
+
+biomass_total <- dplyr::bind_rows(
+  biomass_total,
+  biomass_total_complexes
+)
+
+biomass_subarea <- dplyr::bind_rows(
+  biomass_subarea_species,
+  biomass_subarea_complexes
+)
+
+print("Created cpue_table_complexes and biomass_total_complexes.")
+
+# Complexes: create sizecomps ---------------------------------------------
+## Pull data.
+cpue_raw_caps_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
+
+sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
+  racebase_tables = complexes_data,
+  racebase_cpue = cpue_raw_caps_complexes,
+  racebase_stratum_popn = biomass_stratum_complexes,
+  spatial_level = "stratum",
+  fill_NA_method = "AIGOA"
+)
+
+## Calculate aggregated size composition across subareas, management areas, and
+## regions
+sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
+  racebase_tables = complexes_data,
+  size_comps = sizecomp_stratum_complexes
+)
+
+sizecomp_complexes <- sizecomp_subareas_complexes |>
+  dplyr::filter(
+    SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+      AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
+  ) |>
+  dplyr::mutate(SURVEY = SRVY, SEX = case_when(
+    SEX == 1 ~ "MALES",
+    SEX == 2 ~ "FEMALES",
+    SEX == 3 ~ "UNSEXED"
+  )) |>
+  dplyr::rename(LENGTH = LENGTH_MM) |>
+  tidyr::pivot_wider(
+    names_from = "SEX",
+    values_from = "POPULATION_COUNT",
+    values_fill = 0
+  ) |>
+  dplyr::mutate(
+    TOTAL = MALES + FEMALES + UNSEXED,
+    SUMMARY_AREA = 999
+  ) |>
+  as.data.frame()
+
+sizecomp <- rbind(sizecomp, sizecomp_complexes)
+
+# Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
+if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
+  print("Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
+}
+
 
 ###################### USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
@@ -267,6 +330,9 @@ if (use_gapindex) {
     ) |>
     as.data.frame()
 
+  # if you're using gapindex for comps, assign the gapindex table instead of the GAP_PRODUCTS table:
+  sizecomp <- sizecomp_gapindex
+
   # cpue table
   cpue_raw <- cpue_raw_caps |>
     janitor::clean_names() # This table is used for lots of stuff
@@ -280,7 +346,7 @@ if (use_gapindex) {
 }
 
 
-# Station allocation, lookups, historical stations -----------------------------
+# Station allocation, counts, etc. ----------------------------------------
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
@@ -335,9 +401,6 @@ if (SRVY == "AI") {
 }
 
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
-
-
-# Station allocation, counts, etc. ----------------------------------------
 
 haul2 <- haul %>%
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
@@ -454,25 +517,29 @@ L0 <- read.csv(here::here("data/local_racebase/length.csv"))
 L <- L0 %>%
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
 
-length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
-# length_maxyr_complexes0
-length_maxyr_complexes <- length_maxyr |> 
+length_maxyr_species <- filter(L, YEAR == maxyr & REGION == SRVY) |>
+  dplyr::mutate_at(.vars = "SPECIES_CODE", as.character)
+
+length_maxyr_complexes <- length_maxyr |>
   dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
-  dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
-                                         SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
-                                         SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
-                                         .default = as.character(SPECIES_CODE)))
+  dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OROX")] ~ "OROX",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "REBS")] ~ "REBS",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OFLATS")] ~ "OFLATS",
+    .default = as.character(SPECIES_CODE)
+  ))
 unique(length_maxyr_complexes$SPECIES_CODE)
 
+length_maxyr <- bind_rows(length_maxyr_species, length_maxyr_complexes)
+
 # Number of lengths collected per area
-lengths_collected <- sum(length_maxyr$FREQUENCY) %>%
+lengths_collected <- sum(length_maxyr_species$FREQUENCY) %>%
   format(big.mark = ",")
 
-nfishlengths <- sum(length_maxyr %>%
+nfishlengths <- sum(length_maxyr_species %>%
   filter(LENGTH_TYPE %in% c(1, 5, 11)) %>% dplyr::select(FREQUENCY)) %>%
   format(big.mark = ",")
 
-nsquidlengths <- sum(length_maxyr %>%
+nsquidlengths <- sum(length_maxyr_species %>%
   filter(LENGTH_TYPE == 12) %>% dplyr::select(FREQUENCY)) %>%
   format(big.mark = ",")
 
@@ -505,7 +572,8 @@ otos_by_species <- specimen_maxyr %>%
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup()
 
-lengths_species <- length_maxyr |>
+# This is for the presentation only
+lengths_species <- length_maxyr_species |>
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
@@ -556,124 +624,21 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
   format(big.mark = ",")
 
 
-# Length comps from size comp table ---------------------------------------
-# Expand length table to make freqs -- these should be used for joy division and other length hist plots
 
-if (use_gapindex) {
-  sizecomp <- sizecomp_gapindex
-} else {
-  sizecomp0 <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE)
-
-  sizecomp <- sizecomp0 |>
-    dplyr::filter(SURVEY == SRVY & YEAR >= minyr) |>
-    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
-    dplyr::filter(SPECIES_CODE %in% report_species$species_code)
-}
-
-
-# For complexes, create sizecomps ----------------------------------------------
-if (complexes) {
-  # Load complexes lookup table
-  ## Connect to Oracle
-  #sql_channel <- gapindex::get_connected()
-
-  yrs_to_pull <- minyr:maxyr
-
-  ## Pull data.
-  rpt_data_complexes <- gapindex::get_data(
-    year_set = yrs_to_pull,
-    survey_set = SRVY,
-    spp_codes = data.frame(
-      SPECIES_CODE = complex_lookup$species_code,
-      GROUP = complex_lookup$complex
-    ),
-    haul_type = 3,
-    abundance_haul = "Y",
-    pull_lengths = TRUE,
-    sql_channel = sql_channel
-  )
-
-  cpue_raw_caps_complexes <- gapindex::calc_cpue(racebase_tables = rpt_data_complexes)
-
-  biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
-    racebase_tables = rpt_data_complexes,
-    cpue = cpue_raw_caps_complexes
-  )
-  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
-  biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
-    racebase_tables = rpt_data_complexes,
-    biomass_strata = biomass_stratum_complexes
-  )
-
-  biomass_df_complexes <- biomass_subarea_complexes |>
-    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-    mutate(
-      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-    ) |>
-    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-
-  head(biomass_df_complexes)
-
-  sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
-    racebase_tables = rpt_data_complexes,
-    racebase_cpue = cpue_raw_caps_complexes,
-    racebase_stratum_popn = biomass_stratum_complexes,
-    spatial_level = "stratum",
-    fill_NA_method = "AIGOA"
-  )
-
-  ## Calculate aggregated size compositon across subareas, management areas, and
-  ## regions
-  sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
-    racebase_tables = rpt_data_complexes,
-    size_comps = sizecomp_stratum_complexes
-  )
-
-  sizecomp_complexes <- sizecomp_subareas_complexes |>
-    dplyr::filter(
-      SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-        AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
-    ) |>
-    dplyr::mutate(SURVEY = SRVY, SEX = case_when(
-      SEX == 1 ~ "MALES",
-      SEX == 2 ~ "FEMALES",
-      SEX == 3 ~ "UNSEXED"
-    )) |>
-    dplyr::rename(LENGTH = LENGTH_MM) |>
-    tidyr::pivot_wider(
-      names_from = "SEX",
-      values_from = "POPULATION_COUNT",
-      values_fill = 0
-    ) |>
-    dplyr::mutate(
-      TOTAL = MALES + FEMALES + UNSEXED,
-      SUMMARY_AREA = 999
-    ) |>
-    as.data.frame()
-
-  sizecomp <- rbind(sizecomp, sizecomp_complexes)
-  
-  # Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
-  if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
-    print("Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
-  }
-  
-}
-
+# Create 'pseudolengths' table used for length comp figures ----------------
 # Janky but I am in a rush so will have to deal. See notes below. This table is needed for joy division figs.
 report_pseudolengths <- data.frame()
 
 for (i in 1:nrow(report_species)) {
   sp_code <- report_species$species_code[i]
-  
-  # Is the species code for a complex? 
-  if(sp_code %in% c("OROX","REBS","OFLATS")){
+
+  # Is the species code for a complex?
+  if (sp_code %in% c("OROX", "REBS", "OFLATS")) {
     sizecomp1 <- sizecomp_complexes
-  }else{
+  } else {
     sizecomp1 <- sizecomp
   }
-  
+
   males <- sizecomp1 |>
     filter(SPECIES_CODE == sp_code) |>
     dplyr::group_by(YEAR) |>
