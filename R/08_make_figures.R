@@ -682,7 +682,6 @@ if (make_cpue_bubbles) {
 }
 
 # 5. Length frequency - joy division plots ---------------------------------
-
 if (make_joy_division_length) {
   list_joy_length <- list()
   if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
@@ -925,7 +924,6 @@ if (make_ldscatter) {
 
 
 # 6. Surface and bottom temp -----------------------------------------------
-
 if (make_temp_plot) {
   list_temperature <- list()
 
@@ -1048,3 +1046,4 @@ if (make_temp_plot) {
 
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
+}
