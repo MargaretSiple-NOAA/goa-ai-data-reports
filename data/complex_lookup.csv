@@ -34,3 +34,74 @@ OFLATS,10212,Limanda sakhalinensis,Sakhalin sole,AI
 REBS,30051,Sebastes aleutianus,rougheye rockfish,AI
 REBS,30052,Sebastes melanostictus,blackspotted rockfish,AI
 REBS,30050,NA,rougheye and blackspotted rockfish unid,AI
+DEEPFLATS,10180,Microstomus pacificus,Dover sole,GOA
+DEEPFLATS,10115,Reinhardtius hippoglossoides,Greenland turbot,GOA
+DEEPFLATS,10112,Atheresthes evermanni,Kamchatka flounder,GOA
+DEEPFLATS,10190,Embassichthys bathybius,deepsea sole,GOA
+DSROX,30470,Sebastes ruberrimus,yelloweye rockfish,GOA
+DSROX,30320,Sebastes maliger,quillback rockfish,GOA
+DSROX,30120,Sebastes caurinus,copper rockfish,GOA
+DSROX,30270,Sebastes helvomaculatus,rosethorn rockfish,GOA
+DSROX,30410,Sebastes pinniger,canary rockfish,GOA
+DSROX,30380,Sebastes nigrocinctus,tiger rockfish,GOA
+DSROX,30370,Sebastes nebulosus,China rockfish,GOA
+NRSSRS,10261,Lepidopsetta polyxystra,northern rock sole,GOA
+NRSSRS,10262,Lepidopsetta bilineata,southern rock sole,GOA
+OROX,30090,Sebastes aurora,aurora rockfish,GOA
+OROX,30340,Sebastes melanostomus,blackgill rockfish,GOA
+OROX,30400,Sebastes paucispinus,bocaccio,GOA
+OROX,30260,Sebastes goodei,chilipepper rockfish,GOA
+OROX,30170,Sebastes crameri,darkblotched rockfish,GOA
+OROX,30200,Sebastes elongatus,greenstriped rockfish,GOA
+OROX,30535,Sebastes variegatus,harlequin rockfish,GOA
+OROX,30420,Sebastes polyspinis,northern rockfish,GOA
+OROX,30550,Sebastes wilsoni,pygmy rockfish,GOA
+OROX,30475,Sebastes babcocki,redbanded rockfish,GOA
+OROX,30430,Sebastes proriger ,redstripe rockfish,GOA
+OROX,30560,Sebastes zacentrus,sharpchin rockfish,GOA
+OROX,30290,Sebastes jordani,shortbelly rockfish,GOA
+OROX,30100,Sebastes brevispinis,silvergray rockfish,GOA
+OROX,30190,Sebastes diploproa,splitnose rockfish,GOA
+OROX,30490,Sebastes saxicola,stripetail rockfish,GOA
+OROX,30350,Sebastes miniatus,vermilion rockfish,GOA
+OROX,30220,Sebastes entomelas,widow rockfish,GOA
+OROX,30600,Sebastes reedi,yellowmouth rockfish,GOA
+OROX,30240,Sebastes flavidus,yellowtail rockfish,GOA
+REBS,30051,Sebastes aleutianus,rougheye rockfish,GOA
+REBS,30052,Sebastes melanostictus,blackspotted rockfish,GOA
+REBS,30050,NA,rougheye and blackspotted rockfish unid,GOA
+SWFLATS,10261,Lepidopsetta polyxystra,northern rock sole,GOA
+SWFLATS,10262,Lepidopsetta bilineata,southern rock sole,GOA
+SWFLATS,10210,Limanda aspera,yellowfin sole,GOA
+SWFLATS,10270,Isopsetta isolepis,butter sole,GOA
+SWFLATS,10220,Platichthys stellatus,starry flounder,GOA
+SWFLATS,10170,Parophrys vetulus,English sole,GOA
+SWFLATS,10250,Psettichthys melanostictus,sand sole,GOA
+SWFLATS,10285,"Pleuronectes
+quadrituberculatus",Alaska plaice,GOA
+SHARKS,310,Squalus suckleyi,spiny dogfish,GOA
+SHARKS,320,Somniosus pacificus,Pacific sleeper shark,GOA
+SHARKS,232,Lamna ditropis,salmon shark,GOA
+SKATES,400,Rajidae,skate unid.,GOA
+SKATES,406,Bathyraja spinosissima,white skate,GOA
+SKATES,410,Bathyraja abyssicola,deepsea skate,GOA
+SKATES,420,Beringraja binoculata,big skate,GOA
+SKATES,425,Raja inornata,California skate,GOA
+SKATES,435,Bathyraja interrupta,Bering skate,GOA
+SKATES,440,Beringraja rhina,longnose skate,GOA
+SKATES,445,Amblyraja hyperborea,roughshoulder skate,GOA
+SKATES,450,Raja stellulata,starry skate,GOA
+SKATES,455,Bathyraja taranetzi,mud skate,GOA
+SKATES,460,Bathyraja trachura,roughtail skate,GOA
+SKATES,471,Arctoraja parmifera,Alaska skate,GOA
+SKATES,472,Bathyraja aleutica,Aleutian skate,GOA
+SKATES,475,Bathyraja lindbergi,commander skate,GOA
+SKATES,477,Bathyraja panthera,leopard skate,GOA
+SKATES,480,Bathyraja maculata,whiteblotched skate,GOA
+SKATES,483,Bathyraja mariposa,butterfly skate,GOA
+SKATES,485,Bathyraja minispinosa,whitebrow skate,GOA
+SKATES,490,Bathyraja smirnovi,golden skate,GOA
+SKATES,495,Bathyraja violacea,Okhotsk skate,GOA
+THORNYHEADS,30020,Sebastolobus alascanus,shortspine thornyhead,GOA
+THORNYHEADS,30030,Sebastolobus altivelis,longspine thornyhead,GOA
+THORNYHEADS,30025,Sebastolobus macrochir,broadfin thornyhead,GOA
