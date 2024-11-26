@@ -1,24 +1,24 @@
-species.code,species.name,common.name,include,ex.vessel.price,source
-10110,Atheresthes stomias,arrowtooth flounder,Y,0.09,REFM
-10112,Atheresthes evermanni,Kamchatka flounder,N,NA,
-10115,Reinhardtius hippoglossoides,Greenland turbot,N,NA,
-10120,Hippoglossus stenolepis,Pacific halibut,N,NA,
-10130,Hippoglossoides elassodon,flathead sole,Y,0.12,REFM
-10200,Glyptocephalus zachirus,rex sole,Y,0.36,REFM
-10260,Lepidopsetta sp.,rock sole,Y,0.13,REFM
-10261,Lepidopsetta polyxystra,northern rock sole,Y,0.15,REFM
-10262,Pleuronectes bilineatus,southern rock sole,N,NA,
-20510,Anoplopoma fimbria,sablefish,N,NA,
-21300,Cottidae,sculpins,N,NA,
-21720,Gadus macrocephalus,Pacific cod,Y,0.41,REFM
-21740,Gadus chalcogrammus,walleye pollock,Y,0.15,REFM
-21921,Pleurogrammus monopterygius,Atka mackerel,Y,0.08,REFM
-30020,Sebastolobus alascanus,shortspine thornyhead,N,0.92,REFM
-30030,Sebastolobus altivelis,longspine thornyhead,N,NA,
-30051,Sebastes aleutianus,rougheye rockfish,Y,0.33,REFM
-30060,Sebastes alutus,Pacific ocean perch,Y,0.17,REFM
-30150,,dusky and dark rockfish,N,NA,
-30151,Sebastes ciliatus,dark rockfish,Y,0.41,REFM
-30152,Sebastes variabilis,dusky rockfish,Y,0.18,REFM
-30420,Sebastes polyspinis,northern rockfish,Y,0.15,REFM
-30576,Sebastes borealis,shortraker rockfish,Y,0.33,REFM
+"species.code","species.name","common.name","include","ex.vessel.price","source"
+10110,"Atheresthes stomias","arrowtooth flounder","Y",0.09,"REFM"
+10112,"Atheresthes evermanni","Kamchatka flounder","N",NA,""
+10115,"Reinhardtius hippoglossoides","Greenland turbot","N",NA,""
+10120,"Hippoglossus stenolepis","Pacific halibut","N",NA,""
+10130,"Hippoglossoides elassodon","flathead sole","Y",0.12,"REFM"
+10200,"Glyptocephalus zachirus","rex sole","Y",0.36,"REFM"
+10260,"Lepidopsetta sp.","rock sole","Y",0.13,"REFM"
+10261,"Lepidopsetta polyxystra","northern rock sole","Y",0.15,"REFM"
+10262,"Pleuronectes bilineatus","southern rock sole","N",NA,""
+20510,"Anoplopoma fimbria","sablefish","N",NA,""
+21300,"Cottidae","sculpins","N",NA,""
+21720,"Gadus macrocephalus","Pacific cod","Y",0.41,"REFM"
+21740,"Theragra chalcogramma","walleye pollock","Y",0.15,"REFM"
+21921,"Pleurogrammus monopterygius","Atka mackerel","Y",0.08,"REFM"
+30020,"Sebastolobus alascanus","shortspine thornyhead","N",0.92,"REFM"
+30030,"Sebastolobus altivelis","longspine thornyhead","N",NA,""
+30051,"Sebastes aleutianus","rougheye rockfish","Y",0.33,"REFM"
+30060,"Sebastes alutus","Pacific ocean perch","Y",0.17,"REFM"
+30150,"","dusky and dark RF","N",NA,""
+30151,"Sebastes ciliatus","dark RF","Y",0.41,"REFM"
+30152,"Sebastes variabilis","dusky RF","Y",0.18,"REFM"
+30420,"Sebastes polyspinis","northern RF","Y",0.15,"REFM"
+30576,"Sebastes borealis","shortraker RF","Y",0.33,"REFM"
