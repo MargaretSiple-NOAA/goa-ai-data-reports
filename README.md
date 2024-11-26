@@ -15,7 +15,9 @@ GOA and AI data reports summarize data from the trawl survey each year. These re
 ### To create the full report 
 
 - Confirm the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`. 
+- Confirm that you have the otolith target table (usually on google drive) titled `data/[region][maxyr]_otolith_targets.csv`. You may have to download this and make the csv if this is the first time you're running the report.
 - If there are changes to the stocks you want to include in the report, edit them in `data/[region]_report_specieslist.csv`
+
 - start with `10_create_report_contents.R` and run the whole script from the top. This builds the tables, figures, and in-text values used in the report. It will save figures and tables to your project directory so you can look at them.
 - When you're ready to build a draft of the full report in .docx, double-check the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`, then run `11_knit_report.R`. This will produce one .docx for the body of the report, and will draw in appendices from their sources.
 - Some post-processing is needed in Word: check table widths, order of appendices, and the headers (in navigation pane) to confirm that the scripts have run and the report draft is ready. You may also have to revise some text in the abstract. There is a list of these "post-processing" checks in [To_do_after_knitting_datareport.txt](To_do_after_knitting_datareport.txt). I could automate some of these but honestly it would take a long time to figure out and would only make peoples' lives easier for like 2 days out of the whole year.
@@ -52,9 +54,9 @@ This report uses some summary tables from GOA, AI, and GAP_PRODUCTS schemas. You
 
 | Value      | Source |
 | ----------- | ----------- |
-| INPFC area with highest and second-highest estimated biomass      | GAP_PRODUCTS       |
+| INPFC area with highest and second-highest estimated biomass      | `GAP_PRODUCTS.BIOMASS`       |
 | INPFC area with largest average length   | Calculated from RACEBASE.SPECIMEN filtered to otolith collections and averaged by species and INPFC area        |
-| Where biomass ranks relative to other species (e.g., "species X had the third largest biomass in the survey")   | From AI.BIOMASS_TOTAL table |
+| Where biomass ranks relative to other species (e.g., "species X had the third largest biomass in the survey")   | `GAP_PRODUCTS.BIOMASS` |
 
 ## Existing documentation
 There are instructions for creating the tables and figures for the GOA data report currently in `G:/AI-GOA/Instructions&Procedures/Data Report`. They should all be updated in this documentation but you can refer to them for historical methods etc.
