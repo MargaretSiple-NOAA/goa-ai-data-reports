@@ -200,11 +200,11 @@ print("Created cpue_table_complexes and biomass_total_complexes.")
 
 # Complexes: create sizecomps ---------------------------------------------
 ## Pull data.
-cpue_raw_caps_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
+#cpue_raw_caps_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
 
 sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
   racebase_tables = complexes_data,
-  racebase_cpue = cpue_raw_caps_complexes,
+  racebase_cpue = cpue_table_complexes,
   racebase_stratum_popn = biomass_stratum_complexes,
   spatial_level = "stratum",
   fill_NA_method = "AIGOA"
