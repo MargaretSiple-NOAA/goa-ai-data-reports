@@ -144,7 +144,7 @@ complex_lookup <- complex_lookup0 |>
   dplyr::filter(region == SRVY)
 
 ## Connect to Oracle
-sql_channel <- gapindex::get_connected()
+channel <- gapindex::get_connected(check_access = F)
 
 yrs_to_pull <- minyr:maxyr
 
@@ -154,24 +154,24 @@ complexes_data <- gapindex::get_data(
   survey_set = SRVY,
   spp_codes = data.frame(
     SPECIES_CODE = complex_lookup$species_code,
-    GROUP = complex_lookup$complex #  GROUP has to be numeric
+    GROUP_CODE = complex_lookup$complex #  GROUP has to be numeric
   ),
   haul_type = 3,
   abundance_haul = "Y",
   pull_lengths = TRUE,
-  sql_channel = sql_channel
+  channel = channel
 )
 
-cpue_table_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
+cpue_table_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
 
 biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
-  racebase_tables = complexes_data,
+  gapdata = complexes_data,
   cpue = cpue_table_complexes
 )
 
 biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
-  racebase_tables = complexes_data,
-  biomass_strata = biomass_stratum_complexes
+  gapdata = complexes_data, 
+  biomass_stratum = biomass_stratum_complexes
 )
 
 biomass_df_complexes <- biomass_subarea_complexes |>
@@ -200,12 +200,13 @@ print("Created cpue_table_complexes and biomass_total_complexes.")
 
 # Complexes: create sizecomps ---------------------------------------------
 ## Pull data.
-#cpue_raw_caps_complexes <- gapindex::calc_cpue(racebase_tables = complexes_data)
+
+#cpue_raw_caps_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
 
 sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
-  racebase_tables = complexes_data,
-  racebase_cpue = cpue_table_complexes,
-  racebase_stratum_popn = biomass_stratum_complexes,
+  gapdata = complexes_data,
+  cpue = cpue_raw_caps_complexes, 
+  abundance_stratum = biomass_stratum_complexes,
   spatial_level = "stratum",
   fill_NA_method = "AIGOA"
 )
@@ -213,8 +214,8 @@ sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
 ## Calculate aggregated size composition across subareas, management areas, and
 ## regions
 sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
-  racebase_tables = complexes_data,
-  size_comps = sizecomp_stratum_complexes
+  gapdata = complexes_data,
+  sizecomp_stratum = sizecomp_stratum_complexes
 )
 
 sizecomp_complexes <- sizecomp_subareas_complexes |>
