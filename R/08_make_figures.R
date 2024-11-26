@@ -820,6 +820,13 @@ if (make_joy_division_length) {
     dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="DEEPFLATS")] ~ "DEEPFLATS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="DSROX")] ~ "DSROX",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="NRSSRS")] ~ "NRSSRS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SWFLATS")] ~ "SWFLATS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SHARKS")] ~ "SHARKS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SKATES")] ~ "SKATES",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="THORNYHEADS")] ~ "THORNYHEADS",
                                            .default = as.character(SPECIES_CODE))) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
