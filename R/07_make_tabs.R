@@ -17,7 +17,12 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 targetn <- read.csv(here::here("data", "target_n.csv"))
 
 # Otolith targets ---------------------------------------------------------
-df <- read.csv(here::here("data", paste0(SRVY, maxyr, "_otolith_targets.csv")))
+if (maxyr == 2021) {
+  df <- read.csv(here::here("data", paste0("GOA", 2023, "_otolith_targets.csv")))
+  print("Using replacement oto target table because we don't have oto targets for 2021.")
+  } else {
+  df <- read.csv(here::here("data", paste0(SRVY, maxyr, "_otolith_targets.csv")))
+}
 
 otos_target_sampled <- df |>
   dplyr::mutate(percent.diff = round((collection - target) / target * 100)) |>
@@ -42,7 +47,8 @@ area_gp <- read.csv("data/local_gap_products/area.csv") #|>
   #dplyr::filter(DESIGN_YEAR == 1984) |>
   
 area_gp_inpfc_region <- area_gp |>
-  dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION"))
+  dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
+    DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984))
 
 topn <- 20
 
@@ -51,7 +57,7 @@ topn <- 20
 # Make table of top CPUE
 top_CPUE <- biomass_subarea |>
   dplyr::filter(YEAR == maxyr) |>
-  dplyr::filter(SPECIES_CODE < 40001 | SPECIES_CODE %in% c("REBS","OFLATS","OROX")) |> # take out inverts
+  dplyr::filter(SPECIES_CODE < 40001 | SPECIES_CODE %in% unique(complex_lookup$complex)) |> # take out inverts
   dplyr::right_join(area_gp_inpfc_region, by = c("SURVEY_DEFINITION_ID","AREA_ID")) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename("INPFC_AREA" = AREA_NAME) |>
@@ -275,10 +281,6 @@ write.csv(
   x = compare_tab2,
   file = paste0(dir_out_tables, maxyr, "_comparison_w_previous_survey.csv")
 )
-
-
-# COMPLEXES --------------------------------------------------------------------
-
 
 
 # Assemble and save tables -----------------------------------------------------

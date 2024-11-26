@@ -138,7 +138,7 @@ if (!use_gapindex) {
     dplyr::filter(SPECIES_CODE %in% report_species$species_code)
 }
 
-# Complexes: create biomass_total and cpue tables from gapindex -------
+# gapindex: Complexes. create biomass_total and cpue tables from gapindex ----
 complex_lookup0 <- read.csv("data/complex_lookup.csv")
 complex_lookup <- complex_lookup0 |>
   dplyr::filter(region == SRVY)
