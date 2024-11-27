@@ -55,8 +55,6 @@ load(file = paste0(
 )) # object: station_map
 }
 
-# Comparison to previous year
-#compare_tab <- read.csv(file = paste0(dir_in_tables, maxyr, "_comparison_w_previous_year.csv"))
 
 # Load the individual values ----------------------------------------------
 load(file = paste0(dir_in_reportvalues, "/reportvalues.rdata"))

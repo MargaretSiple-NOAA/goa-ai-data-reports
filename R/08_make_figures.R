@@ -21,7 +21,7 @@ make_ldscatter <- TRUE
 # 6. Plot of surface and bottom SST with long term avgs
 make_temp_plot <- TRUE
 # XX. Map of the full survey area with strata and stations
-make_total_surv_map <- FALSE
+make_total_surv_map <- TRUE
  
 # in report settings, complexes will usually be set to TRUE
 
