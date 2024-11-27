@@ -14,6 +14,7 @@ tabledate <- "2024-11-26" #
 figuredate <- "2024-11-26"
 reportvaluesdate <- "2024-11-26"
 
+
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
