@@ -205,7 +205,7 @@ print("Created cpue_table_complexes and biomass_total_complexes.")
 
 sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
   gapdata = complexes_data,
-  cpue = cpue_raw_caps_complexes, 
+  cpue = cpue_table_complexes, 
   abundance_stratum = biomass_stratum_complexes,
   spatial_level = "stratum",
   fill_NA_method = "AIGOA"
@@ -516,12 +516,19 @@ L <- L0 %>%
 
 length_maxyr_species <- filter(L, YEAR == maxyr & REGION == SRVY) |>
   dplyr::mutate_at(.vars = "SPECIES_CODE", as.character)
-
 length_maxyr_complexes <- length_maxyr_species |>
   dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
-  dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OROX")] ~ "OROX",
+  dplyr::mutate(SPECIES_CODE = case_when(
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OROX")] ~ "OROX",
     SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "REBS")] ~ "REBS",
     SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OFLATS")] ~ "OFLATS",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "DEEPFLATS")] ~ "DEEPFLATS",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "DSROX")] ~ "DSROX",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "NRSSRS")] ~ "NRSSRS",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SWFLATS")] ~ "SWFLATS",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SHARKS")] ~ "SHARKS",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SKATES")] ~ "SKATES",
+    SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "THORNYHEADS")] ~ "THORNYHEADS",
     .default = as.character(SPECIES_CODE)
   ))
 unique(length_maxyr_complexes$SPECIES_CODE)
