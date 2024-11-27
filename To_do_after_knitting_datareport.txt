@@ -2,6 +2,7 @@ Add to data reports once we have a finished Markdown output:
 
 - Go through and quickly double-check the figures; make sure map figure is centered, etc.
 - Find/replace "first most abundant species" or "1st most abundant species" - change to "most abundant species"
+- Go through the chapters for the complexes and make sure they're grammatically correct!
 - Check Appendix C for correct equation formatting and column widths
 - Check page numbers and make sure intro pages have the special kind
 - Add TOC; make sure it's just called Contents
