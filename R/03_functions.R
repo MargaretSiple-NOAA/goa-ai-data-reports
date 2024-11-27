@@ -282,13 +282,14 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   area_lookup <- area_tbl |>
     dplyr::filter(AREA_TYPE %in% c("INPFC BY DEPTH", 
                                    "INPFC", 
-                                   "DEPTH", "REGION"))
+                                   "DEPTH", "REGION")) |>
+    dplyr::filter(DESIGN_YEAR==ifelse(year<2025,1984,2025))
 
   combo0 <- area_lookup |>
     left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
     dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
     dplyr::mutate(DEPTH_RANGE = case_when(
-      DEPTH_RANGE == "1 - 500" ~ "All depths",
+      DEPTH_RANGE %in% c("1 - 500", "1 - 1000") ~ "All depths",
       DEPTH_RANGE =="NA - NA" ~ "All depths",
       TRUE ~ DEPTH_RANGE
     )) |>
