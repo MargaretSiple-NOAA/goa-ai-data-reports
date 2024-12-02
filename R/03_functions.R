@@ -279,27 +279,37 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   biomass_yr[which(biomass_yr$POPULATION_COUNT == 0), "AVG_WEIGHT_KG"] <- "--"
   biomass_yr[which(biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
 
-  area_lookup <- area_tbl |>
-    dplyr::filter(AREA_TYPE %in% c("INPFC BY DEPTH", 
-                                   "INPFC", 
-                                   "DEPTH", "REGION")) |>
-    dplyr::filter(DESIGN_YEAR==ifelse(year<2025,1984,2025))
+  area_lookup0 <- area_tbl |>
+    dplyr::filter(AREA_TYPE %in% c(
+      "INPFC BY DEPTH",
+      "INPFC",
+      "DEPTH", "REGION"
+    ))
+  if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
+    area_lookup <- area_lookup0 |>
+      dplyr::filter(DESIGN_YEAR == ifelse(year < 2025, 1984, 2025)) # GOA design years
+  } else {
+    area_lookup <- area_lookup0 # All AI design years are 1980
+  }
+
 
   combo0 <- area_lookup |>
     left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
     dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
     dplyr::mutate(DEPTH_RANGE = case_when(
       DEPTH_RANGE %in% c("1 - 500", "1 - 1000") ~ "All depths",
-      DEPTH_RANGE =="NA - NA" ~ "All depths",
+      DEPTH_RANGE == "NA - NA" ~ "All depths",
       TRUE ~ DEPTH_RANGE
     )) |>
-    dplyr::select(AREA_NAME, DEPTH_RANGE, 
-                  N_HAUL, N_WEIGHT, 
-                  CPUE_KGKM2_MEAN,
-                  BIOMASS_MT,
-                  #BIOMASS_VAR,
-                  AVG_WEIGHT_KG)
-  
+    dplyr::select(
+      AREA_NAME, DEPTH_RANGE,
+      N_HAUL, N_WEIGHT,
+      CPUE_KGKM2_MEAN,
+      BIOMASS_MT,
+      # BIOMASS_VAR,
+      AVG_WEIGHT_KG
+    )
+
   # Format the columns
   combo <- combo0 |>
     dplyr::rename(
@@ -309,23 +319,23 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Hauls with positive catch" = N_WEIGHT,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
       "Biomass (mt)" = BIOMASS_MT,
-      #"Biomass variance (mt)" = BIOMASS_VAR,
+      # "Biomass variance (mt)" = BIOMASS_VAR,
       "Average weight (kg)" = AVG_WEIGHT_KG
-    ) 
-  
+    )
+
   # Format numbers in CPUE and biomass columns
-  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`,digits = 2)
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 2)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   combo_ord <- combo |>
     dplyr::arrange(factor(`Survey district`, levels = c(district_order, "All")))
 
-  combo_ord$`Survey district`[which(combo_ord$`Survey district`=="All")] <- "All areas"
-  
+  combo_ord$`Survey district`[which(combo_ord$`Survey district` == "All")] <- "All areas"
+
   return(combo_ord)
 }
 
-#' Makr Table 4 - summary of CPUE and biomass by stratum
+#' Make Table 4 - summary of CPUE and biomass by stratum
 #'
 #' @param species_code five-digit species code
 #' @param survey "GOA" or "AI"
