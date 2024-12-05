@@ -39,16 +39,17 @@ haul_maxyr <- haul %>%
 # This year's survey number
 cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
 
-survnumber <- cruises %>%
+survnumber <- cruises |>
   filter(SURVEY_NAME == ifelse(SRVY == "AI",
     "Aleutian Islands Bottom Trawl Survey",
     "Gulf of Alaska Bottom Trawl Survey"
   )) %>%
   filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) %>% # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
   # filter(CRUISE != 199309) %>%
-  distinct(CRUISE) %>%
-  arrange(CRUISE) %>%
-  nrow() %>%
+  dplyr::filter(CRUISE != 202001) |>
+  distinct(CRUISE) |>
+  arrange(CRUISE) |>
+  nrow() |>
   scales::ordinal()
 
 # Temp data --------------------------------------------------------
@@ -355,6 +356,14 @@ if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
 }
 
+if(maxyr == 2024){ # get allocation from special sheet with reduced stations
+  a0 <- read.csv("data/AI2024_allocation.csv",na.strings = "NA")
+  table(a0$STATION_TYPE)
+  all_allocation <- a0 |>
+    mutate(YEAR = 2024)
+}
+
+
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 # This like a lookup table for allocating strata to the correct area and depth
 dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
@@ -420,11 +429,11 @@ avg_net_width <- haul %>%
   as.numeric()
 
 nstationsassigned <- all_allocation %>%
-  filter(YEAR == maxyr) %>%
+  filter(YEAR == maxyr & STATION_TYPE != "bonus_stn") %>%
   nrow()
 
 nnewstations <- all_allocation %>%
-  filter(YEAR == maxyr & is.na(STATIONID)) %>%
+  filter(YEAR == maxyr & STATION_TYPE == "new_stn") %>%
   nrow()
 
 if (nnewstations == 0) {
