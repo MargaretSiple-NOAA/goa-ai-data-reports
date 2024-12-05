@@ -14,7 +14,6 @@ library(flextable)
 ```
 
 ```{r echo=FALSE,tab.cap=paste0('Appendix Table A1. Survey strata used for the ', maxyr,' ',survname_long, ' bottom trawl survey including depth, stratum number, name and area.'), tab.id='a-stratumlist',  tab.cap.style = "Table Caption"}
-
 a1 |>
   flextable() |>
   theme_vanilla() |>
@@ -26,6 +25,6 @@ a1 |>
   line_spacing(space = 1)
 ```
 
-```{r echo=FALSE,tab.cap=paste0('Appendix Table A2. Summary codes used for the ', survname_long, ' bottom trawl survey including depth, stratum number, name and area.'), tab.id='a-stratumlist',  tab.cap.style = "Table Caption"}
+```{r echo=FALSE,tab.cap=paste0('Appendix Table A2. Summary codes used for the ', survname_long, ' bottom trawl survey including depth, stratum number, name and area.'), tab.id='a-codelist',  tab.cap.style = "Table Caption"}
 head(mtcars) #placeholder, obviously
 ```
