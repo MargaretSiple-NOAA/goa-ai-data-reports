@@ -25,3 +25,7 @@ a1 |>
   width(j = 4, width = 2, unit = "in") |>
   line_spacing(space = 1)
 ```
+
+```{r echo=FALSE,tab.cap=paste0('Appendix Table A2. Summary codes used for the ', survname_long, ' bottom trawl survey including depth, stratum number, name and area.'), tab.id='a-stratumlist',  tab.cap.style = "Table Caption"}
+head(mtcars) #placeholder, obviously
+```
