@@ -24,7 +24,7 @@ if (x) {
 
 # Functions and data prep -------------------------------------------------
 source("R/06_prep_data.R") # Make all the tables and stuff needed for report and pres.
-source("R/06a_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
+source("R/06b_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
 
 # Create tables and figures -----------------------------------------------
 # Each of these source() lines will save a list of outputs as an rdata file for later. And it will print out png's for figs and csvs for tables to output/
