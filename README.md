@@ -7,6 +7,7 @@ GOA and AI data reports summarize data from the trawl survey each year. These re
 
 ### To create the Plan Team presentation draft
 
+- Check the text of the special projects descriptions in the Methods section. Those will change every year/survey. The text is in the Google Drive dir: `AI-GOA Reports/MainText/[REGION]/Methods`
 - Confirm the `tabledate`, `figuredate`, and `reportvaluesdate` in `00_report_settings.R`. 
 - Check which figures are desired (bubble plots? catch composition? Etc.)
 - If there are changes to the stocks you want to include in the report, edit them in `data/[region]_report_specieslist.csv`
