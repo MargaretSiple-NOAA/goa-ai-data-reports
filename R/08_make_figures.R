@@ -393,9 +393,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "darkorange",
           shape = 4,
-          size = 1
+          size = 2
         ) +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
@@ -427,9 +427,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "#d95f0e",
           shape = 4,
-          size = 1
+          size = 2
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -460,9 +460,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "#d95f0e",
           shape = 4,
-          size = 1
+          size = 2
         ) +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
@@ -500,9 +500,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "#d95f0e",
           shape = 4,
-          size = 1
+          size = 2
         ) +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
@@ -571,9 +571,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "#d95f0e",
           shape = 4,
-          size = 1
+          size = 0.6, 
+          stroke = 1
         ) +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
@@ -605,9 +606,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "#d95f0e",
           shape = 4,
-          size = 1
+          size = 0.6, 
+          stroke = 1
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -638,9 +640,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "#d95f0e",
           shape = 4,
-          size = 1
+          size = 0.6, 
+          stroke = 1
         ) +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
@@ -678,9 +681,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "red",
+          color = "#d95f0e",
           shape = 4,
-          size = 1
+          size = 0.6, 
+          stroke = 1
         ) +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
