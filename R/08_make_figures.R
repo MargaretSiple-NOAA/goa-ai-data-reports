@@ -10,7 +10,7 @@
 make_biomass_timeseries <- FALSE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
-# 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022. 
+# 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022.
 make_cpue_bubbles_strata <- TRUE
 # 3b. CPUE bubble maps, Emily M edition - strata not shown. Bubbles are purple. Scale bar and legend with CPUE scale are shown.
 make_cpue_bubbles <- FALSE
@@ -22,32 +22,40 @@ make_ldscatter <- TRUE
 make_temp_plot <- TRUE
 # XX. Map of the full survey area with strata and stations
 make_total_surv_map <- TRUE
- 
+
 # in report settings, complexes will usually be set to TRUE
 
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
+  stratum_lookup_region <- read.csv("data/local_gap_products/area.csv") |>
+    dplyr::filter(AREA_TYPE == "STRATUM") |>
+    dplyr::select(AREA_ID, DEPTH_MAX_M)
+
   ai_east <- akgfmaps::get_base_layers(
     select.region = "ai.east",
     set.crs = "auto"
-  )
+  ) |>
+    add_depths() # stratum_lookup_tab = stratum_lookup_region
+
   ai_central <- akgfmaps::get_base_layers(
     select.region = "ai.central",
     set.crs = "auto"
-  )
+  ) |>
+    add_depths()
+
   ai_west <- akgfmaps::get_base_layers(
     select.region = "ai.west",
     set.crs = "auto"
-     )
-  
-  # Make a category that is just the depth of the stratum, for easy labeling - THIS IS FOR SOMETHING ON MY TO DO LIST< DONT DELETE
-  # ai_east$survey.strata <- ai_east$survey.strata |>
-  #   mutate(strat_depth = substr(STRATUM, 3, 3))
-  
+  ) |>
+    add_depths()
+
+  # Get the number of strata
   a <- read.csv("data/goa_strata.csv")
   a <- dplyr::filter(a, SURVEY == "AI")
   nstrata <- length(unique(a$STRATUM))
-  
+
+  ndepths <- 4 # number of max depth intervals (for AI, it's 100,200,300,500)
+
   reg_dat_ai <- akgfmaps::get_base_layers(
     select.region = "ai",
     set.crs = "EPSG:3338"
@@ -63,14 +71,14 @@ if (SRVY == "AI") {
 
 if (SRVY == "GOA") {
   a <- read.csv("data/goa_strata.csv")
-  a <- dplyr::filter(a, SURVEY == "GOA") #MIN_DEPTH < 700 & 
+  a <- dplyr::filter(a, SURVEY == "GOA") # MIN_DEPTH < 700 &
   nstrata <- length(unique(a$STRATUM))
-  
+
   goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
   goa_inpfc <- goa_all$inpfc.strata
-  
+
   geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
-  
+
   reg_dat_goa <- akgfmaps::get_base_layers(
     select.region = "goa",
     set.crs = "EPSG:3338"
@@ -124,13 +132,15 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
 # * Palettes ----------------------------------------------------------------
 if (SRVY == "AI") {
   stratumpal <- lengthen_pal(
-    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"), 
+    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
     x = 1:nstrata
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
+
+  depthpal <- RColorBrewer::brewer.pal(n = ndepths, name = "Blues")
 } else {
   stratumpal <- lengthen_pal(
-    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"), 
+    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
     x = 1:nstrata
   )
 }
@@ -158,11 +168,7 @@ speciescolors <- lengthen_pal(
 
 
 # 0. Static figure: INPFC areas ----------------------------------------------
-#**** TODO: Load png or whatever and put it here. Can I store it in a list?
-# Needed to use magick pkg to convert the image to a png, for some reason the usual image reader in Windows does not actually convert the format.
-# error_file = magick::image_read("img/AleutiansMap.png")
-# right_png <- magick::image_convert(image = error_file, "png")
-# magick::image_write(right_png, path = "img/AleutiansMap.png", format = "png")
+
 if (SRVY == "AI") {
   img1_path <- "img/AleutiansMap.png"
 }
@@ -180,7 +186,7 @@ if (make_total_surv_map) {
   palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
 
 
-#  Base map
+  #  Base map
   p1 <- ggplot() +
     geom_sf(data = goa_all$akland) +
     geom_sf(data = goa_inpfc, aes(fill = INPFC_STRATUM)) +
@@ -202,8 +208,8 @@ if (make_total_surv_map) {
       crs = "EPSG:4326"
     ) %>%
     st_transform(crs = reg_data$crs)
-  
-  
+
+
   station_map1 <- p1 +
     geom_sf(data = thisyrshauldata, size = 0.5) +
     coord_sf(
@@ -309,8 +315,10 @@ if (make_catch_comp) {
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
     ) %>%
-    mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal, 
-                                                 replace = "Other species"))
+    mutate(spp_name_informal = tidyr::replace_na(
+      data = spp_name_informal,
+      replace = "Other species"
+    ))
 
   biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
     levels = c(report_species$spp_name_informal, "Other species")
@@ -334,7 +342,7 @@ if (make_catch_comp) {
   dev.off()
 }
 
-# 3. CPUE maps - strata colored in (presented at GPT 2022 and 2024) ----------------------------------------------------------
+# 3. CPUE maps - depths colored in (presented at GPT 2022 and 2024 with strata colored in) ----------------------------------------------------------
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
   # COMPLEXES
   list_cpue_bubbles_strata_complexes <- list()
@@ -370,12 +378,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(
           data = ai_east$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -402,12 +410,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(
           data = ai_central$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_central$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -437,12 +445,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(
           data = ai_west$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_west$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -472,17 +480,17 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
       bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
       final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
-    } else { # /AI stratum bubble maps
+    } else { # /GOA stratum bubble maps
       final_obj <- ggplot() +
         geom_sf(
           data = reg_data$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -548,12 +556,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(
           data = ai_east$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -580,12 +588,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(
           data = ai_central$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_central$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -615,12 +623,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(
           data = ai_west$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_west$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -655,12 +663,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(
           data = reg_data$survey.strata,
           mapping = aes(
-            fill = factor(STRATUM),
-            color = factor(STRATUM)
+            fill = factor(DEPTH_MAX_M),
+            color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = stratumpal, guide = "none") +
-        scale_color_manual(values = stratumpal, guide = "none") +
+        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
@@ -780,17 +788,17 @@ if (make_joy_division_length) {
     cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
     source("R/06_prep_data.R")
   }
-  
+
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
   L <- L0 |>
     dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
-  #length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
-  
+  # length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+
   L2 <- L |> # L is the big length table from RACEBASE
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
     filter(REGION == SRVY) # want to keep all years for this fig
-  
+
   L3 <- L2 |>
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
     dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
@@ -801,72 +809,74 @@ if (make_joy_division_length) {
       SEX == 3 ~ "Unsexed"
     )) |>
     dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
-  
+
   # get samples for individual species
   species_sample_sizes <- L3 |>
-    dplyr::filter(grepl("[0-9]", SPECIES_CODE)) |># filter to not complexes
+    dplyr::filter(grepl("[0-9]", SPECIES_CODE)) |> # filter to not complexes
     dplyr::filter(SPECIES_CODE %in% (report_species$species_code)) |> # filter to report species
     dplyr::filter(YEAR >= minyr) |>
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
     dplyr::summarize(n = sum(FREQUENCY)) |>
     ungroup() |>
-    mutate(YEAR = as.integer(YEAR), 
-           SPECIES_CODE = as.character(SPECIES_CODE))
-  
+    mutate(
+      YEAR = as.integer(YEAR),
+      SPECIES_CODE = as.character(SPECIES_CODE)
+    )
+
   # get sample sizes for complexes
   complex_sample_sizes <- L3 |>
     dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
     dplyr::filter(YEAR >= minyr) |>
-    dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="DEEPFLATS")] ~ "DEEPFLATS",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="DSROX")] ~ "DSROX",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="NRSSRS")] ~ "NRSSRS",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SWFLATS")] ~ "SWFLATS",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SHARKS")] ~ "SHARKS",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SKATES")] ~ "SKATES",
-                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="THORNYHEADS")] ~ "THORNYHEADS",
-                                           .default = as.character(SPECIES_CODE))) |>
+    dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OROX")] ~ "OROX",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "REBS")] ~ "REBS",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OFLATS")] ~ "OFLATS",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "DEEPFLATS")] ~ "DEEPFLATS",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "DSROX")] ~ "DSROX",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "NRSSRS")] ~ "NRSSRS",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SWFLATS")] ~ "SWFLATS",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SHARKS")] ~ "SHARKS",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SKATES")] ~ "SKATES",
+      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "THORNYHEADS")] ~ "THORNYHEADS",
+      .default = as.character(SPECIES_CODE)
+    )) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
     dplyr::summarize(n = sum(FREQUENCY)) |>
     ungroup() |>
     mutate(YEAR = as.integer(YEAR))
-  
+
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
   # Loop thru species
   for (i in 1:nrow(report_species)) {
-    
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
-    
+
     # SSTH or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
     if (report_species$species_code[i] %in% c(30020, 21341)) {
-      len2plot <- len2plot 
-    }else{
+      len2plot <- len2plot
+    } else {
       len2plot <- len2plot %>%
         filter(Sex != "Unsexed")
     }
-    
+
     # Save median lengths by year and sex for species i
     medlines_sp <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i]) %>%
       group_by(YEAR, Sex) %>%
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
-    
+
     # Lengths to plot
     len2plot2 <- len2plot %>%
       left_join(sample_sizes %>%
-                  filter(SPECIES_CODE == report_species$species_code[i]))
-    
+        filter(SPECIES_CODE == report_species$species_code[i]))
+
     yrbreaks <- unique(len2plot2$YEAR)
     lengthlimits <- range(len2plot2$LENGTH)
-    
+
     n_labels <- len2plot2 %>%
       distinct(YEAR, Sex, .keep_all = TRUE)
-    
+
     joyplot <- len2plot2 %>%
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       ggridges::geom_density_ridges_gradient( #
@@ -905,18 +915,18 @@ if (make_joy_division_length) {
         panel.spacing.x = unit(4, "mm"),
         axis.line.x = element_line(lineend = "square")
       )
-    
+
     png(filename = paste0(
       dir_out_figures,
       report_species$spp_name_informal[i], "_", maxyr, "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
-    
+
     list_joy_length[[i]] <- joyplot
   }
   names(list_joy_length) <- report_species$species_code
-  
+
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
   print("Done with joy division plots for length comp.")
 }
@@ -929,8 +939,8 @@ if (make_ldscatter) {
 
   length_maxyr_ldscatter <- length_maxyr |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
-    dplyr::bind_rows(length_maxyr_complexes) 
-  
+    dplyr::bind_rows(length_maxyr_complexes)
+
   list_ldscatter <- list()
 
   for (i in 1:nrow(report_species)) {

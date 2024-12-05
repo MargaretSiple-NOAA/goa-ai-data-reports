@@ -500,6 +500,25 @@ break_position <- function(x) {
 }
 
 
+# Working with data -------------------------------------------
+#' Title
+#'
+#' @param x an akgf maps object like ai_east
+#' @param stratum_lookup_tab a region-specific lookup table of strata and the max depth associated with each
+#'
+#' @return an akgfmaps object with max depth now included in the survey.strata list element. Should be indispensable for figures! I think!
+#' @export
+#'
+#' @examples
+add_depths <- function(x, stratum_lookup_tab = stratum_lookup) {
+  y <- x$survey.strata |>
+    left_join(stratum_lookup_tab, by = c("STRATUM" = "AREA_ID"))
+  z <- x
+  z$survey.strata <- y
+
+  return(z)
+}
+
 # Plots ----------------------------
 
 # * idw plot fn depends on this one
