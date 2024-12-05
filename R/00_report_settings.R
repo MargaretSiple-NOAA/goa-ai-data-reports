@@ -10,9 +10,9 @@ use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using 
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2024-11-27" # 
-figuredate <- "2024-11-27"
-reportvaluesdate <- "2024-11-27"
+tabledate <- "2024-12-04" # 
+figuredate <- "2024-12-04"
+reportvaluesdate <- "2024-12-04"
 
 
 # Survey information ------------------------------------------------------
@@ -48,8 +48,8 @@ and this will become a permanent feature of our station allocations in the futur
 YEAR <- maxyr
 
 # Vessels and captains
-vessel1 <- "Ocean Explorer"
-vessel2 <- "Alaska Provider"
+vessel1 <- "FV&nbsp;Ocean Explorer"
+vessel2 <- "FV&nbsp;Alaska Provider"
 captain1 <- "Dan Carney"
 captain2 <- "Brian Beaver"
 
