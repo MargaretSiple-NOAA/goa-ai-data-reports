@@ -21,7 +21,7 @@ make_ldscatter <- TRUE
 # 6. Plot of surface and bottom SST with long term avgs
 make_temp_plot <- TRUE
 # XX. Map of the full survey area with strata and stations
-make_total_surv_map <- TRUE
+make_total_surv_map <- FALSE
 
 # in report settings, complexes will usually be set to TRUE
 
@@ -344,11 +344,15 @@ if (make_catch_comp) {
 
 # 3. CPUE maps - depths colored in (presented at GPT 2022 and 2024 with strata colored in) ----------------------------------------------------------
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
-  # COMPLEXES
+
+  # * * COMPLEXES ----------
   list_cpue_bubbles_strata_complexes <- list()
 
   for (i in 1:length(unique(complex_lookup$complex))) {
+    # which complex to plot:
     complex_code <- unique(complex_lookup$complex)[i]
+
+    # title for plot title:
     namebubble <- switch(complex_code,
       REBS = "Rougheye/blackspotted rockfish",
       OROX = "Other rockfish",
@@ -382,20 +386,25 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
             color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_fill_manual("Maximum \nstratum depth (m)", values = depthpal, guide = "legend") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
-        geom_sf(
-          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
-        ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "darkorange",
+          color = "darkred",
           shape = 4,
-          size = 2
+          size = 1,
+          stroke = 1
+        ) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.7,
+          color = "black"
+        ) +
+        scale_size(bquote("CPUE" ~ (kg / km^2)),
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          guide = "legend"
         ) +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
@@ -404,7 +413,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
         labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "left")
 
       p3b <- ggplot() +
         geom_sf(
@@ -417,19 +427,21 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_fill_manual(values = depthpal, guide = "none") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_central$akland) +
-        geom_sf(
-          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
-        ) +
-        scale_size(bquote("CPUE" ~ (kg / km^2)),
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
-        ) +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "#d95f0e",
+          color = "darkred",
           shape = 4,
-          size = 2
+          size = 1,
+          stroke = 1
+        ) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.7,
+          color = "black"
+        ) +
+        scale_size(
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -438,8 +450,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_central$lon.breaks) +
         scale_y_continuous(breaks = ai_central$lat.breaks) +
         labs(subtitle = "Central Aleutians") +
-        bubbletheme +
-        theme(legend.position = "left")
+        bubbletheme
 
       p3c <- ggplot() +
         geom_sf(
@@ -452,17 +463,18 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_fill_manual(values = depthpal, guide = "none") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_west$akland) +
-        geom_sf(
-          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
-        ) +
         scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "#d95f0e",
+          color = "darkred", # d95f0e
           shape = 4,
-          size = 2
+          size = 1,
+          stroke = 1
+        ) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
@@ -478,7 +490,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         bubbletheme
 
       toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
-      bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
+      bottomrow <- cowplot::plot_grid(p3a, rel_widths = c(1, 2))
       final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
     } else { # /GOA stratum bubble maps
       final_obj <- ggplot() +
@@ -492,18 +504,19 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_fill_manual(values = depthpal, guide = "none") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
-        geom_sf(
-          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
-        ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "#d95f0e",
+          color = "darkred",
           shape = 4,
-          size = 2
+          size = 1,
+          stroke = 1
         ) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
+        ) +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
           ylim = reg_data$plot.boundary$y
@@ -526,7 +539,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
   } # /all complexes cpue loop
 
-
+  #  * * SPECIES ----------
   list_cpue_bubbles_strata_species <- list()
 
   bubble_index <- which(!report_species$species_code %in% c(
@@ -560,21 +573,27 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
             color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual(values = depthpal, guide = "none") +
+        scale_fill_manual("Maximum \nstratum depth (m)",
+          values = depthpal,
+          guide = "legend"
+        ) +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
-        geom_sf(
-          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
-        ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "#d95f0e",
+          color = "darkred",
           shape = 4,
-          size = 0.6, 
+          size = 1,
           stroke = 1
+        ) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
+        ) +
+        scale_size(bquote("CPUE" ~ (kg / km^2)),
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          guide = "legend"
         ) +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
@@ -583,7 +602,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
         labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "left")
 
       p3b <- ggplot() +
         geom_sf(
@@ -596,20 +616,20 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_fill_manual(values = depthpal, guide = "none") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_central$akland) +
-        geom_sf(
-          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
-        ) +
-        scale_size(bquote("CPUE" ~ (kg / km^2)),
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
-        ) +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "#d95f0e",
+          color = "darkred",
           shape = 4,
-          size = 0.6, 
+          size = 1,
           stroke = 1
+        ) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
+        ) +
+        scale_size(
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -618,8 +638,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_central$lon.breaks) +
         scale_y_continuous(breaks = ai_central$lat.breaks) +
         labs(subtitle = "Central Aleutians") +
-        bubbletheme +
-        theme(legend.position = "left")
+        bubbletheme
 
       p3c <- ggplot() +
         geom_sf(
@@ -632,19 +651,19 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_fill_manual(values = depthpal, guide = "none") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_west$akland) +
-        geom_sf(
-          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
-        ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "#d95f0e",
+          color = "darkred",
           shape = 4,
-          size = 0.6, 
+          size = 1,
           stroke = 1
         ) +
+        geom_sf(
+          data = filter(thisyrshauldata, cpue_kgkm2 > 0),
+          aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
+        ) +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         coord_sf(
           xlim = ai_east$plot.boundary$x,
           ylim = ai_east$plot.boundary$y
@@ -659,7 +678,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         bubbletheme
 
       toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
-      bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
+      bottomrow <- cowplot::plot_grid(p3a, rel_widths = c(1, 2))
       final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
     } else {
       final_obj <- ggplot() +
@@ -675,15 +694,15 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         geom_sf(data = reg_data$akland) +
         geom_sf(
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
-          aes(size = cpue_kgkm2), alpha = 0.5
+          aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
         scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
-          color = "#d95f0e",
+          color = "darkred",
           shape = 4,
-          size = 0.6, 
+          size = 1,
           stroke = 1
         ) +
         coord_sf(
@@ -693,7 +712,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
         bubbletheme
-    } # / end GOA bubble stratum maps for individual species
+    } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
