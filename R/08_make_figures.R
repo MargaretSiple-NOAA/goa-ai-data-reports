@@ -107,8 +107,8 @@ bubbletheme <- theme(
   ),
   axis.text = element_text(size = 8),
   strip.background = element_blank(),
-  strip.text = element_text(size = 10, face = "bold"),
-  legend.text = element_text(size = 10),
+  strip.text = element_text(size = 8, face = "bold"),
+  legend.text = element_text(size = 8),
   legend.background = element_rect(
     colour = "transparent",
     fill = "transparent"
