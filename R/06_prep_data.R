@@ -360,7 +360,7 @@ if(maxyr == 2024){ # get allocation from special sheet with reduced stations
   a0 <- read.csv("data/AI2024_allocation.csv",na.strings = "NA")
   table(a0$STATION_TYPE)
   all_allocation <- a0 |>
-    mutate(YEAR = 2024)
+    mutate(YEAR = 2024, SURVEY = SRVY)
 }
 
 
