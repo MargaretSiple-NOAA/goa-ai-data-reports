@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
   fig.cap.style = "Image caption",
   fig.cap.pre = "Figure ",
   fig.cap.sep = ". -- ",
-  fig.align = "center"
+  fig.align = "center",crop = TRUE
 )
 
 library(officedown)
