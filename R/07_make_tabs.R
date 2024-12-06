@@ -43,12 +43,16 @@ subregion_fam_div <- appB %>%
 # Can convert this into a function later
 biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
 
-area_gp <- read.csv("data/local_gap_products/area.csv") #|>
-  #dplyr::filter(DESIGN_YEAR == 1984) |>
-  
+area_gp <- read.csv("data/local_gap_products/area.csv") 
+
+if(SRVY=="GOA"){
 area_gp_inpfc_region <- area_gp |>
   dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
-    DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984))
+    DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984))}else{
+      area_gp_inpfc_region <- area_gp |>
+        dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
+                        DESIGN_YEAR == 1980)
+    }
 
 topn <- 20
 
