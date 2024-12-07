@@ -40,8 +40,52 @@ for (i in 1:nrow(report_species)) {
   sp_i <- report_species$species_code[i]
   df_sp <- subset(x = specimen_maxyr_fit, SPECIES_CODE == sp_i)
   n_obs <- nrow(df_sp)
+  for (s in 1:3) {
+    df_sp_sx <- subset(df_sp, SEX == s)
+    n_obs_sx <- nrow(df_sp_sx)
+    if (n_obs_sx > MinNumberObserved) {
+      ## Fit length-weight relationship for each sex
+      t_model <- lm(log(WEIGHT_G) ~ log(LENGTH_MM), data = df_sp_sx)
+      t_summary <- summary(t_model)
+      t_intercept <- exp(t_summary$coefficients[1])
+      t_slope <- t_summary$coefficients[2]
+
+      if (is.nan(t_slope)) t_slope <- 0
+      t_r_squared <- t_summary$r.squared
+      t_max.length <- max(df_sp_sx$LENGTH_MM)
+      t_sex <- switch(s,
+        `1` = "Male",
+        `2` = "Female",
+        `3` = "Unsexed"
+      )
+
+      length_weight_df <-
+        rbind(
+          length_weight_df,
+          data.frame(
+            species = sp_i,
+            sex = t_sex,
+            count = n_obs_sx,
+            alpha.kg = t_intercept * 1000,
+            beta = t_slope,
+            r_squared = t_r_squared,
+            max.length.mm = t_max.length,
+            alpha.grams = t_intercept
+          )
+        )
+    }
+
+    print(ifelse(test = n_obs > MinNumberObserved,
+      yes = paste0(
+        sp_i, " completed (", i, " out of ",
+        nrow(report_species), " species completed)"
+      ),
+      no = paste0("skipped ", sp_i, " predictions")
+    ))
+  } # /end sex loop
+
+  ## Fit length-weight relationship for all individuals of species i
   if (n_obs > MinNumberObserved) {
-    ## Fit length-weight relationship
     t_model <- lm(log(WEIGHT_G) ~ log(LENGTH_MM), data = df_sp)
     t_summary <- summary(t_model)
     t_intercept <- exp(t_summary$coefficients[1])
@@ -50,12 +94,12 @@ for (i in 1:nrow(report_species)) {
     if (is.nan(t_slope)) t_slope <- 0
     t_r_squared <- t_summary$r.squared
     t_max.length <- max(df_sp$LENGTH_MM)
-
     length_weight_df <-
       rbind(
         length_weight_df,
         data.frame(
           species = sp_i,
+          sex = "All",
           count = n_obs,
           alpha.kg = t_intercept * 1000,
           beta = t_slope,
@@ -65,15 +109,9 @@ for (i in 1:nrow(report_species)) {
         )
       )
   }
-  print(ifelse(test = n_obs > MinNumberObserved,
-    yes = paste0(
-      sp_i, " completed (", i, " out of ",
-      nrow(report_species), " species completed)"
-    ),
-    no = paste0("skipped ", sp_i, " predictions")
-  ))
-}
+} # /end species loop
 
 length_weight_report <- length_weight_df |>
   left_join(report_species, by = c("species" = "species_code")) |>
-  dplyr::select(spp_name_informal, spp_name_scientific, count, beta, r_squared, max.length.mm, alpha.grams)
+  dplyr::mutate(alpha.grams = round(alpha.grams,digits = 9)) |>
+  dplyr::select(spp_name_informal, spp_name_scientific, sex, count, beta, r_squared, max.length.mm, alpha.grams)

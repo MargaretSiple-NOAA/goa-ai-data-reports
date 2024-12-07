@@ -22,8 +22,13 @@ rmarkdown::render(paste0(dir_markdown, "/APPENDIXB.Rmd"),
 
 # Appendix C --------------------------------------------------------------
 # Length-weight parameters
-# This file is created by Paul in 2022; eventually we can automate
+# This file was created by Paul in 2022; now it is automated
 # All 2022 appendices can be found in G:\ALEUTIAN\AI 2022\DataReport\Appendices\
+rmarkdown::render(paste0(dir_markdown, "/APPENDIXC.Rmd"),
+                  output_dir = dir_out_chapters,
+                  output_file = "AppendixC.docx"
+)
+
 
 # Additional Appendices --------------------------------------------------------------
 # Appendix D: Bottom and surface temp maps

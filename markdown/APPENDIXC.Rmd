@@ -17,12 +17,26 @@ library(flextable)
 length_weight_report |>
   flextable() |>
   theme_vanilla() |>
-  compose(j = 2,
-  value = as_paragraph(as_i(spp_name_scientific))) |>
-  fontsize(size = 9, part = "all") |>
-  width(j = 1, width = 1, unit = "in") |>
-  width(j = 2, width = 1, unit = "in") |>
-  width(j = 3, width = 2, unit = "in") |>
-  width(j = 4, width = 2, unit = "in") |>
-  line_spacing(space = 1)
+  compose(
+    j = 2,
+    value = as_paragraph(as_i(spp_name_scientific))
+  ) |>
+  fontsize(size = 7.5, part = "all") |>
+  set_header_labels(
+    spp_name_informal = "Common name",
+    spp_name_scientific = "Scientific name",
+    count = "Sample size (n)",
+    r_squared = "R^2",
+    max.length.mm = "Max length (mm)",
+    alpha.grams = "Alpha (g)"
+  ) |>
+  width(j = 1, width = 1.1, unit = "in") |>
+  width(j = 2, width = 1.9, unit = "in") |>
+  width(j = 3, width = 0.5, unit = "in") |>
+  width(j = 4, width = 0.5, unit = "in") |>
+  width(j = 5, width = 1, unit = "in") |>
+  width(j = 6, width = 1, unit = "in") |>
+  width(j = 7, width = 0.5, unit = "in") |>
+  width(j = 7, width = 1, unit = "in") |>
+  line_spacing(space = 0.5)
 ```
