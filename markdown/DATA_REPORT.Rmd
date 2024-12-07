@@ -223,7 +223,7 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 # report_species contains the list of species in the report
 src <- list()
 
-for (i in 26:30) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # nrow(report_species)
 
   species_code <- report_species$species_code[i]
 
