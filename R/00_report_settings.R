@@ -99,7 +99,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
-report_authors <- "M. Siple, A. Dowlin, P. von Szalay, N. Raring, W. Palsson, B. Riggle"
+report_authors <- "A. Dowlin, M. Siple, P. von Szalay, N. Raring, B. Riggle"
 report_yr <- maxyr
 
 
