@@ -66,6 +66,7 @@ PKG <- c(
   # RACE-GAP Specific
   "akgfmaps", 
   "coldpool", 
+  "gapindex",
   
   # Spatial
   "sf",
