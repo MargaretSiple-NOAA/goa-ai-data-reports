@@ -2,9 +2,9 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2024 # Change this for the year!
+maxyr <- 2021 # Change this for the year!
 minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
-compareyr <- 2022 # Change this for the year!
+compareyr <- 2019 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
@@ -18,7 +18,7 @@ reportvaluesdate <- "2024-12-06"
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
-SRVY <- "AI" # Options: "GOA", "AI"
+SRVY <- "GOA" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 
 # Check survey year and region combo:
@@ -50,8 +50,8 @@ YEAR <- maxyr
 # Vessels and captains
 vessel1 <- "FV&nbsp;Ocean Explorer"
 vessel2 <- "FV&nbsp;Alaska Provider"
-captain1 <- "Dan Carney"
-captain2 <- "Brian Beaver"
+captain1 <- "Dan Carney and Jerry Ellifson"
+captain2 <- "Loren Reynolds"
 
 # Internal reviewers
 reviewer1 <- "Sarah T. Friedman"
