@@ -10,7 +10,7 @@
 -  The highest CPUEs were recorded in the {{inpfc_highest_cpue[1]}} and {{inpfc_highest_cpue[2]}} regions (Table `r officer::run_reference(paste0("table1-",{{species_code}}))` and Fig. `r officer::run_reference(paste0("cpue-",{{species_code}}))`). 
 
 \newpage
-```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (CL), and average fish weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table caption",tab.align="left"}
+```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (CL), and average individual weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[[as.character({{ species_code }})]][,1:9] %>%
   #table3s_list[[as.character(30060)]][,1:9] %>%
   flextable() %>%

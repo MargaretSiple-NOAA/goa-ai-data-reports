@@ -1,6 +1,9 @@
 # 11_knit_report
 # MAKE SURE YOU'VE SET THE DATES YOU WANT TO GET THE DATA FROM IN 00_report_settings.R
 
+# Free unused memory
+gc()
+
 # Get basic report info
 source("R/00_report_settings.R")
 source("R/01_directories.R")
@@ -73,6 +76,7 @@ Sys.time() - starttime
 
 
 # Append the appendices using officer -------------------------------------
+gc() # clean up unused memory again (helps for giant data objects)
 
 maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
   body_add_break()

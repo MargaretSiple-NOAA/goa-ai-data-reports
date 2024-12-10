@@ -17,14 +17,14 @@ if (y) {
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
 # x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
-x <- TRUE
+x <- FALSE
 if (x) {
   source("R/05_download_data_from_oracle.R")
 }
 
 # Functions and data prep -------------------------------------------------
 source("R/06_prep_data.R") # Make all the tables and stuff needed for report and pres.
-source("R/06a_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
+source("R/06b_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
 
 # Create tables and figures -----------------------------------------------
 # Each of these source() lines will save a list of outputs as an rdata file for later. And it will print out png's for figs and csvs for tables to output/

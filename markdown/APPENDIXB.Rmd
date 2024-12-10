@@ -30,9 +30,9 @@ appB %>%
   ) %>%
   theme_vanilla() %>%
   fontsize(size = 9, part = "all") %>%
-  width(j = 1, width = 1, unit = "in") %>%
+  width(j = 1, width = 1.5, unit = "in") %>%
   width(j = 2, width = 1.5, unit = "in") %>%
   width(j = 3, width = 2, unit = "in") %>%
   width(j = 4, width = 2, unit = "in") %>%
-  line_spacing(space = 1)
+  line_spacing(space = 0.25)
 ```

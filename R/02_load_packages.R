@@ -22,6 +22,10 @@ if(!"PNWColors" %in% installed.packages()){
   devtools::install_github("jakelawlor/PNWColors")
 }
 
+if(!"gapindex" %in% installed.packages()){
+  devtools::install_github("afsc-gap-products/gapindex")
+}
+
 # List and load required packages -----------------------------------------
 
 PKG <- c(

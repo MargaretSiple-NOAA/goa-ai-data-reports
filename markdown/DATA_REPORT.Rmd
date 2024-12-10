@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
   fig.cap.style = "Image caption",
   fig.cap.pre = "Figure ",
   fig.cap.sep = ". -- ",
-  fig.align = "center"
+  fig.align = "center",crop = TRUE
 )
 
 library(officedown)
@@ -220,7 +220,7 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 <br />
 
 ```{r, echo=FALSE, results='asis'}
-# report_species contains the list of species in the report 
+# report_species contains the list of species in the report
 src <- list()
 
 for (i in 1:nrow(report_species)) { # nrow(report_species)
@@ -229,6 +229,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
 
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
+  spp_name_informal_low <- stringr::str_to_lower(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
 
   year <- maxyr
@@ -343,10 +344,21 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
       show.text <- FALSE
     }
 
-    src[[i]] <- knitr::knit_expand(here::here("markdown", "FishResultTemplate.Rmd"))
-  }
-} # / end if() statement about invertebrates (octopus!)
-
+    # Complexes
+    if (grepl(("[[:alpha:]]"), species_code)) {
+      c_lookup <- dplyr::filter(complex_lookup, complex == species_code)
+      f0 <- complex_lookup[which(complex_lookup$complex == species_code), ]
+      f1 <- f0[1:(nrow(f0) - 1), ]
+      f2 <- paste0(f1$common_name, " (*", f1$species_name, "*), ")
+      f3 <- f0[nrow(f0), ]
+      f4 <- paste0(f3$common_name, " (*", f3$species_name, "*)")
+      src[[i]] <- knitr::knit_expand(here::here("markdown", "ComplexResultTemplate.Rmd"))
+    } else {
+      # Individual species
+      src[[i]] <- knitr::knit_expand(here::here("markdown", "FishResultTemplate.Rmd"))
+    }
+  } # / end if() statement about invertebrates (octopus!)
+} # end for loop
 res <- knitr::knit_child(text = unlist(src), quiet = TRUE, options = )
 cat(res, sep = "\n")
 ```

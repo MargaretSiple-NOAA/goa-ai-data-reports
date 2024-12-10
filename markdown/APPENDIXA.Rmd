@@ -1,0 +1,32 @@
+---
+  output:
+  officedown::rdocx_document: 
+    reference_docx: styles_reference4.docx
+    pandoc_args: ["--metadata-file=header.yaml"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
+library(officedown)
+library(officer)
+library(magrittr)
+library(flextable)
+```
+
+```{r echo=FALSE,tab.cap=paste0('Appendix Table A1. Survey strata used for the ', maxyr,' ',survname_long, ' bottom trawl survey including depth, stratum number, name and area.'), tab.id='a-stratumlist',  tab.cap.style = "Table Caption"}
+a1 |>
+  flextable() |>
+  theme_vanilla() |>
+  fontsize(size = 10, part = "all") |>
+  width(j = 1, width = 1, unit = "in") |>
+  width(j = 2, width = 1, unit = "in") |>
+  width(j = 3, width = 2, unit = "in") |>
+  width(j = 4, width = 2, unit = "in") |>
+  line_spacing(space = 0.5)
+```
+
+<br/>
+
+```{r echo=FALSE,tab.cap=paste0('Appendix Table A2. Summary codes used for the ', survname_long, ' bottom trawl survey including depth, stratum number, name and area.'), tab.id='a-codelist',  tab.cap.style = "Table Caption"}
+data.frame(replace = 1:4,me = letters[1:4]) |> flextable()#placeholder, obviously
+```

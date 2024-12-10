@@ -1,0 +1,55 @@
+\newpage
+
+## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
+
+<!-- These are the summary bullet points. -->
+- The {{spp_name_informal_sen}} includes {{f2}} and {{f4}}.
+
+-  The {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant group caught in the {{year}} {{region}} survey. The total biomass was estimated to be {{species_biomass}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`), which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}}.
+
+-   The largest estimated biomass for the {{spp_name_informal_low}} was in the {{inpfc_highest_biomass}} region and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
+
+-   The highest CPUEs were recorded in the {{inpfc_highest_cpue[1]}} and {{inpfc_highest_cpue[2]}} regions (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
+
+-   Length compositions and size by depth are not shown for complexes; these data are available upon request.
+
+`r if({{show.text}}){paste0("- ","{{sex_diff_sentence}}") }`
+
+\newpage
+
+```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+table3s_list[["{{ species_code }}"]] |>
+  #table3s_list[[as.character(30060)]] |>
+  flextable() |>
+  theme_vanilla() |>
+  fontsize(size = 9, part = "all") |>
+  fit_to_width(max_width = 8, unit = "in") |>
+  align(align = "center", part = "all") |>
+  align(j = 1, align = "left", part = 'body') |>
+  padding(padding = 0, part = "all")
+```
+
+\newpage
+
+```{r echo=FALSE,tab.cap='Summary by survey district (INPFC area), survey subdistrict, and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+
+table4s_list[["{{ species_code }}"]] |>
+# table4s_list[[as.character(30060)]] %>%
+  flextable() |>
+  fix_border_issues() |>
+  theme_vanilla() |>
+  fontsize(size = 7.5, part = "all") |>
+  align(align = "center", part = "all")|>
+  align(j = c(1, 5, 6), align = "left", part = "body") |>
+  align(i = 1, align = "center", part = "header") |>
+  padding(padding = 0, part = "all") |>
+  set_table_properties(layout = "autofit")
+```
+
+<!---BLOCK_LANDSCAPE_START--->
+
+```{r echo=FALSE,fig.cap='Catch-per-unit effort (CPUE, kg/ha; X = no catch) of the {{spp_name_informal_low}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey catches. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
+list_cpue_bubbles_strata[["{{species_code}}"]]
+```
+
+<!---BLOCK_LANDSCAPE_STOP--->
