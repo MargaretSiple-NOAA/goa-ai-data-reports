@@ -27,7 +27,7 @@ make_total_surv_map <- FALSE
 
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
-  stratum_lookup_region <- read.csv("data/local_gap_products/area.csv") |>
+  stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
     dplyr::filter(AREA_TYPE == "STRATUM") |>
     dplyr::select(AREA_ID, DEPTH_MAX_M)
 
@@ -82,7 +82,9 @@ if (SRVY == "GOA") {
   reg_dat_goa <- akgfmaps::get_base_layers(
     select.region = "goa",
     set.crs = "EPSG:3338"
-  )
+  ) |>
+    add_depths()
+  
   reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
     dplyr::mutate(
       SRVY = "GOA",
