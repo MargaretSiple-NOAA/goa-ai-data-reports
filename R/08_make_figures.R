@@ -70,10 +70,15 @@ if (SRVY == "AI") {
 }
 
 if (SRVY == "GOA") {
-  a <- read.csv("data/goa_strata.csv")
-  a <- dplyr::filter(a, SURVEY == "GOA") # MIN_DEPTH < 700 &
-  nstrata <- length(unique(a$STRATUM))
-
+  # a <- read.csv("data/goa_strata.csv")
+  # a <- dplyr::filter(a, SURVEY == "GOA") # MIN_DEPTH < 700 &
+  # nstrata <- length(unique(a$STRATUM))
+  
+  stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
+    dplyr::filter(AREA_TYPE == "STRATUM") |>
+    dplyr::select(AREA_ID, DEPTH_MAX_M)
+  nstrata <- length(unique(stratum_lookup$AREA_ID))
+  
   ndepths <- 6 # number of max depth intervals (for AI, it's 100,200,300,500)
   
   goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
