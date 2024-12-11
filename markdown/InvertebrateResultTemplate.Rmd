@@ -11,15 +11,18 @@
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates with lower and upper 95% confidence limits (CL), and average individual weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table caption",tab.align="left"}
-table3s_list[[as.character({{ species_code }})]][,1:9] %>%
-  #table3s_list[[as.character(30060)]][,1:9] %>%
-  flextable() %>%
-  theme_vanilla() %>%
-  fontsize(size = 9, part = "all") %>%
-  fit_to_width(max_width = 8, unit = "in") %>%
-  align(align = "center", part = "all") %>%
-  align(j = 1, align = "left", part = 'body') %>%
-  padding(padding = 0, part = "all")
+table3s_list[[as.character({{ species_code }})]] %>%
+  flextable() |>
+  theme_vanilla() |>
+  fontsize(size = 9, part = "all") |>
+  fit_to_width(max_width = 8.25, unit = "in") |>
+  align(align = "center", part = "all") |>
+  align(j = 1, align = "left", part = 'body') |>
+  padding(padding = 1, part = "all") |>
+  set_table_properties(layout = "autofit") |>
+  set_header_labels(`Hauls with positive catch` = "Hauls w/\npositive catch",
+                    `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
+                    `Biomass (mt)` = "Biomass\n(mt)")
 ```
 
 
@@ -27,21 +30,24 @@ table3s_list[[as.character({{ species_code }})]][,1:9] %>%
 ```{r echo=FALSE,tab.cap='Summary by survey district (INPFC area), survey subdistrict, and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, and their mean CPUE and biomass estimates with lower and upper 95% confidence limits (CL).', tab.id=paste0("table2-",{{species_code}}),  tab.cap.style = "Table caption",tab.align="left"}
 
 table4s_list[[as.character({{ species_code }})]] %>%
-# table4s_list[[as.character(30060)]] %>%
-  dplyr::mutate_at(.vars = c("Biomass (t)","Lower 95% CL","Upper 95% CL"), biomass_round) %>%
-  flextable() %>%
-  fix_border_issues() %>%
-  theme_vanilla() %>%
-  fontsize(size = 7.5, part = "all") %>%
-  align(align = "center", part = "all") %>%
-  align(j = c(1,3), align = "left", part = "body") %>%
-  align(i = 1, align = "center", part = "header") %>%
-  padding(padding = 0, part = "all") %>%
-  set_table_properties(layout = "autofit")
+# table4s_list[[as.character(78403)]] %>%
+  flextable() |>
+  fix_border_issues() |>
+  theme_vanilla() |>
+  fontsize(size = 9, part = "all") |>
+  fit_to_width(max_width = 8.25, unit = "in") |>
+  align(align = "center", part = "all")|>
+  align(j = c(1, 5, 6), align = "left", part = "body") |>
+  align(i = 1, align = "center", part = "header") |>
+  padding(padding = 1, part = "all")  |>
+  set_table_properties(layout = "autofit") |>
+  set_header_labels(`Hauls with positive catch` = "Hauls w/\npositive catch",
+                    `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
+                    `Biomass (mt)` = "Biomass\n(mt)")
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
 ```{r echo=FALSE,fig.cap='Catch-per-unit effort (CPUE, kg/ha; X = no catch) of {{spp_name_informal}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5, dpi=300}
-list_cpue_bubbles[[as.character({{species_code}})]]
+list_cpue_bubbles_strata[[as.character({{species_code}})]]
 ```
 <!---BLOCK_LANDSCAPE_STOP--->
