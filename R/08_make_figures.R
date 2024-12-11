@@ -74,6 +74,8 @@ if (SRVY == "GOA") {
   a <- dplyr::filter(a, SURVEY == "GOA") # MIN_DEPTH < 700 &
   nstrata <- length(unique(a$STRATUM))
 
+  ndepths <- 6 # number of max depth intervals (for AI, it's 100,200,300,500)
+  
   goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
   goa_inpfc <- goa_all$inpfc.strata
 
@@ -139,13 +141,14 @@ if (SRVY == "AI") {
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
 
-  depthpal <- RColorBrewer::brewer.pal(n = ndepths, name = "Blues")
 } else {
   stratumpal <- lengthen_pal(
     shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
     x = 1:nstrata
   )
 }
+
+depthpal <- RColorBrewer::brewer.pal(n = ndepths, name = "Blues")
 
 # Palette for lines
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
@@ -361,7 +364,6 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       OFLATS = "Other flatfish",
       DEEPFLATS = "Deep-water flatfish",
       DSROX = "Demersal shelf rockfish",
-      NRSSRS = "Northern/southern rock sole",
       SWFLATS = "Shallow-water flatfish",
       SHARKS = "Sharks",
       SKATES = "Skates",
