@@ -724,7 +724,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", namebubble,   "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
@@ -950,7 +950,7 @@ if (make_joy_division_length) {
 
     png(filename = paste0(
       dir_out_figures,
-      report_species$spp_name_informal[i], "_", maxyr, "_joyfreqhist.png"
+      maxyr, "_", report_species$spp_name_informal[i], "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()

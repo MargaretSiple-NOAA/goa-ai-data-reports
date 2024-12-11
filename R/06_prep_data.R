@@ -363,6 +363,11 @@ if(maxyr == 2024){ # get allocation from special sheet with reduced stations
     mutate(YEAR = 2024, SURVEY = SRVY)
 }
 
+# We didn't do bonus stations until 2022:
+if(maxyr <= 2021){
+  all_allocation <- all_allocation |> 
+    mutate(STATION_TYPE = NA)
+}
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 # This like a lookup table for allocating strata to the correct area and depth
