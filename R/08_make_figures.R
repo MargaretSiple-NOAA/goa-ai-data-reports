@@ -21,7 +21,7 @@ make_ldscatter <- TRUE
 # 6. Plot of surface and bottom SST with long term avgs
 make_temp_plot <- TRUE
 # XX. Map of the full survey area with strata and stations
-make_total_surv_map <- FALSE
+if(SRVY=="GOA"){make_total_surv_map <- TRUE} else{make_total_surv_map <- FALSE}
 
 # in report settings, complexes will usually be set to TRUE
 
@@ -70,10 +70,17 @@ if (SRVY == "AI") {
 }
 
 if (SRVY == "GOA") {
-  a <- read.csv("data/goa_strata.csv")
-  a <- dplyr::filter(a, SURVEY == "GOA") # MIN_DEPTH < 700 &
-  nstrata <- length(unique(a$STRATUM))
-
+  # a <- read.csv("data/goa_strata.csv")
+  # a <- dplyr::filter(a, SURVEY == "GOA") # MIN_DEPTH < 700 &
+  # nstrata <- length(unique(a$STRATUM))
+  
+  stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
+    dplyr::filter(AREA_TYPE == "STRATUM") |>
+    dplyr::select(AREA_ID, DEPTH_MAX_M)
+  nstrata <- length(unique(stratum_lookup$AREA_ID))
+  
+  ndepths <- 6 # number of max depth intervals (for AI, it's 100,200,300,500)
+  
   goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
   goa_inpfc <- goa_all$inpfc.strata
 
@@ -139,13 +146,14 @@ if (SRVY == "AI") {
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
 
-  depthpal <- RColorBrewer::brewer.pal(n = ndepths, name = "Blues")
 } else {
   stratumpal <- lengthen_pal(
     shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
     x = 1:nstrata
   )
 }
+
+depthpal <- RColorBrewer::brewer.pal(n = ndepths, name = "Blues")
 
 # Palette for lines
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
@@ -182,7 +190,7 @@ img1 <- png::readPNG(img1_path)
 # attr(img1, "info")
 
 
-# 0b: INPFC areas with stations sampled -----------------------------------
+# 0b: make_total_surv_map: INPFC areas with stations sampled -----------------------------------
 if (make_total_surv_map) {
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
   palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
@@ -361,7 +369,6 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       OFLATS = "Other flatfish",
       DEEPFLATS = "Deep-water flatfish",
       DSROX = "Demersal shelf rockfish",
-      NRSSRS = "Northern/southern rock sole",
       SWFLATS = "Shallow-water flatfish",
       SHARKS = "Sharks",
       SKATES = "Skates",
@@ -717,7 +724,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", namebubble,   "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
@@ -943,7 +950,7 @@ if (make_joy_division_length) {
 
     png(filename = paste0(
       dir_out_figures,
-      report_species$spp_name_informal[i], "_", maxyr, "_joyfreqhist.png"
+      maxyr, "_", report_species$spp_name_informal[i], "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
