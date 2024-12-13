@@ -10,9 +10,9 @@ use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using 
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2024-12-06" # 
-figuredate <- "2024-12-06"
-reportvaluesdate <- "2024-12-06"
+tabledate <- "2024-12-12" # 
+figuredate <- "2024-12-12"
+reportvaluesdate <- "2024-12-12"
 
 
 # Survey information ------------------------------------------------------
@@ -123,3 +123,9 @@ if (pres_or_report == "pres") {
 
 # Reorder based on specified spps order
 report_species <- report_species[order(report_species$reportorder), ]
+
+
+# Define complexes
+complex_lookup0 <- read.csv("data/complex_lookup.csv")
+complex_lookup <- complex_lookup0 |>
+  dplyr::filter(region == SRVY)

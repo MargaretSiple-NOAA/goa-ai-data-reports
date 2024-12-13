@@ -140,9 +140,7 @@ if (!use_gapindex) {
 }
 
 # gapindex: Complexes. create biomass_total and cpue tables from gapindex ----
-complex_lookup0 <- read.csv("data/complex_lookup.csv")
-complex_lookup <- complex_lookup0 |>
-  dplyr::filter(region == SRVY)
+# complex_lookup is defined in report_settings.
 
 ## Connect to Oracle
 channel <- gapindex::get_connected(check_access = F)
