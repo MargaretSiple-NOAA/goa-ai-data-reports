@@ -137,6 +137,8 @@ if (!use_gapindex) {
     dplyr::filter(SURVEY == SRVY & YEAR >= minyr) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::filter(SPECIES_CODE %in% report_species$species_code)
+  
+  rm(sizecomp0)
 }
 
 # gapindex: Complexes. create biomass_total and cpue tables from gapindex ----
@@ -195,6 +197,9 @@ biomass_subarea <- dplyr::bind_rows(
   biomass_subarea_complexes
 )
 
+rm(list=c("biomass_subarea_species",
+          "biomass_subarea_complexes"))
+
 print("Created cpue_table_complexes and biomass_total_complexes.")
 
 # Complexes: create sizecomps ---------------------------------------------
@@ -240,6 +245,8 @@ sizecomp_complexes <- sizecomp_subareas_complexes |>
   as.data.frame()
 
 sizecomp <- rbind(sizecomp, sizecomp_complexes)
+
+rm(list=c("sizecomp_stratum_complexes"))
 
 # Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
 if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
@@ -342,6 +349,7 @@ if (use_gapindex) {
 
   # sizecomps will be assigned later
 
+  rm(list = c("biomass_subarea"))
   print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
 
@@ -689,6 +697,9 @@ for (i in 1:nrow(report_species)) {
 
 
 write.csv(report_pseudolengths, paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"), row.names = FALSE)
+
+#Cleanup 
+rm(list = c("males","females","unsexed","report_pseudolengths"))
 
 # Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps
