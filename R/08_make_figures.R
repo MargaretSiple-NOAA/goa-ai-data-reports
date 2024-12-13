@@ -179,15 +179,7 @@ speciescolors <- lengthen_pal(
 
 # 0. Static figure: INPFC areas ----------------------------------------------
 
-if (SRVY == "AI") {
-  img1_path <- "img/AleutiansMap.png"
-}
-if (SRVY == "GOA") {
-  img1_path <- "img/INPFC_areas_GOA.png"
-}
-
-img1 <- png::readPNG(img1_path)
-# attr(img1, "info")
+# This figure is loaded in knit_report; it is static.
 
 
 # 0b: make_total_surv_map: INPFC areas with stations sampled -----------------------------------
@@ -739,6 +731,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
   list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
 
   save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata"))
+  
+  # Remove intermediary fig lists
+  rm(list = c("list_cpue_bubbles_strata_species",
+  "list_cpue_bubbles_strata_complexes"))
 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
@@ -892,6 +888,8 @@ if (make_joy_division_length) {
   names(list_joy_length) <- report_species$species_code
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
+  
+  rm(list=c("L","L0","L1","L2","L3","joyplot","len2plot2","len2plot"))
   print("Done with joy division plots for length comp.")
 }
 
