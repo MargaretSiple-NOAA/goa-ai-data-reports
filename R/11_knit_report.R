@@ -27,24 +27,33 @@ compare_tab <- read.csv(paste0(dir_in_tables, maxyr, "_","comparison_w_previous_
 
 
 # Load figures ------------------------------------------------------------
-# Static map of region - already loaded?
+# Static map of region
 if (SRVY == "AI") {
   img1_path <- "img/AleutiansMap.png"
-  img1 <- png::readPNG(img1_path)
+}
+if (SRVY == "GOA") {
+  img1_path <- "img/INPFC_areas_GOA.png"
 }
 
+img1 <- png::readPNG(img1_path)
+
+
+# Maps with CPUE
 load(file = paste0(
   dir_in_figures, "list_cpue_bubbles_strata.rdata"
 )) # object: list_cpue_bubbles
 
+# Length comps
 load(file = paste0(
   dir_in_figures, "list_joy_length.rdata"
 )) # object: list_joy_length
 
+# Temperature plots
 load(file = paste0(
   dir_in_figures, "list_temperature.rdata"
 )) # object: list_temperature
 
+# Length by depth plots
 load(file = paste0(
   dir_in_figures, "list_ldscatter.rdata"
 )) # object: list_ldscatter
