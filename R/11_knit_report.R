@@ -1,9 +1,6 @@
 # 11_knit_report
 # MAKE SURE YOU'VE SET THE DATES YOU WANT TO GET THE DATA FROM IN 00_report_settings.R
 
-# Free unused memory
-gc()
-
 # Get basic report info
 source("R/00_report_settings.R")
 source("R/01_directories.R")
@@ -64,6 +61,10 @@ load(file = paste0(dir_in_reportvalues, "/reportvalues.rdata"))
 
 # Render the markdown doc! -----------------------------------------------------
 
+# Free unused memory
+gc()
+
+# Render
 starttime <- Sys.time()
 rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_dir = dir_out_chapters,
