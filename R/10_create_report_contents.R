@@ -17,13 +17,13 @@ if (y) {
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
 # x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
-x <- FALSE
+x <- TRUE
 if (x) {
   source("R/05_download_data_from_oracle.R")
 }
 
 # Functions and data prep -------------------------------------------------
-source("R/06_prep_data.R") # Make all the tables and stuff needed for report and pres.
+source("R/06_prep_data.R") # Make all the tables and stuff needed for report and pres. Includes internal lookup tables.
 source("R/06b_appendix_b.R") # Make the table for Appendix B (also used in main text for species richness summary) - ignore warnings.
 
 # Create tables and figures -----------------------------------------------
@@ -38,19 +38,43 @@ if (z) {
   source(here::here("R", "08_make_figures.R"))
 }
 
-
-# Save all the values needed to make the report so you can easily load later --
-# clean up global env before saving. Can add to this when I find more stuff that we don't actually need in the report Markdown file.
-# The items present in this list are either intermediary (i.e., not objects used in the final report, like ai_central) or they are saved as rdata objects separately (e.g., list_cpue_bubbles)
-#if(SRVY=="AI"){ai_map_layers <- c("ai_central", "ai_east", "ai_west")}else{ai_map_layers <- NULL}
-
+# Clean up environment before saving values -------------------------------
+# Figures and printed tables
 rm(list = c(
-  "bartheme", "bubbletheme", "catch", "haul",
-  "joyplot", "L2", "L3", "linetheme", 
-  "list_cpue_bubbles_strata", #"list_cpue_bubbles_strata",
-  "list_joy_length","list_temperature", "list_ldscatter",
-  "list_tables", "S", "table3s_list", "table4s_list",  "tabledate", 
-  "figuredate", "reportvaluesdate"
+  "list_tables",
+  "top_CPUE",
+  "table3s_list",
+  "table4s_list",
+  "list_cpue_bubbles_strata",
+  "list_joy_length",
+  "list_ldscatter",
+  "list_temperature"
 ))
 
+# Make a table of all the objects in the environment and sort them by size to make sure we are removing the biggest ones! Time/space saver!
+sizes <- vector()
+for (i in ls()) {
+  sizes[i] <- object.size(get(i))
+}
+sort(sizes, decreasing = TRUE)
+
+
+rm(list = c(
+  "x", "cpue_raw", "catch", "S",
+  "biomass_gp", "catch_haul",
+  "reg_dat_ai", "reg_data",
+  "haul", "all",
+  "complexes_data",
+  "sizecomp_subareas_complexes",
+  "length_maxyr_ldscatter",
+  "mod1",
+  "ai_central", "ai_east", "ai_west",
+  "surface_temp_plot", "bottom_temp_plot",
+  "length_maxyr_species",
+  "p2", "plotdat", "biomass_total",
+  "biomass_total_filtered"
+))
+
+# Save all the values needed to make the report so you can easily load later --
+# The items present in this list are either intermediary (i.e., not objects used in the final report, like ai_central) or they are saved as rdata objects separately (e.g., list_cpue_bubbles)
 save(list = ls(), file = paste0(dir_out_todaysrun, "reportvalues.rdata"))
