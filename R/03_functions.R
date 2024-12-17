@@ -324,7 +324,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     )
 
   # Format numbers in CPUE and biomass columns
-  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 2)
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   combo_ord <- combo |>
@@ -379,7 +379,7 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     ) |>
     dplyr::filter(`Hauls with positive catch` > 0) # only show lines for strata where the species appeared
 
-  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 2)
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   return(combo)
