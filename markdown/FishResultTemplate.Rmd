@@ -18,18 +18,21 @@
 
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left",ft.keepnext = FALSE}
 table3s_list[["{{ species_code }}"]] |>
-  #table3s_list[[as.character(30060)]] |>
+  # table3s_list[[as.character(30060)]] |>
   flextable() |>
   theme_vanilla() |>
   fontsize(size = 9, part = "all") |>
   fit_to_width(max_width = 8.25, unit = "in") |>
   align(align = "center", part = "all") |>
-  align(j = 1, align = "left", part = 'body') |>
+  align(j = 1, align = "left", part = "body") |>
   padding(padding = 1, part = "all") |>
   set_table_properties(layout = "autofit") |>
-  set_header_labels(`Hauls with positive catch` = "Hauls w/\npositive catch",
-                    `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
-                    `Biomass (mt)` = "Biomass\n(mt)")
+  set_header_labels(
+    `Hauls with positive catch` = "Hauls w/\npositive catch",
+    #`CPUE (kg/km2)` = "CPUE\n(kg/km2)",
+    `Biomass (mt)` = "Biomass\n(mt)"
+  ) |>
+  compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 \newpage
@@ -50,7 +53,8 @@ table4s_list[["{{ species_code }}"]] |>
   set_table_properties(layout = "autofit") |>
   set_header_labels(`Hauls with positive catch` = "Hauls w/\npositive catch",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
-                    `Biomass (mt)` = "Biomass\n(mt)")
+                    `Biomass (mt)` = "Biomass\n(mt)") |>
+  compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
