@@ -179,18 +179,10 @@ speciescolors <- lengthen_pal(
 
 # 0. Static figure: INPFC areas ----------------------------------------------
 
-if (SRVY == "AI") {
-  img1_path <- "img/AleutiansMap.png"
-}
-if (SRVY == "GOA") {
-  img1_path <- "img/INPFC_areas_GOA.png"
-}
-
-img1 <- png::readPNG(img1_path)
-# attr(img1, "info")
+# This figure is loaded in knit_report; it is static.
 
 
-# 0b: INPFC areas with stations sampled -----------------------------------
+# 0b: make_total_surv_map: INPFC areas with stations sampled -----------------------------------
 if (make_total_surv_map) {
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
   palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
@@ -739,76 +731,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
   list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
 
   save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata"))
+  
+  # Remove intermediary fig lists
+  rm(list = c("list_cpue_bubbles_strata_species",
+  "list_cpue_bubbles_strata_complexes"))
 
   print("Done with CPUE bubble maps showing stratum areas.")
-}
-
-# 3b. CPUE maps - b&w M style bubble plots ----------------------------------------------------------
-if (make_cpue_bubbles) {
-  if (SRVY == "GOA") {
-    reg_dat_goa <- akgfmaps::get_base_layers(
-      select.region = "goa",
-      set.crs = "EPSG:3338"
-    )
-    reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
-      dplyr::mutate(
-        SRVY = "GOA",
-        color = scales::alpha(colour = "grey80", 0.7),
-        SURVEY = "Gulf of Alaska"
-      )
-    reg_data <- reg_dat_goa
-  }
-
-  if (SRVY == "AI") {
-    reg_dat_ai <- akgfmaps::get_base_layers(
-      select.region = "ai",
-      set.crs = "EPSG:3338"
-    )
-    reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
-      dplyr::mutate(
-        SRVY = "AI",
-        color = scales::alpha(colour = "grey80", 0.7),
-        SURVEY = "Aleutian Islands"
-      )
-    reg_data <- reg_dat_ai
-  }
-
-  list_cpue_bubbles <- list()
-
-  for (i in 1:nrow(report_species)) {
-    spbubble <- report_species$species_code[i]
-
-    # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
-    thisyrshauldata <- cpue_raw %>%
-      dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
-      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) %>%
-      st_as_sf(
-        coords = c("longitude_dd_start", "latitude_dd_start"),
-        crs = "EPSG:4326"
-      ) %>%
-      st_transform(crs = reg_data$crs)
-
-    fig <- plot_pa_xbyx(
-      spcode = spbubble,
-      dat = thisyrshauldata,
-      yrs = c(maxyr),
-      key.title = "",
-      row0 = 2, reg_dat = reg_data, dist_unit = "nm", # nautical miles
-      col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
-    ) + theme(plot.margin = margin(-2, 0, -2, 0, "cm"))
-
-    list_cpue_bubbles[[i]] <- fig
-
-    png(filename = paste0(
-      dir_out_figures, maxyr, "_",
-      report_species$spp_name_informal[i], "_CPUE_cpue_bubble.png"
-    ), width = 8, height = 5.5, units = "in", res = 200)
-    print(fig)
-    dev.off()
-  }
-  names(list_cpue_bubbles) <- report_species$species_code
-  save(list_cpue_bubbles, file = paste0(dir_out_figures, "cpue_bubbles.rdata"))
-  print("Done with bubble maps of CPUE.")
 }
 
 # 5. Length frequency - joy division plots ---------------------------------
@@ -960,6 +888,8 @@ if (make_joy_division_length) {
   names(list_joy_length) <- report_species$species_code
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
+  
+  rm(list=c("L","L0","L1","L2","L3","joyplot","len2plot2","len2plot"))
   print("Done with joy division plots for length comp.")
 }
 

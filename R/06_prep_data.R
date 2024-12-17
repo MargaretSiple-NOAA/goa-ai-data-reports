@@ -81,6 +81,18 @@ nhauls_no_btemp <- haul_maxyr %>%
   filter(is.na(GEAR_TEMPERATURE)) %>%
   nrow()
 
+# Special sentence about temperature data
+if (nhauls_no_btemp == 0 & nhauls_no_stemp == 0) {
+  temp_record_sentence <- "Bottom and surface temperature data were recorded for all hauls."
+}
+if (nhauls_no_btemp == 0 & nhauls_no_stemp > 0) {
+  temp_record_sentence <- paste("Temperatures at depth were recorded for all hauls and surface temperature data were recorded for all but", nhauls_no_stemp, "hauls.")
+}
+if (nhauls_no_btemp > 0 & nhauls_no_stemp == 0) {
+  temp_record_sentence <- paste("Surface temperature data were recorded for all hauls and temperatures at depth were recorded for all but", nhauls_no_btemp, "hauls.")
+}
+
+
 # write.csv(file = "hauls_no_stemp.csv",x = hauls_no_stemp)
 # write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
 
@@ -137,12 +149,12 @@ if (!use_gapindex) {
     dplyr::filter(SURVEY == SRVY & YEAR >= minyr) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::filter(SPECIES_CODE %in% report_species$species_code)
+  
+  rm(sizecomp0)
 }
 
 # gapindex: Complexes. create biomass_total and cpue tables from gapindex ----
-complex_lookup0 <- read.csv("data/complex_lookup.csv")
-complex_lookup <- complex_lookup0 |>
-  dplyr::filter(region == SRVY)
+# complex_lookup is defined in report_settings.
 
 ## Connect to Oracle
 channel <- gapindex::get_connected(check_access = F)
@@ -197,6 +209,9 @@ biomass_subarea <- dplyr::bind_rows(
   biomass_subarea_complexes
 )
 
+rm(list=c("biomass_subarea_species",
+          "biomass_subarea_complexes"))
+
 print("Created cpue_table_complexes and biomass_total_complexes.")
 
 # Complexes: create sizecomps ---------------------------------------------
@@ -242,6 +257,8 @@ sizecomp_complexes <- sizecomp_subareas_complexes |>
   as.data.frame()
 
 sizecomp <- rbind(sizecomp, sizecomp_complexes)
+
+rm(list=c("sizecomp_stratum_complexes"))
 
 # Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
 if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
@@ -344,6 +361,7 @@ if (use_gapindex) {
 
   # sizecomps will be assigned later
 
+  rm(list = c("biomass_subarea"))
   print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
 
@@ -530,6 +548,7 @@ L <- L0 %>%
 
 length_maxyr_species <- filter(L, YEAR == maxyr & REGION == SRVY) |>
   dplyr::mutate_at(.vars = "SPECIES_CODE", as.character)
+
 length_maxyr_complexes <- length_maxyr_species |>
   dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
   dplyr::mutate(SPECIES_CODE = case_when(
@@ -611,11 +630,15 @@ lengths_species <- length_maxyr_species |>
     "Lengths collected" = N
   )
 
+# Hereafter, we want to work with only abundance hauls! 
+#haul_maxyr <- subset(haul_maxyr,ABUNDANCE_HAUL=="Y")
+
 meanlengths_area <- length_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
-    "REGION", "VESSEL", "CRUISE"
+    "REGION", "VESSEL", "CRUISE", "YEAR", "HAUL"
   )) %>%
+  dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
   dplyr::summarize(
@@ -630,6 +653,7 @@ meanlengths_depth <- length_maxyr %>%
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
   )) %>%
+  dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   dplyr::group_by(SPECIES_CODE, `Depth range`) %>% # ,
   dplyr::summarize(
@@ -696,6 +720,9 @@ for (i in 1:nrow(report_species)) {
 
 
 write.csv(report_pseudolengths, paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"), row.names = FALSE)
+
+#Cleanup 
+rm(list = c("males","females","unsexed","report_pseudolengths"))
 
 # Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps

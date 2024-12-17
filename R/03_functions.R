@@ -45,7 +45,7 @@ sex_diff_size_statement <- function(species_lengths) {
   z <- ks.test(males, females)
   diff <- ifelse(z$p.value < 0.05, TRUE, FALSE)
   if (diff) {
-    pt_1 <- "There was a sex difference in length within this species; "
+    pt_1 <- "Males and females of this species differed in size; "
     # which of the sexes are larger?
     if (sum(males) > sum(females)) {
       pt_2 <- paste0("males (mean FL ", round(sum(males) / 10, digits = 2), ") are generally longer than females (mean FL ", round(sum(females) / 10, digits = 2), " cm).")
@@ -324,7 +324,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     )
 
   # Format numbers in CPUE and biomass columns
-  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 2)
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   combo_ord <- combo |>
@@ -379,7 +379,7 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     ) |>
     dplyr::filter(`Hauls with positive catch` > 0) # only show lines for strata where the species appeared
 
-  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 2)
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   return(combo)

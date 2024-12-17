@@ -147,6 +147,8 @@ a <- dplyr::filter(
 
 write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
+print("Finished downloading GAP_PRODUCTS.BIOMASS")
+
 # size comps - recreate the sizecomp table as it was in AI and GOA schemas
 # MAY NEED TO WORK ON THIS MORE LATER. THIS SHOULD DOWNLOAD THE RAW TABLE AND THAT SHOULD BE PROCESSED LATER.
 
@@ -173,6 +175,8 @@ a <- dplyr::filter(
 
 write.csv(x = a, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
 
+print("Finished downloading GAP_PRODUCTS.SIZECOMP")
+
 # stratum groups
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
 a <- dplyr::filter(
@@ -184,10 +188,10 @@ write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FAL
 
 # CPUE table
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.CPUE")
-cpue <- a
 
 write.csv(x = a, "./data/local_gap_products/cpue.csv", row.names = FALSE)
 
+print("Finished downloading GAP_PRODUCTS.CPUE")
 print("Finished downloading GAP_PRODUCTS tables.")
 
 # Ex-vessel prices --------------------------------------------------------
@@ -203,4 +207,4 @@ if (SRVY == "GOA") {
   print("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
 }
 
-
+print("Finished downloading all the Oracle tables.")

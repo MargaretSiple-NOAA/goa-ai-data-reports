@@ -1,9 +1,6 @@
 # 11_knit_report
 # MAKE SURE YOU'VE SET THE DATES YOU WANT TO GET THE DATA FROM IN 00_report_settings.R
 
-# Free unused memory
-gc()
-
 # Get basic report info
 source("R/00_report_settings.R")
 source("R/01_directories.R")
@@ -30,24 +27,33 @@ compare_tab <- read.csv(paste0(dir_in_tables, maxyr, "_","comparison_w_previous_
 
 
 # Load figures ------------------------------------------------------------
-# Static map of region - already loaded?
+# Static map of region
 if (SRVY == "AI") {
   img1_path <- "img/AleutiansMap.png"
-  img1 <- png::readPNG(img1_path)
+}
+if (SRVY == "GOA") {
+  img1_path <- "img/INPFC_areas_GOA.png"
 }
 
+img1 <- png::readPNG(img1_path)
+
+
+# Maps with CPUE
 load(file = paste0(
   dir_in_figures, "list_cpue_bubbles_strata.rdata"
 )) # object: list_cpue_bubbles
 
+# Length comps
 load(file = paste0(
   dir_in_figures, "list_joy_length.rdata"
 )) # object: list_joy_length
 
+# Temperature plots
 load(file = paste0(
   dir_in_figures, "list_temperature.rdata"
 )) # object: list_temperature
 
+# Length by depth plots
 load(file = paste0(
   dir_in_figures, "list_ldscatter.rdata"
 )) # object: list_ldscatter
@@ -64,6 +70,10 @@ load(file = paste0(dir_in_reportvalues, "/reportvalues.rdata"))
 
 # Render the markdown doc! -----------------------------------------------------
 
+# Free unused memory
+gc()
+
+# Render
 starttime <- Sys.time()
 rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_dir = dir_out_chapters,

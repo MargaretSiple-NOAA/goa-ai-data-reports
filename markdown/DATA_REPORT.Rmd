@@ -291,10 +291,12 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     dplyr::select(`Depth (m)`) %>%
     as.character()
   depth_highest_biomass <- paste0(depth_highest_biomass0, "&nbsp;", "m")
-
+  
+  # Octopus
   if (species_code == 78403) { # true/false, if it's for octopus don't make length comp or length scatter figs and use a different template maybe
     src[[i]] <- knitr::knit_expand(here::here("markdown", "InvertebrateResultTemplate.Rmd"))
   } else {
+  # Fish and fish complexes
     region_longest <- meanlengths_area %>%
       dplyr::filter(SPECIES_CODE == species_code) %>%
       top_n(1, `Mean length`) %>%
@@ -359,7 +361,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     }
   } # / end if() statement about invertebrates (octopus!)
 } # end for loop
-res <- knitr::knit_child(text = unlist(src), quiet = TRUE, options = )
+res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
 cat(res, sep = "\n")
 ```
 
