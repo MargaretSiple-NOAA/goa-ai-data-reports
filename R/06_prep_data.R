@@ -81,6 +81,19 @@ nhauls_no_btemp <- haul_maxyr %>%
   filter(is.na(GEAR_TEMPERATURE)) %>%
   nrow()
 
+# Special sentence about temperature data
+if (nhauls_no_btemp == 0 & nhauls_no_stemp == 0) {
+  temp_record_sentence <- "Bottom and surface temperature data were recorded for all hauls."
+}
+if (nhauls_no_btemp == 0 & nhauls_no_stemp > 0) {
+  temp_record_sentence <- paste("Temperatures at depth were recorded for all hauls and surface temperature data were recorded for all but", nhauls_no_stemp, "hauls.")
+}
+if (nhauls_no_btemp > 0 & nhauls_no_stemp == 0) {
+  temp_record_sentence <- paste("Surface temperature data were recorded for all hauls and temperatures at depth were recorded for all but", nhauls_no_btemp, "hauls.")
+}
+
+temp_record_sentence <- Temperatures at depth were recorded for all but `r nhauls_no_btemp` of the hauls and surface temperature data were recorded for all but `r nhauls_no_stemp` hauls. 
+
 # write.csv(file = "hauls_no_stemp.csv",x = hauls_no_stemp)
 # write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
 
@@ -531,6 +544,7 @@ L <- L0 %>%
 
 length_maxyr_species <- filter(L, YEAR == maxyr & REGION == SRVY) |>
   dplyr::mutate_at(.vars = "SPECIES_CODE", as.character)
+
 length_maxyr_complexes <- length_maxyr_species |>
   dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
   dplyr::mutate(SPECIES_CODE = case_when(
@@ -612,11 +626,15 @@ lengths_species <- length_maxyr_species |>
     "Lengths collected" = N
   )
 
+# Hereafter, we want to work with only abundance hauls! 
+#haul_maxyr <- subset(haul_maxyr,ABUNDANCE_HAUL=="Y")
+
 meanlengths_area <- length_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
-    "REGION", "VESSEL", "CRUISE"
+    "REGION", "VESSEL", "CRUISE", "YEAR", "HAUL"
   )) %>%
+  dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
   dplyr::summarize(
@@ -631,6 +649,7 @@ meanlengths_depth <- length_maxyr %>%
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
   )) %>%
+  dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
   dplyr::group_by(SPECIES_CODE, `Depth range`) %>% # ,
   dplyr::summarize(
