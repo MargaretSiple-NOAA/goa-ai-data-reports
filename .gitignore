@@ -40,10 +40,13 @@ vignettes/*.pdf
 /data/local_gap_products
 /data/local_goa_processed
 /data/local_ai_processed
+/data/ai2022_missing_temp_data_filled.csv
 /data/length_ADFG.csv
 /data/specimen_ADFG.csv
-/data/ai2022_missing_temp_data_filled.csv
 /data/Catch_Summary_All.csv
+/data/length_ADFG.csv
+/data/specimen_ADFG.csv
+/data/GOA_allyrs_appendix_a2.csv
 gdrive/
 output/
 bonus/
