@@ -91,6 +91,9 @@ if (nhauls_no_btemp == 0 & nhauls_no_stemp > 0) {
 if (nhauls_no_btemp > 0 & nhauls_no_stemp == 0) {
   temp_record_sentence <- paste("Surface temperature data were recorded for all hauls and temperatures at depth were recorded for all but", nhauls_no_btemp, "hauls.")
 }
+if(nhauls_no_btemp > 0 & nhauls_no_stemp > 0){
+  temp_record_sentence <- paste("Bottom temperatures were recorded for all but", nhauls_no_btemp, "hauls and surface temperature data were recorded for all but", nhauls_no_stemp, "hauls.")
+}
 
 
 # write.csv(file = "hauls_no_stemp.csv",x = hauls_no_stemp)
