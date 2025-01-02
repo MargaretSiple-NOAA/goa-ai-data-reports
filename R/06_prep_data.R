@@ -27,7 +27,7 @@ species_names <- species_names0 %>%
   add_row(
     species_code = c("OROX", "OFLATS", "REBS"),
     scientific_name = c("Several species", "Several species", "Sebastes aleutianus and Sebastes melanosticus"),
-    common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/balckspotted complex"),
+    common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/blackspotted complex"),
     major_group = c("Rockfish", "Flatfish", "Rockfish")
   )
 
