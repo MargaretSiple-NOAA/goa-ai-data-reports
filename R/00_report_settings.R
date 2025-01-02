@@ -54,8 +54,8 @@ captain1 <- "Dan Carney"
 captain2 <- "Brian Beaver"
 
 # Internal reviewers
-reviewer1 <- "Sarah T. Friedman"
-reviewer2 <- "Christopher Anderson"
+reviewer1 <- "Pearl G. Rojas"
+reviewer2 <- "Bianca Prohaska"
 
 ref_compareyr <- "@von_szalay_data_2017" # should be included in cite/bibliography.bib
 
