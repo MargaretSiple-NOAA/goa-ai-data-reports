@@ -17,12 +17,8 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 targetn <- read.csv(here::here("data", "target_n.csv"))
 
 # Otolith targets ---------------------------------------------------------
-if (maxyr == 2021) {
-  df <- read.csv(here::here("data", paste0("GOA", 2023, "_otolith_targets.csv")))
-  print("Using replacement oto target table because we don't have oto targets for 2021.")
-  } else {
-  df <- read.csv(here::here("data", paste0(SRVY, maxyr, "_otolith_targets.csv")))
-}
+
+df <- read.csv(here::here("data", paste0(SRVY, maxyr, "_otolith_targets.csv")))
 
 otos_target_sampled <- df |>
   dplyr::mutate(percent.diff = round((collection - target) / target * 100)) |>

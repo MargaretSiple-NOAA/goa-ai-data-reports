@@ -385,6 +385,13 @@ if(maxyr == 2024){ # get allocation from special sheet with reduced stations
 }
 
 
+# We didn't do bonus stations until 2022:
+
+if(maxyr <= 2021){
+  all_allocation <- all_allocation |> 
+  mutate(STATION_TYPE = "before_2022")
+}
+
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 # This like a lookup table for allocating strata to the correct area and depth
 dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
