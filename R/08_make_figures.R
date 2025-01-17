@@ -996,33 +996,35 @@ if (make_ldscatter) {
 if (make_temp_plot) {
   list_temperature <- list()
 
-  sstdat <- haul %>%
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) %>%
-    group_by(YEAR) %>%
+  sstdat <- haul |>
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
+    filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) |>
+    filter(PERFORMANCE >=0) |>
+    group_by(YEAR) |>
     dplyr::summarize(
       bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
       surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
-    ) %>%
-    ungroup() %>%
-    as.data.frame() %>%
+    ) |>
+    ungroup() |>
+    as.data.frame() |>
     mutate(YEAR = as.numeric(YEAR))
 
   if (SRVY == "GOA") {
-    sstdat <- sstdat %>% filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
+    sstdat <- sstdat |> filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
   }
 
-  sst_summary <- sstdat %>%
+  sst_summary <- sstdat |>
     mutate(
       bottom_stz = bottom - mean(bottom, na.rm = T),
       surface_stz = surface - mean(surface, na.rm = T)
-    ) %>%
+    ) |>
     pivot_longer(cols = bottom:surface_stz)
 
-  plotdat <- haul %>%
-    mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
-    filter(REGION == SRVY & YEAR != 1997) %>% # YEAR >= 1994 &
-    filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
+  plotdat <- haul |>
+    mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
+    filter(PERFORMANCE >=0) |>
+    filter(REGION == SRVY & YEAR != 1997) |> # YEAR >= 1994 &
+    filter(CRUISE != 201402) |> # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
 
   bottom_temp_20yr <- plotdat |>
@@ -1039,7 +1041,7 @@ if (make_temp_plot) {
     Start_year = c(maxyr - 10, maxyr - 20)
   )
 
-  bottom_temp_plot <- plotdat %>%
+  bottom_temp_plot <- plotdat |>
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
     ggdist::stat_halfeye(

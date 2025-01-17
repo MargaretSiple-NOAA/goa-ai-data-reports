@@ -85,6 +85,10 @@ Sys.time() - starttime
 #  for all species: about 12 mins
 
 
+# Make the appendices -----------------------------------------------------
+# These will print to the output/[date]/chapters/ directory
+source("R/12_make_appendices.R")
+
 # Append the appendices using officer -------------------------------------
 gc() # clean up unused memory again (helps for giant data objects)
 

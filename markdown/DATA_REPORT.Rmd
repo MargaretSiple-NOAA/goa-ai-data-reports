@@ -132,7 +132,7 @@ list_tables[["length-sample-sizes"]] %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea). Black dots = isobaths from 100–500 m and stations sampled.', 'Map of the GOA 2023 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
+```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea).', 'Map of the GOA 2025 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
 if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 ```
 
@@ -171,12 +171,14 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 <br />
 
-```{r fig.cap='Gear temperature measured at the headrope of the trawl. Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Dotted lines show the mean gear temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+
+```{r fig.cap='Gear temperature measured at the headrope of the trawl. Larger brown points represent the median. Shaded distributions represent the density of measurements. Dotted lines show the mean gear temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 list_temperature[['bottomtemp']]
 ```
 
 <br />
 <br />
+
 
 ```{r fig.cap='Surface temperatures as measured at the trawl. Brown points represent the median.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 list_temperature[['surfacetemp']]
