@@ -171,14 +171,14 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 <br />
 
-```{r fig.cap='Gear temperature measured at the headrope of the trawl. Larger brown points represent the median. Shaded distributions represent the density of measurements. Dotted lines show the mean gear temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Gear temperature measured at the headrope of the trawl. Larger brown points represent the median. Shaded distributions represent the density of measurements. Dotted lines show the mean bottom (gear) temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 list_temperature[['bottomtemp']]
 ```
 
 <br />
 <br />
 
-```{r fig.cap='Surface temperatures as measured at the trawl. Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Dotted lines show the mean gear temperature over the past 10 and 20 years.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Surface temperatures as measured at the trawl. Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Dotted lines show the mean surface temperature over the past 10 and 20 years.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 list_temperature[['surfacetemp']]
 ```
 
