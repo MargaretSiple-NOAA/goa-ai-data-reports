@@ -10,9 +10,9 @@ use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using 
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2024-12-16" # 
-figuredate <- "2024-12-16"
-reportvaluesdate <- "2024-12-16"
+tabledate <- "2025-02-27" # 
+figuredate <- "2025-02-27"
+reportvaluesdate <- "2025-02-27"
 
 
 # Survey information ------------------------------------------------------
