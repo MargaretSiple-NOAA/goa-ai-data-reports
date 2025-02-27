@@ -32,9 +32,10 @@ species_names <- species_names0 %>%
   )
 
 # This year's haul data
-haul_maxyr <- haul %>%
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
-  filter(REGION == SRVY & YEAR == maxyr)
+haul_maxyr <- haul |>
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # extract year
+  filter(REGION == SRVY & YEAR != 1997) |> #YEAR >= 1994 & 
+  filter(REGION == SRVY & YEAR == maxyr & ABUNDANCE_HAUL =="Y")
 
 # This year's survey number
 cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
