@@ -693,7 +693,8 @@ for (i in 1:nrow(report_species)) {
   }
 
   males <- sizecomp1 |>
-    filter(SPECIES_CODE == sp_code) |>
+    dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
+    dplyr::filter(SPECIES_CODE == sp_code) |>
     dplyr::group_by(YEAR) |>
     dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) |>
     dplyr::mutate(prop_10k = round(prop_10k)) |>
@@ -704,6 +705,7 @@ for (i in 1:nrow(report_species)) {
     mutate(Sex = "Male")
 
   females <- sizecomp1 |>
+    dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
     filter(SPECIES_CODE == sp_code) |>
     dplyr::group_by(YEAR) |>
     dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) |> # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
@@ -715,6 +717,7 @@ for (i in 1:nrow(report_species)) {
     mutate(Sex = "Female")
 
   unsexed <- sizecomp1 |>
+    dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
     filter(SPECIES_CODE == sp_code) |>
     dplyr::group_by(YEAR) |>
     dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) |>
