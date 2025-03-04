@@ -356,15 +356,15 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
     # title for plot title:
     namebubble <- switch(complex_code,
-      REBS = "Rougheye/blackspotted rockfish",
-      OROX = "Other rockfish",
-      OFLATS = "Other flatfish",
-      DEEPFLATS = "Deep-water flatfish",
-      DSROX = "Demersal shelf rockfish",
-      SWFLATS = "Shallow-water flatfish",
-      SHARKS = "Sharks",
-      SKATES = "Skates",
-      THORNYHEADS = "Thornyheads"
+      REBS = "rougheye/blackspotted rockfish",
+      OROX = "other rockfish",
+      OFLATS = "other flatfish",
+      DEEPFLATS = "deep-water flatfish",
+      DSROX = "demersal shelf rockfish",
+      SWFLATS = "shallow-water flatfish",
+      SHARKS = "sharks",
+      SKATES = "skates",
+      THORNYHEADS = "thornyheads"
     )
 
     thisyrshauldata <- cpue_table_complexes |>
@@ -550,7 +550,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     "THORNYHEADS"
   ))
 
-  for (i in 1:length(bubble_index)) { # nrow(report_species)
+  for (i in 1:length(bubble_index)) { 
 
     spbubble <- report_species$species_code[bubble_index[i]]
     namebubble <- report_species$spp_name_informal[bubble_index[i]]
