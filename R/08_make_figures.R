@@ -889,7 +889,7 @@ if (make_joy_division_length) {
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
   
-  rm(list=c("L","L0","L1","L2","L3","joyplot","len2plot2","len2plot"))
+  rm(list=c("L","L0","L2","L3","joyplot","len2plot2","len2plot"))
   print("Done with joy division plots for length comp.")
 }
 
