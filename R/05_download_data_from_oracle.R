@@ -12,10 +12,7 @@ if (!file.exists("data/local_goa_processed")) dir.create("data/local_goa_process
 
 # Setup channel to connect to Oracle --------------------------------------
 
-source("R/setup_channel.R")
-
-# The setup_channel.R script sets up a channel using your Oracle username and pw.
-
+channel <- gapindex::get_connected(db = "AFSC")
 
 ################## DOWNLOAD TABLES##########################################
 # RACEBASE ----------------------------------------------------------------
