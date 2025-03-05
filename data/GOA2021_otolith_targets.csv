@@ -1,20 +1,20 @@
 species,target,collection,diff,% diff,notes
-Atka mackerel,200,,,,all up to 10
+Atka mackerel,100,,,,all up to 20
 Walleye pollock,1500,,,,"5 random if catch=10-500 pollock; 10 if catch > 500. If juveniles <25 cm dominate in any catch, only collect otoliths from 2 of the < 25 fish and allocate the remainder of the sample to larger fish."
 Pacific Cod,1000,,,,"None when <10, 5 when 10-100, 10 when > 100"
 Northern rock sole,500,,,,"None when <10, 5 when 10-100, 10 when > 100"
 Southern rock sole,500,,,,"None when <10, 5 when 10-100, 10 when > 100"
-Rex sole,500,,,,None when < 10; 3  when >= 10
-Dover sole,500,,,,"None when <10,  5 when 10-100, 10 when > 100"
-Flathead sole,500,,,,"None when <10,  3 when 10-100,  5 when > 100"
+Rex sole,500,,,,None when < 10; 3 when >= 10
+Dover sole,500,,,,"2 <10, 5 when 10-100, 10 when > 100"
+Flathead sole,500,,,,"None when <10, 3 when 10-100, 5 when > 100"
 arrowtooth flounder,900,,,,"None when <2, 2 when >=2"
-Shortspine thornyhead,350,,,,"None when <10, 4 when  >= 10"
+Shortspine thornyhead,350,,,,"None when <10, 4 when >= 10"
 Rougheye rockfish,400,,,,N/A
 Blackspotted rockfish,500,,,,N/A
 Pacific ocean perch,1000,,,,all up to 5
-Northern rockfish,700,,,,all up to 10
+Northern rockfish,700,,,,all up to 20
 Shortraker rockfish,400,,,,N/A
 Dusky rockfish,500,,,,all up to 10
-Sharpchin rockfish,200,,,,N/A
-Redstripe rockfish,200,,,,N/A
-Sablefish,600,,,,ALL 15 random sablefish per tow @ stations <200 m
+Sharpchin rockfish,200,,,,Ocean Explorer only
+Redstripe rockfish,200,,,,Alaska Provider only
+Sablefish,600,,,,ALL 10 random sablefish per tow @ stations <200 m
