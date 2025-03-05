@@ -25,10 +25,22 @@ species_names <- species_names0 %>%
     species_code = as.character(species_code)
   ) |> # add column for species category
   add_row(
-    species_code = c("OROX", "OFLATS", "REBS", "DEEPFLATS", "DSROX", "NRSSRS", "SWFLATS", "SHARKS", "SKATES", "THORNYHEADS"),
-    scientific_name = c("Several species", "Several species", "Sebastes aleutianus and Sebastes melanosticus", "Several species", "Several species", "Lepidopsetta polyxystra and L. bilineata", "Several species", "Several species", "Sebastolobus sp."),
-    common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/blackspotted complex", "Deepwater flatfish complex", "Demersal shelf rockfish", "Northern and southern rock sole complex", "Shallow-water flatfish complex", "Sharks", "Skates", "Thornyheads"),
-    major_group = c("Rockfish", "Flatfish", "Rockfish", "Flatfish", "Rockfish", "Flatfish", "Flatfish", "Chondrichthyans", "Chondrichthyans", "Thornyheads")
+    species_code = c("OROX", "OFLATS", "REBS", 
+                     "DEEPFLATS", "DSROX", "NRSSRS", 
+                     "SWFLATS", "SHARKS", "SKATES", 
+                     "THORNYHEADS"),
+    scientific_name = c("Several species", "Several species", "Sebastes aleutianus and Sebastes melanosticus", 
+                        "Several species", "Several species", "Lepidopsetta polyxystra and L. bilineata", 
+                        "Several species", "Several species", "Several species", 
+                        "Sebastolobus sp."),
+    common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/blackspotted complex", 
+                    "Deepwater flatfish complex", "Demersal shelf rockfish", "Northern and southern rock sole complex", 
+                    "Shallow-water flatfish complex", "Sharks", "Skates", 
+                    "Thornyheads"),
+    major_group = c("Rockfish", "Flatfish", "Rockfish", 
+                    "Flatfish", "Rockfish", "Flatfish", 
+                    "Flatfish", "Chondrichthyans", "Chondrichthyans", 
+                    "Thornyheads")
   )
 
 # This year's haul data
