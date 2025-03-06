@@ -529,7 +529,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, complex_code, "_", maxyr, "_bubble.png"),
+      filename = paste0(dir_out_figures,  maxyr, "_", complex_code, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
