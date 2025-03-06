@@ -370,7 +370,7 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 
   combo <- combo0 |>
     dplyr::rename(
-      "Stratum name" = AREA_NAME,
+      "Area name" = AREA_NAME,
       "Depth (m)" = DEPTH_RANGE,
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,

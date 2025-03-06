@@ -38,7 +38,7 @@ table3s_list[["{{ species_code }}"]] |>
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by survey district (INPFC area), survey subdistrict, and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left",ft.keepnext = FALSE}
+```{r echo=FALSE,tab.cap='Summary by area and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left",ft.keepnext = FALSE}
 
 table4s_list[["{{ species_code }}"]] |>
 # table4s_list[[as.character(30060)]] %>%
