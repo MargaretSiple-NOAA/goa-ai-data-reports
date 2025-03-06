@@ -338,7 +338,6 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 #' Make Table 4 - summary of CPUE and biomass by stratum
 #'
 #' @param species_code five-digit species code
-#' @param survey "GOA" or "AI"
 #' @param year  Year of survey
 #' @param biomass_tbl BIOMASS table, taken straight from GAP_PRODUCTS, then filtered to the survey definition ID in report_settings.R
 #' @param area_tbl AREA table taken straight from GAP_PRODUCTS
@@ -370,15 +369,16 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 
   combo <- combo0 |>
     dplyr::rename(
-      "Stratum name" = AREA_NAME,
+      "Area name" = AREA_NAME,
       "Depth (m)" = DEPTH_RANGE,
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
       "Biomass (mt)" = BIOMASS_MT
     ) |>
-    dplyr::filter(`Hauls with positive catch` > 0) # only show lines for strata where the species appeared
-
+    dplyr::filter(`Hauls with positive catch` > 0) |> # only show lines for strata where the species appeared
+    dplyr::arrange(desc(`Area name`))
+  
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
