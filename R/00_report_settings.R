@@ -31,9 +31,9 @@ if (maxyr %% 2 != 0 && SRVY == "AI") {
 
 
 if (SRVY == "AI") {
-  dates_conducted <- "the 5th of June through the 3rd of August, 2024" # Change this for the year!
+  dates_conducted <- "the 5th of June through the 3rd of August" # 2024 - Change this for the year! 
 } else {
-  dates_conducted <- "the 18th of May through the 6th of August, 2021"
+  dates_conducted <- "the 18th of May through the 6th of August" # 2021
 }
 
 
