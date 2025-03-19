@@ -178,7 +178,7 @@ list_temperature[['bottomtemp']]
 <br />
 <br />
 
-```{r fig.cap='Surface temperatures as measured at the trawl. Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Horizontal lines show the mean surface temperature over the past 10 and 20 years.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Surface temperatures from the survey. Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Horizontal lines show the mean surface temperature over the past 10 and 20 years.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 list_temperature[['surfacetemp']]
 ```
 
