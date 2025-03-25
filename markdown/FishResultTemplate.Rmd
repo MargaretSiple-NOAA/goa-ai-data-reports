@@ -67,7 +67,7 @@ list_cpue_bubbles_strata[["{{species_code}}"]]
 
 <!---BLOCK_LANDSCAPE_STOP--->
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey since the start of the sampling stanza. The dotted vertical line indicates median length. {{combo_id_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey since the start of the sampling stanza. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
 list_joy_length[["{{species_code}}"]]
 ```
 
