@@ -314,23 +314,11 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
       as.numeric() %>%
       format(big.mark = ",")
 
-    if (species_code %in% c(
-      c(10260, 10261, 10262, 10263) # ,
-      # c(10110, 10112)
-    )) {
-      combo_id_sentence <- "Since this species was not identified as distinct from its close congener for the entirety of the survey time period, combined lengths are presented in grey for the full time series. The years in the time series before this species was identified as separate, with confidence, are marked with an asterisk."
-    } else {
-      if (species_code %in%
-        c(
-          30050, 30051, 30052,
-          10261, 10262
-        )) {
-        # The REBS combo starts at 2006 anyway so remove the comment about the asterisk:
-        combo_id_sentence <- "Since this species was not identified as distinct from its close congener for the entirety of the survey time period, combined lengths are presented in grey for the full time series."
-      } else {
-        combo_id_sentence <- ""
-      }
-    }
+        if (species_code %in% c(232, 420, 435, 440, 471, 472, 480)) {
+          skate_len_sentence <- "Note that prior to 1999, skate lengths were measured as body length (without tail)."
+        } else {
+          skate_len_sentence <- ""
+        }
 
     if (species_code %in% c(30060, 10110, 21740, 21720, 10120, 20510)) { # "the big six"
       # Check if there is a sex difference
