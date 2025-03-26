@@ -314,6 +314,8 @@ for (i in 1:3) { # nrow(report_species)
 
     if (species_code %in% c(232, 420, 435, 440, 471, 472, 480)) {
       skate_len_sentence <- "Note that prior to 1999, skate lengths were measured as body length (without tail)."
+    }else{
+      skate_len_sentence <- ""
     }
 
     if (species_code %in% c(30060, 10110, 21740, 21720, 10120, 20510)) { # "the big six"
