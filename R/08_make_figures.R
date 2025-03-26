@@ -529,7 +529,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, complex_code, "_", maxyr, "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", complex_code, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
@@ -811,8 +811,8 @@ if (make_joy_division_length) {
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
-    # SSTH or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
-    if (report_species$species_code[i] %in% c(30020, 21341)) {
+    # SSTH, YIL, darkfin sculpin only show Unsexed; all other spps show only sexed lengths
+    if (report_species$species_code[i] %in% c(30020, 21341, 21347)) {
       len2plot <- len2plot
     } else {
       len2plot <- len2plot %>%
