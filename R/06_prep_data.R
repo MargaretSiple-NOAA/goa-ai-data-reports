@@ -442,7 +442,7 @@ if (SRVY == "AI") {
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
 haul2 <- haul %>%
-  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+  mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
   filter(YEAR == maxyr & REGION == SRVY)
 
 avg_net_height <- haul %>%
