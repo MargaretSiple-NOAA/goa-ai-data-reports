@@ -751,15 +751,10 @@ if (make_joy_division_length) {
 
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
-  L <- L0 |>
-    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
-  # length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
-  L2 <- L |> # L is the big length table from RACEBASE
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(REGION == SRVY) # want to keep all years for this fig
-
-  L3 <- L2 |>
+  L3 <- L0 |>
+    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # L is the big length table from RACEBASE
+    dplyr::filter(REGION == SRVY) |> # want to keep all years for this fig 
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
     dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
     left_join(region_lu, by = "STRATUM") |>
@@ -807,12 +802,12 @@ if (make_joy_division_length) {
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
   # Loop thru species
-  for (i in 1:nrow(report_species)) {
+  for (i in 1:nrow(report_species)) { #
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
     # SSTH, YIL, darkfin sculpin only show Unsexed; all other spps show only sexed lengths
-    if (report_species$species_code[i] %in% c(30020, 21341, 21347)) {
+    if (report_species$species_code[i] %in% c(30020, 21341, 21347, "THORNYHEADS")) {
       len2plot <- len2plot
     } else {
       len2plot <- len2plot %>%
@@ -889,7 +884,7 @@ if (make_joy_division_length) {
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
   
-  rm(list=c("L","L0","L2","L3","joyplot","len2plot2","len2plot"))
+  rm(list=c("L0","L3","joyplot","len2plot2","len2plot"))
   print("Done with joy division plots for length comp.")
 }
 
