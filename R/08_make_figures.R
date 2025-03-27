@@ -21,7 +21,11 @@ make_ldscatter <- TRUE
 # 6. Plot of surface and bottom SST with long term avgs
 make_temp_plot <- TRUE
 # XX. Map of the full survey area with strata and stations
-if(SRVY=="GOA"){make_total_surv_map <- TRUE} else{make_total_surv_map <- FALSE}
+if (SRVY == "GOA") {
+  make_total_surv_map <- TRUE
+} else {
+  make_total_surv_map <- FALSE
+}
 
 # in report settings, complexes will usually be set to TRUE
 
@@ -70,35 +74,32 @@ if (SRVY == "AI") {
 }
 
 if (SRVY == "GOA") {
-  # a <- read.csv("data/goa_strata.csv")
-  # a <- dplyr::filter(a, SURVEY == "GOA") # MIN_DEPTH < 700 &
-  # nstrata <- length(unique(a$STRATUM))
-  
   stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
-    dplyr::filter(AREA_TYPE == "STRATUM") |>
+    dplyr::filter(AREA_TYPE == "STRATUM" & DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025)) |>
     dplyr::select(AREA_ID, DEPTH_MAX_M)
   nstrata <- length(unique(stratum_lookup$AREA_ID))
+
+  ndepths <- length(unique(stratum_lookup$DEPTH_MAX_M)) # number of max depth intervals (for AI, it's 100,200,300,500)
+
+  goa_all <- akgfmaps::get_base_layers(
+    select.region = "goa",
+    set.crs = "auto",
+    design.year = ifelse(maxyr < 2025, 1984, 2025)
+  ) |>
+    add_depths()
   
-  ndepths <- 6 # number of max depth intervals (for AI, it's 100,200,300,500)
-  
-  goa_all <- akgfmaps::get_base_layers(select.region = "goa", set.crs = "auto")
   goa_inpfc <- goa_all$inpfc.strata
 
   geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
 
-  reg_dat_goa <- akgfmaps::get_base_layers(
-    select.region = "goa",
-    set.crs = "EPSG:3338"
-  ) |>
-    add_depths()
-  
-  reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+  goa_all$survey.area <- goa_all$survey.area |>
     dplyr::mutate(
       SRVY = "GOA",
       color = scales::alpha(colour = "grey80", 0.7),
       SURVEY = "Gulf of Alaska"
     )
-  reg_data <- reg_dat_goa
+
+  reg_data <- goa_all
 }
 
 
@@ -145,7 +146,6 @@ if (SRVY == "AI") {
     x = 1:nstrata
   ) |>
     colorspace::lighten(amount = 0.3, space = "HCL")
-
 } else {
   stratumpal <- lengthen_pal(
     shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
@@ -191,12 +191,12 @@ if (make_total_surv_map) {
   #  Base map
   p1 <- ggplot() +
     geom_sf(data = goa_all$akland) +
-    geom_sf(data = goa_inpfc, aes(fill = INPFC_STRATUM)) +
+    geom_sf(data = goa_inpfc, aes(fill = AREA_NAME)) +
     scale_fill_manual("INPFC area", values = palette_map, breaks = geo_order) +
     geom_sf(data = goa_all$survey.area, fill = NA) +
     geom_sf_text(
       data = goa_inpfc, size = 4,
-      aes(label = INPFC_STRATUM, geometry = geometry),
+      aes(label = AREA_NAME, geometry = geometry),
       nudge_y = -240000
     ) +
     theme_light() +
@@ -279,10 +279,10 @@ if (make_biomass_timeseries) {
 
     dat <- biomass_total %>%
       filter(SPECIES_CODE == report_species$species_code[i])
-    lta <- mean(dat$TOTAL_BIOMASS)
+    lta <- mean(dat$BIOMASS_MT)
 
     p1 <- dat %>%
-      ggplot(aes(x = YEAR, y = TOTAL_BIOMASS)) +
+      ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
@@ -338,7 +338,7 @@ if (make_catch_comp) {
 
   png(
     filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
-    width = 9, height = 6, units = "in", res = 200
+    width = 11, height = 6, units = "in", res = 200
   )
   print(p2)
   dev.off()
@@ -387,7 +387,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
             color = factor(DEPTH_MAX_M)
           )
         ) +
-        scale_fill_manual("Maximum \nstratum depth (m)", values = depthpal, guide = "legend") +
+        scale_fill_manual("Maximum \nstratum depth (m)", 
+                          values = depthpal, guide = "legend") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = reg_data$akland) +
         geom_sf( # x's for places where cpue=0
@@ -529,7 +530,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures,  maxyr, "_", complex_code, "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", complex_code, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
@@ -550,8 +551,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     "THORNYHEADS"
   ))
 
-  for (i in 1:length(bubble_index)) { 
-
+  for (i in 1:length(bubble_index)) {
     spbubble <- report_species$species_code[bubble_index[i]]
     namebubble <- report_species$spp_name_informal[bubble_index[i]]
 
@@ -716,7 +716,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, maxyr, "_", namebubble,   "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", namebubble, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
@@ -731,10 +731,12 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
   list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
 
   save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata"))
-  
+
   # Remove intermediary fig lists
-  rm(list = c("list_cpue_bubbles_strata_species",
-  "list_cpue_bubbles_strata_complexes"))
+  rm(list = c(
+    "list_cpue_bubbles_strata_species",
+    "list_cpue_bubbles_strata_complexes"
+  ))
 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
@@ -750,16 +752,12 @@ if (make_joy_division_length) {
   }
 
   # This is repeated; deal with it later
-  L0 <- read.csv(here::here("data/local_racebase/length.csv"))
-  L <- L0 |>
-    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
-  # length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
+  L0 <- read.csv(here::here("data/local_racebase/length.csv")) # this is the big length table from RACEBASE
 
-  L2 <- L |> # L is the big length table from RACEBASE
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(REGION == SRVY) # want to keep all years for this fig
-
-  L3 <- L2 |>
+  L3 <- L0 |>
+    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
+    # mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
+    filter(REGION == SRVY) |>
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
     dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
     left_join(region_lu, by = "STRATUM") |>
@@ -811,8 +809,8 @@ if (make_joy_division_length) {
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
-    # SSTH or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
-    if (report_species$species_code[i] %in% c(30020, 21341)) {
+    # SSTH, YIL, or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
+    if (report_species$species_code[i] %in% c(30020, 21347, 21341)) {
       len2plot <- len2plot
     } else {
       len2plot <- len2plot %>%
@@ -888,8 +886,8 @@ if (make_joy_division_length) {
   names(list_joy_length) <- report_species$species_code
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
-  
-  rm(list=c("L","L0","L2","L3","joyplot","len2plot2","len2plot"))
+
+  rm(list = c("L", "L0", "L2", "L3", "joyplot", "len2plot2", "len2plot"))
   print("Done with joy division plots for length comp.")
 }
 
@@ -999,7 +997,7 @@ if (make_temp_plot) {
   sstdat <- haul |>
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
     filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) |>
-    filter(PERFORMANCE >=0) |>
+    filter(PERFORMANCE >= 0) |>
     group_by(YEAR) |>
     dplyr::summarize(
       bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
@@ -1022,7 +1020,7 @@ if (make_temp_plot) {
 
   plotdat <- haul |>
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
-    filter(PERFORMANCE >=0) |>
+    filter(PERFORMANCE >= 0) |>
     filter(REGION == SRVY & YEAR != 1997) |> # YEAR >= 1994 &
     filter(CRUISE != 201402) |> # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
