@@ -5,17 +5,18 @@
 area <- read.csv("data/local_gap_products/area.csv")
 
 # Confirm correct design year and survey ID
-if (SRVY == "GOA" & maxyr < 2025) {
-  strata <- area |>
-    filter(DESIGN_YEAR == 1984 & SURVEY_DEFINITION_ID == 47)
-} else {
-  strata <- area |>
+if (SRVY == "GOA") {
+  area <- area |>
+    filter(DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025) & SURVEY_DEFINITION_ID == 47)
+} else { # AI
+  area <- area |>
     filter(DESIGN_YEAR == 1980 & SURVEY_DEFINITION_ID == 52)
 }
 
 depth_totals <- area |>
   dplyr::filter(AREA_TYPE %in% c("STRATUM")) |>
   dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
+  dplyr::filter(DEPTH_RANGE != "701 - 1000 m") |>
   group_by(DEPTH_RANGE) |>
   summarize(AREA_KM2 = sum(AREA_KM2)) |>
   ungroup() |>
@@ -30,16 +31,18 @@ grand_total <- data.frame(
 a1 <- area |>
   dplyr::filter(AREA_TYPE %in% c("STRATUM", "DEPTH")) |>
   dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
-  bind_rows(depth_totals) |>
+  dplyr::arrange(desc(AREA_TYPE), DEPTH_MIN_M, DEPTH_MAX_M, AREA_ID) |>
   dplyr::select(DEPTH_RANGE, AREA_ID, AREA_NAME, AREA_KM2) |>
   dplyr::filter(!grepl("Combined", AREA_NAME)) |>
   dplyr::filter(!grepl("All", AREA_NAME)) |>
-  arrange(DEPTH_RANGE) |>
-  bind_rows(grand_total) |> 
-  dplyr::mutate_at("AREA_KM2",function(x) format(round(x),big.mark = ",")) |>
-  dplyr::rename("Depth range (m)" = "DEPTH_RANGE",
-                "Stratum number" = "AREA_ID",
-                "Stratum name" = "AREA_NAME")
+  dplyr::filter(DEPTH_RANGE != "701 - 1000") |>
+  bind_rows(grand_total) |>
+  dplyr::mutate_at("AREA_KM2", function(x) format(round(x), big.mark = ",")) |>
+  dplyr::rename(
+    "Depth range (m)" = "DEPTH_RANGE",
+    "Stratum number" = "AREA_ID",
+    "Stratum name" = "AREA_NAME"
+  )
 
 
 # Table A2: summary codes for strata.  ------------------------------------

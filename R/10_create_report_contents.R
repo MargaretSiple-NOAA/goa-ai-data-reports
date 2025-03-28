@@ -16,7 +16,6 @@ if (y) {
 }
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
-# x <- askYesNo(msg = "Do you want to download local versions of RACEBASE tables now? Skip this if you already have updated local tables.")
 x <- TRUE
 if (x) {
   source("R/05_download_data_from_oracle.R")

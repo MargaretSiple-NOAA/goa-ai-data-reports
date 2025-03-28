@@ -185,8 +185,20 @@ write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FAL
 
 # CPUE table
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.CPUE")
-
 write.csv(x = a, "./data/local_gap_products/cpue.csv", row.names = FALSE)
+print("Finished downloading GAP_PRODUCTS.CPUE")
+
+
+# STRATUM_GROUPS table - to lookup what region a stratum is in
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
+a <- subset(a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+
+if (SRVY == "GOA") {
+  a <- subset(a, DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025))
+}
+
+
+write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
 print("Finished downloading GAP_PRODUCTS.CPUE")
 print("Finished downloading GAP_PRODUCTS tables.")

@@ -1,7 +1,5 @@
 # Make appendices
-# We append them to the main doc using {officer}
-# Depauperate now but will probably be populated with scripts to create the appendices
-
+# We can append them to the main doc using {officer}
 # Appendix A --------------------------------------------------------------
 source("R/06a_appendix_a.R")
 rmarkdown::render(paste0(dir_markdown, "/APPENDIXA.Rmd"),
