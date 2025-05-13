@@ -249,7 +249,7 @@ for (i in 1:3) { # nrow(report_species)
     # tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Depth (m)` == "All depths") %>%
     filter(`Survey district` != "All areas") %>% # take out the total
-    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (mt)`))) %>%
+    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (t)`))) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
     {
@@ -280,7 +280,7 @@ for (i in 1:3) { # nrow(report_species)
 
   depth_highest_biomass0 <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     filter(`Survey district` == "All areas" & `Depth (m)` != "All depths") %>% # take out the total
-    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (mt)`)) %>%
+    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (t)`)) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Depth (m)`) %>%
     as.character()
