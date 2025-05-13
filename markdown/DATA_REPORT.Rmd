@@ -239,7 +239,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     round(spps_ordered_by_biomass$BIOMASS_MT[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
     big.mark = ","
   )
-  species_biomass <- paste0(species_biomass0, "&nbsp;", "mt")
+  species_biomass <- paste0(species_biomass0, "&nbsp;", "t")
 
   # Percent change in B since compareyr and maxyr
   spp_percent_change1 <- compare_tab$percent_change[which(compare_tab$SPECIES_CODE == species_code)]
@@ -251,7 +251,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     # tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Depth (m)` == "All depths") %>%
     filter(`Survey district` != "All areas") %>% # take out the total
-    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (mt)`))) %>%
+    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (t)`))) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
     {
@@ -282,7 +282,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
 
   depth_highest_biomass0 <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     filter(`Survey district` == "All areas" & `Depth (m)` != "All depths") %>% # take out the total
-    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (mt)`)) %>%
+    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (t)`)) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Depth (m)`) %>%
     as.character()

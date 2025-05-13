@@ -31,7 +31,7 @@ table3s_list[["{{ species_code }}"]] |>
     `Total haul count` = "Total \n haul count",
     `Hauls with positive catch` = "Hauls w/\npositive catch",
     #`CPUE (kg/km2)` = "CPUE\n(kg/km2)",
-    `Biomass (mt)` = "Biomass\n(mt)"
+    `Biomass (t)` = "Biomass\n(t)"
   ) |>
   compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
@@ -55,7 +55,7 @@ table4s_list[["{{ species_code }}"]] |>
   set_header_labels(`Total haul count` = "Total \n haul count",
                     `Hauls with positive catch` = "Hauls w/\npositive catch",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
-                    `Biomass (mt)` = "Biomass\n(mt)") |>
+                    `Biomass (t)` = "Biomass\n(t)") |>
   compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 

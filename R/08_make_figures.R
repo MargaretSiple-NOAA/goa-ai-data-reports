@@ -288,7 +288,7 @@ if (make_biomass_timeseries) {
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
         color = linecolor, linewidth = 0.9, width = 0.7
       ) +
-      ylab("Estimated total biomass (mt)") +
+      ylab("Estimated total biomass (t)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
@@ -331,7 +331,7 @@ if (make_catch_comp) {
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
+    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " t)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
