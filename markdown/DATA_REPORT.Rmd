@@ -103,8 +103,7 @@ list_tables[["allocated_sampled"]] %>%
   align(align = "center", part = "all") %>%
   align(j = 1:2, align = "left", part = "body") %>%
   hline(i = ~ break_position(`Survey district`), border = fp_border(color = "#5A5A5A", width = 3))
-#%>%
-  #autofit() #change back if it's still janky
+
 ```
 \newpage
 
@@ -146,9 +145,8 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table caption"}
-#if (SRVY == "GOA") {
+
   list_tables[["otos_target_sampled"]] %>%
-    # otos_target_sampled %>%
     dplyr::rename(
       "Species" = "species",
       "Target N" = "target",
@@ -162,10 +160,7 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
     align(align = "center", part = "all") %>%
     align(j = 1, align = "left", part = "body") %>%
     autofit()
-# } else {
-#   x <- data.frame(test = 1:3, replace_me = letters[1:3])
-#   flextable(x)
-#}
+
 ```
 
 <br />
@@ -217,7 +212,7 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 # report_species contains the list of species in the report
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # nrow(report_species)
 
   species_code <- report_species$species_code[i]
 
