@@ -237,7 +237,7 @@ for (i in 1:3) { # nrow(report_species)
     round(spps_ordered_by_biomass$BIOMASS_MT[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
     big.mark = ","
   )
-  species_biomass <- paste0(species_biomass0, "&nbsp;", "mt")
+  species_biomass <- paste0(species_biomass0, "&nbsp;", "t")
 
   # Percent change in B since compareyr and maxyr
   spp_percent_change1 <- compare_tab$percent_change[which(compare_tab$SPECIES_CODE == species_code)]

@@ -330,7 +330,7 @@ if (make_catch_comp) {
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
+    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " t)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")

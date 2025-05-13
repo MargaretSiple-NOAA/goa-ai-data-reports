@@ -332,7 +332,7 @@ if (make_biomass_timeseries) {
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
-      ylab("Estimated total biomass (mt)") +
+      ylab("Estimated total biomass (t)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
       annotate(label = name_bms, geom ="label", x = Inf, y = Inf, hjust = 1, vjust = 1) +
@@ -380,7 +380,7 @@ if(make_complexes_figs){
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
         color = linecolor, linewidth = 0.9, width = 0.7
       ) +
-      ylab("Estimated total biomass (mt)") +
+      ylab("Estimated total biomass (t)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
       annotate(label = name_bms, geom ="label", x = Inf, y = Inf, hjust = 1, vjust = 1) +
@@ -560,7 +560,7 @@ if (make_catch_comp) {
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6, " mt)"))) +
+    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6, " t)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
@@ -1021,8 +1021,8 @@ compare_tab_pres <- compare_tab2 |>
   dplyr::select(spp_name_informal, yr_2022, yr_2024, percent_change) |>
   dplyr::arrange(-yr_2024) |>
   dplyr::mutate(across(starts_with("yr_"), ~round(.x))) |>
-  dplyr::rename('Biomass in 2024 (mt)' = yr_2024,
-                'Biomass in 2022 (mt)' = yr_2022,
+  dplyr::rename('Biomass in 2024 (t)' = yr_2024,
+                'Biomass in 2022 (t)' = yr_2022,
                 'Percent change' = percent_change)
 
 write.csv(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.csv"))
