@@ -4,7 +4,6 @@ Add to data reports once we have a finished Markdown output:
 - Find/replace "first most abundant species" or "1st most abundant species" - change to "most abundant species"
 - Add cover page 
 - Go through the chapters for the complexes and make sure they're grammatically correct!
-- Double check asterisk comments for NRS, kam/atf, and other complexes
 - See if you can get the two temperature figures on the same page
 - Make sure vessel names are italicized in bullet points
 - Check/create hyperlinks to other sections -- e.g., citations to appendices should hyperlink internally to that appendix. 
@@ -13,8 +12,11 @@ Add to data reports once we have a finished Markdown output:
 - Confirm that species names in TOC are italicized
 - Check Appendix C for correct equation formatting and column widths
 - Make sure there aren't any errant blank pages
+- Make sure northern and southern (RF/RS) are not capitalized when they are not starting a sentence. 
+- In the NRS/SRS section, make sure the wording makes sense and bullet #1 mentions that this complex does not include "unidentified rock sole": "The northern - southern rock sole complex includes northern rock sole (Lepidopsetta polyxystra), and southern rock sole (Lepidopsetta bilineata). It does not include unidentified rock sole."
 - Add page numbers and make sure intro pages have the special kind
 - LAST: Edit the abstract and make sure the language is right. 
 - LAST: Update the TOC in Word so that the page numbers and stuff are correct.
+
 
 DONE:
