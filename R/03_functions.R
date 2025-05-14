@@ -277,7 +277,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     dplyr::mutate(AVG_WEIGHT_KG = round((BIOMASS_MT / POPULATION_COUNT) * 1000, digits = 3))
 
   biomass_yr[which(biomass_yr$POPULATION_COUNT == 0), "AVG_WEIGHT_KG"] <- "--"
-  biomass_yr[which(biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
+  biomass_yr[which(biomass_yr$POPULATION_COUNT>0 & biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
 
   area_lookup0 <- area_tbl |>
     dplyr::filter(AREA_TYPE %in% c(
