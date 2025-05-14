@@ -744,19 +744,21 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 # 5. Length frequency - joy division plots ---------------------------------
 if (make_joy_division_length) {
   list_joy_length <- list()
+  
   if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
     report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
   } else {
     cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
     source("R/06_prep_data.R")
   }
+  
+  species_year <- read.csv("data/local_gap_products/species_year.csv")
 
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv")) # this is the big length table from RACEBASE
 
   L3 <- L0 |>
     dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-    # mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
     filter(REGION == SRVY) |>
     left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
     dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
@@ -804,11 +806,17 @@ if (make_joy_division_length) {
     mutate(YEAR = as.integer(YEAR))
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
+  
   # Loop thru species
   for (i in 1:nrow(report_species)) {
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
-
+    
+    # Subset to years when species was confidently ID'ed
+    if (report_species$species_code[i] %in% species_year$SPECIES_CODE) {
+      len2plot <- len2plot |>
+        filter(YEAR >= species_year$YEAR[which(species_year$SPECIES_CODE == report_species$species_code[i])])
+    }
     # SSTH, YIL, or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
     if (report_species$species_code[i] %in% c(30020, 21347, 21341)) {
       len2plot <- len2plot
@@ -887,7 +895,7 @@ if (make_joy_division_length) {
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
 
-  rm(list = c("L", "L0", "L2", "L3", "joyplot", "len2plot2", "len2plot"))
+  rm(list = c("L", "L0", "L3", "joyplot", "len2plot2", "len2plot"))
   print("Done with joy division plots for length comp.")
 }
 
