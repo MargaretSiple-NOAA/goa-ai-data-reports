@@ -698,7 +698,7 @@ for (i in 1:nrow(report_species)) {
   sp_code <- report_species$species_code[i]
 
   # Is the species code for a complex?
-  if (sp_code %in% c("OROX", "REBS", "OFLATS")) {
+  if (grepl(x = sp_code, "[A-Za-z]")) {
     sizecomp1 <- sizecomp_complexes
   } else {
     sizecomp1 <- sizecomp
@@ -767,8 +767,8 @@ highest_biomass <- biomass_maxyr %>%
 highest_biomass_flatfish <- highest_biomass %>%
   filter(major_group == "Flatfish")
 
-highest_chonds <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) %>%
+highest_chonds <- biomass_maxyr %>%
+  filter(grepl("[0-9]", x = SPECIES_CODE)) %>% # limit to single species, not complexes
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%
   filter(major_group == "Chondrichthyans") %>%
