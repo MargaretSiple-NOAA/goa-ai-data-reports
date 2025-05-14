@@ -169,7 +169,7 @@ if (!use_gapindex) {
   rm(sizecomp0)
 }
 
-# gapindex: Complexes. create biomass_total and cpue tables from gapindex ----
+# Complexes: create biomass_total and cpue tables from gapindex ----
 # complex_lookup is defined in report_settings.
 
 ## Connect to Oracle
