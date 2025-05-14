@@ -767,7 +767,7 @@ highest_biomass <- biomass_maxyr %>%
 highest_biomass_flatfish <- highest_biomass %>%
   filter(major_group == "Flatfish")
 
-highest_elasmos <- biomass_total %>%
+highest_chonds <- biomass_total %>%
   filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) %>%
   janitor::clean_names() %>%
   dplyr::left_join(species_names) %>%
