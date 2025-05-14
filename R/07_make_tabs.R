@@ -55,7 +55,7 @@ topn <- 20
 
 # Make table of top CPUE
 top_CPUE <- biomass_subarea |>
-  dplyr::filter(YEAR == maxyr) |>
+  dplyr::filter(YEAR == maxyr & grepl(pattern = "[0-9]", x = SPECIES_CODE)) |> #filter to species, no complexes
   dplyr::filter(SPECIES_CODE < 40001 | SPECIES_CODE %in% unique(complex_lookup$complex)) |> # take out inverts
   dplyr::right_join(area_gp_inpfc_region, by = c("SURVEY_DEFINITION_ID","AREA_ID")) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
