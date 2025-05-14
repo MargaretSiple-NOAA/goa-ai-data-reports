@@ -113,6 +113,6 @@ for (i in 1:nrow(report_species)) {
 
 length_weight_report <- length_weight_df |>
   left_join(report_species, by = c("species" = "species_code")) |>
-  dplyr::mutate(alpha.grams = round(alpha.grams,digits = 9)) |>
-  dplyr::mutate_at(.vars = 'sex', .funs = tolower) |>
+  dplyr::mutate(alpha.grams = round(alpha.grams, digits = 9)) |>
+  dplyr::mutate_at(.vars = "sex", .funs = tolower) |>
   dplyr::select(spp_name_informal, spp_name_scientific, sex, count, beta, r_squared, max.length.mm, alpha.grams)
