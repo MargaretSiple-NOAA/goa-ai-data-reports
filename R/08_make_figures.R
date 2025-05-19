@@ -182,7 +182,7 @@ speciescolors <- lengthen_pal(
 # This figure is loaded in knit_report; it is static.
 
 
-# 0b: make_total_surv_map: INPFC areas with stations sampled -----------------------------------
+# 0b: INPFC areas with stations sampled -----------------------------------
 if (make_total_surv_map) {
   # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
   palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
@@ -806,6 +806,7 @@ if (make_joy_division_length) {
     mutate(YEAR = as.integer(YEAR))
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
+  left_labels <- c(30420)
   
   # Loop thru species
   for (i in 1:nrow(report_species)) {
@@ -865,7 +866,8 @@ if (make_joy_division_length) {
       scale_fill_gradientn(colours = joypal) +
       geom_label(
         data = n_labels,
-        mapping = aes(label = paste0("n = ", n), x = Inf),
+        mapping = aes(label = paste0("n = ", n), 
+                      x = ifelse(report_species$species_code[i] %in% left_labels,-Inf,Inf)),
         fill = "white", label.size = NA,
         nudge_x = 0,
         nudge_y = 1,
@@ -1058,7 +1060,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
-    theme_light(base_size = 15) +
+    theme_light(base_size = 12) +
     geom_segment(data = bottom_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
@@ -1091,7 +1093,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
-    theme_light(base_size = 15) +
+    theme_light(base_size = 12) +
     geom_segment(data = surface_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
