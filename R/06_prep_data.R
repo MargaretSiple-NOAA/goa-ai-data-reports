@@ -296,26 +296,35 @@ if (use_gapindex) {
   rpt_data <- gapindex::get_data(
     year_set = yrs_to_pull,
     survey_set = SRVY,
-    spp_codes = data.frame(
-      SPECIES_CODE = report_species$species_code,
-      GROUP = report_species$species_code
-    ),
+    spp_codes =
+      rbind(
+        # species
+        data.frame(
+          GROUP_CODE = report_species[which(grepl("[0-9]", report_species$species_code)), "species_code"],
+          SPECIES_CODE = report_species[which(grepl("[0-9]", report_species$species_code)), "species_code"]
+        ),
+        # complexes
+        data.frame(
+          GROUP_CODE = complex_lookup$complex,
+          SPECIES_CODE = complex_lookup$species_code
+        )
+      ),
     haul_type = 3,
     abundance_haul = "Y",
     pull_lengths = TRUE,
-    sql_channel = sql_channel
+    channel = sql_channel
   )
 
-  cpue_raw_caps <- gapindex::calc_cpue(racebase_tables = rpt_data)
+  cpue_raw_caps <- gapindex::calc_cpue(gapdata = rpt_data)
 
   biomass_stratum <- gapindex::calc_biomass_stratum(
-    racebase_tables = rpt_data,
+    gapdata = rpt_data,
     cpue = cpue_raw_caps
   )
   # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
   biomass_subarea <- gapindex::calc_biomass_subarea(
-    racebase_tables = rpt_data,
-    biomass_strata = biomass_stratum
+    gapdata = rpt_data,
+    biomass_stratum = biomass_stratum
   )
 
   biomass_df <- biomass_subarea |>
@@ -329,9 +338,9 @@ if (use_gapindex) {
   head(biomass_df)
 
   sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
-    racebase_tables = rpt_data,
+    gapdata = rpt_data,
     racebase_cpue = cpue_raw_caps,
-    racebase_stratum_popn = biomass_stratum,
+    abundance_stratum = biomass_stratum,
     spatial_level = "stratum",
     fill_NA_method = "AIGOA"
   )
@@ -339,8 +348,8 @@ if (use_gapindex) {
   ## Calculate aggregated size compositon across subareas, management areas, and
   ## regions
   sizecomp_subareas <- gapindex::calc_sizecomp_subarea(
-    racebase_tables = rpt_data,
-    size_comps = sizecomp_stratum
+    gapdata = rpt_data,
+    sizecomp_stratum = sizecomp_stratum
   )
 
   sizecomp_gapindex <- sizecomp_subareas |>
