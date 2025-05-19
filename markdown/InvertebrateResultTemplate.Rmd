@@ -1,5 +1,5 @@
 \newpage
-## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
+## {{spp_name_informal_low}} (*{{spp_name_scientific}}*)
 
 <!-- These are the summary bullet points. For invertebrates, the two bullet points about size are left out, as there are no size comps for things like giant octopus. -->
 

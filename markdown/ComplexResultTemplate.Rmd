@@ -17,7 +17,7 @@
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[["{{ species_code }}"]] |>
   #table3s_list[[as.character(30060)]] |>
    flextable() |>
