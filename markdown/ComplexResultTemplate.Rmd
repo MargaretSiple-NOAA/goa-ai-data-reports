@@ -1,6 +1,6 @@
 -----
 
-## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
+## {{spp_name_informal_low}} (*{{spp_name_scientific}}*)
 
 <!-- These are the summary bullet points. -->
 - The {{spp_name_informal_sen}} includes {{f2}} and {{f4}}.
