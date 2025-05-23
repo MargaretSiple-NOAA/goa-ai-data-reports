@@ -13,8 +13,8 @@ Add to data reports once we have a finished Markdown output:
 - Check Appendix C for correct equation formatting and column widths
 - Make sure there aren't any errant blank pages
 - Make sure northern and southern (RF/RS) are not capitalized when they are not starting a sentence. 
-- In the NRS/SRS section, make sure the wording makes sense and bullet #1 mentions that this complex does not include "unidentified rock sole": "The northern - southern rock sole complex includes northern rock sole (Lepidopsetta polyxystra), and southern rock sole (Lepidopsetta bilineata). It does not include unidentified rock sole."
-- Also fix the rougheye-blackspotted summary. First bullet should say: ""
+- In the NRS/SRS section, make sure the wording makes sense and bullet #1 mentions that this complex does not include "unidentified rock sole": "Northern and southern rock sole includes northern rock sole (Lepidopsetta polyxystra), and southern rock sole (Lepidopsetta bilineata). It does not include unidentified rock sole."
+- Also fix the rougheye-blackspotted summary. First bullet should say: "The rougheye - blackspotted rockfish complex includes rougheye rockfish (Sebastes aleutianus), blackspotted rockfish (Sebastes melanostictus), and unidentified rougheye and blackspotted rockfishes."
 - Add page numbers and make sure intro pages have the special kind
 - LAST: Edit the abstract and make sure the language is right. 
 - LAST: Update the TOC in Word so that the page numbers and stuff are correct.

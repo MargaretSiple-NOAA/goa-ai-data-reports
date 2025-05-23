@@ -201,7 +201,6 @@ write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FAL
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SPECIES_YEAR")
 write.csv(x = a, "./data/local_gap_products/species_year.csv", row.names = FALSE)
 
-
 print("Finished downloading GAP_PRODUCTS tables.")
 
 # Ex-vessel prices --------------------------------------------------------
