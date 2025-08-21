@@ -319,14 +319,14 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
-      "Biomass (t)" = BIOMASS_MT,
+      "Biomass (mt)" = BIOMASS_MT,
       # "Biomass variance (t)" = BIOMASS_VAR,
       "Average weight (kg)" = AVG_WEIGHT_KG
     )
 
   # Format numbers in CPUE and biomass columns
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
-  combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
+  combo$`Biomass (t)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   combo_ord <- combo |>
     dplyr::arrange(factor(`Survey district`, levels = c(district_order, "All")))
@@ -339,7 +339,6 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 #' Make Table 4 - summary of CPUE and biomass by stratum
 #'
 #' @param species_code five-digit species code
-#' @param survey "GOA" or "AI"
 #' @param year  Year of survey
 #' @param biomass_tbl BIOMASS table, taken straight from GAP_PRODUCTS, then filtered to the survey definition ID in report_settings.R
 #' @param area_tbl AREA table taken straight from GAP_PRODUCTS
@@ -376,12 +375,12 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
-      "Biomass (t)" = BIOMASS_MT
+      "Biomass (mt)" = BIOMASS_MT
     ) |>
     dplyr::filter(`Hauls with positive catch` > 0) # only show lines for strata where the species appeared
 
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
-  combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
+  combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   return(combo)
 }
