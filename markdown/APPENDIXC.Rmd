@@ -25,6 +25,7 @@ length_weight_report |>
   set_header_labels(
     spp_name_informal = "Common name",
     spp_name_scientific = "Scientific name",
+    sex = "Sex",
     count = "Sample size (n)",
     r_squared = "R^2",
     max.length.mm = "Max length (mm)",
