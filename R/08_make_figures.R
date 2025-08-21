@@ -180,17 +180,14 @@ speciescolors <- lengthen_pal(
 
 # This figure is loaded in knit_report; it is static.
 
-
 # 0b: make_total_surv_map: INPFC areas with stations sampled -----------------------------------
 if (make_total_surv_map) {
-  # goa_nmfs <- akgfmaps::get_base_layers(select.region = "nmfs", set.crs = "auto")
+  
   palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
-
-
   #  Base map
   p1 <- ggplot() +
     geom_sf(data = goa_all$akland) +
-    geom_sf(data = goa_inpfc, aes(fill = AREA_NAME)) +
+    geom_sf(data = goa_inpfc, aes(fill = AREA_NAME)) + #used to be INPFC_STRATUM - 2x check this later
     scale_fill_manual("INPFC area", values = palette_map, breaks = geo_order) +
     geom_sf(data = goa_all$survey.area, fill = NA) +
     geom_sf_text(
@@ -281,13 +278,13 @@ if (make_biomass_timeseries) {
     lta <- mean(dat$BIOMASS_MT)
 
     p1 <- dat %>%
-      ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
+      ggplot(aes(x = YEAR, y = BIOMASS_MT)) + # used to be TOTAL_BIOMASS
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
         color = linecolor, linewidth = 0.9, width = 0.7
       ) +
-      ylab("Estimated total biomass (t)") +
+      ylab("Estimated total biomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme
@@ -330,7 +327,7 @@ if (make_catch_comp) {
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " t)"))) +
+    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
@@ -751,6 +748,9 @@ if (make_joy_division_length) {
     source("R/06_prep_data.R")
   }
 
+  species_year <- read.csv("data/local_gap_products/species_year.csv")
+  
+  
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
 
@@ -809,16 +809,24 @@ if (make_joy_division_length) {
     mutate(YEAR = as.integer(YEAR))
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
+  left_labels <- c(30420) # species for which you want the label on the left instead of the right!
+  
   # Loop thru species
   for (i in 1:nrow(report_species)) { #
     len2plot <- report_pseudolengths %>%
       filter(SPECIES_CODE == report_species$species_code[i])
 
+    # Subset to years when species was confidently ID'ed
+    if (report_species$species_code[i] %in% species_year$SPECIES_CODE) {
+      len2plot <- len2plot |>
+        filter(YEAR >= species_year$YEAR[which(species_year$SPECIES_CODE == report_species$species_code[i])])
+    }
+    
     # SSTH, YIL, and darkfin sculpin only show Unsexed; all other spps show only sexed lengths
     if (report_species$species_code[i] %in% c(30020, 21341, 21347, "THORNYHEADS")) {
       len2plot <- len2plot
     } else {
-      len2plot <- len2plot %>%
+      len2plot <- len2plot |>
         filter(Sex != "Unsexed")
     }
 
@@ -862,7 +870,8 @@ if (make_joy_division_length) {
       scale_fill_gradientn(colours = joypal) +
       geom_label(
         data = n_labels,
-        mapping = aes(label = paste0("n = ", n), x = Inf),
+        mapping = aes(label = paste0("n = ", n), 
+                      x = ifelse(report_species$species_code[i] %in% left_labels,-Inf,Inf)),
         fill = "white", label.size = NA,
         nudge_x = 0,
         nudge_y = 1,
@@ -1055,7 +1064,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
-    theme_light(base_size = 15) +
+    theme_light(base_size = 12) +
     geom_segment(data = bottom_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
@@ -1088,7 +1097,7 @@ if (make_temp_plot) {
     scale_fill_ramp_discrete(na.translate = FALSE) +
     xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
-    theme_light(base_size = 15) +
+    theme_light(base_size = 12) +
     geom_segment(data = surface_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
