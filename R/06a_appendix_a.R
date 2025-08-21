@@ -31,7 +31,7 @@ grand_total <- data.frame(
 a1 <- area |>
   dplyr::filter(AREA_TYPE %in% c("STRATUM", "DEPTH")) |>
   dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
-  dplyr::arrange(desc(AREA_TYPE), DEPTH_MIN_M, DEPTH_MAX_M, AREA_ID) |>
+  dplyr::arrange(desc(AREA_TYPE), DEPTH_MIN_M, DEPTH_MAX_M, AREA_ID) |> # used to be bind_rows(depth_totals) the line before this
   dplyr::select(DEPTH_RANGE, AREA_ID, AREA_NAME, AREA_KM2) |>
   dplyr::filter(!grepl("Combined", AREA_NAME)) |>
   dplyr::filter(!grepl("All", AREA_NAME)) |>
