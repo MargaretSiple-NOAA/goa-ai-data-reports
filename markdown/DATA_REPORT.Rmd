@@ -107,7 +107,7 @@ list_tables[["allocated_sampled"]] %>%
 ```
 \newpage
 
-```{r echo=FALSE,tab.cap='Target numbers of length samples for each managed species.', tab.id='length-sample-sizes',  tab.cap.style = "Table caption"}
+```{r echo=FALSE,tab.cap='Target numbers per haul of length samples for each managed species. Asterisk (*) indicates species that are not sexed; all other species are collected as sexed lengths.', tab.id='length-sample-sizes',  tab.cap.style = "Table caption"}
 list_tables[["length-sample-sizes"]] %>%
   flextable(col_keys = c("dummy_col", "Target.sample.size")) %>%
   flextable::mk_par(
@@ -131,7 +131,7 @@ list_tables[["length-sample-sizes"]] %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea).', 'Map of the GOA 2025 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
+```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea).', 'Map of the GOA 2021 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
 if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 ```
 
@@ -166,14 +166,14 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 <br />
 <br />
 
-```{r fig.cap='Gear temperature measured at the headrope of the trawl. Larger brown points represent the median. Shaded distributions represent the density of measurements. Horizontal lines show the mean bottom (gear) temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Bottom temperature measured at the headrope of the trawl. Larger brown points represent the median. Shaded distributions represent the density of measurements. Horizontal lines show the mean bottom (gear) temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 list_temperature[['bottomtemp']]
 ```
 
 <br />
 <br />
 
-```{r fig.cap='Surface temperatures from the survey. Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Horizontal lines show the mean surface temperature over the past 10 and 20 years.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
+```{r fig.cap='Surface temperatures from the survey. Larger brown points represent the median. Shaded distributions represent the density of measurements. Horizontal lines show the mean surface temperature over the past 10 and 20 years.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
 list_temperature[['surfacetemp']]
 ```
 
@@ -232,7 +232,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     round(spps_ordered_by_biomass$BIOMASS_MT[which(spps_ordered_by_biomass$SPECIES_CODE == species_code)]),
     big.mark = ","
   )
-  species_biomass <- paste0(species_biomass0, "&nbsp;", "t")
+  species_biomass <- paste0(species_biomass0, "&nbsp;", "mt")
 
   # Percent change in B since compareyr and maxyr
   spp_percent_change1 <- compare_tab$percent_change[which(compare_tab$SPECIES_CODE == species_code)]
@@ -244,7 +244,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     # tidyr::fill(`Survey district`, .direction = "down") %>%
     filter(`Depth (m)` == "All depths") %>%
     filter(`Survey district` != "All areas") %>% # take out the total
-    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (t)`))) %>%
+    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (mt)`))) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Survey district`) %>%
     {
@@ -275,7 +275,7 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
 
   depth_highest_biomass0 <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
     filter(`Survey district` == "All areas" & `Depth (m)` != "All depths") %>% # take out the total
-    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (t)`)) %>%
+    dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (mt)`)) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
     dplyr::select(`Depth (m)`) %>%
     as.character()
