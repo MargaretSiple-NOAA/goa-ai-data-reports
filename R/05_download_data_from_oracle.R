@@ -176,12 +176,16 @@ print("Finished downloading GAP_PRODUCTS.SIZECOMP")
 
 # stratum groups
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
-a <- dplyr::filter(
-  a,
-  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)
-)
+a <- subset(a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+if (SRVY == "GOA") {
+  a <- subset(a, DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025))
+} 
 
 write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
+
+# Table of when each species was first positively identified
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SPECIES_YEAR")
+write.csv(x = a, "./data/local_gap_products/species_year.csv", row.names = FALSE)
 
 # CPUE table
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.CPUE")
