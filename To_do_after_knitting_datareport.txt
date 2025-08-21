@@ -13,5 +13,11 @@ Add to data reports once we have a finished Markdown output:
 - Make sure all table and figure captions are left-justified the way they're supposed to be in TMs and DPRs. Use the "table caption" formatting button in the Home tab of Word. I don't know why the figure captions automatically format and the table captions don't. Tooooo lazy to figure it out.
 - See if you can get the two temperature figures on the same page
 - Check/create hyperlinks to other sections -- e.g., citations to appendices should hyperlink internally to that appendix. 
+- Make sure all table and figure captions are left-justified the way they're supposed to be in TMs and DPRs. Use the "table caption" formatting button in the Home tab of Word. I don't know why the figure captions automatically format and the table captions don't. Tooooo lazy to figure it out.
+- Confirm that species names in TOC are italicized
+- Make sure there aren't any errant blank pages
+- Make sure northern and southern (RF/RS) are not capitalized when they are not starting a sentence. 
+- In the NRS/SRS section, make sure the wording makes sense and bullet #1 mentions that this complex does not include "unidentified rock sole": "Northern and southern rock sole includes northern rock sole (Lepidopsetta polyxystra), and southern rock sole (Lepidopsetta bilineata). It does not include unidentified rock sole."
+- Also fix the rougheye-blackspotted summary. First bullet should say: "The rougheye - blackspotted rockfish complex includes rougheye rockfish (Sebastes aleutianus), blackspotted rockfish (Sebastes melanostictus), and unidentified rougheye and blackspotted rockfishes."
 - LAST: Update the TOC in Word so that the page numbers and stuff are correct.
 - LAST: Edit the abstract and make sure the language is right. 
