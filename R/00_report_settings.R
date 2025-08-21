@@ -106,7 +106,7 @@ report_yr <- maxyr
 # Vessel specs ------------------------------------------------------------
 vessel1_spec_chunk <- paste("The Alaska Provider is 53.6 m in overall length and is powered by two main engines with 2,200 continuous horsepower. It is equipped with two forward and one stern net reel, but only the stern reel was used during the", maxyr, "bottom trawl survey.")
 
-vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m LOA with a 1,500 HP main engine. It is equipped with two forward net reels, both of which were used during the", maxyr, "bottom trawl survey.")
+vessel2_spec_chunk <- paste("The Ocean Explorer is 47.2 m overall length with a 1,500 horsepower main engine. It is equipped with two forward net reels, both of which were used during the", maxyr, "bottom trawl survey.")
 
 
 # Species to include ------------------------------------------------------
