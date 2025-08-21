@@ -2,23 +2,23 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2024 # Change this for the year!
-minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
-compareyr <- 2022 # Change this for the year!
+maxyr <- 2021 # Change this for the year!
+minyr <- 1990 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
+compareyr <- 2019 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 
 # When did you save the last version of the figures and tables you want to use?
-tabledate <- "2025-03-26" # 
-figuredate <- "2025-03-26"
-reportvaluesdate <- "2025-03-26"
+tabledate <- "2025-08-21" # 
+figuredate <- "2025-08-21"
+reportvaluesdate <- "2025-08-21"
 
 
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
-SRVY <- "AI" # Options: "GOA", "AI"
+SRVY <- "GOA" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 
 # Check survey year and region combo:
@@ -51,11 +51,11 @@ YEAR <- maxyr
 vessel1 <- "FV&nbsp;Ocean Explorer"
 vessel2 <- "FV&nbsp;Alaska Provider"
 captain1 <- "Dan Carney"
-captain2 <- "Brian Beaver"
+captain2 <- "Paulo da Cruz"
 
 # Internal reviewers
-reviewer1 <- "Pearl G. Rojas"
-reviewer2 <- "Bianca Prohaska"
+reviewer1 <- "XXXX"
+reviewer2 <- "YYYY"
 
 ref_compareyr <- "@von_szalay_data_2017" # should be included in cite/bibliography.bib
 
@@ -99,7 +99,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
-report_authors <- "A. Dowlin, M. Siple, P. von Szalay, N. Raring, B. Riggle"
+report_authors <- "B. Riggle, A. Dowlin, M. Siple"
 report_yr <- maxyr
 
 
