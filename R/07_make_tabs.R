@@ -56,8 +56,8 @@ topn <- 20
 
 # Make table of top CPUE
 top_CPUE <- biomass_subarea |>
-  dplyr::filter(YEAR == maxyr) |>
-  dplyr::filter(SPECIES_CODE < 40001 | SPECIES_CODE %in% unique(complex_lookup$complex)) |> # take out inverts
+  dplyr::filter(YEAR == maxyr & grepl(pattern = "[0-9]", x = SPECIES_CODE)) |>
+  dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
   dplyr::right_join(area_gp_inpfc_region, by = c("SURVEY_DEFINITION_ID","AREA_ID")) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename("INPFC_AREA" = AREA_NAME) |>
@@ -211,7 +211,7 @@ for (i in 1:nrow(report_species)) {
     biomass_tbl = bt,
     area_tbl = area_gp
   ) |>
-    subset(`Depth (m)` != "701 - 1000") # this depth only surveyed before 2015... not sure if it matters for AI
+    subset(`Depth (m)` != "701 - 1000") # this depth only surveyed before 2015
 
   write.csv(x = tab3, file = paste0(
     dir_out_todaysrun, "tables/tab3_",
