@@ -32,10 +32,10 @@ make_complexes_figs <- TRUE
 source("R/00_report_settings.R")
 source("R/01_directories.R")
 
-SRVY <- "AI"
-maxyr <- 2024 # Change this for the year!
-compareyr <- 2022
-dates_conducted <- "June 5th through August 3rd 2024" # EDIT
+SRVY <- "GOA"
+maxyr <- 2023 # Change this for the year!
+compareyr <- 2021
+dates_conducted <- "May 25th through August 3rd 2025" # EDIT
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
   preassignedstationstatement <- "This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
@@ -602,51 +602,6 @@ if (make_catch_comp) {
 
   save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
-
-# 3. CPUE bubble maps  ------------------------------------------------
-
-if (make_cpue_bubbles) {
-  list_cpue_bubbles <- list()
-
-  for (i in 1:nrow(report_species)) {
-    spbubble <- report_species$species_code[i]
-
-    # cpue_raw is generated in prep_data.R and is a summary of cpue by sps and station
-    thisyrshauldata <- cpue_raw |>
-      #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) %>%
-      dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
-      st_as_sf(
-        coords = c("longitude_dd_start", "latitude_dd_start"),
-        crs = "EPSG:4326"
-      ) |>
-      st_transform(crs = reg_data$crs)
-
-    fig <- plot_pa_xbyx(
-      spcode = spbubble,
-      dat = thisyrshauldata,
-      yrs = c(maxyr),
-      key.title = "",
-      row0 = 2, reg_dat = reg_data, dist_unit = "nm", # nautical miles
-      col_viridis = "mako", plot_coldpool = FALSE, plot_stratum = FALSE
-    )
-
-    fig <- fig + theme(axis.text = element_text(size = 12))
-
-    list_cpue_bubbles[[i]] <- fig
-
-    png(filename = paste0(
-      dir_out_figures,
-      report_species$spp_name_informal[i], "_", SRVY, "_", maxyr, "_CPUE_bubble.png"
-    ), width = 8, height = 5.5, units = "in", res = 200)
-    print(fig)
-    dev.off()
-  }
-  names(list_cpue_bubbles) <- report_species$species_code
-  save(list_cpue_bubbles, file = paste0(dir_out_figures, "list_cpue_bubbles.rdata"))
-
-  print("Done with bubble maps of CPUE.")
-}
-
 
 # 3b. CPUE bubble maps with strata --------------------------------------------
 
