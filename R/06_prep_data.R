@@ -112,8 +112,8 @@ if(nhauls_no_btemp > 0 & nhauls_no_stemp > 0){
 # write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
 
 # Econ info ---------------------------------------------------------------
-dat <- read.csv("data/AI_planning_species_2020.csv")
-sp_prices <- dat %>%
+dat <- read.csv("data/GOA_planning_species_2021.csv")
+sp_prices <- dat |>
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) %>%
   dplyr::rename(
     `Scientific name` = species.name,
