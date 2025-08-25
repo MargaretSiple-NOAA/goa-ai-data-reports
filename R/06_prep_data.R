@@ -144,7 +144,7 @@ x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table
 
 # Filter and rename some columns
 cpue_raw <- x |>
-  dplyr::right_join(haul) |>
+  dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN? 
   dplyr::filter(REGION == SRVY) |>
   dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
   dplyr::rename(
