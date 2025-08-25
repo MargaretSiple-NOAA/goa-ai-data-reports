@@ -1,8 +1,8 @@
 ---
-title: "2024 Aleutian Islands Biennial Bottom Trawl Survey"
+title: "2025 Gulf of Alaska Biennial Bottom Trawl Survey"
 subtitle: "Groundfish Plan Team Meeting"
-author: "Susanne Mc Dermott, Ned Laman, Paul von Szalay, Nate Raring, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
-date: "September 17, 2024"
+author: "Ned Laman, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
+date: "September 17, 2025"
 output: 
   powerpoint_presentation:
     reference_doc: styles_reference.pptx
@@ -18,7 +18,7 @@ The `r maxyr` `r SRVY` bottom trawl survey took place between `r dates_conducted
 We surveyed **`r nstations`** stations in total, with a total of **`r nsuccessfulhauls`** successful hauls across the two survey vessels.
 
 :::notes
-This is the third year we have instituted some important changes to our survey in an attempt to slow the work pace and reduce the repetitive motion injuries that have been on the rise in recent years.
+This is the fourth year we have instituted some important changes to our survey in an attempt to slow the work pace and reduce the repetitive motion injuries that have been on the rise in recent years.
 :::
 
 ## Survey charter vessels
@@ -31,7 +31,7 @@ This is the third year we have instituted some important changes to our survey i
 
 8 yrs of charter
 
-Cpt Brian Beaver, first year on AI survey
+Cpt Paulo da Cruz, first year on GOA survey
 :::
 
 ::: {.column}

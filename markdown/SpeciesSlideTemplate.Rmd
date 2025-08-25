@@ -26,5 +26,3 @@ print(list_joy_length[["{{species_code}}"]])
 ```{r echo=FALSE,out.width=9, error=TRUE}
 print(list_cpue_bubbles_strata[["{{species_code}}"]])
 ```
-
-----
