@@ -476,9 +476,15 @@ avg_net_width <- haul %>%
   round(digits = 1) %>%
   as.numeric()
 
-nstationsassigned <- all_allocation %>%
-  filter(YEAR == maxyr & STATION_TYPE != "bonus_stn") %>%
-  nrow()
+if (maxyr > 2023) {
+  nstationsassigned <- all_allocation %>%
+    filter(YEAR == maxyr & STATION_TYPE != "bonus_stn") %>%
+    nrow()
+} else {
+  nstationsassigned <- all_allocation %>%
+    filter(YEAR == maxyr) %>%
+    nrow()
+}
 
 nnewstations <- all_allocation %>%
   filter(YEAR == maxyr & STATION_TYPE == "new_stn") %>%
