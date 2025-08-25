@@ -33,8 +33,8 @@ source("R/00_report_settings.R")
 source("R/01_directories.R")
 
 SRVY <- "GOA"
-maxyr <- 2023 # Change this for the year!
-compareyr <- 2021
+maxyr <- 2025 # Change this for the year!
+compareyr <- 2023
 dates_conducted <- "May 25th through August 3rd 2025" # EDIT
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
@@ -234,17 +234,17 @@ if (SRVY == "GOA") {
 # Load map stuff if making any kind of bubble maps
 if (make_cpue_bubbles | make_cpue_ianelli | make_cpue_bubbles_strata | make_complexes_figs) {
   if (SRVY == "GOA") {
-    reg_dat_goa <- akgfmaps::get_base_layers(
-      select.region = "goa",
-      set.crs = "EPSG:3338"
-    )
-    reg_dat_goa$survey.area <- reg_dat_goa$survey.area |>
+    # MAY NEED TO ADD THIS BACK IN
+    # reg_dat_goa <- akgfmaps::get_base_layers(
+    #   select.region = "goa",
+    #   set.crs = "EPSG:3338"
+    # )
+    reg_data$survey.area <- reg_data$survey.area |>
       dplyr::mutate(
         SRVY = "GOA",
         color = scales::alpha(colour = "grey80", 0.7),
         SURVEY = "Gulf of Alaska"
       )
-    reg_data <- reg_dat_goa
   }
   
   if (SRVY == "AI") {
@@ -327,7 +327,7 @@ accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for depth shading for strata
 #depthcolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:4]
-depthpal <- RColorBrewer::brewer.pal(n = ndepths, name = "Blues")
+depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"))
 
 # Palette for joy div plot
 joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), 
@@ -336,7 +336,7 @@ joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
   shortpal = c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497"),
-  x = 1:(nrow(report_species) + 1)
+  x = 1:(nrow(report_species[which(!grepl("[A-Za-z]",report_species$species_code)),]) + 1)
 )
 
 ################### CHUNKS ##################################################
@@ -572,7 +572,7 @@ if(make_complexes_figs){
 # 2. Catch composition -------------------------------------------------------
 if (make_catch_comp) {
   head(biomass_total)
-  biomass_total_filtered <- biomass_total %>%
+  biomass_total_filtered <- biomass_total |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
@@ -583,7 +583,8 @@ if (make_catch_comp) {
     levels = c(report_species$spp_name_informal, "Other species")
   )
 
-  p2 <- biomass_total_filtered %>%
+  p2 <- biomass_total_filtered |>
+    filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |> 
     ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 1e6, x = YEAR)) +
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
@@ -1244,19 +1245,19 @@ compare_tab <- biomass_total |>
   as.data.frame()
 
 compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
-names(compare_tab)
+head(compare_tab)
 
 compare_tab2 <- compare_tab |>
   dplyr::mutate_at('SPECIES_CODE',as.character) |>
   left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
-  dplyr::arrange(-biomass_mt)
+  dplyr::arrange(-yr_2025)
 
 compare_tab_pres <- compare_tab2 |>
-  dplyr::select(spp_name_informal, yr_2022, yr_2024, percent_change) |>
-  dplyr::arrange(-yr_2024) |>
+  dplyr::select(spp_name_informal, yr_2023, yr_2025, percent_change) |>
+  dplyr::arrange(-yr_2025) |>
   dplyr::mutate(across(starts_with("yr_"), ~round(.x))) |>
-  dplyr::rename('Biomass in 2024 (t)' = yr_2024,
-                'Biomass in 2022 (t)' = yr_2022,
+  dplyr::rename('Biomass in 2025 (t)' = yr_2025,
+                'Biomass in 2023 (t)' = yr_2023,
                 'Percent change' = percent_change)
 
 write.csv(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.csv"))
@@ -1583,7 +1584,7 @@ if (make_temp_plot) {
       linetype = Average,
       x = Start_year, xend = maxyr
     )) +
-    ylim(c(0, 7)) + # NEED TO CHANGE IN THE FUTURE
+    ylim(c(2, 7)) + # NEED TO CHANGE IN THE FUTURE
     theme_light(base_size = 14) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -1658,29 +1659,29 @@ if (make_temp_plot) {
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-figuredate <- "2024-10-11" # hard coded, **k it!
-tabledate <- "2024-10-11"
-
-cat(
-  "Using report data from", tabledate, "for tables. \n",
-  "Using report data from", figuredate, "for figures."
-)
+# figuredate <- "2024-10-11" # hard coded, **k it!
+# tabledate <- "2024-10-11"
+# 
+# cat(
+#   "Using report data from", tabledate, "for tables. \n",
+#   "Using report data from", figuredate, "for figures."
+# )
 
 # If some plots aren't loaded into the environment, load them:
 
 if (!exists("list_biomass_ts")) {
-  load(paste0("output/", figuredate, "/", "figures/", "list_biomass_ts.rdata"))
+  load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_biomass_ts.rdata"))
 }
 
 if (!exists("list_cpue_bubbles_strata")) {
-  load(paste0("output/", figuredate, "/", "figures/", "list_cpue_bubbles_strata.rdata"))
+  load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_cpue_bubbles_strata.rdata"))
 }
 
 if (!exists("list_joy_length")) {
-  load(paste0("output/", figuredate, "/", "figures/", "list_joy_length.rdata"))
+  load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_joy_length.rdata"))
 }
 if (!exists("list_temperature")) {
-  load(paste0("output/", figuredate, "/", "figures/", "list_temperature.rdata"))
+  load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_temperature.rdata"))
 }
 if (!exists("p2")) {
   load(paste0("output/", figuredate, "/", "figures/", "catch_comp.rdata"))
