@@ -62,10 +62,6 @@ if (SRVY == "GOA") report_species0 <- read.csv("data/goa_report_specieslist.csv"
 report_species <- report_species0 |>
   dplyr::filter(presentation == 1) 
 
-
-# Get a table of the strata and depths / regions
-dat <- read.csv("data/goa_strata.csv", header = TRUE) # includes GOA and AI strata
-
 # Prep values and prelim tables -------------------------------------------
 source("R/06_prep_data.R") # takes a min
 
@@ -146,15 +142,14 @@ n_oto_species <- specimen_maxyr |>
 
 otos_collected <- specimen_maxyr |>
   filter(SPECIMEN_SAMPLE_TYPE == 1) |> # SAMPLE_TYPE==1 means it's an oto collection
-  dplyr::left_join(haul_maxyr, by = c(
-    "CRUISEJOIN", "HAULJOIN", "HAUL",
-    "REGION", "VESSEL", "YEAR"
+  dplyr::left_join(haul_maxyr, by = c("HAULJOIN",
+    "REGION", "VESSEL", "YEAR", "CRUISE", "HAUL"
   )) |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
-  group_by(INPFC_AREA, `Depth range`) |>
+  group_by(REGULATORY_AREA_NAME, `Depth range`) |>
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup() |>
-  arrange(factor(INPFC_AREA, levels = district_order))
+  arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
 
 # Temperature info
 minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE > 0)],
@@ -327,7 +322,7 @@ accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for depth shading for strata
 #depthcolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:4]
-depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"))
+depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
 
 # Palette for joy div plot
 joypal <- lengthen_pal(shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"), 
