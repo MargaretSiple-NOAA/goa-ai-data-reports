@@ -88,8 +88,8 @@ if (SRVY == "GOA") {
     "Shumagin",
     "Chirikof",
     "Kodiak",
-    "Yakutat",
-    "Southeastern"
+    "West Yakutat",
+    "Southeast Outside"
   )
 }
 
