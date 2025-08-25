@@ -21,27 +21,21 @@ dir.create(paste0(dir_in,"data/local_ai/"))
 dir.create(paste0(dir_in,"data/local_goa/"))
 dir.create(paste0(dir_in,"data/local_racebase/"))
 
-# Folder with tables produced by other people -----------------------------
-if (SRVY == "AI") {
-  dir_in_premadetabs <- "G:/ALEUTIAN/AI 2022/DataReport/"
-}
-if (SRVY == "GOA") {
-  dir_in_premadetabs <- "G:/GOA/GOA 2023/DataReport/"
-}
+
 # Folder containing appendices --------------------------------------------
 if (SRVY == "AI") {
-  appendix_dir <- "G:/ALEUTIAN/AI 2022/DataReport/Appendices/"
+  appendix_dir <- "G:/ALEUTIAN/AI 2024/DataReport/Appendices/"
 }
 if (SRVY == "GOA") {
-  appendix_dir <- "G:/GOA/GOA 2023/DataReport/Appendices/"
+  appendix_dir <- "G:/GOA/GOA 2025/DataReport/Appendices/"
 }
 
 # Output folder -----------------------------------------------------------
 dir.output <- paste0(dir_in, "output/")
 dir.create(dir.output)
 
-dir_out_todaysrun <- paste0(dir.output, Sys.Date(), "/")
-dir.create(dir_out_todaysrun)
+dir_out_srvy_yr <- paste0(dir.output, SRVY, "_", maxyr, "/")
+dir.create(dir_out_srvy_yr)
 
 dirs <- c("chapters", 
           "figures", 
@@ -49,22 +43,22 @@ dirs <- c("chapters",
           "tables", 
           "cite")
 for (i in 1:length(dirs)) {
-  if (dir.exists(paste0(dir_out_todaysrun, dirs[i])) == FALSE) {
-    dir.create(paste0(dir_out_todaysrun, "/", dirs[i]))
+  if (dir.exists(paste0(dir_out_srvy_yr, dirs[i])) == FALSE) {
+    dir.create(paste0(dir_out_srvy_yr, "/", dirs[i]))
   }
-  assign(x = paste0("dir_out_", dirs[i]), value = paste0(dir_out_todaysrun, "/", dirs[i], "/"))
+  assign(x = paste0("dir_out_", dirs[i]), value = paste0(dir_out_srvy_yr, "/", dirs[i], "/"))
 }
 
 
 # Get tables and figures you already made ---------------------------------
 
-if(is.na(tabledate) | is.na(figuredate)){
-  print("Please choose the date when you last saved figures or tables.")
-}
+# if(is.na(tabledate) | is.na(figuredate)){
+#   print("Please choose the date when you last saved figures or tables.")
+# }
 
-dir_in_tables <- paste0(dir.output,tabledate,"/tables/")
-dir_in_figures <- paste0(dir.output,figuredate, "/figures/")
-dir_in_reportvalues <- paste0(dir.output,reportvaluesdate)
+dir_in_tables <- paste0(dir_out_srvy_yr,"/tables/")
+dir_in_figures <- paste0(dir_out_srvy_yr,"/figures/")
+dir_in_reportvalues <- paste0(dir_out_srvy_yr,reportvaluesdate)
 
 if(!file.exists(paste0(dir_in_tables,"report_tables.rdata"))){
   print(paste("Report tables file does not exist. If you haven't made tables for the report yet, ignore this message. If you are trying to build a report, make sure you generated tables on", tabledate, "or select a new date."))
