@@ -46,7 +46,7 @@ Cpt Dan Carney, ~10 yrs experience on survey
 ::::::
 
 :::notes
-Both of our charter vessels have conducted the `r SRVY` survey several times and our skippers are highly experienced, hard bottom draggers
+Both of our charter vessels have conducted the `r SRVY` survey several times and our skippers are highly experienced, hard bottom fishermen.
 
 Their experience is crucial to the success of this survey.
 :::
@@ -78,8 +78,8 @@ The purpose of our survey is to assess the status of groundfish and invertebrate
 
 :::notes
 Our survey is a stratified random design that allocates stations to strata based on abundance, variance, stratum area, and economic value
-The strata are based on depth, major bathymetric features, and historical INPFC statistical areas.
-We randomly allocate stations within this design framework from a pool of previously successfully trawled locations
+
+(If AI year) We randomly allocate stations within this design framework from a pool of previously successfully trawled locations
 
 `r preassignedstationstatement`
 :::
@@ -88,9 +88,9 @@ We randomly allocate stations within this design framework from a pool of previo
 
 ## Data status
 
--   `r SRVY` data are finalized as of **September 11th**
--   Age composition will be updated as Age & Growth finish otolith samples
--   CPUE tables will be available on FOSS
+-   `r SRVY` data are finalized as of **August 25th**
+-   Age composition will be updated as Age & Growth finish analyzing otolith samples
+-   CPUE tables will be available on FOSS and AKIN
 -   Collaboration with SMART group to improve data pull and processing steps
 
 :::notes
