@@ -144,7 +144,7 @@ x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table
 
 # Filter and rename some columns
 cpue_raw <- x |>
-  dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN? 
+  dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN?
   dplyr::filter(REGION == SRVY) |>
   dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
   dplyr::rename(
@@ -414,49 +414,83 @@ if(maxyr <= 2021){
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 # This like a lookup table for allocating strata to the correct area and depth
-dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
+# dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
+# 
+# region_lu <- dat |>
+#   dplyr::filter(SURVEY == SRVY) |>
+#   dplyr::select(
+#     SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH,
+#     REGULATORY_AREA_NAME, AREA, DESCRIPTION
+#   ) |>
+#   dplyr::filter(STRATUM <= 794) |>
+#   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
+#   dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
+#   dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
+# 
+# # For AI years, add abbreviated area names:
+# region_lu2 <- region_lu |>
+#   dplyr::group_by(INPFC_AREA) |>
+#   dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
+#   dplyr::ungroup() |>
+#   mutate(INPFC_AREA_ABBREV = case_when(
+#     INPFC_AREA == "Central Aleutians" ~ "Central AI",
+#     INPFC_AREA == "Eastern Aleutians" ~ "Eastern AI",
+#     INPFC_AREA == "Western Aleutians" ~ "Western AI",
+#     INPFC_AREA == "Southern Bering Sea" ~ "SBS"
+#   ))
 
-region_lu <- dat |>
-  dplyr::filter(SURVEY == SRVY) |>
-  dplyr::select(
-    SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH,
-    REGULATORY_AREA_NAME, AREA, DESCRIPTION
-  ) |>
-  dplyr::filter(STRATUM <= 794) |>
-  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
-  dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
-  dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
-
-# For AI years, add abbreviated area names:
-region_lu2 <- region_lu |>
-  dplyr::group_by(INPFC_AREA) |>
-  dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
-  dplyr::ungroup() |>
-  mutate(INPFC_AREA_ABBREV = case_when(
-    INPFC_AREA == "Central Aleutians" ~ "Central AI",
-    INPFC_AREA == "Eastern Aleutians" ~ "Eastern AI",
-    INPFC_AREA == "Western Aleutians" ~ "Western AI",
-    INPFC_AREA == "Southern Bering Sea" ~ "SBS"
-  ))
+if(SRVY=="GOA"){
+  dat <- read.csv("data/local_gap_products/area.csv")
+  
+  region_lu <- dat |>
+    dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID==47,"GOA","AI")) |>
+    dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == 2025 & AREA_TYPE == "STRATUM") |>
+    dplyr::rename(STRATUM = 'AREA_ID',
+                  MIN_DEPTH = "DEPTH_MIN_M",
+                  MAX_DEPTH = "DEPTH_MAX_M",
+                  REGULATORY_AREA_NAME = "AREA_NAME",
+                  AREA = "AREA_KM2") |>
+    dplyr::select(
+      SURVEY, STRATUM, MIN_DEPTH, MAX_DEPTH,
+      REGULATORY_AREA_NAME, AREA, DESCRIPTION
+    ) |>
+    #dplyr::filter(STRATUM <= 794) |>
+    tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
+    dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
+    dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
+  
+  # For AI years, add abbreviated area names:
+  region_lu2 <- region_lu |>
+    dplyr::group_by(REGULATORY_AREA_NAME) |>
+    dplyr::summarize(REGULATORY_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
+    dplyr::ungroup() |>
+    mutate(REGULATORY_AREA_ABBREV = case_when(
+      REGULATORY_AREA_NAME  == "Central Aleutians" ~ "Central AI",
+      REGULATORY_AREA_NAME  == "Eastern Aleutians" ~ "Eastern AI",
+      REGULATORY_AREA_NAME  == "Western Aleutians" ~ "Western AI",
+      REGULATORY_AREA_NAME  == "Southern Bering Sea" ~ "SBS"
+    ))
+  
+}
 
 # If it's an AI year, add Aleutian areas:
-if (SRVY == "AI") {
-  INPFC_areas <- region_lu2 %>%
-    tibble::add_row(
-      INPFC_AREA = "All Aleutian Districts",
-      INPFC_AREA_AREA_km2 = sum(filter(region_lu2, INPFC_AREA != "Southern Bering Sea")$INPFC_AREA_AREA_km2)
-    ) %>%
-    tibble::add_row(
-      INPFC_AREA = "All Districts",
-      INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
-    )
-} else {
-  INPFC_areas <- region_lu2 %>%
-    tibble::add_row(
-      INPFC_AREA = "All Districts",
-      INPFC_AREA_AREA_km2 = sum(region_lu2$INPFC_AREA_AREA_km2)
-    )
-}
+# if (SRVY == "AI") {
+#   INPFC_areas <- region_lu2 %>%
+#     tibble::add_row(
+#       INPFC_AREA = "All Aleutian Districts",
+#       INPFC_AREA_AREA_km2 = sum(filter(region_lu2, INPFC_AREA != "Southern Bering Sea")$INPFC_AREA_AREA_km2)
+#     ) %>%
+#     tibble::add_row(
+#       INPFC_AREA = "All Districts",
+#       INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
+#     )
+# } else {
+#   INPFC_areas <- region_lu2 %>%
+#     tibble::add_row(
+#       INPFC_AREA = "All Districts",
+#       INPFC_AREA_AREA_km2 = sum(region_lu2$INPFC_AREA_AREA_km2)
+#     )
+# }
 
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
@@ -625,10 +659,10 @@ otos_collected <- specimen_maxyr %>%
     "REGION", "VESSEL", "YEAR"
   )) %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
-  group_by(INPFC_AREA, `Depth range`) %>%
+  group_by(REGULATORY_AREA_NAME, `Depth range`) %>%
   dplyr::summarize("Pairs of otoliths collected" = n()) %>%
   ungroup() %>%
-  arrange(factor(INPFC_AREA, levels = district_order))
+  arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
 
 otos_by_species <- specimen_maxyr %>%
   filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
@@ -671,7 +705,7 @@ meanlengths_area <- length_maxyr %>%
   )) %>%
   dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
   dplyr::left_join(region_lu, by = c("STRATUM")) %>%
-  group_by(SPECIES_CODE, INPFC_AREA) %>% # , `Depth range`
+  group_by(SPECIES_CODE, REGULATORY_AREA_NAME) %>% # , `Depth range`
   dplyr::summarize(
     "N" = sum(FREQUENCY, na.rm = TRUE),
     "Mean length" = weighted.mean(LENGTH, w = FREQUENCY, na.rm = TRUE)
