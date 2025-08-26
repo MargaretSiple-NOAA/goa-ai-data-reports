@@ -233,7 +233,7 @@ if (use_gapindex) {
 
   sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
     gapdata = rpt_data,
-    racebase_cpue = cpue_raw_caps,
+    cpue = cpue_raw_caps,
     abundance_stratum = biomass_stratum,
     spatial_level = "stratum",
     fill_NA_method = "AIGOA"
