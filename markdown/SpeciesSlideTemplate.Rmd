@@ -23,6 +23,8 @@ print(list_joy_length[["{{species_code}}"]])
 ## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
 
 
-```{r echo=FALSE,out.width=9, error=TRUE}
+```{r echo=FALSE,out.width=8, error=TRUE}
 print(list_cpue_bubbles_strata[["{{species_code}}"]])
 ```
+
+----
