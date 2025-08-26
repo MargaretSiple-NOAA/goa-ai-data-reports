@@ -10,10 +10,10 @@ haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 
 # species ID info (source: RACEBASE) --------------------------------------
 species_names0 <- read.csv(here::here("data", "local_racebase", "species.csv"), header = TRUE)
-species_names <- species_names0 %>%
-  janitor::clean_names() %>%
-  dplyr::rename(scientific_name = species_name) %>%
-  dplyr::select(-year_added) %>%
+species_names <- species_names0 |>
+  janitor::clean_names() |>
+  dplyr::rename(scientific_name = species_name) |>
+  dplyr::select(-year_added) |>
   dplyr::mutate(
     major_group = dplyr::case_when(
       species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
@@ -64,8 +64,8 @@ survnumber <- cruises |>
   filter(SURVEY_NAME == ifelse(SRVY == "AI",
     "Aleutian Islands Bottom Trawl Survey",
     "Gulf of Alaska Bottom Trawl Survey"
-  )) %>%
-  filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) %>% # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
+  )) |>
+  filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) |> # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
   dplyr::filter(CRUISE != 202001) |>
   distinct(CRUISE) |>
   arrange(CRUISE) |>
@@ -76,7 +76,7 @@ survnumber <- cruises |>
 # length(which(is.na(haul_maxyr$GEAR_TEMPERATURE)))
 # length(which(is.na(haul_maxyr$SURFACE_TEMPERATURE)))
 
-haul_maxyr %>%
+haul_maxyr |>
   filter(GEAR_TEMPERATURE == 0)
 
 minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE > 0)],
@@ -93,12 +93,12 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
   na.rm = T
 )
 
-nhauls_no_stemp <- haul_maxyr %>%
-  filter(is.na(SURFACE_TEMPERATURE)) %>%
+nhauls_no_stemp <- haul_maxyr |>
+  filter(is.na(SURFACE_TEMPERATURE)) |>
   nrow()
 
-nhauls_no_btemp <- haul_maxyr %>%
-  filter(is.na(GEAR_TEMPERATURE)) %>%
+nhauls_no_btemp <- haul_maxyr |>
+  filter(is.na(GEAR_TEMPERATURE)) |>
   nrow()
 
 # Special sentence about temperature data
@@ -122,7 +122,7 @@ if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
 # Econ info ---------------------------------------------------------------
 dat <- read.csv("data/GOA_planning_species_2021.csv")
 sp_prices <- dat |>
-  dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) %>%
+  dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) |>
   dplyr::rename(
     `Scientific name` = species.name,
     `Common name` = common.name,
@@ -486,17 +486,17 @@ if (SRVY == "GOA") {
 
 # If it's an AI year, add Aleutian areas:
 # if (SRVY == "AI") {
-#   INPFC_areas <- region_lu2 %>%
+#   INPFC_areas <- region_lu2 |>
 #     tibble::add_row(
 #       INPFC_AREA = "All Aleutian Districts",
 #       INPFC_AREA_AREA_km2 = sum(filter(region_lu2, INPFC_AREA != "Southern Bering Sea")$INPFC_AREA_AREA_km2)
-#     ) %>%
+#     ) |>
 #     tibble::add_row(
 #       INPFC_AREA = "All Districts",
 #       INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
 #     )
 # } else {
-#   INPFC_areas <- region_lu2 %>%
+#   INPFC_areas <- region_lu2 |>
 #     tibble::add_row(
 #       INPFC_AREA = "All Districts",
 #       INPFC_AREA_AREA_km2 = sum(region_lu2$INPFC_AREA_AREA_km2)
@@ -505,34 +505,34 @@ if (SRVY == "GOA") {
 
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
-haul2 <- haul %>%
-  mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
+haul2 <- haul |>
+  mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
   filter(YEAR == maxyr & REGION == SRVY)
 
-avg_net_height <- haul %>%
-  filter(REGION == SRVY, CRUISE >= 199101 & ABUNDANCE_HAUL == "Y") %>%
-  summarize(mean(NET_HEIGHT, na.rm = T)) %>%
-  round(digits = 1) %>%
+avg_net_height <- haul |>
+  filter(REGION == SRVY, CRUISE >= 199101 & ABUNDANCE_HAUL == "Y") |>
+  summarize(mean(NET_HEIGHT, na.rm = T)) |>
+  round(digits = 1) |>
   as.numeric()
 
-avg_net_width <- haul %>%
-  filter(REGION == SRVY, CRUISE >= 199101 & ABUNDANCE_HAUL == "Y") %>%
-  summarize(mean(NET_WIDTH, na.rm = T)) %>%
-  round(digits = 1) %>%
+avg_net_width <- haul |>
+  filter(REGION == SRVY, CRUISE >= 199101 & ABUNDANCE_HAUL == "Y") |>
+  summarize(mean(NET_WIDTH, na.rm = T)) |>
+  round(digits = 1) |>
   as.numeric()
 
 if (maxyr > 2023) {
-  nstationsassigned <- all_allocation %>%
-    filter(YEAR == maxyr & STATION_TYPE != "bonus_stn") %>%
+  nstationsassigned <- all_allocation |>
+    filter(YEAR == maxyr & STATION_TYPE != "bonus_stn") |>
     nrow()
 } else {
-  nstationsassigned <- all_allocation %>%
-    filter(YEAR == maxyr) %>%
+  nstationsassigned <- all_allocation |>
+    filter(YEAR == maxyr) |>
     nrow()
 }
 
-nnewstations <- all_allocation %>%
-  filter(YEAR == maxyr & STATION_TYPE == "new_stn") %>%
+nnewstations <- all_allocation |>
+  filter(YEAR == maxyr & STATION_TYPE == "new_stn") |>
   nrow()
 
 if (nnewstations == 0) {
@@ -540,20 +540,20 @@ if (nnewstations == 0) {
 }
 
 # Of the new stations allocated to the different vessels, which ones were successfully sampled?
-hist_stations <- haul %>%
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
-  filter(REGION == SRVY) %>%
-  filter(YEAR != maxyr) %>%
-  distinct(STATIONID) %>%
+hist_stations <- haul |>
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
+  filter(REGION == SRVY) |>
+  filter(YEAR != maxyr) |>
+  distinct(STATIONID) |>
   as.vector()
 hist_stations <- hist_stations$STATIONID
 
-test <- haul_maxyr %>%
-  mutate(newstation = ifelse(STATIONID %in% hist_stations, "no", "yes")) %>%
+test <- haul_maxyr |>
+  mutate(newstation = ifelse(STATIONID %in% hist_stations, "no", "yes")) |>
   filter(newstation == "yes")
 
-new_successfully_sampled <- test %>%
-  filter(ABUNDANCE_HAUL == "Y") %>%
+new_successfully_sampled <- test |>
+  filter(ABUNDANCE_HAUL == "Y") |>
   nrow()
 
 # In the AI, we assign boat to investigate new stations that haven't been trawled before. In the GOA survey, that doesn't happen.
@@ -565,42 +565,42 @@ if (SRVY == "AI") {
 
 # Number of stations "successfully sampled"
 # Subset maxyr HAUL table to abundance_haul=="Y", count the number of unique stations.
-nstations <- haul2 %>%
-  filter(ABUNDANCE_HAUL == "Y") %>%
-  distinct(STATIONID, STRATUM) %>%
+nstations <- haul2 |>
+  filter(ABUNDANCE_HAUL == "Y") |>
+  distinct(STATIONID, STRATUM) |>
   nrow()
 
 # Number of "successful hauls":
 #   Subset maxyr HAUL table to abundance_haul=="Y", count number of rows (i.e. the unique number of hauls).
-nsuccessfulhauls <- haul2 %>%
-  filter(ABUNDANCE_HAUL == "Y") %>%
+nsuccessfulhauls <- haul2 |>
+  filter(ABUNDANCE_HAUL == "Y") |>
   nrow()
 
 # Number of attempted tows:
-nattemptedhauls <- haul2 %>%
-  filter(HAUL_TYPE == 3) %>%
+nattemptedhauls <- haul2 |>
+  filter(HAUL_TYPE == 3) |>
   nrow()
 
 # Number of stations attempted:
-nattemptedstations <- haul2 %>%
-  distinct(STATIONID, STRATUM) %>%
+nattemptedstations <- haul2 |>
+  distinct(STATIONID, STRATUM) |>
   nrow()
 
 # Number of stations for which Marport net spread was successfully recorded:
-nstations_w_marport_data <- haul2 %>%
-  filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "Y") %>%
-  distinct(STATIONID, STRATUM) %>%
+nstations_w_marport_data <- haul2 |>
+  filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "Y") |>
+  distinct(STATIONID, STRATUM) |>
   nrow()
 
-nestimatedspreads <- haul2 %>%
-  filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "N") %>%
-  distinct(STATIONID, STRATUM) %>%
+nestimatedspreads <- haul2 |>
+  filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "N") |>
+  distinct(STATIONID, STRATUM) |>
   nrow()
 
 
 # Number of "failed tows":
-nfailedtows <- haul2 %>%
-  filter(HAUL_TYPE == 3 & PERFORMANCE < 0) %>%
+nfailedtows <- haul2 |>
+  filter(HAUL_TYPE == 3 & PERFORMANCE < 0) |>
   nrow()
 
 # Number of stations with no marport data - this is a phrase
@@ -619,7 +619,7 @@ if (any(is.na(haul2$NET_WIDTH))) {
 
 # Lengths and otos sampled -------------------------------------------
 L0 <- read.csv(here::here("data/local_racebase/length.csv"))
-L <- L0 %>%
+L <- L0 |>
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
 
 length_maxyr_species <- filter(L, YEAR == maxyr & REGION == SRVY) |>
@@ -645,42 +645,42 @@ unique(length_maxyr_complexes$SPECIES_CODE)
 length_maxyr <- bind_rows(length_maxyr_species, length_maxyr_complexes)
 
 # Number of lengths collected per area
-lengths_collected <- sum(length_maxyr_species$FREQUENCY) %>%
+lengths_collected <- sum(length_maxyr_species$FREQUENCY) |>
   format(big.mark = ",")
 
-nfishlengths <- sum(length_maxyr_species %>%
-  filter(LENGTH_TYPE %in% c(1, 5, 11)) %>% dplyr::select(FREQUENCY)) %>%
+nfishlengths <- sum(length_maxyr_species |>
+  filter(LENGTH_TYPE %in% c(1, 5, 11)) |> dplyr::select(FREQUENCY)) |>
   format(big.mark = ",")
 
-nsquidlengths <- sum(length_maxyr_species %>%
-  filter(LENGTH_TYPE == 12) %>% dplyr::select(FREQUENCY)) %>%
+nsquidlengths <- sum(length_maxyr_species |>
+  filter(LENGTH_TYPE == 12) |> dplyr::select(FREQUENCY)) |>
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
 S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
 
-specimen_maxyr <- S %>%
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>%
+specimen_maxyr <- S |>
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
   filter(YEAR == maxyr & REGION == SRVY)
 
-otos_collected <- specimen_maxyr %>%
-  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+otos_collected <- specimen_maxyr |>
+  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN", "HAUL",
     "REGION", "VESSEL", "YEAR"
-  )) %>%
-  dplyr::left_join(region_lu, by = c("STRATUM")) %>%
-  group_by(REGULATORY_AREA_NAME, `Depth range`) %>%
-  dplyr::summarize("Pairs of otoliths collected" = n()) %>%
-  ungroup() %>%
+  )) |>
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  group_by(REGULATORY_AREA_NAME, `Depth range`) |>
+  dplyr::summarize("Pairs of otoliths collected" = n()) |>
+  ungroup() |>
   arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
 
-otos_by_species <- specimen_maxyr %>%
-  filter(SPECIMEN_SAMPLE_TYPE == 1) %>% # this means it's an oto collection
+otos_by_species <- specimen_maxyr |>
+  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "CRUISE", "HAULJOIN", "HAUL",
     "REGION", "VESSEL", "YEAR"
-  )) %>%
+  )) |>
   dplyr::group_by(SPECIES_CODE) |>
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup()
@@ -709,36 +709,36 @@ lengths_species <- length_maxyr_species |>
 # Hereafter, we want to work with only abundance hauls!
 # haul_maxyr <- subset(haul_maxyr,ABUNDANCE_HAUL=="Y")
 
-meanlengths_area <- length_maxyr %>%
+meanlengths_area <- length_maxyr |>
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE", "YEAR", "HAUL"
-  )) %>%
-  dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
-  dplyr::left_join(region_lu, by = c("STRATUM")) %>%
-  group_by(SPECIES_CODE, REGULATORY_AREA_NAME) %>% # , `Depth range`
+  )) |>
+  dplyr::filter(ABUNDANCE_HAUL == "Y") |>
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  group_by(SPECIES_CODE, REGULATORY_AREA_NAME) |> # , `Depth range`
   dplyr::summarize(
     "N" = sum(FREQUENCY, na.rm = TRUE),
     "Mean length" = weighted.mean(LENGTH, w = FREQUENCY, na.rm = TRUE)
-  ) %>%
-  ungroup() %>%
+  ) |>
+  ungroup() |>
   dplyr::left_join(region_lu2)
 
-meanlengths_depth <- length_maxyr %>%
+meanlengths_depth <- length_maxyr |>
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
     "REGION", "VESSEL", "CRUISE"
-  )) %>%
-  dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
-  dplyr::left_join(region_lu, by = c("STRATUM")) %>%
-  dplyr::group_by(SPECIES_CODE, `Depth range`) %>% # ,
+  )) |>
+  dplyr::filter(ABUNDANCE_HAUL == "Y") |>
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  dplyr::group_by(SPECIES_CODE, `Depth range`) |> # ,
   dplyr::summarize(
     "N" = sum(FREQUENCY, na.rm = TRUE),
     "Mean length" = weighted.mean(LENGTH, w = FREQUENCY, na.rm = TRUE)
-  ) %>%
+  ) |>
   ungroup()
 
-total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
+total_otos <- sum(otos_collected$`Pairs of otoliths collected`) |>
   format(big.mark = ",")
 
 
@@ -812,22 +812,22 @@ catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
 
 
 # Species with highest est'd biomass --------------------------------------
-biomass_maxyr <- biomass_total %>%
+biomass_maxyr <- biomass_total |>
   filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
 
-highest_biomass <- biomass_maxyr %>%
-  dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) %>%
-  janitor::clean_names() %>%
+highest_biomass <- biomass_maxyr |>
+  dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) |>
+  janitor::clean_names() |>
   dplyr::left_join(species_names)
 
-highest_biomass_flatfish <- highest_biomass %>%
+highest_biomass_flatfish <- highest_biomass |>
   filter(major_group == "Flatfish")
 
-highest_chonds <- biomass_total %>%
-  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) %>%
-  janitor::clean_names() %>%
-  dplyr::left_join(species_names) %>%
-  filter(major_group == "Chondrichthyans") %>%
+highest_chonds <- biomass_total |>
+  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) |>
+  janitor::clean_names() |>
+  dplyr::left_join(species_names) |>
+  filter(major_group == "Chondrichthyans") |>
   dplyr::slice_max(n = 3, order_by = biomass_mt, with_ties = FALSE)
 
 highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[1])
