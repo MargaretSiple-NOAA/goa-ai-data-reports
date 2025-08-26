@@ -176,121 +176,6 @@ if (!use_gapindex) {
   rm(sizecomp0)
 }
 
-# Complexes. create biomass_total and cpue tables using gapindex ----
-# complex_lookup is defined in report_settings.
-
-## Connect to Oracle
-channel <- gapindex::get_connected(check_access = F)
-
-yrs_to_pull <- minyr:maxyr
-
-## Pull data.
-complexes_data <- gapindex::get_data(
-  year_set = yrs_to_pull,
-  survey_set = SRVY,
-  spp_codes = data.frame(
-    SPECIES_CODE = complex_lookup$species_code,
-    GROUP_CODE = complex_lookup$complex #  GROUP has to be numeric
-  ),
-  haul_type = 3,
-  abundance_haul = "Y",
-  pull_lengths = TRUE,
-  channel = channel
-)
-
-cpue_table_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
-
-biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
-  gapdata = complexes_data,
-  cpue = cpue_table_complexes
-)
-
-biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
-  gapdata = complexes_data,
-  biomass_stratum = biomass_stratum_complexes
-)
-
-biomass_df_complexes <- biomass_subarea_complexes |>
-  dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-  mutate(
-    MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-  ) |>
-  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-
-# head(biomass_df_complexes)
-
-biomass_total_complexes <- biomass_df_complexes
-
-biomass_total <- dplyr::bind_rows(
-  biomass_total,
-  biomass_total_complexes
-)
-
-biomass_subarea <- dplyr::bind_rows(
-  biomass_subarea_species,
-  biomass_subarea_complexes
-)
-
-rm(list = c(
-  "biomass_subarea_species",
-  "biomass_subarea_complexes"
-))
-
-print("Created cpue_table_complexes and biomass_total_complexes.")
-
-# Complexes: create sizecomps ---------------------------------------------
-## Pull data.
-
-# cpue_raw_caps_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
-
-sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
-  gapdata = complexes_data,
-  cpue = cpue_table_complexes,
-  abundance_stratum = biomass_stratum_complexes,
-  spatial_level = "stratum",
-  fill_NA_method = "AIGOA"
-)
-
-## Calculate aggregated size composition across subareas, management areas, and
-## regions
-sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
-  gapdata = complexes_data,
-  sizecomp_stratum = sizecomp_stratum_complexes
-)
-
-sizecomp_complexes <- sizecomp_subareas_complexes |>
-  dplyr::filter(
-    SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-      AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
-  ) |>
-  dplyr::mutate(SURVEY = SRVY, SEX = case_when(
-    SEX == 1 ~ "MALES",
-    SEX == 2 ~ "FEMALES",
-    SEX == 3 ~ "UNSEXED"
-  )) |>
-  dplyr::rename(LENGTH = LENGTH_MM) |>
-  tidyr::pivot_wider(
-    names_from = "SEX",
-    values_from = "POPULATION_COUNT",
-    values_fill = 0
-  ) |>
-  dplyr::mutate(
-    TOTAL = MALES + FEMALES + UNSEXED,
-    SUMMARY_AREA = 999
-  ) |>
-  as.data.frame()
-
-sizecomp <- rbind(sizecomp, sizecomp_complexes)
-
-rm(list = c("sizecomp_stratum_complexes"))
-
-# Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
-if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
-  print("Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
-}
-
-
 ############ OPTIONAL: GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
 if (use_gapindex) {
@@ -399,6 +284,122 @@ if (use_gapindex) {
   print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
 
+# Complexes. create biomass_total and cpue tables using gapindex ----
+# complex_lookup is defined in report_settings.
+
+## Connect to Oracle
+channel <- gapindex::get_connected(check_access = F)
+
+yrs_to_pull <- minyr:maxyr
+
+## Pull data.
+complexes_data <- gapindex::get_data(
+  year_set = yrs_to_pull,
+  survey_set = SRVY,
+  spp_codes = data.frame(
+    SPECIES_CODE = complex_lookup$species_code,
+    GROUP_CODE = complex_lookup$complex #  GROUP has to be numeric
+  ),
+  haul_type = 3,
+  abundance_haul = "Y",
+  pull_lengths = TRUE,
+  channel = channel
+)
+
+cpue_table_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
+
+biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
+  gapdata = complexes_data,
+  cpue = cpue_table_complexes
+)
+
+biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
+  gapdata = complexes_data,
+  biomass_stratum = biomass_stratum_complexes
+)
+
+biomass_df_complexes <- biomass_subarea_complexes |>
+  dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
+  mutate(
+    MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
+    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+  ) |>
+  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
+
+# head(biomass_df_complexes)
+
+biomass_total_complexes <- biomass_df_complexes
+
+biomass_total <- dplyr::bind_rows(
+  biomass_total,
+  biomass_total_complexes
+)
+
+biomass_subarea <- dplyr::bind_rows(
+  biomass_subarea_species,
+  biomass_subarea_complexes
+)
+
+rm(list = c(
+  "biomass_subarea_species",
+  "biomass_subarea_complexes"
+))
+
+print("Created cpue_table_complexes and biomass_total_complexes.")
+
+# Complexes: create sizecomps ---------------------------------------------
+## Pull data.
+
+# cpue_raw_caps_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
+
+sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
+  gapdata = complexes_data,
+  cpue = cpue_table_complexes,
+  abundance_stratum = biomass_stratum_complexes,
+  spatial_level = "stratum",
+  fill_NA_method = "AIGOA"
+)
+
+## Calculate aggregated size composition across subareas, management areas, and
+## regions
+sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
+  gapdata = complexes_data,
+  sizecomp_stratum = sizecomp_stratum_complexes
+)
+
+sizecomp_complexes <- sizecomp_subareas_complexes |>
+  dplyr::filter(
+    SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+      AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
+  ) |>
+  dplyr::mutate(SURVEY = SRVY, SEX = case_when(
+    SEX == 1 ~ "MALES",
+    SEX == 2 ~ "FEMALES",
+    SEX == 3 ~ "UNSEXED"
+  )) |>
+  dplyr::rename(LENGTH = LENGTH_MM) |>
+  tidyr::pivot_wider(
+    names_from = "SEX",
+    values_from = "POPULATION_COUNT",
+    values_fill = 0
+  ) |>
+  dplyr::mutate(
+    TOTAL = MALES + FEMALES + UNSEXED,
+    SUMMARY_AREA = 999
+  ) |>
+  as.data.frame()
+
+# If you're already using gapindex to get size comps, that code already produces the full sizecomp table
+if (!use_gapindex) {
+  sizecomp <- rbind(sizecomp, sizecomp_complexes)
+}
+
+rm(list = c("sizecomp_stratum_complexes"))
+
+# Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
+if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
+  print("Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
+}
 
 # Station allocation, counts, etc. ----------------------------------------
 # Station allocation table (source: AI or GOA schema)
