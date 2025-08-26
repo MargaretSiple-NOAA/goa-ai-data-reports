@@ -79,38 +79,38 @@ haul <- read.csv(here::here("data", "local_racebase", "haul.csv"))
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
 # Haul summary table
-haul2 <- haul %>%
-  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+haul2 <- haul |>
+  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
   filter(YEAR == maxyr & REGION == SRVY)
 
-haul_maxyr <- haul %>%
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) %>% # extract year
+haul_maxyr <- haul |>
+  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # extract year
   filter(REGION == SRVY & YEAR == maxyr)
 
-nstations <- haul2 %>%
-  filter(ABUNDANCE_HAUL == "Y") %>%
-  distinct(STATIONID, STRATUM) %>%
+nstations <- haul2 |>
+  filter(ABUNDANCE_HAUL == "Y") |>
+  distinct(STATIONID, STRATUM) |>
   nrow() # checked in 2023
 
-nsuccessfulhauls <- haul2 %>%
-  filter(ABUNDANCE_HAUL == "Y") %>%
+nsuccessfulhauls <- haul2 |>
+  filter(ABUNDANCE_HAUL == "Y") |>
   nrow()
 
 # Data for text ---------------------------------------------------
 # Length data from racebase:
 L <- read.csv(here::here("data/local_racebase/length.csv"))
-L <- L %>%
+L <- L |>
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
 length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
 # Lengths collected
-lengths_collected <- sum(length_maxyr$FREQUENCY) %>%
+lengths_collected <- sum(length_maxyr$FREQUENCY) |>
   format(big.mark = ",")
 
-nfishlengths <- sum(length_maxyr %>%
-  filter(LENGTH_TYPE %in% c(1, 5, 11)) %>%
-  dplyr::select(FREQUENCY)) %>%
-  sum() %>%
+nfishlengths <- sum(length_maxyr |>
+  filter(LENGTH_TYPE %in% c(1, 5, 11)) |>
+  dplyr::select(FREQUENCY)) |>
+  sum() |>
   format(big.mark = ",")
 
 nfishlengths_reportspps <- length_maxyr |>
@@ -348,11 +348,11 @@ if (make_biomass_timeseries) {
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
 
-    dat <- biomass_total %>%
+    dat <- biomass_total |>
       filter(SPECIES_CODE == report_species$species_code[i])
     lta <- mean(dat$BIOMASS_MT)
 
-    p1 <- dat %>%
+    p1 <- dat |>
       ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
@@ -454,7 +454,7 @@ if (make_complexes_figs) {
   #     st_as_sf(
   #       coords = c("longitude_dd_start", "latitude_dd_start"),
   #       crs = "EPSG:4326"
-  #     ) %>%
+  #     ) |>
   #     st_transform(crs = reg_data$crs)
   #
   #   # MAPS
@@ -578,7 +578,7 @@ if (make_catch_comp) {
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
-    ) %>%
+    ) |>
     mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal, replace = "Other species"))
 
   biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
@@ -637,7 +637,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       st_as_sf(
         coords = c("longitude_dd_start", "latitude_dd_start"),
         crs = "EPSG:4326"
-      ) %>%
+      ) |>
       st_transform(crs = reg_data$crs)
 
     # MAPS
@@ -1016,7 +1016,7 @@ if (make_cpue_idw) {
     sp <- report_species$species_code[s]
     namebubble <- report_species$spp_name_informal[s]
 
-    dat2plot <- cpue_raw %>%
+    dat2plot <- cpue_raw |>
       filter(survey == SRVY & species_code == sp & year == maxyr)
     cpue_res <- 0.05 # 0.05 will take less time, 0.01 is best looking but takes ~10 mins per plot.
 
@@ -1284,7 +1284,7 @@ if (make_joy_division_length) {
   length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
   L2 <- L |> # L is the big length table from RACEBASE
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
     filter(REGION == SRVY) # want to keep all years for this fig
 
   L3 <- L2 |>
@@ -1336,36 +1336,36 @@ if (make_joy_division_length) {
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
   # Loop thru species
   for (i in 1:nrow(report_species)) {
-    len2plot <- report_pseudolengths %>%
+    len2plot <- report_pseudolengths |>
       filter(SPECIES_CODE == report_species$species_code[i])
 
     # SSTH or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
     if (report_species$species_code[i] %in% c(30020, 21341)) {
       len2plot <- len2plot
     } else {
-      len2plot <- len2plot %>%
+      len2plot <- len2plot |>
         filter(Sex != "Unsexed")
     }
 
     # Save median lengths by year and sex for species i
-    medlines_sp <- report_pseudolengths %>%
-      filter(SPECIES_CODE == report_species$species_code[i]) %>%
-      group_by(YEAR, Sex) %>%
-      dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+    medlines_sp <- report_pseudolengths |>
+      filter(SPECIES_CODE == report_species$species_code[i]) |>
+      group_by(YEAR, Sex) |>
+      dplyr::summarize(medlength = median(LENGTH, na.rm = T)) |>
       ungroup()
 
     # Lengths to plot
-    len2plot2 <- len2plot %>%
-      left_join(sample_sizes %>%
+    len2plot2 <- len2plot |>
+      left_join(sample_sizes |>
         filter(SPECIES_CODE == report_species$species_code[i]))
 
     yrbreaks <- unique(len2plot2$YEAR)
     lengthlimits <- range(len2plot2$LENGTH)
 
-    n_labels <- len2plot2 %>%
+    n_labels <- len2plot2 |>
       distinct(YEAR, Sex, .keep_all = TRUE)
 
-    joyplot <- len2plot2 %>%
+    joyplot <- len2plot2 |>
       ggplot(mapping = aes(x = LENGTH, y = YEAR, group = YEAR, fill = after_stat(x))) +
       ggridges::geom_density_ridges_gradient( #
         bandwidth = 5,
@@ -1426,28 +1426,28 @@ if (make_joy_division_length) {
     #   yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
     #   yrlabels <- as.character(yrlabels)
     #
-    #   medlines_sp <- report_pseudolengths %>%
-    #     filter(SPECIES_CODE %in% polycode_vec) %>%
-    #     group_by(YEAR, Sex) %>%
-    #     dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
+    #   medlines_sp <- report_pseudolengths |>
+    #     filter(SPECIES_CODE %in% polycode_vec) |>
+    #     group_by(YEAR, Sex) |>
+    #     dplyr::summarize(medlength = median(LENGTH, na.rm = T)) |>
     #     ungroup()
     #
     #
-    #   sample_sizes_comb <- sample_sizes %>%
-    #     filter(SPECIES_CODE %in% polycode_vec) %>%
-    #     group_by(YEAR, Sex) %>%
-    #     dplyr::summarize(n = sum(n)) %>%
+    #   sample_sizes_comb <- sample_sizes |>
+    #     filter(SPECIES_CODE %in% polycode_vec) |>
+    #     group_by(YEAR, Sex) |>
+    #     dplyr::summarize(n = sum(n)) |>
     #     ungroup()
     #
-    #   len2plot_comb <- report_pseudolengths %>%
-    #     filter(SPECIES_CODE %in% polycode_vec) %>%
-    #     filter(Sex != "Unsexed") %>%
+    #   len2plot_comb <- report_pseudolengths |>
+    #     filter(SPECIES_CODE %in% polycode_vec) |>
+    #     filter(Sex != "Unsexed") |>
     #     left_join(sample_sizes_comb)
     #
-    #   testlabdf_comb <- len2plot_comb %>%
+    #   testlabdf_comb <- len2plot_comb |>
     #     distinct(YEAR, Sex, .keep_all = TRUE)
     #
-    #   joyplot2 <- len2plot_comb %>%
+    #   joyplot2 <- len2plot_comb |>
     #     ggplot(
     #       mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
     #       fill = "grey"
@@ -1509,33 +1509,33 @@ if (make_joy_division_length) {
 if (make_temp_plot) {
   list_temperature <- list()
 
-  sstdat <- haul %>%
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) %>%
-    filter(YEAR >= 1990 & REGION == SRVY & YEAR != 1997) %>%
-    group_by(YEAR) %>%
+  sstdat <- haul |>
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
+    filter(YEAR >= 1990 & REGION == SRVY & YEAR != 1997) |>
+    group_by(YEAR) |>
     dplyr::summarize(
       bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
       surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
-    ) %>%
-    ungroup() %>%
-    as.data.frame() %>%
+    ) |>
+    ungroup() |>
+    as.data.frame() |>
     mutate(YEAR = as.numeric(YEAR))
 
   if (SRVY == "GOA") {
-    sstdat <- sstdat %>% filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
+    sstdat <- sstdat |> filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
   }
 
-  sst_summary <- sstdat %>%
+  sst_summary <- sstdat |>
     mutate(
       bottom_stz = bottom - mean(bottom, na.rm = T),
       surface_stz = surface - mean(surface, na.rm = T)
-    ) %>%
+    ) |>
     pivot_longer(cols = bottom:surface_stz)
 
-  plotdat <- haul %>%
-    mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) %>%
-    filter(REGION == SRVY & YEAR != 1997 & YEAR >= 1990) %>%
-    filter(CRUISE != 201402) %>% # remove study from Makushin bay in 2014 (contains a zero BT)
+  plotdat <- haul |>
+    mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
+    filter(REGION == SRVY & YEAR != 1997 & YEAR >= 1990) |>
+    filter(CRUISE != 201402) |> # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
 
   howmanyboats <- haul |>
@@ -1545,7 +1545,7 @@ if (make_temp_plot) {
     dplyr::distinct(VESSEL) |>
     dplyr::ungroup() |>
     dplyr::group_by(YEAR) |>
-    dplyr::summarize(nboats = length(VESSEL)) %>%
+    dplyr::summarize(nboats = length(VESSEL)) |>
     dplyr::ungroup() |>
     filter(YEAR >= 1990 & YEAR != 1998) |> # filter to fit the same years as above
     dplyr::mutate(annotation_star = case_when(
@@ -1575,7 +1575,7 @@ if (make_temp_plot) {
 
   # ylims <- range(plotdat$GEAR_TEMPERATURE,na.rm=TRUE)
 
-  bottom_temp_plot <- plotdat %>%
+  bottom_temp_plot <- plotdat |>
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
     ggdist::stat_halfeye(
@@ -1615,7 +1615,7 @@ if (make_temp_plot) {
     "Start_year" = c(maxyr - 10, maxyr - 20)
   )
 
-  surface_temp_plot <- plotdat %>%
+  surface_temp_plot <- plotdat |>
     ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
     ggdist::stat_halfeye(
