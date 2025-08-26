@@ -428,141 +428,146 @@ if(make_complexes_figs){
 
 
   # CPUE maps
-  list_cpue_bubbles_strata_complexes <- list()
-  
-  for (i in 1:length(unique(complex_lookup$complex))) {
-    complex_code <- unique(complex_lookup$complex)[i]
-    namebubble <- switch(complex_code, 
-                         REBS = "Rougheye/blackspotted rockfish",
-                         OROX = "Other rockfish",
-                         OFLATS = "Other flatfish")
-    
-    thisyrshauldata <- cpue_table_complexes |>
-      janitor::clean_names() |>
-      #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
-      dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
-      st_as_sf(
-        coords = c("longitude_dd_start", "latitude_dd_start"),
-        crs = "EPSG:4326"
-      ) %>%
-      st_transform(crs = reg_data$crs)
-    
-    # MAPS
-    p3a <- ggplot() +
-      geom_sf(
-        data = ai_east$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = reg_data$akland) +
-      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
-              aes(size = cpue_kgkm2), alpha = 0.5) + 
-      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-      geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
-        alpha = 1,
-        color = "red",
-        shape = 4,
-        size = 1
-      ) +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = reg_data$lon.breaks) +
-      scale_y_continuous(breaks = reg_data$lat.breaks) +
-      labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
-      bubbletheme
-    
-    p3b <- ggplot() +
-      geom_sf(
-        data = ai_central$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = ai_central$akland) +
-      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
-              aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(bquote("CPUE" ~ (kg / km^2)), 
-                 limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
-      geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
-        alpha = 1,
-        color = "red",
-        shape = 4,
-        size = 1
-      ) +
-      coord_sf(
-        xlim = ai_central$plot.boundary$x,
-        ylim = ai_central$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_central$lon.breaks) +
-      scale_y_continuous(breaks = ai_central$lat.breaks) +
-      labs(subtitle = "Central Aleutians") +
-      bubbletheme +
-      theme(legend.position = "left")
-    
-    p3c <- ggplot() +
-      geom_sf(
-        data = ai_west$survey.strata,
-        mapping = aes(
-          fill = factor(STRATUM),
-          color = factor(STRATUM)
-        )
-      ) +
-      scale_fill_manual(values = stratumpal, guide = "none") +
-      scale_color_manual(values = stratumpal, guide = "none") +
-      geom_sf(data = ai_west$akland) +
-      geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
-              aes(size = cpue_kgkm2), alpha = 0.5) +
-      scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-      geom_sf( # x's for places where cpue=0
-        data = filter(thisyrshauldata, cpue_kgkm2 == 0),
-        alpha = 1,
-        color = "red",
-        shape = 4,
-        size = 1
-      ) +
-      coord_sf(
-        xlim = ai_east$plot.boundary$x,
-        ylim = ai_east$plot.boundary$y
-      ) +
-      coord_sf(
-        xlim = ai_west$plot.boundary$x,
-        ylim = ai_west$plot.boundary$y
-      ) +
-      scale_x_continuous(breaks = ai_west$lon.breaks) +
-      scale_y_continuous(breaks = ai_west$lat.breaks) +
-      labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-      bubbletheme
-    
-    toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
-    bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
-    final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
-    
-    # ,out.width=9,out.height=8
-    png(
-      filename = paste0(dir_out_figures, complex_code, "_", maxyr, "_bubble.png"),
-      width = 9, height = 8, units = "in", res = 200
-    )
-    print(final_obj)
-    
-    dev.off()
-    
-    list_cpue_bubbles_strata_complexes[[i]] <- final_obj
-    names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
-  }#/all complexes cpue loop
-  
-  
-} #/ all complexes figs
+  # list_cpue_bubbles_strata_complexes <- list()
+  # 
+  # for (i in 1:length(unique(complex_lookup$complex))) {
+  #   complex_code <- unique(complex_lookup$complex)[i]
+  #   namebubble <- switch(complex_code, 
+  #                        DEEPFLATS = "Deepwater flatfish",
+  #                        DSROX = "Deep shelf rockfish",
+  #                        NRSSRS = "Northern/southern rock sole",
+  #                        SWFLATS = "Shallow-water flatfish",
+  #                        SHARKS = "Sharks",
+  #                        SKATES = "Skates",
+  #                        THORNYHEADS = "Thornyheads",
+  #                        REBS = "Rougheye/blackspotted rockfish",
+  #                        OROX = "Other rockfish",
+  #                        OFLATS = "Other flatfish",
+  #                        )
+  #   
+  #   thisyrshauldata <- cpue_table_complexes |>
+  #     janitor::clean_names() |>
+  #     #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
+  #     dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
+  #     st_as_sf(
+  #       coords = c("longitude_dd_start", "latitude_dd_start"),
+  #       crs = "EPSG:4326"
+  #     ) %>%
+  #     st_transform(crs = reg_data$crs)
+  #   
+  #   # MAPS
+  #   p3a <- ggplot() +
+  #     geom_sf(
+  #       data = ai_east$survey.strata,
+  #       mapping = aes(
+  #         fill = factor(STRATUM),
+  #         color = factor(STRATUM)
+  #       )
+  #     ) +
+  #     scale_fill_manual(values = stratumpal, guide = "none") +
+  #     scale_color_manual(values = stratumpal, guide = "none") +
+  #     geom_sf(data = reg_data$akland) +
+  #     geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+  #             aes(size = cpue_kgkm2), alpha = 0.5) + 
+  #     scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+  #     geom_sf( # x's for places where cpue=0
+  #       data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+  #       alpha = 1,
+  #       color = "red",
+  #       shape = 4,
+  #       size = 1
+  #     ) +
+  #     coord_sf(
+  #       xlim = ai_east$plot.boundary$x,
+  #       ylim = ai_east$plot.boundary$y
+  #     ) +
+  #     scale_x_continuous(breaks = reg_data$lon.breaks) +
+  #     scale_y_continuous(breaks = reg_data$lat.breaks) +
+  #     labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
+  #     bubbletheme
+  #   
+  #   p3b <- ggplot() +
+  #     geom_sf(
+  #       data = ai_central$survey.strata,
+  #       mapping = aes(
+  #         fill = factor(STRATUM),
+  #         color = factor(STRATUM)
+  #       )
+  #     ) +
+  #     scale_fill_manual(values = stratumpal, guide = "none") +
+  #     scale_color_manual(values = stratumpal, guide = "none") +
+  #     geom_sf(data = ai_central$akland) +
+  #     geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+  #             aes(size = cpue_kgkm2), alpha = 0.5) +
+  #     scale_size(bquote("CPUE" ~ (kg / km^2)), 
+  #                limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
+  #     geom_sf( # x's for places where cpue=0
+  #       data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+  #       alpha = 1,
+  #       color = "red",
+  #       shape = 4,
+  #       size = 1
+  #     ) +
+  #     coord_sf(
+  #       xlim = ai_central$plot.boundary$x,
+  #       ylim = ai_central$plot.boundary$y
+  #     ) +
+  #     scale_x_continuous(breaks = ai_central$lon.breaks) +
+  #     scale_y_continuous(breaks = ai_central$lat.breaks) +
+  #     labs(subtitle = "Central Aleutians") +
+  #     bubbletheme +
+  #     theme(legend.position = "left")
+  #   
+  #   p3c <- ggplot() +
+  #     geom_sf(
+  #       data = ai_west$survey.strata,
+  #       mapping = aes(
+  #         fill = factor(STRATUM),
+  #         color = factor(STRATUM)
+  #       )
+  #     ) +
+  #     scale_fill_manual(values = stratumpal, guide = "none") +
+  #     scale_color_manual(values = stratumpal, guide = "none") +
+  #     geom_sf(data = ai_west$akland) +
+  #     geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0), 
+  #             aes(size = cpue_kgkm2), alpha = 0.5) +
+  #     scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+  #     geom_sf( # x's for places where cpue=0
+  #       data = filter(thisyrshauldata, cpue_kgkm2 == 0),
+  #       alpha = 1,
+  #       color = "red",
+  #       shape = 4,
+  #       size = 1
+  #     ) +
+  #     coord_sf(
+  #       xlim = ai_east$plot.boundary$x,
+  #       ylim = ai_east$plot.boundary$y
+  #     ) +
+  #     coord_sf(
+  #       xlim = ai_west$plot.boundary$x,
+  #       ylim = ai_west$plot.boundary$y
+  #     ) +
+  #     scale_x_continuous(breaks = ai_west$lon.breaks) +
+  #     scale_y_continuous(breaks = ai_west$lat.breaks) +
+  #     labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
+  #     bubbletheme
+  #   
+  #   toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
+  #   bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
+  #   final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
+  #   
+  #   # ,out.width=9,out.height=8
+  #   png(
+  #     filename = paste0(dir_out_figures, complex_code, "_", maxyr, "_bubble.png"),
+  #     width = 9, height = 8, units = "in", res = 200
+  #   )
+  #   print(final_obj)
+  #   
+  #   dev.off()
+  #   
+  #   list_cpue_bubbles_strata_complexes[[i]] <- final_obj
+  #   names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
+  }#/all complexes figs loop
 
 # 2. Catch composition -------------------------------------------------------
 if (make_catch_comp) {
@@ -1307,6 +1312,14 @@ if (make_joy_division_length) {
     dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OROX")] ~ "OROX",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="REBS")] ~ "REBS",
                                            SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="OFLATS")] ~ "OFLATS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="DEEPFLATS")] ~ "DEEPFLATS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="DSROX")] ~ "DSROX",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="NRSSRS")] ~ "NRSSRS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SWFLATS")] ~ "SWFLATS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SHARKS")] ~ "SHARKS",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="SKATES")] ~ "SKATES",
+                                           SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex=="THORNYHEADS")] ~ "THORNYHEADS",
+                                           
                                            .default = as.character(SPECIES_CODE))) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
@@ -1679,10 +1692,10 @@ if (!exists("list_temperature")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_temperature.rdata"))
 }
 if (!exists("p2")) {
-  load(paste0("output/", figuredate, "/", "figures/", "catch_comp.rdata"))
+  load(paste0("output/",  SRVY, "_", maxyr, "/", "figures/", "catch_comp.rdata"))
 }
 if (!exists("compare_tab_pres")) {
-  read.csv(file = paste0("output/", tabledate, "/", "tables/", "compare_tab_pres.csv"))
+  read.csv(file = paste0("output/",  SRVY, "_", maxyr, "/", "tables/", "compare_tab_pres.csv"))
 }
 
 # GPT slides special: Order slides in order of highest to lowest biomass
