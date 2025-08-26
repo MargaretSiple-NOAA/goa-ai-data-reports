@@ -24,30 +24,38 @@ species_names <- species_names0 %>%
     ),
     species_code = as.character(species_code)
   ) |> # add column for species category
-  add_row(
-    species_code = c("OROX", "OFLATS", "REBS", 
-                     "DEEPFLATS", "DSROX", "NRSSRS", 
-                     "SWFLATS", "SHARKS", "SKATES", 
-                     "THORNYHEADS"),
-    scientific_name = c("Several species", "Several species", "Sebastes aleutianus and Sebastes melanosticus", 
-                        "Several species", "Several species", "Lepidopsetta polyxystra and L. bilineata", 
-                        "Several species", "Several species", "Several species", 
-                        "Sebastolobus sp."),
-    common_name = c("Other rockfish complex", "Other flatfish complex", "Rougheye/blackspotted complex", 
-                    "Deepwater flatfish complex", "Demersal shelf rockfish", "Northern and southern rock sole complex", 
-                    "Shallow-water flatfish complex", "Sharks", "Skates", 
-                    "Thornyheads"),
-    major_group = c("Rockfish", "Flatfish", "Rockfish", 
-                    "Flatfish", "Rockfish", "Flatfish", 
-                    "Flatfish", "Chondrichthyans", "Chondrichthyans", 
-                    "Thornyheads")
+  tibble::add_row(
+    species_code = c(
+      "OROX", "OFLATS", "REBS",
+      "DEEPFLATS", "DSROX", "NRSSRS",
+      "SWFLATS", "SHARKS", "SKATES",
+      "THORNYHEADS"
+    ),
+    scientific_name = c(
+      "Several species", "Several species", "Sebastes aleutianus and Sebastes melanosticus",
+      "Several species", "Several species", "Lepidopsetta polyxystra and L. bilineata",
+      "Several species", "Several species", "Several species",
+      "Sebastolobus sp."
+    ),
+    common_name = c(
+      "Other rockfish complex", "Other flatfish complex", "Rougheye/blackspotted complex",
+      "Deepwater flatfish complex", "Demersal shelf rockfish", "Northern and southern rock sole complex",
+      "Shallow-water flatfish complex", "Sharks", "Skates",
+      "Thornyheads"
+    ),
+    major_group = c(
+      "Rockfish", "Flatfish", "Rockfish",
+      "Flatfish", "Rockfish", "Flatfish",
+      "Flatfish", "Chondrichthyans", "Chondrichthyans",
+      "Thornyheads"
+    )
   )
 
 # This year's haul data
 haul_maxyr <- haul |>
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # extract year
-  filter(REGION == SRVY & YEAR != 1997) |> #YEAR >= 1994 & 
-  filter(REGION == SRVY & YEAR == maxyr & ABUNDANCE_HAUL =="Y")
+  filter(REGION == SRVY & YEAR != 1997) |> # YEAR >= 1994 &
+  filter(REGION == SRVY & YEAR == maxyr & ABUNDANCE_HAUL == "Y")
 
 # This year's survey number
 cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
@@ -103,7 +111,7 @@ if (nhauls_no_btemp == 0 & nhauls_no_stemp > 0) {
 if (nhauls_no_btemp > 0 & nhauls_no_stemp == 0) {
   temp_record_sentence <- paste("Surface temperature data were recorded for all hauls and temperatures at depth were recorded for all but", nhauls_no_btemp, "hauls.")
 }
-if(nhauls_no_btemp > 0 & nhauls_no_stemp > 0){
+if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
   temp_record_sentence <- paste("Bottom temperatures were recorded for all but", nhauls_no_btemp, "hauls and surface temperature data were recorded for all but", nhauls_no_stemp, "hauls.")
 }
 
@@ -164,7 +172,7 @@ if (!use_gapindex) {
     dplyr::filter(SURVEY == SRVY & YEAR >= minyr) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     dplyr::filter(SPECIES_CODE %in% report_species$species_code)
-  
+
   rm(sizecomp0)
 }
 
@@ -198,7 +206,7 @@ biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
 )
 
 biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
-  gapdata = complexes_data, 
+  gapdata = complexes_data,
   biomass_stratum = biomass_stratum_complexes
 )
 
@@ -224,19 +232,21 @@ biomass_subarea <- dplyr::bind_rows(
   biomass_subarea_complexes
 )
 
-rm(list=c("biomass_subarea_species",
-          "biomass_subarea_complexes"))
+rm(list = c(
+  "biomass_subarea_species",
+  "biomass_subarea_complexes"
+))
 
 print("Created cpue_table_complexes and biomass_total_complexes.")
 
 # Complexes: create sizecomps ---------------------------------------------
 ## Pull data.
 
-#cpue_raw_caps_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
+# cpue_raw_caps_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
 
 sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
   gapdata = complexes_data,
-  cpue = cpue_table_complexes, 
+  cpue = cpue_table_complexes,
   abundance_stratum = biomass_stratum_complexes,
   spatial_level = "stratum",
   fill_NA_method = "AIGOA"
@@ -273,7 +283,7 @@ sizecomp_complexes <- sizecomp_subareas_complexes |>
 
 sizecomp <- rbind(sizecomp, sizecomp_complexes)
 
-rm(list=c("sizecomp_stratum_complexes"))
+rm(list = c("sizecomp_stratum_complexes"))
 
 # Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
 if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
@@ -398,8 +408,8 @@ if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
 }
 
-if(maxyr == 2024){ # get allocation from special sheet with reduced stations
-  a0 <- read.csv("data/AI2024_allocation.csv",na.strings = "NA")
+if (maxyr == 2024) { # get allocation from special sheet with reduced stations
+  a0 <- read.csv("data/AI2024_allocation.csv", na.strings = "NA")
   table(a0$STATION_TYPE)
   all_allocation <- a0 |>
     mutate(YEAR = 2024, SURVEY = SRVY)
@@ -407,15 +417,15 @@ if(maxyr == 2024){ # get allocation from special sheet with reduced stations
 
 
 # We didn't do bonus stations until 2022:
-if(maxyr <= 2021){
-  all_allocation <- all_allocation |> 
-  mutate(STATION_TYPE = "before_2022")
+if (maxyr <= 2021) {
+  all_allocation <- all_allocation |>
+    mutate(STATION_TYPE = "before_2022")
 }
 
 # Get a table of the strata and depths / regions (source: AI or GOA schema)
 # This like a lookup table for allocating strata to the correct area and depth
 # dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
-# 
+#
 # region_lu <- dat |>
 #   dplyr::filter(SURVEY == SRVY) |>
 #   dplyr::select(
@@ -426,7 +436,7 @@ if(maxyr <= 2021){
 #   tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
 #   dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
 #   dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
-# 
+#
 # # For AI years, add abbreviated area names:
 # region_lu2 <- region_lu |>
 #   dplyr::group_by(INPFC_AREA) |>
@@ -439,38 +449,39 @@ if(maxyr <= 2021){
 #     INPFC_AREA == "Southern Bering Sea" ~ "SBS"
 #   ))
 
-if(SRVY=="GOA"){
+if (SRVY == "GOA") {
   dat <- read.csv("data/local_gap_products/area.csv")
-  
+
   region_lu <- dat |>
-    dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID==47,"GOA","AI")) |>
+    dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
     dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == 2025 & AREA_TYPE == "STRATUM") |>
-    dplyr::rename(STRATUM = 'AREA_ID',
-                  MIN_DEPTH = "DEPTH_MIN_M",
-                  MAX_DEPTH = "DEPTH_MAX_M",
-                  REGULATORY_AREA_NAME = "AREA_NAME",
-                  AREA = "AREA_KM2") |>
+    dplyr::rename(
+      STRATUM = "AREA_ID",
+      MIN_DEPTH = "DEPTH_MIN_M",
+      MAX_DEPTH = "DEPTH_MAX_M",
+      REGULATORY_AREA_NAME = "AREA_NAME",
+      AREA = "AREA_KM2"
+    ) |>
     dplyr::select(
       SURVEY, STRATUM, MIN_DEPTH, MAX_DEPTH,
       REGULATORY_AREA_NAME, AREA, DESCRIPTION
     ) |>
-    #dplyr::filter(STRATUM <= 794) |>
+    # dplyr::filter(STRATUM <= 794) |>
     tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
     dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
     dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
-  
+
   # For AI years, add abbreviated area names:
   region_lu2 <- region_lu |>
     dplyr::group_by(REGULATORY_AREA_NAME) |>
     dplyr::summarize(REGULATORY_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
     dplyr::ungroup() |>
     mutate(REGULATORY_AREA_ABBREV = case_when(
-      REGULATORY_AREA_NAME  == "Central Aleutians" ~ "Central AI",
-      REGULATORY_AREA_NAME  == "Eastern Aleutians" ~ "Eastern AI",
-      REGULATORY_AREA_NAME  == "Western Aleutians" ~ "Western AI",
-      REGULATORY_AREA_NAME  == "Southern Bering Sea" ~ "SBS"
+      REGULATORY_AREA_NAME == "Central Aleutians" ~ "Central AI",
+      REGULATORY_AREA_NAME == "Eastern Aleutians" ~ "Eastern AI",
+      REGULATORY_AREA_NAME == "Western Aleutians" ~ "Western AI",
+      REGULATORY_AREA_NAME == "Southern Bering Sea" ~ "SBS"
     ))
-  
 }
 
 # If it's an AI year, add Aleutian areas:
@@ -568,18 +579,18 @@ nsuccessfulhauls <- haul2 %>%
 # Number of attempted tows:
 nattemptedhauls <- haul2 %>%
   filter(HAUL_TYPE == 3) %>%
-  nrow() 
+  nrow()
 
 # Number of stations attempted:
 nattemptedstations <- haul2 %>%
   distinct(STATIONID, STRATUM) %>%
-  nrow() 
+  nrow()
 
 # Number of stations for which Marport net spread was successfully recorded:
 nstations_w_marport_data <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "Y") %>%
   distinct(STATIONID, STRATUM) %>%
-  nrow() 
+  nrow()
 
 nestimatedspreads <- haul2 %>%
   filter(ABUNDANCE_HAUL == "Y" & NET_MEASURED == "N") %>%
@@ -695,8 +706,8 @@ lengths_species <- length_maxyr_species |>
     "Lengths collected" = N
   )
 
-# Hereafter, we want to work with only abundance hauls! 
-#haul_maxyr <- subset(haul_maxyr,ABUNDANCE_HAUL=="Y")
+# Hereafter, we want to work with only abundance hauls!
+# haul_maxyr <- subset(haul_maxyr,ABUNDANCE_HAUL=="Y")
 
 meanlengths_area <- length_maxyr %>%
   dplyr::left_join(haul_maxyr, by = c(
@@ -734,19 +745,19 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) %>%
 
 # Create 'pseudolengths' table used for length comp figures ----------------
 # Janky but not sure how else to do it, so will have to deal. See notes below. This table is needed for joy division figs. Only make pseudolengths file if it isn't already there.
-if(!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"))){
+if (!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"))) {
   report_pseudolengths <- data.frame()
-  
+
   for (i in 1:nrow(report_species)) {
     sp_code <- report_species$species_code[i]
-    
+
     # Is the species code for a complex?
     if (grepl(x = sp_code, "[A-Za-z]")) {
       sizecomp1 <- sizecomp_complexes
     } else {
       sizecomp1 <- sizecomp
     }
-    
+
     males <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
@@ -758,7 +769,7 @@ if(!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv
       tidyr::uncount(prop_10k, .id = "id") |>
       dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
       mutate(Sex = "Male")
-    
+
     females <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
@@ -770,7 +781,7 @@ if(!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv
       uncount(prop_10k, .id = "id") |>
       dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
       mutate(Sex = "Female")
-    
+
     unsexed <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
@@ -783,15 +794,15 @@ if(!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv
       dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
       mutate(Sex = "Unsexed")
     all <- bind_rows(males, females, unsexed)
-    
+
     report_pseudolengths <- rbind(report_pseudolengths, all)
   }
-  
-  
+
+
   write.csv(report_pseudolengths, paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"), row.names = FALSE)
-  
-  #Cleanup 
-  rm(list = c("males","females","unsexed","report_pseudolengths"))
+
+  # Cleanup
+  rm(list = c("males", "females", "unsexed", "report_pseudolengths"))
 }
 
 
@@ -826,4 +837,3 @@ fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
-
