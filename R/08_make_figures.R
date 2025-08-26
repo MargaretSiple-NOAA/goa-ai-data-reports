@@ -765,7 +765,7 @@ if (make_joy_division_length) {
       VESSEL, YEAR, LENGTH, FREQUENCY, SEX,
       GEAR_DEPTH, STRATUM, SPECIES_CODE
     ) |>
-    left_join(region_lu, by = "STRATUM") |>
+    dplyr::left_join(region_lu, by = "STRATUM") |>
     mutate(Sex = case_when(
       SEX == 1 ~ "Male",
       SEX == 2 ~ "Female",
