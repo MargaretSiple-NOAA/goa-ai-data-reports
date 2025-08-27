@@ -1700,7 +1700,7 @@ if (!exists("p2")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "catch_comp.rdata"))
 }
 if (!exists("compare_tab_pres")) {
-  read.csv(file = paste0("output/", SRVY, "_", maxyr, "/", "tables/", "compare_tab_pres.csv"))
+  compare_tab_pres <- read.csv(file = paste0("output/", SRVY, "_", maxyr, "/", "tables/", "compare_tab_pres.csv"))
 }
 
 # GPT slides special: Order slides in order of highest to lowest biomass
