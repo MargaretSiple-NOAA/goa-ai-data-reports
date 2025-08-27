@@ -71,7 +71,7 @@ The purpose of our survey is to assess the status of groundfish and invertebrate
 
 -   Stratified random survey
 -   `r nstrata` strata defined by geography and depth zone
--   Station allocation based upon abundance, variance, survey area, and economic value
+-   Station allocation based on stratum area and the abundance and variance of 15 representative species
 -   15 minute trawls (usually about 1.5 km distance)
 -   *Poly Nor 'Eastern* net with rollers & bobbins
 
