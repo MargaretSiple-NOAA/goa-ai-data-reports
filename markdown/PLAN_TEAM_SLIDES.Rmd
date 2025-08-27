@@ -136,7 +136,11 @@ One of the changes we instituted this summer to reduce ergonomic strain was base
 
 ```{r echo=FALSE,tab.cap='Otoliths collected for each species in this presentation.', tab.id='otoliths-species',  tab.cap.style = "Table caption"}
 otos_collected |>
-  flextable(cwidth = 2)
+  flextable(cwidth = 2) |>
+  font(fontname = "Arial Narrow", part = "all") |>
+  bold(part = "header") |>
+  hrule(rule = "exact") |>
+  height_all(height = 0,part = "all")
 ```
 
 :::notes
