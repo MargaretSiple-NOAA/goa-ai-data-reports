@@ -148,7 +148,7 @@ otos_collected <- specimen_maxyr |>
     "REGION", "VESSEL", "YEAR", "CRUISE", "HAUL"
   )) |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
-  group_by(REGULATORY_AREA_NAME, `Depth range`) |>
+  group_by(REGULATORY_AREA_NAME) |>
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup() |>
   arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
