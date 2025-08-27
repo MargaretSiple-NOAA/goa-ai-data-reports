@@ -3,7 +3,7 @@ title: "2025 Gulf of Alaska Biennial Bottom Trawl Survey"
 subtitle: "Groundfish Plan Team Meeting"
 author: "Ned Laman, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
 date: "September 17, 2025"
-output: 
+output:
   powerpoint_presentation:
     reference_doc: styles_reference.pptx
 ---
@@ -118,7 +118,11 @@ Now for a quick summary of our collections
 
 ```{r echo=FALSE,tab.cap='Lengths collected for each species in this presentation.', tab.id='lengths-species',  tab.cap.style = "Table caption"}
 lengths_species |> 
-  flextable(cwidth = 2)
+  flextable(cwidth = 2) |>
+  font(fontname = "Arial Narrow", part = "all") |>
+  bold(part = "header") |>
+  hrule(rule = "exact") |>
+  height_all(height = 0,part = "all")
 ```
 :::notes
 For the `r nrow(report_species)` species included in this summary, we collected more than `r nfishlengths_reportspps` lengths and a total of around `r nfishlengths` lengths collected overall
@@ -221,7 +225,7 @@ Now we’ll take a look at biomass trends, length frequencies, and distribution 
 # IMPORTANT PART
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
