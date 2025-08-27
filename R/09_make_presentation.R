@@ -1668,18 +1668,10 @@ if (make_temp_plot) {
 } # /temperature plots
 
 # ################### SLIDE PRODUCTION #######################################
-# If you already made all the figures and you just need to knit them into a presentation, you can start here. Make sure you modify figuredate and tabledate to reflect the date you want to use figs and tables from.
+# If you already made all the figures and you just need to knit them into a presentation, you can start here. 
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------
-# figuredate <- "2024-10-11" # hard coded, **k it!
-# tabledate <- "2024-10-11"
-#
-# cat(
-#   "Using report data from", tabledate, "for tables. \n",
-#   "Using report data from", figuredate, "for figures."
-# )
-
 # If some plots aren't loaded into the environment, load them:
 
 if (!exists("list_biomass_ts")) {
