@@ -705,7 +705,8 @@ lengths_species <- length_maxyr_species |>
   dplyr::rename(
     "Common name" = spp_name_informal,
     "Lengths collected" = N
-  )
+  ) |>
+  dplyr::arrange(-`Lengths collected`)
 
 # Hereafter, we want to work with only abundance hauls!
 # haul_maxyr <- subset(haul_maxyr,ABUNDANCE_HAUL=="Y")
