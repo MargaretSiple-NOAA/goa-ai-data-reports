@@ -58,10 +58,10 @@ for (i in 1:length(dirs)) {
 
 dir_in_tables <- paste0(dir_out_srvy_yr,"/tables/")
 dir_in_figures <- paste0(dir_out_srvy_yr,"/figures/")
-dir_in_reportvalues <- paste0(dir_out_srvy_yr,reportvaluesdate)
+dir_in_reportvalues <- paste0(dir_out_srvy_yr)
 
 if(!file.exists(paste0(dir_in_tables,"report_tables.rdata"))){
-  print(paste("Report tables file does not exist. If you haven't made tables for the report yet, ignore this message. If you are trying to build a report, make sure you generated tables on", tabledate, "or select a new date."))
+  print(paste("Report tables file does not exist. If you haven't made tables for the report yet, ignore this message."))
 }
 
 
