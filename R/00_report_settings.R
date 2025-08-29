@@ -5,7 +5,7 @@ usePNGPDF <- "png"
 maxyr <- 2025 # Change this for the year!
 minyr <- 1990 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
 compareyr <- 2023 # Change this for the year!
-pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
+pres_or_report <- "pres" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- TRUE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 
