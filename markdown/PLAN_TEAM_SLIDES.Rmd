@@ -6,6 +6,7 @@ date: "September 17, 2025"
 output:
   powerpoint_presentation:
     reference_doc: styles_reference.pptx
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
@@ -206,13 +207,6 @@ Larger brown points represent the median, small black points represent individua
 
 ---
 
-## Biomass compared to `r compareyr`
-
-```{r compare_tab}
-compare_tab_pres |>
-  flextable(cwidth = 2)
-```
-
 ## Biomass trends
 
 :::notes
@@ -241,6 +235,14 @@ for (i in 1:3) { # nrow(report_species)
 res <- knitr::knit_child(text = unlist(src), quiet = TRUE)
 cat(res, sep = "\n")
 ```
+---
+
+## Biomass compared to `r compareyr`
+
+```{r}
+knitr::include_graphics(path = paste0("output/",SRVY, "_", maxyr, "/tables/PercentChangeTable.png"))
+```
+
 ---
 
 ## Summary

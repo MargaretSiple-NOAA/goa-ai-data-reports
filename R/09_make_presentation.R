@@ -295,7 +295,7 @@ bubbletheme <- theme(
   legend.title = element_text(size = 10)
 )
 
-linetheme <- theme_bw(base_size = 16)
+linetheme <- theme_bw(base_size = 12)
 
 bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
@@ -336,6 +336,8 @@ speciescolors <- lengthen_pal(
   x = 1:(nrow(report_species[which(!grepl("[A-Za-z]", report_species$species_code)), ]) + 1)
 )
 
+pct_col <- c("#fc8d59","#7fbf7b") # another orange option: #fc8d59
+
 ################### CHUNKS ##################################################
 # These can be run individually as needed. For example, if you want to modify all the biomass time series plots at once. If you know you already have satisfactory versions of all these plots, you don't need to re-run this code! The presentation knitting section will check if figs are available and will load them if not.
 # ###########################################################################
@@ -357,7 +359,7 @@ if (make_biomass_timeseries) {
       geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
-      ylab("Estimated total biomass (t)") +
+      ylab("Estimated biomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
       annotate(label = name_bms, geom = "label", x = Inf, y = Inf, hjust = 1, vjust = 1) +
@@ -368,7 +370,7 @@ if (make_biomass_timeseries) {
     list_biomass_ts[[i]] <- p1
     png(
       filename = paste0(dir_out_figures, name_bms, "_", SRVY, "_", maxyr, "_biomass_ts.png"),
-      width = 7, height = 7, units = "in", res = 150
+      width = 4.25, height = 2.43, units = "in", res = 150
     )
     print(p1)
     dev.off()
@@ -1233,9 +1235,8 @@ if (make_cpue_ianelli) {
 
 
 # 6. % changes in biomass since last survey ----------------------------
-
 compare_tab <- biomass_total |>
-  filter(YEAR %in% c(maxyr, compareyr) &
+  dplyr::filter(YEAR %in% c(maxyr, compareyr) &
     SPECIES_CODE %in% report_species$species_code) |>
   dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) |>
   dplyr::arrange(YEAR) |>
@@ -1255,16 +1256,39 @@ compare_tab2 <- compare_tab |>
   dplyr::arrange(-yr_2025)
 
 compare_tab_pres <- compare_tab2 |>
-  dplyr::select(spp_name_informal, yr_2023, yr_2025, percent_change) |>
+  dplyr::select(group, spp_name_informal, yr_2023, yr_2025, percent_change) |>
   dplyr::arrange(-yr_2025) |>
   dplyr::mutate(across(starts_with("yr_"), ~ round(.x))) |>
   dplyr::rename(
-    "Biomass in 2025 (t)" = yr_2025,
-    "Biomass in 2023 (t)" = yr_2023,
+    "Species or complex" = spp_name_informal,
+    "Biomass in 2025 (mt)" = yr_2025,
+    "Biomass in 2023 (mt)" = yr_2023,
     "Percent change" = percent_change
   )
 
-write.csv(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.csv"))
+compare_tab_pres$column_color <- NA
+compare_tab_pres$column_color[compare_tab_pres$`Percent change` < 0] <- pct_col[1]
+compare_tab_pres$column_color[compare_tab_pres$`Percent change` > 0] <- pct_col[2]
+compare_tab_pres$column_color[abs(compare_tab_pres$`Percent change`) < 10] <- "lightgrey"
+
+compare_tab_pres <- compare_tab_pres |>
+  group_by(group) |>
+  arrange(-`Biomass in 2025 (mt)`, .by_group = TRUE) |>
+  dplyr::ungroup()
+
+pcols <- compare_tab_pres$column_color
+# saveRDS(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.RDS"))
+
+compare_tab_pres |>
+  dplyr::select(-column_color, -group) |>
+  dplyr::mutate_at(.vars = c("Biomass in 2023 (mt)", "Biomass in 2025 (mt)"), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
+  dplyr::mutate(`Percent change` = case_when(`Percent change` > 0 ~ paste0("+", `Percent change`), TRUE ~ as.character(`Percent change`))) |>
+  kableExtra::kbl(escape = FALSE) |>
+  kableExtra::pack_rows(index = table(forcats::fct_inorder(compare_tab_pres$group))) |>
+  kableExtra::kable_styling(html_font = "Arial Narrow", full_width = FALSE, font_size = 20) |>
+  kableExtra::column_spec(column = 4, background = pcols) |>
+  kableExtra::save_kable(file = paste0(getwd(), "/output/", SRVY, "_", maxyr, "/", "tables/PercentChangeTable.png"))
+
 
 # 7. Joy division plots - Length frequency -----------------------------
 
@@ -1692,7 +1716,7 @@ if (!exists("p2")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "catch_comp.rdata"))
 }
 if (!exists("compare_tab_pres")) {
-  compare_tab_pres <- read.csv(file = paste0("output/", SRVY, "_", maxyr, "/", "tables/", "compare_tab_pres.csv"))
+  compare_tab_pres <- readRDS(file = paste0("output/", SRVY, "_", maxyr, "/", "tables/", "compare_tab_pres.RDS"))
 }
 
 # GPT slides special: Order slides in order of highest to lowest biomass

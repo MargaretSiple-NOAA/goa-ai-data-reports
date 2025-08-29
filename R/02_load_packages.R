@@ -102,8 +102,8 @@ PKG <- c(
   "flextable", 
   "fuzzyjoin",
   "rlang",
-  # "kableExtra",
-  # "formattable",
+  "kableExtra",
+  "forcats", # for the % change table
   
   # For editing XML files
   "XML", 
