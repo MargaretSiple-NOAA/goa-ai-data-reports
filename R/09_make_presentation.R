@@ -336,7 +336,7 @@ speciescolors <- lengthen_pal(
   x = 1:(nrow(report_species[which(!grepl("[A-Za-z]", report_species$species_code)), ]) + 1)
 )
 
-pct_col <- c("#fc8d59","#7fbf7b") # another orange option: #fc8d59
+pct_col <- c("#fc8d59", "#7fbf7b") # another orange option: #fc8d59
 
 ################### CHUNKS ##################################################
 # These can be run individually as needed. For example, if you want to modify all the biomass time series plots at once. If you know you already have satisfactory versions of all these plots, you don't need to re-run this code! The presentation knitting section will check if figs are available and will load them if not.
@@ -1290,7 +1290,13 @@ compare_tab_pres |>
   kableExtra::save_kable(file = paste0(getwd(), "/output/", SRVY, "_", maxyr, "/", "tables/PercentChangeTable.png"))
 
 
-# 7. Joy division plots - Length frequency -----------------------------
+
+
+# 7. Complex species in order of biomass ----------------------------------
+complex_text <- complex_lookup |>
+  left_join()
+
+# 8. Joy division plots - Length frequency -----------------------------
 
 if (make_joy_division_length) {
   list_joy_length <- list()
@@ -1529,7 +1535,7 @@ if (make_joy_division_length) {
 }
 
 
-# 8. Surface and bottom temperatures --------------------------------------
+# 9. Surface and bottom temperatures --------------------------------------
 if (make_temp_plot) {
   list_temperature <- list()
 
@@ -1692,7 +1698,7 @@ if (make_temp_plot) {
 } # /temperature plots
 
 # ################### SLIDE PRODUCTION #######################################
-# If you already made all the figures and you just need to knit them into a presentation, you can start here. 
+# If you already made all the figures and you just need to knit them into a presentation, you can start here.
 # ~###########################################################################
 
 # Make those slides! --------------------------------------------------------

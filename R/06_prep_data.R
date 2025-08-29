@@ -839,3 +839,21 @@ fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
+
+
+
+# Species in complexes (presentation) -------------------------------------
+if (pres_or_report == "pres") {
+  biomass_all <- read.csv("data/local_gap_products/biomass.csv")
+  biomass_complexes <- biomass_all |>
+    dplyr::filter(YEAR == maxyr &
+      SPECIES_CODE %in% complex_lookup$species_code &
+      AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
+    left_join(complex_lookup, by = c("SPECIES_CODE" = "species_code"))
+
+  complex_name_text <- biomass_complexes |>
+    group_by(complex) |>
+    arrange(-BIOMASS_MT) |>
+    mutate(common_name = case_when(BIOMASS_MT == 0 ~ paste0(common_name, "*"), TRUE ~ common_name)) |>
+    summarise(species = toString(unique(common_name), .groups = "drop"))
+}

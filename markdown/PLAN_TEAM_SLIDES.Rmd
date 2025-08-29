@@ -223,11 +223,15 @@ Now we’ll take a look at biomass trends, length frequencies, and distribution 
 # IMPORTANT PART
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 1:5) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
+  complex_sentence <- ifelse(grepl(species_code, pattern = "[A-Z]"),
+                             paste("This complex includes:",
+                                   complex_name_text$species[which(complex_name_text$complex==species_code)]),
+                             "")
   
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesSlideTemplate.Rmd"))
 }
@@ -240,7 +244,7 @@ cat(res, sep = "\n")
 ## Biomass compared to `r compareyr`
 
 ```{r}
-knitr::include_graphics(path = paste0("output/",SRVY, "_", maxyr, "/tables/PercentChangeTable.png"))
+knitr::include_graphics(path = here::here("output/GOA_2025/tables/PercentChangeTable.png"))
 ```
 
 ---
