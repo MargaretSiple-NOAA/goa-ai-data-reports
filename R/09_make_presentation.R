@@ -80,7 +80,7 @@ nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
 
 # Haul summary table
 haul2 <- haul |>
-  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
+  mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
   filter(YEAR == maxyr & REGION == SRVY)
 
 haul_maxyr <- haul |>
@@ -1311,20 +1311,24 @@ if (make_joy_division_length) {
     source("R/06_prep_data.R")
   }
 
+  species_year <- read.csv("data/local_gap_products/species_year.csv")
+
+
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
-  L <- L0 |>
-    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE)))
-  length_maxyr <- filter(L, YEAR == maxyr & REGION == SRVY)
 
-  L2 <- L |> # L is the big length table from RACEBASE
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
-    filter(REGION == SRVY) # want to keep all years for this fig
-
-  L3 <- L2 |>
-    left_join(haul2, by = c("HAULJOIN", "YEAR", "CRUISEJOIN", "VESSEL", "CRUISE", "HAUL")) |>
-    dplyr::select(VESSEL, YEAR, LENGTH, FREQUENCY, SEX, GEAR_DEPTH, STRATUM, SPECIES_CODE) |>
-    left_join(region_lu, by = "STRATUM") |>
+  L3 <- L0 |>
+    dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # L is the big length table from RACEBASE
+    dplyr::filter(REGION == SRVY) |> # want to keep all years for this fig
+    left_join(haul2, by = c(
+      "HAULJOIN", "YEAR", "CRUISEJOIN",
+      "VESSEL", "CRUISE", "HAUL"
+    )) |>
+    dplyr::select(
+      VESSEL, YEAR, LENGTH, FREQUENCY, SEX,
+      GEAR_DEPTH, STRATUM, SPECIES_CODE
+    ) |>
+    dplyr::left_join(region_lu, by = "STRATUM") |>
     mutate(Sex = case_when(
       SEX == 1 ~ "Male",
       SEX == 2 ~ "Female",
@@ -1368,13 +1372,22 @@ if (make_joy_division_length) {
     mutate(YEAR = as.integer(YEAR))
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
+  left_labels <- c(30420) # species for which you want the label on the left instead of the right!
+
   # Loop thru species
-  for (i in 1:nrow(report_species)) {
+  for (i in 1:nrow(report_species)) { #
     len2plot <- report_pseudolengths |>
       filter(SPECIES_CODE == report_species$species_code[i])
 
-    # SSTH or darkfin sculpin only show Unsexed; all other spps show only sexed lengths
-    if (report_species$species_code[i] %in% c(30020, 21341)) {
+    print(nrow(len2plot))
+    # Subset to years when species was confidently ID'ed
+    if (report_species$species_code[i] %in% species_year$SPECIES_CODE) {
+      len2plot <- len2plot |>
+        filter(YEAR >= species_year$YEAR[which(species_year$SPECIES_CODE == report_species$species_code[i])])
+    }
+
+    # SSTH, YIL, and darkfin sculpin only show Unsexed; all other spps show only sexed lengths
+    if (report_species$species_code[i] %in% c(30020, 21341, 21347, "THORNYHEADS")) {
       len2plot <- len2plot
     } else {
       len2plot <- len2plot |>
@@ -1421,7 +1434,10 @@ if (make_joy_division_length) {
       scale_fill_gradientn(colours = joypal) +
       geom_label(
         data = n_labels,
-        mapping = aes(label = paste0("n = ", n), x = Inf),
+        mapping = aes(
+          label = paste0("n = ", n),
+          x = ifelse(report_species$species_code[i] %in% left_labels, -Inf, Inf)
+        ),
         fill = "white", label.size = NA,
         nudge_x = 0,
         nudge_y = 1,
@@ -1438,94 +1454,9 @@ if (make_joy_division_length) {
         axis.line.x = element_line(lineend = "square")
       )
 
-
-    # lookup table is referenced below
-
-    # did the species used to be ID'ed differently somehow? E.g., arrowtooth and kams
-    # if (report_species$species_code[i] %in% complex_lookup$polycode) {
-    #   # Add label to plot of the species so ppl can compare it with the combined one
-    #   joyplot <- joyplot + labs(title = paste(report_species$spp_name_informal[i]))
-    #
-    #   # Make a title for the combined plot (single species + combined congeners)
-    #   plot_title <- complex_lookup$complex_name[which(complex_lookup$polycode == report_species$species_code[i])]
-    #
-    #   complex_sp <- complex_lookup$complex[which(complex_lookup$polycode == report_species$species_code[i])]
-    #   polycode_vec <- complex_lookup$polycode[which(complex_lookup$complex == complex_sp)]
-    #   star_yr <- switch(complex_sp,
-    #     nrs_srs = 1996,
-    #     kam_atf = 1992,
-    #     rebs = 2006
-    #   )
-    #   yrlabels <- yrbreaks
-    #   yrlabels[which(yrlabels < star_yr)] <- paste0(yrlabels[which(yrlabels < star_yr)], "*")
-    #   yrlabels <- as.character(yrlabels)
-    #
-    #   medlines_sp <- report_pseudolengths |>
-    #     filter(SPECIES_CODE %in% polycode_vec) |>
-    #     group_by(YEAR, Sex) |>
-    #     dplyr::summarize(medlength = median(LENGTH, na.rm = T)) |>
-    #     ungroup()
-    #
-    #
-    #   sample_sizes_comb <- sample_sizes |>
-    #     filter(SPECIES_CODE %in% polycode_vec) |>
-    #     group_by(YEAR, Sex) |>
-    #     dplyr::summarize(n = sum(n)) |>
-    #     ungroup()
-    #
-    #   len2plot_comb <- report_pseudolengths |>
-    #     filter(SPECIES_CODE %in% polycode_vec) |>
-    #     filter(Sex != "Unsexed") |>
-    #     left_join(sample_sizes_comb)
-    #
-    #   testlabdf_comb <- len2plot_comb |>
-    #     distinct(YEAR, Sex, .keep_all = TRUE)
-    #
-    #   joyplot2 <- len2plot_comb |>
-    #     ggplot(
-    #       mapping = aes(x = LENGTH, y = YEAR, group = YEAR),
-    #       fill = "grey"
-    #     ) +
-    #     ggridges::geom_density_ridges_gradient(
-    #       bandwidth = 5,
-    #       rel_min_height = 0,
-    #       quantile_lines = T,
-    #       quantile_fun = median,
-    #       vline_color = "white",
-    #       vline_width = 0.6,
-    #       vline_linetype = "dotted" # "A1"
-    #     ) +
-    #     scale_y_reverse(breaks = yrbreaks, labels = yrlabels, expand = c(0, 0)) +
-    #     scale_linetype_manual(values = c("solid", "dashed")) +
-    #     geom_label(
-    #       data = testlabdf_comb,
-    #       mapping = aes(label = paste0("n = ", n), x = Inf),
-    #       fill = "white", label.size = NA,
-    #       nudge_x = -100, nudge_y = 1, hjust = "inward", size = 3
-    #     ) +
-    #     facet_grid(~Sex) +
-    #     xlab("Length (mm)") +
-    #     ylab("Year") +
-    #     theme_ridges(font_size = 7) +
-    #     labs(title = plot_title) +
-    #     theme(
-    #       strip.background = element_blank(),
-    #       panel.grid.major = element_blank(),
-    #       panel.grid.minor = element_blank(),
-    #       legend.position = "none",
-    #       axis.title.x = element_text(hjust = 0.5),
-    #       axis.title.y = element_text(hjust = 0.5),
-    #       panel.spacing.x = unit(4, "mm"),
-    #       axis.line.x = element_line(lineend = "square")
-    #     )
-    #
-    #   joyplot <- joyplot + joyplot2
-    # }
-
-
     png(filename = paste0(
       dir_out_figures,
-      report_species$spp_name_informal[i], "_", maxyr, "_joyfreqhist.png"
+      maxyr, "_", report_species$spp_name_informal[i], "_joyfreqhist.png"
     ), width = 7, height = 5, units = "in", res = 200)
     print(joyplot)
     dev.off()
@@ -1535,6 +1466,8 @@ if (make_joy_division_length) {
   names(list_joy_length) <- report_species$species_code
 
   save(list_joy_length, file = paste0(dir_out_figures, "list_joy_length.rdata"))
+
+  rm(list = c("L0", "L3", "joyplot", "len2plot2", "len2plot"))
   print("Done with joy division plots for length comp.")
 }
 
