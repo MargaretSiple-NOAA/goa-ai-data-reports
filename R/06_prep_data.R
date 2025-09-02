@@ -51,7 +51,8 @@ species_names <- species_names0 |>
     )
   )
 
-# This year's haul data
+
+# Haul data ---------------------------------------------------------------
 haul_maxyr <- haul |>
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # extract year
   filter(REGION == SRVY & YEAR != 1997) |> # YEAR >= 1994 &
@@ -73,8 +74,6 @@ survnumber <- cruises |>
   scales::ordinal()
 
 # Temp data --------------------------------------------------------
-# length(which(is.na(haul_maxyr$GEAR_TEMPERATURE)))
-# length(which(is.na(haul_maxyr$SURFACE_TEMPERATURE)))
 
 haul_maxyr |>
   filter(GEAR_TEMPERATURE == 0)
@@ -760,6 +759,8 @@ if (!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.cs
       sizecomp1 <- sizecomp
     }
 
+    if(nrow(sizecomp1)==0){stop(paste("No size comps for species", sp_code))}
+    
     males <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
