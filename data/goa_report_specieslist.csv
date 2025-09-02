@@ -2,8 +2,8 @@ group,spp_name_informal,species_code,spp_name_scientific,presentation,report,rep
 Miscellaneous,spiny dogfish,310,Squalus suckleyi,0,1,39,0
 Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1,1,1
 Flatfishes,flathead sole,10130,Hippoglossoides elassodon,1,1,7,0
-Flatfishes,Dover sole,10180,Microstomus pacificus,1,1,9,0
-Flatfishes,rex sole,10200,Glyptocephalus zachirus,1,1,8,0
+Flatfishes,Dover sole,10180,Microstomus pacificus,0,1,9,0
+Flatfishes,rex sole,10200,Glyptocephalus zachirus,0,1,8,0
 Flatfishes,starry flounder,10220,Platichthys stellatus,0,1,12,0
 Flatfishes,Northern rock sole,10261,Lepidopsetta polyxystra,1,1,3,1
 Flatfishes,Southern rock sole,10262,Lepidopsetta bilineata,1,1,4,1
@@ -13,11 +13,11 @@ Roundfishes,walleye pollock,21740,Gadus chalcogrammus,1,1,16,1
 Roundfishes,Atka mackerel,21921,Pleurogrammus monopterygius,1,1,17,1
 Rockfishes,shortspine thornyhead,30020,Sebastolobus alascanus,0,1,28,0
 Rockfishes,rougheye rockfish,30051,Sebastes aleutianus,1,1,22,1
-Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,1,1,23,1
+Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,0,1,23,1
 Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1,20,1
 Rockfishes,dusky rockfish,30152,Sebastes variabilis,1,1,24,0
 Rockfishes,northern rockfish,30420,Sebastes polyspinis,1,1,21,1
-Skates,Big skate,420,Beringraja binoculata,1,0,48,0
+Skates,Big skate,420,Beringraja binoculata,0,0,48,0
 Skates,Bering skate,435,Bathyraja interrupta,0,0,47,0
 Skates,longnose skate,440,Raja rhina,0,0,49,0
 Skates,Alaska skate,471,Bathyraja parmifera,0,0,45,0
@@ -26,7 +26,7 @@ Skates,leopard skate,477,Bathyraja panthera,0,0,51,0
 Skates,white blotched skate,480,Bathyraja maculata,0,0,50,0
 Flatfishes,Kamchatka flounder,10112,Atheresthes evermanni,0,0,2,0
 Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,0,0,6,0
-Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,0,0,5,0
+Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,1,0,5,0
 Flatfishes,English sole,10170,Parophrys vetulus,0,0,13,0
 Flatfishes,yellowfin sole,10210,Limanda aspera,0,0,10,0
 Flatfishes,butter sole,10270,Parophrys vetulus,0,0,14,0
@@ -39,24 +39,24 @@ Sculpins,yellow Irish lord,21347,Hemilepidotus jordani,0,0,42,0
 Sculpins,great sculpin,21370,Myoxocephalus polyacanthocephalus,0,0,44,0
 Miscellaneous,lingcod,21910,Ophiodon elongatus,0,0,41,0
 Miscellaneous,Pacific hake,22500,Merluccius productus,0,0,38,0
-Miscellaneous,eulachon,23010,Thaleichthys pacificus,1,0,36,0
+Miscellaneous,eulachon,23010,Thaleichthys pacificus,0,0,36,0
 Miscellaneous,capelin,23041,Mallotus villosus,0,0,35,0
-Rockfishes,silvergray rockfish,30100,Sebastes brevispinis,1,0,30,0
+Rockfishes,silvergray rockfish,30100,Sebastes brevispinis,0,0,30,0
 Rockfishes,dark rockfish,30151,Sebastes ciliatus,0,0,25,0
 Rockfishes,rosethorn rockfish,30270,Sebastes helvomaculatus,0,0,34,0
 Rockfishes,redstripe rockfish,30430,Sebastes proriger,0,0,29,0
 Rockfishes,yelloweye rockfish,30470,Sebastes ruberrimus,0,0,33,0
 Rockfishes,redbanded rockfish,30475,Sebastes babcocki,0,0,32,0
-Rockfishes,harlequin rockfish,30535,Sebastes variegatus,1,0,31,0
+Rockfishes,harlequin rockfish,30535,Sebastes variegatus,0,0,31,0
 Rockfishes,sharpchin rockfish,30560,Sebastes zacentrus,0,0,26,0
-Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,0,27,1
+Rockfishes,shortraker rockfish,30576,Sebastes borealis,0,0,27,1
 Miscellaneous,giant octopus,78403,Enteroctopus dofleini,0,1,40,0
 Flatfishes,Deepwater flatfish complex,DEEPFLATS,various,1,1,52,0
 Rockfishes,Demersal shelf rockfish complex,DSROX,various,1,1,53,0
-Flatfishes,Northern - southern rock sole complex,NRSSRS,various,1,1,54,0
+Flatfishes,Northern - southern rock sole complex,NRSSRS,various,0,1,54,0
 Rockfishes,Other rockfish complex,OROX,various,1,1,55,0
 Rockfishes,Rougheye - blackspotted rockfish group,REBS,various,1,1,56,0
-Flatfishes,Shallow-water flatfish complex,SWFLATS,various,1,1,57,0
+Flatfishes,Shallow-water flatfish complex,SWFLATS,various,0,1,57,0
 Sharks,Sharks complex,SHARKS,various,1,1,58,0
 Skates,Skates complex,SKATES,various,1,1,59,0
 Miscellaneous,Thornyheads complex,THORNYHEADS,various,1,1,60,0
