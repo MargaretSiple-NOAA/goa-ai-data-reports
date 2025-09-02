@@ -1235,6 +1235,8 @@ if (make_cpue_ianelli) {
 
 
 # 6. % changes in biomass since last survey ----------------------------
+# This chunk saves a png of a kableExtra table containing the percent change in biomass for report species. 
+
 compare_tab <- biomass_total |>
   dplyr::filter(YEAR %in% c(maxyr, compareyr) &
     SPECIES_CODE %in% report_species$species_code) |>
@@ -1287,14 +1289,16 @@ compare_tab_pres |>
   kableExtra::pack_rows(index = table(forcats::fct_inorder(compare_tab_pres$group))) |>
   kableExtra::kable_styling(html_font = "Arial Narrow", full_width = FALSE, font_size = 20) |>
   kableExtra::column_spec(column = 4, background = pcols) |>
-  kableExtra::save_kable(file = paste0(getwd(), "/output/", SRVY, "_", maxyr, "/", "tables/PercentChangeTable.png"))
+  kableExtra::save_kable(file = paste0(getwd(), "/output/", SRVY, "_", maxyr, "/", "tables/PercentChangeTable2.png"))
 
 
 
 
 # 7. Complex species in order of biomass ----------------------------------
-complex_text <- complex_lookup |>
-  left_join()
+if(report_or_pres=="pres"){
+  print("Using text about complexes for slides")
+    complex_name_text
+} 
 
 # 8. Joy division plots - Length frequency -----------------------------
 
