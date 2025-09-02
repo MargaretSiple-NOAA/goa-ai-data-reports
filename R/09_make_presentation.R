@@ -600,7 +600,7 @@ if (make_catch_comp) {
 
   png(
     filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"),
-    width = 8, height = 6, units = "in", res = 150
+    width = 9, height = 6, units = "in", res = 150
   )
   print(p2)
   dev.off()
@@ -1597,13 +1597,15 @@ if (make_temp_plot) {
     filter(YEAR >= (maxyr - 20)) |>
     dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
     as.numeric()
+  
   bottom_temp_10yr <- plotdat |>
     filter(YEAR >= (maxyr - 10)) |>
     dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
     as.numeric()
+  
   bottom_temp_avgs <- data.frame(
     "Average" = c("10-year", "20-year"),
-    "Value" = c(bottom_temp_20yr, bottom_temp_10yr),
+    "Value" = c(bottom_temp_10yr, bottom_temp_20yr),
     Start_year = c(maxyr - 10, maxyr - 20)
   )
 
@@ -1645,7 +1647,7 @@ if (make_temp_plot) {
     as.numeric()
   surface_temp_avgs <- data.frame(
     "Average" = c("10-year", "20-year"),
-    "Value" = c(surface_temp_20yr, surface_temp_10yr),
+    "Value" = c(surface_temp_10yr, surface_temp_20yr),
     "Start_year" = c(maxyr - 10, maxyr - 20)
   )
 
