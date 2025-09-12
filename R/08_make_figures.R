@@ -105,7 +105,6 @@ if (SRVY == "GOA") {
 # Aesthetic settings ------------------------------------------------------
 # * Themes ----------------------------------------------------------------
 bubbletheme <- theme(
-  legend.position = "bottom",
   panel.background = element_rect(
     fill = "white",
     colour = NA
@@ -129,7 +128,8 @@ bubbletheme <- theme(
   legend.box = "horizontal",
   axis.title.x = element_blank(),
   axis.title.y = element_blank(),
-  plot.title = element_text(margin = margin(b = -30))
+  plot.title = element_text(margin = margin(b = -30)),
+  legend.position = "bottom"
 )
 
 
@@ -361,7 +361,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       THORNYHEADS = "thornyheads"
     )
 
-    thisyrshauldata <- cpue_table_complexes |>
+    thisyrshauldata <- cpue_raw_complexes |>
       janitor::clean_names() |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
@@ -524,7 +524,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         ) +
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
-        bubbletheme
+        bubbletheme 
     } # /GOA stratum bubble maps for complexes
 
     # ,out.width=9,out.height=8
@@ -711,7 +711,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         ) +
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
-        bubbletheme
+        bubbletheme 
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     png(
