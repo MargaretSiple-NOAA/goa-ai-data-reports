@@ -476,72 +476,11 @@ total_otos <- sum(otos_collected$`Pairs of otoliths collected`) |>
 
 
 
-# Create 'pseudolengths' table used for length comp figures ----------------
-# Janky but not sure how else to do it, so will have to deal. See notes below. This table is needed for joy division figs. Only make pseudolengths file if it isn't already there.
-if (!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"))) {
-  report_pseudolengths <- data.frame()
 
-  for (i in 1:nrow(report_species)) {
-    sp_code <- report_species$species_code[i]
-
-    # Is the species code for a complex?
-    if (grepl(x = sp_code, "[A-Za-z]")) {
-      sizecomp1 <- sizecomp_complexes
-    } else {
-      sizecomp1 <- sizecomp
-    }
-
-    if (nrow(sizecomp1) == 0) {
-      stop(paste("No size comps for species", sp_code))
-    }
-
-    males <- sizecomp1 |>
-      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
-      dplyr::filter(SPECIES_CODE == sp_code) |>
-      dplyr::group_by(YEAR) |>
-      dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) |>
-      dplyr::mutate(prop_10k = round(prop_10k)) |>
-      arrange(-YEAR, LENGTH) |>
-      dplyr::mutate(prop_10k = ifelse(MALES == 0, 0, prop_10k)) |>
-      tidyr::uncount(prop_10k, .id = "id") |>
-      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
-      mutate(Sex = "Male")
-
-    females <- sizecomp1 |>
-      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
-      dplyr::filter(SPECIES_CODE == sp_code) |>
-      dplyr::group_by(YEAR) |>
-      dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) |> # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
-      dplyr::mutate(prop_10k = round(prop_10k)) |>
-      arrange(-YEAR, LENGTH) |>
-      dplyr::mutate(prop_10k = ifelse(FEMALES == 0, 0, prop_10k)) |>
-      uncount(prop_10k, .id = "id") |>
-      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
-      mutate(Sex = "Female")
-
-    unsexed <- sizecomp1 |>
-      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
-      dplyr::filter(SPECIES_CODE == sp_code) |>
-      dplyr::group_by(YEAR) |>
-      dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) |>
-      dplyr::mutate(prop_10k = round(prop_10k)) |>
-      arrange(-YEAR, LENGTH) |>
-      dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) |>
-      uncount(prop_10k, .id = "id") |>
-      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
-      mutate(Sex = "Unsexed")
-    all <- bind_rows(males, females, unsexed)
-
-    report_pseudolengths <- rbind(report_pseudolengths, all)
-  }
-
-
-  write.csv(report_pseudolengths, paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.csv"), row.names = FALSE)
-
-  # Cleanup
-  rm(list = c("males", "females", "unsexed", "report_pseudolengths"))
+# Load pseudolengths file -------------------------------------------------
+if(!exists("report_pseudolengths")){
+  report_pseudolengths <- read.csv(file = paste0(dir_out_srvy_yr,"tables/report_pseudolengths.csv"))
 }
-
 
 # Taxonomic diversity -----------------------------------------------------
 # get number of fish and invert spps
@@ -573,15 +512,16 @@ third_highest_biomass_overall <- highest_biomass$common_name[3]
 fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 
 
-
-
-
 # Load tables for CPUE, biomass, etc for ALL species, complexes -----------
 # Need:
 # - cpue_raw
 # - biomass_total
-if(!exists(cpue_raw)){
+if(!exists("cpue_raw")){
   cpue_raw <- read.csv(paste0(dir_out_srvy_yr,"tables/cpue_all.csv")) # Load cpue table with all species and complexes
+}
+
+if(!exists("biomass_total")){
+  biomass_total <- read.csv(paste0(dir_out_srvy_yr,"tables/biomass_total_all.csv")) # Load total biomass table with all species and complexes
 }
 
 
