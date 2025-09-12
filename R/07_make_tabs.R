@@ -14,9 +14,9 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 
 
 # Data tables needed ------------------------------------------------------
-
-bioamss_stratum_complexes <- read.csv(paste0(dir_out_srvy_yr,"tables/biomass_stratum_complexes.csv"))
-
+if(!exists("biomass_stratum_complexes")){
+biomass_stratum_complexes <- read.csv(paste0(dir_out_srvy_yr,"tables/biomass_stratum_complexes.csv"))
+}
 # Length targets ----------------------------------------------------------
 targetn <- read.csv(here::here("data", "target_n.csv"))
 
@@ -29,13 +29,13 @@ otos_target_sampled <- df |>
   dplyr::select(species, collection, target, percent.diff)
 
 # Sp richness by subregion and family ------------------------------------------
-subregion_fam_div <- appB %>%
-  group_by(inpfc_area, family) %>%
-  tally(name = "nsp") %>%
-  pivot_wider(names_from = inpfc_area, values_from = nsp) %>%
-  dplyr::rename(Family = family) %>%
-  ungroup() %>%
-  mutate_at(2:5, ~ replace_na(., 0)) %>%
+subregion_fam_div <- appB |>
+  group_by(regulatory_area_name, family) |>
+  tally(name = "nsp")  |>
+  pivot_wider(names_from = regulatory_area_name, values_from = nsp) |>
+  dplyr::rename(Family = family)  |>
+  ungroup()  |>
+  mutate_at(2:6, ~ replace_na(., 0))  |>
   relocate(any_of(c("Family", district_order)))
 
 
@@ -46,10 +46,10 @@ biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
 area_gp <- read.csv("data/local_gap_products/area.csv") 
 
 if(SRVY=="GOA"){
-area_gp_inpfc_region <- area_gp |>
-  dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
+area_gp_reg_area <- area_gp |>
+  dplyr::filter(AREA_TYPE %in% c("NMFS STATISTICAL AREA", "REGULATORY AREA") &
     DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984))}else{
-      area_gp_inpfc_region <- area_gp |>
+      area_gp_reg_area <- area_gp |>
         dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
                         DESIGN_YEAR == 1980)
     }
@@ -57,12 +57,15 @@ area_gp_inpfc_region <- area_gp |>
 topn <- 20
 
 # biomass_subarea is created in prep_data and includes complexes
+if(!exists("biomass_subarea")){
+  biomass_subarea <- read.csv(file = paste0(dir_out_srvy_yr,"tables/biomass_subarea_all.csv"))
+}
 
 # Make table of top CPUE
 top_CPUE <- biomass_subarea |>
   dplyr::filter(YEAR == maxyr & grepl(pattern = "[0-9]", x = SPECIES_CODE)) |>
   dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
-  dplyr::right_join(area_gp_inpfc_region, by = c("SURVEY_DEFINITION_ID","AREA_ID")) |>
+  dplyr::right_join(area_gp_reg_area, by = c("SURVEY_DEFINITION_ID","AREA_ID")) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename("INPFC_AREA" = AREA_NAME) |>
   dplyr::mutate(wgted_mean_cpue_kgha = CPUE_KGKM2_MEAN / 100) |> # convert to hectares
