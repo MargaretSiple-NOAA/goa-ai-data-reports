@@ -1,23 +1,23 @@
 # RACEBASE tables ----------------------------------------------------
 # get catch and taxonomy info
-catch <- read_csv("data/local_racebase/catch.csv") %>%
+catch <- read_csv("data/local_racebase/catch.csv") |>
   mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) 
 
 taxonomy <- read_csv("data/local_racebase/species_classification.csv")
 
-species_codes <- read_csv("data/local_race_data/race_species_codes.csv") %>%
+species_codes <- read_csv("data/local_race_data/race_species_codes.csv") |>
   dplyr::select("SPECIES_CODE", "SPECIES_NAME", "COMMON_NAME")
 
-
+haul <- read_csv("data/local_racebase/haul.csv") 
 
 # Getting species from year ----------------------------------------------------
 
 # filtering to just species caught this survey year and getting subregion info
-catch_maxyr <- catch %>%
-  filter(YEAR == maxyr & REGION == SRVY) %>%
-  left_join(haul, by = c("CRUISEJOIN", "HAULJOIN")) %>% # need to merge with haul df to get stratum
-  left_join(region_lu, by = "STRATUM") %>%
-  dplyr::select("SPECIES_CODE", "INPFC_AREA", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") %>%
+catch_maxyr <- catch |>
+  filter(YEAR == maxyr & REGION == SRVY) |>
+  left_join(haul, by = join_by(CRUISEJOIN, HAULJOIN, REGION, VESSEL, CRUISE, HAUL)) |> # need to merge with haul df to get stratum
+  left_join(region_lu, by = "STRATUM") |>
+  dplyr::select("SPECIES_CODE", "STRATUM", "REGULATORY_AREA_NAME", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
   unique()
 
 
@@ -29,14 +29,14 @@ rm_bits <- paste0(
 
 
 # limiting to only taxa identified to species level (i.e. no genus, etc. level IDs)
-species_maxyr <- catch_maxyr %>%
-  left_join(species_codes) %>%
+species_maxyr <- catch_maxyr |>
+  left_join(species_codes) |>
   mutate(SPECIES_NAME = trimws(SPECIES_NAME),
          level = case_when(
            str_detect(SPECIES_NAME, rm_bits) | !str_detect(SPECIES_NAME, " ") | is.na(SPECIES_NAME) ~ "",
            TRUE ~ "species"
-         )) %>% 
-  filter(level == "species") %>%
+         ))|>
+  filter(level == "species") |>
   dplyr::select(-level)
 
 
@@ -50,10 +50,10 @@ species_maxyr <- catch_maxyr %>%
 
 
 #all catch/haul data to check against
-catch_haul <- catch %>%
-  filter(SPECIES_CODE %in% species_maxyr$SPECIES_CODE) %>%
-  left_join(haul, by = c("CRUISEJOIN", "HAULJOIN")) %>%
-  left_join(species_codes, by ="SPECIES_CODE") %>%
+catch_haul <- catch |>
+  filter(SPECIES_CODE %in% species_maxyr$SPECIES_CODE) |>
+  left_join(haul, by = c("CRUISEJOIN", "HAULJOIN")) |>
+  left_join(species_codes, by ="SPECIES_CODE") |>
   # mutate(START_LONGITUDE = ifelse(START_LONGITUDE < 0, 
   #                                 START_LONGITUDE, START_LONGITUDE*-1)) %>%
   dplyr::select(SPECIES_CODE, SPECIES_NAME, START_LONGITUDE,
@@ -61,13 +61,13 @@ catch_haul <- catch %>%
 
 
 # outlier species from this year
-outlier_spp <- species_maxyr %>%
-  dplyr::select(SPECIES_CODE) %>%
-  unique() %>%
-  mutate(outlier = purrr::map(SPECIES_CODE, ~check_outlier(.x, maxyr, catch_haul))) %>%
-  unnest(cols = outlier) %>%
-  left_join(species_codes) %>%
-  dplyr::select(SPECIES_CODE, SPECIES_NAME) %>%
+outlier_spp <- species_maxyr|>
+  dplyr::select(SPECIES_CODE)|>
+  unique() |>
+  mutate(outlier = purrr::map(SPECIES_CODE, ~check_outlier(.x, maxyr, catch_haul))) |>
+  unnest(cols = outlier) |>
+  left_join(species_codes) |>
+  dplyr::select(SPECIES_CODE, SPECIES_NAME) |>
   unique() 
   
 
@@ -85,49 +85,49 @@ outlier_spp <- species_maxyr %>%
 # Generate tables/stats ----------------------------------------------------
 
 # Table for Appendix B
-appB <- species_maxyr %>%
-  left_join(taxonomy, by = "SPECIES_CODE") %>%
-  left_join(species_codes) %>%
-  janitor::clean_names() %>%
+appB <- species_maxyr |>
+  left_join(taxonomy, by = "SPECIES_CODE") |>
+  left_join(species_codes) |>
+  janitor::clean_names() |>
   mutate(major_group = case_when(
     species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
     species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
     species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
     species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
     species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
-  )) %>%
+  )) |>
   dplyr::mutate(tax_group = dplyr::case_when(
     species_code <= 31550 ~ "fish",
     species_code >= 40001 ~ "invert"
-  )) %>%
+  )) |>
   dplyr::mutate(family_taxon = case_when(
-    species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon)) %>%
-  dplyr::select(inpfc_area, species_name, common_name, 
+    species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon)) |>
+  dplyr::select(regulatory_area_name , species_name, common_name, 
                 family = family_taxon, phylum = phylum_taxon, 
-                major_group, tax_group) %>%
-  distinct() %>%
-  arrange(inpfc_area, tax_group, major_group, species_name)
+                major_group, tax_group) |>
+  distinct() |>
+  arrange(regulatory_area_name , tax_group, major_group, species_name)
 
 
 
 
 # diversity by subregion
-subregion_diversity <- appB %>%
-  group_by(inpfc_area, tax_group) %>%
-  tally(name = "nsp") %>%
+subregion_diversity <- appB |>
+  group_by(regulatory_area_name, tax_group) |>
+  tally(name = "nsp") |>
   pivot_wider(names_from = tax_group, values_from = nsp)
 subregion_diversity
 
 
 
 # statement for text
-total_diversity <- appB %>%
-  dplyr::select(-inpfc_area) %>%
+total_diversity <- appB |>
+  dplyr::select(-regulatory_area_name) |>
   unique()
 
-n_fish <- total_diversity %>% filter(tax_group == "fish")
+n_fish <- total_diversity |> filter(tax_group == "fish")
 n_fam <- length(unique(n_fish$family))
-n_inverts <- total_diversity %>% filter(tax_group == "invert")
+n_inverts <- total_diversity |> filter(tax_group == "invert")
 n_phyla <- length(unique(n_inverts$phylum))
 
 tax_summary_sentence <- paste(
