@@ -13,6 +13,10 @@ if (!maxyr) {
 cl <- fp_border(color = "#5A5A5A", width = 3)
 
 
+# Data tables needed ------------------------------------------------------
+
+bioamss_stratum_complexes <- read.csv(paste0(dir_out_srvy_yr,"tables/biomass_stratum_complexes.csv"))
+
 # Length targets ----------------------------------------------------------
 targetn <- read.csv(here::here("data", "target_n.csv"))
 
