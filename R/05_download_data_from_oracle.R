@@ -36,6 +36,10 @@ haul <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL")
 
 write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
 
+if(!exists("haul")){
+  haul <- read.csv("./data/local_racebase/haul.csv")
+}
+
 print("Finished downloading HAUL")
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH")
@@ -144,6 +148,10 @@ print("Finished downloading GAP_PRODUCTS.CPUE")
 # complex_lookup is defined in report_settings.
 # So far, this uses the cpue and the haul tables from above.
 # Filter and rename some columns
+if(!exists("cpue")){
+  cpue <- read.csv("./data/local_gap_products/cpue.csv")
+}
+
 cpue_raw <- cpue |>
   dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN?
   dplyr::filter(REGION == SRVY) |>
@@ -195,12 +203,16 @@ biomass <- dplyr::filter(
   SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) # &
   # YEAR == maxyr
 )
-write.csv(x = a, "./data/local_gap_products/biomass.csv", row.names = FALSE)
+write.csv(x = biomass, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
 print("Finished downloading GAP_PRODUCTS.BIOMASS")
 
 
 # Biomass for all species (not complexes)
+if(!exists("biomass")){
+  biomass <- read.csv("./data/local_gap_products/biomass.csv")
+}
+
 biomass_total <- biomass |>
   dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
   mutate(
@@ -210,7 +222,7 @@ biomass_total <- biomass |>
   mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
   mutate_at("SPECIES_CODE", as.character)
 
-biomass_subarea_species <- x |>
+biomass_subarea_species <- biomass |>
   mutate_at("SPECIES_CODE", as.character)
 
 
@@ -226,7 +238,7 @@ biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
   biomass_stratum = biomass_stratum_complexes
 ) # no need to save
 
-biomass_df_complexes <- biomass_subarea_complexes |>
+biomass_total_complexes <- biomass_subarea_complexes |>
   dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
   mutate(
     MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
@@ -234,9 +246,6 @@ biomass_df_complexes <- biomass_subarea_complexes |>
   ) |>
   mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
 
-# head(biomass_df_complexes)
-
-biomass_total_complexes <- biomass_df_complexes
 
 biomass_total <- dplyr::bind_rows(
   biomass_total,
@@ -255,9 +264,12 @@ rm(list = c(
 
 print("Created cpue_table_complexes and biomass_total_complexes.")
 
+write.csv(biomass_stratum_complexes, file = paste0(dir_out_srvy_yr,"tables/biomass_stratum_complexes.csv")) # used in tables
+write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr,"tables/biomass_subarea_all.csv"))
+write.csv(biomass_total, file = paste0(dir_out_srvy_yr,"tables/biomass_total_all.csv"))
 
 
-# stratum groups
+# Stratum groups ----------------------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
 a <- subset(a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
 if (SRVY == "GOA") {
@@ -370,8 +382,80 @@ rm(list = c("sizecomp_stratum_complexes"))
 
 write.csv(sizecomp, file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
 
+# Create 'pseudolengths' table used for length comp figures ----------------
+# Janky but not sure how else to do it, so will have to deal. See notes below. This table is needed for joy division figs. Only make pseudolengths file if it isn't already there.
+if (!file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
+  
+  if(!exists("sizecomp")){
+    sizecomp <- read.csv(file = paste0(dir_out_srvy_yr,"tables/sizecomp_all.csv"))
+  }
+  
+  report_pseudolengths <- data.frame()
+  
+  for (i in 1:nrow(report_species)) {
+    sp_code <- report_species$species_code[i]
+    
+    # Is the species code for a complex?
+    if (grepl(x = sp_code, "[A-Za-z]")) {
+      sizecomp1 <- sizecomp[grepl("[A-Za-z]",sizecomp$SPECIES_CODE),]
+    } else {
+      sizecomp1 <- sizecomp[grepl("[0-9]",sizecomp$SPECIES_CODE),]
+    }
+    
+    if (nrow(sizecomp1) == 0) {
+      stop(paste("No size comps for species", sp_code))
+    }
+    
+    males <- sizecomp1 |>
+      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
+      dplyr::filter(SPECIES_CODE == sp_code) |>
+      dplyr::group_by(YEAR) |>
+      dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) |>
+      dplyr::mutate(prop_10k = round(prop_10k)) |>
+      arrange(-YEAR, LENGTH) |>
+      dplyr::mutate(prop_10k = ifelse(MALES == 0, 0, prop_10k)) |>
+      tidyr::uncount(prop_10k, .id = "id") |>
+      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
+      mutate(Sex = "Male")
+    
+    females <- sizecomp1 |>
+      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
+      dplyr::filter(SPECIES_CODE == sp_code) |>
+      dplyr::group_by(YEAR) |>
+      dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) |> # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
+      dplyr::mutate(prop_10k = round(prop_10k)) |>
+      arrange(-YEAR, LENGTH) |>
+      dplyr::mutate(prop_10k = ifelse(FEMALES == 0, 0, prop_10k)) |>
+      uncount(prop_10k, .id = "id") |>
+      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
+      mutate(Sex = "Female")
+    
+    unsexed <- sizecomp1 |>
+      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
+      dplyr::filter(SPECIES_CODE == sp_code) |>
+      dplyr::group_by(YEAR) |>
+      dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) |>
+      dplyr::mutate(prop_10k = round(prop_10k)) |>
+      arrange(-YEAR, LENGTH) |>
+      dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) |>
+      uncount(prop_10k, .id = "id") |>
+      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
+      mutate(Sex = "Unsexed")
+    all <- bind_rows(males, females, unsexed)
+    
+    report_pseudolengths <- rbind(report_pseudolengths, all)
+  }
+  
+  
+  write.csv(report_pseudolengths, paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"), row.names = FALSE)
+  
+  # Cleanup
+  rm(list = c("males", "females", "unsexed", "report_pseudolengths"))
+}
+
 
 # Ex-vessel prices --------------------------------------------------------
+# Filenames are misleading
 if (SRVY == "AI") {
   a <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
   write.csv(x = a, "./data/AI_planning_species_2020.csv", row.names = FALSE)
