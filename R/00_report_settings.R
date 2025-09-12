@@ -84,7 +84,7 @@ if (SRVY == "AI") {
   ) # order of districts in the results
 }
 if (SRVY == "GOA") {
-  district_order <- c(
+  district_order <- c( # new GOA 2025+ districts
     "Shumagin",
     "Chirikof",
     "Kodiak",
