@@ -105,7 +105,7 @@ if (SRVY == "GOA") {
 # Aesthetic settings ------------------------------------------------------
 # * Themes ----------------------------------------------------------------
 bubbletheme <- theme(
-  legend.position = "none",
+  legend.position = "bottom",
   panel.background = element_rect(
     fill = "white",
     colour = NA
@@ -117,7 +117,7 @@ bubbletheme <- theme(
   axis.text = element_text(size = 8),
   strip.background = element_blank(),
   strip.text = element_text(size = 8, face = "bold"),
-  legend.text = element_text(size = 8),
+  legend.text = element_text(size = 8), ###
   legend.background = element_rect(
     colour = "transparent",
     fill = "transparent"
@@ -174,8 +174,6 @@ speciescolors <- lengthen_pal(
   x = 1:(nrow(report_species) + 1)
 )
 
-
-
 # 0. Static figure: INPFC areas ----------------------------------------------
 
 # This figure is loaded in knit_report; it is static.
@@ -199,12 +197,12 @@ if (make_total_surv_map) {
     theme(legend.position = "none")
 
   # Where we sampled
-  thisyrshauldata <- cpue_raw %>%
-    dplyr::filter(year == maxyr & survey == SRVY) %>%
+  thisyrshauldata <- cpue_raw |>
+    dplyr::filter(year == maxyr & survey == SRVY) |>
     st_as_sf(
       coords = c("longitude_dd_start", "latitude_dd_start"),
       crs = "EPSG:4326"
-    ) %>%
+    ) |>
     st_transform(crs = reg_data$crs)
 
 
@@ -515,7 +513,11 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(bquote("CPUE" ~ (kg / km^2)),
+                   limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+                   guide = "legend"
+        ) +
+        #scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
           ylim = reg_data$plot.boundary$y
