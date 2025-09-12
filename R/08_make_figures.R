@@ -743,11 +743,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 # 5. Length frequency - joy division plots ---------------------------------
 if (make_joy_division_length) {
   list_joy_length <- list()
-  if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
-    report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
+  if (file.exists( paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
+    report_pseudolengths <- read.csv( paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
   } else {
-    cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
-    source("R/06_prep_data.R")
+    cat("Pseudolength file not found. Return to the 06_prep_data.R file and create it again.")
   }
 
   species_year <- read.csv("data/local_gap_products/species_year.csv")
