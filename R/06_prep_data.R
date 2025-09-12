@@ -132,274 +132,6 @@ sp_prices <- dat |>
 
 pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), ])
 
-# GAP_PRODUCTS: biomass, cpue --------------------------------------------------
-x <- read.csv(here::here("data", "local_gap_products", "biomass.csv"))
-
-biomass_total <- x |>
-  dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-  mutate(
-    MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-  ) |>
-  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
-  mutate_at("SPECIES_CODE", as.character)
-
-biomass_subarea_species <- x |>
-  mutate_at("SPECIES_CODE", as.character)
-
-x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
-
-# Filter and rename some columns
-cpue_raw <- x |>
-  dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN?
-  dplyr::filter(REGION == SRVY) |>
-  dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
-  dplyr::rename(
-    survey = "REGION",
-    longitude_dd_start = "START_LONGITUDE",
-    latitude_dd_start = "START_LATITUDE"
-  ) |>
-  janitor::clean_names()
-
-# GAP_PRODUCTS: sizecomps ---------------------------------------
-# Expand length table to make freqs -- these should be used for joy division and other length hist plots
-
-if (!use_gapindex) {
-  sizecomp0 <- read.csv("data/local_gap_products/sizecomp.csv", header = TRUE)
-
-  sizecomp <- sizecomp0 |>
-    dplyr::filter(SURVEY == SRVY & YEAR >= minyr) |>
-    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
-    dplyr::filter(SPECIES_CODE %in% report_species$species_code)
-
-  rm(sizecomp0)
-}
-
-############ OPTIONAL: GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
-# You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products.
-if (use_gapindex) {
-  library(gapindex)
-
-  ## Connect to Oracle
-  sql_channel <- gapindex::get_connected()
-
-  yrs_to_pull <- minyr:maxyr
-
-  ## Pull data.
-  rpt_data <- gapindex::get_data(
-    year_set = yrs_to_pull,
-    survey_set = SRVY,
-    spp_codes =
-      rbind(
-        # species
-        data.frame(
-          GROUP_CODE = report_species[which(grepl("[0-9]", report_species$species_code)), "species_code"],
-          SPECIES_CODE = report_species[which(grepl("[0-9]", report_species$species_code)), "species_code"]
-        ),
-        # complexes
-        data.frame(
-          GROUP_CODE = complex_lookup$complex,
-          SPECIES_CODE = complex_lookup$species_code
-        )
-      ),
-    haul_type = 3,
-    abundance_haul = "Y",
-    pull_lengths = TRUE,
-    channel = sql_channel
-  )
-
-  cpue_raw_caps <- gapindex::calc_cpue(gapdata = rpt_data)
-
-  biomass_stratum <- gapindex::calc_biomass_stratum(
-    gapdata = rpt_data,
-    cpue = cpue_raw_caps
-  )
-  # May need to use biomass_stratum to calculate CIs for total biomass. These are not currently included in gapindex.
-  biomass_subarea <- gapindex::calc_biomass_subarea(
-    gapdata = rpt_data,
-    biomass_stratum = biomass_stratum
-  )
-
-  biomass_df <- biomass_subarea |>
-    dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-    mutate(
-      MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-      MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-    ) |>
-    mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-
-  head(biomass_df)
-
-  sizecomp_stratum <- gapindex::calc_sizecomp_stratum(
-    gapdata = rpt_data,
-    cpue = cpue_raw_caps,
-    abundance_stratum = biomass_stratum,
-    spatial_level = "stratum",
-    fill_NA_method = "AIGOA"
-  )
-
-  ## Calculate aggregated size compositon across subareas, management areas, and
-  ## regions
-  sizecomp_subareas <- gapindex::calc_sizecomp_subarea(
-    gapdata = rpt_data,
-    sizecomp_stratum = sizecomp_stratum
-  )
-
-  sizecomp_gapindex <- sizecomp_subareas |>
-    dplyr::filter(
-      SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-        AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
-    ) |>
-    dplyr::mutate(SURVEY = SRVY, SEX = case_when(
-      SEX == 1 ~ "MALES",
-      SEX == 2 ~ "FEMALES",
-      SEX == 3 ~ "UNSEXED"
-    )) |>
-    dplyr::rename(LENGTH = LENGTH_MM) |>
-    tidyr::pivot_wider(
-      names_from = "SEX",
-      values_from = "POPULATION_COUNT",
-      values_fill = 0
-    ) |>
-    dplyr::mutate(
-      TOTAL = MALES + FEMALES + UNSEXED,
-      SUMMARY_AREA = 999
-    ) |>
-    as.data.frame()
-
-  # if you're using gapindex for comps, assign the gapindex table instead of the GAP_PRODUCTS table:
-  sizecomp <- sizecomp_gapindex
-
-  # cpue table
-  cpue_raw <- cpue_raw_caps |>
-    janitor::clean_names() # This table is used for lots of stuff
-
-  # total biomass table
-  biomass_total <- biomass_df
-
-  # sizecomps will be assigned later
-
-  rm(list = c("biomass_subarea"))
-  print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
-}
-
-# Complexes. create biomass_total and cpue tables using gapindex ----
-# complex_lookup is defined in report_settings.
-
-## Connect to Oracle
-channel <- gapindex::get_connected(check_access = F)
-
-yrs_to_pull <- minyr:maxyr
-
-## Pull data.
-complexes_data <- gapindex::get_data(
-  year_set = yrs_to_pull,
-  survey_set = SRVY,
-  spp_codes = data.frame(
-    SPECIES_CODE = complex_lookup$species_code,
-    GROUP_CODE = complex_lookup$complex #  GROUP has to be numeric
-  ),
-  haul_type = 3,
-  abundance_haul = "Y",
-  pull_lengths = TRUE,
-  channel = channel
-)
-
-cpue_table_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
-
-biomass_stratum_complexes <- gapindex::calc_biomass_stratum(
-  gapdata = complexes_data,
-  cpue = cpue_table_complexes
-)
-
-biomass_subarea_complexes <- gapindex::calc_biomass_subarea(
-  gapdata = complexes_data,
-  biomass_stratum = biomass_stratum_complexes
-)
-
-biomass_df_complexes <- biomass_subarea_complexes |>
-  dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-  mutate(
-    MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-  ) |>
-  mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS))
-
-# head(biomass_df_complexes)
-
-biomass_total_complexes <- biomass_df_complexes
-
-biomass_total <- dplyr::bind_rows(
-  biomass_total,
-  biomass_total_complexes
-)
-
-biomass_subarea <- dplyr::bind_rows(
-  biomass_subarea_species,
-  biomass_subarea_complexes
-)
-
-rm(list = c(
-  "biomass_subarea_species",
-  "biomass_subarea_complexes"
-))
-
-print("Created cpue_table_complexes and biomass_total_complexes.")
-
-# Complexes: create sizecomps ---------------------------------------------
-## Pull data.
-
-# cpue_raw_caps_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
-
-sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
-  gapdata = complexes_data,
-  cpue = cpue_table_complexes,
-  abundance_stratum = biomass_stratum_complexes,
-  spatial_level = "stratum",
-  fill_NA_method = "AIGOA"
-)
-
-## Calculate aggregated size composition across subareas, management areas, and
-## regions
-sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
-  gapdata = complexes_data,
-  sizecomp_stratum = sizecomp_stratum_complexes
-)
-
-sizecomp_complexes <- sizecomp_subareas_complexes |>
-  dplyr::filter(
-    SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
-      AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
-  ) |>
-  dplyr::mutate(SURVEY = SRVY, SEX = case_when(
-    SEX == 1 ~ "MALES",
-    SEX == 2 ~ "FEMALES",
-    SEX == 3 ~ "UNSEXED"
-  )) |>
-  dplyr::rename(LENGTH = LENGTH_MM) |>
-  tidyr::pivot_wider(
-    names_from = "SEX",
-    values_from = "POPULATION_COUNT",
-    values_fill = 0
-  ) |>
-  dplyr::mutate(
-    TOTAL = MALES + FEMALES + UNSEXED,
-    SUMMARY_AREA = 999
-  ) |>
-  as.data.frame()
-
-# If you're already using gapindex to get size comps, that code already produces the full sizecomp table
-if (!use_gapindex) {
-  sizecomp <- rbind(sizecomp, sizecomp_complexes)
-}
-
-rm(list = c("sizecomp_stratum_complexes"))
-
-# Just need to check that total species now in sizecomp is the number of individual species codes plus the number of complexes
-if (length(unique(sizecomp$SPECIES_CODE)) != length(unique(report_species$species_code))) {
-  print("Different numbers of stocks in report list compared to new sizecomp table. Check sizecomp code and report/presentation settings.")
-}
-
 # Station allocation, counts, etc. ----------------------------------------
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
@@ -759,8 +491,10 @@ if (!file.exists(paste0("data/", maxyr, "_", SRVY, "_", "report_pseudolengths.cs
       sizecomp1 <- sizecomp
     }
 
-    if(nrow(sizecomp1)==0){stop(paste("No size comps for species", sp_code))}
-    
+    if (nrow(sizecomp1) == 0) {
+      stop(paste("No size comps for species", sp_code))
+    }
+
     males <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
@@ -839,8 +573,16 @@ third_highest_biomass_overall <- highest_biomass$common_name[3]
 fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 
 
-# Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
 
+
+
+# Load tables for CPUE, biomass, etc for ALL species, complexes -----------
+# Need:
+# - cpue_raw
+# - biomass_total
+if(!exists(cpue_raw)){
+  cpue_raw <- read.csv(paste0(dir_out_srvy_yr,"tables/cpue_all.csv")) # Load cpue table with all species and complexes
+}
 
 
 # Species in complexes (presentation) -------------------------------------
@@ -848,13 +590,19 @@ if (pres_or_report == "pres") {
   biomass_all <- read.csv("data/local_gap_products/biomass.csv")
   biomass_complexes <- biomass_all |>
     dplyr::filter(YEAR == maxyr &
-      SPECIES_CODE %in% complex_lookup$species_code &
-      AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
+                    SPECIES_CODE %in% complex_lookup$species_code &
+                    AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
     left_join(complex_lookup, by = c("SPECIES_CODE" = "species_code"))
-
+  
   complex_name_text <- biomass_complexes |>
     group_by(complex) |>
     arrange(-BIOMASS_MT) |>
     mutate(common_name = case_when(BIOMASS_MT == 0 ~ paste0(common_name, "*"), TRUE ~ common_name)) |>
     summarise(species = toString(unique(common_name), .groups = "drop"))
 }
+
+
+
+# Notes and tidbits -------------------------------------------------------
+
+# Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
