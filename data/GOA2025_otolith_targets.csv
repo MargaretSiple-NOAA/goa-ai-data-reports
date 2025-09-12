@@ -1,20 +1,20 @@
 species,target,collection,diff,% diff,notes
-Sablefish,400,200,-200,-0.5,collection rule reduced from 10 -> 2 to reflect reudced target from 600 -> 400
-Flathead sole,500,200,-300,-0.6,
-Pacific ocean perch,1000,200,-800,-0.8,condition added to collection rule to reflect expected target of 1000
-Pacific cod,1000,200,-800,-0.8,
-Walleye pollock,1500,200,-1300,-0.8666666667,collection rule simplified
-Atka mackerel,100,200,100,1,
-Dusky rockfish,500,200,-300,-0.6,
-Redstripe rockfish,200,200,0,0,collection rule simplified
-Redbanded rockfish,200,200,0,0,new!
-Northern rockfish,500,200,-300,-0.6,collection rule reduced from 20 --> 15 to reflect reduction in target from 700 -> 500
-Arrowtooth flounder,800,200,-600,-0.75,
-Rougheye rockfish,300,200,-100,-0.3333333333,
-Blackspotted rockfish,250,200,-50,-0.2,
-Northern rock sole,500,200,-300,-0.6,"This is currently a 2-area model, it is important to reach this target total"
-Southern rock sole,500,200,-300,-0.6,"This is currently a 2-area model, it is important to reach this target total"
-Shortspine thornyhead,350,200,-150,-0.4285714286,
-Rex sole,700,200,-500,-0.7142857143,
-Dover sole,500,200,-300,-0.6,
-Pacific Halibut,1000,200,-800,-0.8,negogiated from 10/haul/vessel
+Sablefish,400,185,-215,-0.5375,collection rule reduced from 10 -> 2 to reflect reudced target from 600 -> 400
+Flathead sole,500,406,-94,-0.188,
+Pacific ocean perch,1000,716,-284,-0.284,condition added to collection rule to reflect expected target of 1000
+Pacific cod,1000,937,-63,-0.063,
+Walleye pollock,1500,1246,-254,-0.1693333333,collection rule simplified
+Atka mackerel,100,262,162,1.62,
+Dusky rockfish,500,292,-208,-0.416,
+Redstripe rockfish,200,116,-84,-0.42,collection rule simplified
+Redbanded rockfish,200,153,-47,-0.235,new!
+Northern rockfish,500,159,-341,-0.682,collection rule reduced from 20 --> 15 to reflect reduction in target from 700 -> 500
+Arrowtooth flounder,800,755,-45,-0.05625,
+Rougheye rockfish,300,267,-33,-0.11,
+Blackspotted rockfish,250,204,-46,-0.184,
+Northern rock sole,500,470,-30,-0.06,"This is currently a 2-area model, it is important to reach this target total"
+Southern rock sole,500,378,-122,-0.244,"This is currently a 2-area model, it is important to reach this target total"
+Shortspine thornyhead,350,312,-38,-0.1085714286,
+Rex sole,700,561,-139,-0.1985714286,
+Dover sole,500,407,-93,-0.186,
+Pacific Halibut,1000,868,-132,-0.132,negogiated from 10/haul/vessel
