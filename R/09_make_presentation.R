@@ -292,7 +292,8 @@ bubbletheme <- theme(
   plot.subtitle = element_text(
     size = 11
   ),
-  legend.title = element_text(size = 10)
+  legend.title = element_text(size = 10),
+  legend.position = "bottom"
 )
 
 linetheme <- theme_bw(base_size = 12)
@@ -598,12 +599,12 @@ if (make_catch_comp) {
     bartheme +
     theme(legend.position = "bottom")
 
-  png(
-    filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"),
-    width = 9, height = 6, units = "in", res = 150
-  )
-  print(p2)
-  dev.off()
+  # png(
+  #   filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"),
+  #   width = 9, height = 6, units = "in", res = 150
+  # )
+  ggsave(plot = p2, filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"))
+  # dev.off()
 
   save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
@@ -632,7 +633,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       THORNYHEADS = "thornyheads"
     )
 
-    thisyrshauldata <- cpue_table_complexes |>
+    thisyrshauldata <- cpue_raw_complexes |> #cpue_table_complexes
       janitor::clean_names() |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
@@ -1304,8 +1305,8 @@ if(report_or_pres=="pres"){
 
 if (make_joy_division_length) {
   list_joy_length <- list()
-  if (file.exists(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))) {
-    report_pseudolengths <- read.csv(paste0("data/", maxyr, "_", SRVY, "_report_pseudolengths.csv"))
+  if (file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
+    report_pseudolengths <- read.csv( paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
   } else {
     cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
     source("R/06_prep_data.R")
@@ -1372,7 +1373,7 @@ if (make_joy_division_length) {
     mutate(YEAR = as.integer(YEAR))
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
-  left_labels <- c(30420) # species for which you want the label on the left instead of the right!
+  left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
 
   # Loop thru species
   for (i in 1:nrow(report_species)) { #
