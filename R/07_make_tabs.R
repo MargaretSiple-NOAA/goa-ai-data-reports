@@ -14,8 +14,8 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 
 
 # Data tables needed ------------------------------------------------------
-if(!exists("biomass_stratum_complexes")){
-biomass_stratum_complexes <- read.csv(paste0(dir_out_srvy_yr,"tables/biomass_stratum_complexes.csv"))
+if (!exists("biomass_stratum_complexes")) {
+  biomass_stratum_complexes <- read.csv(paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv"))
 }
 # Length targets ----------------------------------------------------------
 targetn <- read.csv(here::here("data", "target_n.csv"))
@@ -31,11 +31,11 @@ otos_target_sampled <- df |>
 # Sp richness by subregion and family ------------------------------------------
 subregion_fam_div <- appB |>
   group_by(regulatory_area_name, family) |>
-  tally(name = "nsp")  |>
+  tally(name = "nsp") |>
   pivot_wider(names_from = regulatory_area_name, values_from = nsp) |>
-  dplyr::rename(Family = family)  |>
-  ungroup()  |>
-  mutate_at(2:6, ~ replace_na(., 0))  |>
+  dplyr::rename(Family = family) |>
+  ungroup() |>
+  mutate_at(2:6, ~ replace_na(., 0)) |>
   relocate(any_of(c("Family", district_order)))
 
 
@@ -43,30 +43,31 @@ subregion_fam_div <- appB |>
 # Can convert this into a function later
 biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
 
-area_gp <- read.csv("data/local_gap_products/area.csv") 
+area_gp <- read.csv("data/local_gap_products/area.csv")
 
-if(SRVY=="GOA"){
-area_gp_reg_area <- area_gp |>
-  dplyr::filter(AREA_TYPE %in% c("NMFS STATISTICAL AREA", "REGION") &
-    DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984))}else{
-      area_gp_reg_area <- area_gp |>
-        dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
-                        DESIGN_YEAR == 1980)
-    }
+if (SRVY == "GOA") {
+  area_gp_reg_area <- area_gp |>
+    dplyr::filter(AREA_TYPE %in% c("NMFS STATISTICAL AREA", "REGION") &
+      DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984))
+} else {
+  area_gp_reg_area <- area_gp |>
+    dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
+      DESIGN_YEAR == 1980)
+}
 
 topn <- 20
 
 # biomass_subarea is created in prep_data and includes complexes
-if(!exists("biomass_subarea")){
-  biomass_subarea <- read.csv(file = paste0(dir_out_srvy_yr,"tables/biomass_subarea_all.csv"))
+if (!exists("biomass_subarea")) {
+  biomass_subarea <- read.csv(file = paste0(dir_out_srvy_yr, "tables/biomass_subarea_all.csv"))
 }
 
 # Make table of top CPUE
 top_CPUE <- biomass_subarea |>
   dplyr::filter(YEAR == maxyr & grepl(pattern = "[0-9]", x = SPECIES_CODE)) |>
   dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
-  dplyr::right_join(area_gp_reg_area, by = c("SURVEY_DEFINITION_ID","AREA_ID")) |>
-  #dplyr::filter(AREA_TYPE == "NMFS STATISTICAL AREA") |>
+  dplyr::right_join(area_gp_reg_area, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
+  # dplyr::filter(AREA_TYPE == "NMFS STATISTICAL AREA") |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename("NMFS_STATISTICAL_AREA" = AREA_NAME) |>
   dplyr::mutate(wgted_mean_cpue_kgha = CPUE_KGKM2_MEAN / 100) |> # convert to hectares
@@ -77,7 +78,7 @@ top_CPUE <- biomass_subarea |>
     "species_code" = SPECIES_CODE
   ) |>
   dplyr::ungroup() #|>
-  #dplyr::mutate(NMFS_STATISTICAL_AREA = ifelse(NMFS_STATISTICAL_AREA == "All", "All areas", INPFC_AREA))
+# dplyr::mutate(NMFS_STATISTICAL_AREA = ifelse(NMFS_STATISTICAL_AREA == "All", "All areas", INPFC_AREA))
 
 
 top_CPUE <- top_CPUE |>
@@ -104,9 +105,8 @@ attempted <- haul |>
   dplyr::count(name = "attempted") |>
   ungroup()
 
-succeeded <- haul_maxyr |>
+succeeded <- haul_maxyr |> # already filtered to abundance_haul = Y
   group_by(STRATUM) |>
-  filter(ABUNDANCE_HAUL == "Y") |> # filter to successful hauls
   distinct(STATIONID) |> # how many stations were sampled?
   ungroup() |>
   left_join(region_lu) |>
@@ -122,17 +122,17 @@ nmfs_depth_areas <- region_lu |>
 
 
 piece1 <- all_allocation |>
-  filter(YEAR == maxyr & SURVEY == SRVY) |>
-  left_join(region_lu, by = c("SURVEY", "STRATUM")) |>
-  group_by(INPFC_AREA, `Depth range`) |>
+  dplyr::filter(YEAR == maxyr) |>
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  dplyr::group_by(REGULATORY_AREA_NAME, `Depth range`) |>
   dplyr::count(name = "allocated") |>
   ungroup() |>
   left_join(attempted) |>
   left_join(succeeded) |>
-  left_join(inpfc_depth_areas)
+  left_join(nmfs_depth_areas)# START HERE NEXT TIME
 
 depth_areas <- piece1 |>
-  group_by(INPFC_AREA) |>
+  group_by(REGULATORY_AREA_NAME) |>
   dplyr::summarize(
     AREA = sum(AREA),
     allocated = sum(allocated),
@@ -144,13 +144,14 @@ depth_areas <- piece1 |>
 
 allocated_prep <- piece1 |>
   bind_rows(depth_areas) |>
-  arrange(INPFC_AREA, `Depth range`) |>
-  dplyr::arrange(factor(INPFC_AREA, levels = district_order)) |>
+  arrange(REGULATORY_AREA_NAME, `Depth range`) |>
+  dplyr::arrange(factor(REGULATORY_AREA_NAME, levels = district_order)) |>
   mutate(stations_per_1000km2 = (succeeded / AREA) * 1000) |>
   mutate(
     AREA = round(AREA, digits = 1),
     stations_per_1000km2 = round(stations_per_1000km2, digits = 2)
-  )
+  ) |>
+  dplyr::rename(NMFS_AREA = "REGULATORY_AREA_NAME")
 
 
 all_areas <- allocated_prep |>
@@ -164,40 +165,40 @@ all_areas <- allocated_prep |>
   ) |>
   dplyr::mutate(stations_per_1000km2 = round((succeeded / AREA) * 1000, digits = 2)) |>
   ungroup() |>
-  tibble::add_column(INPFC_AREA = "All areas", .before = "Depth range")
+  tibble::add_column(NMFS_AREA = "All areas", .before = "Depth range")
 
 all_areas_depths <- all_areas |>
   dplyr::summarize(across(allocated:AREA, sum)) |>
   tibble::add_column(`Depth range` = "All depths", .before = "allocated") |>
   ungroup() |>
   mutate(stations_per_1000km2 = succeeded / AREA) |>
-  tibble::add_column(INPFC_AREA = "All areas", .before = "Depth range")
+  tibble::add_column(NMFS_AREA = "All areas", .before = "Depth range")
 
 allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths) |>
-  dplyr::arrange(factor(INPFC_AREA, levels = c(district_order, "All areas"))) |>
+  dplyr::arrange(factor(NMFS_AREA, levels = c(district_order, "All areas"))) |>
   dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`))
 
 colnames(allocated_sampled) <- c(
-  "Survey district", "Depth range (m)",
+  "NMFS area", "Depth range (m)",
   "Stations allocated", "Stations attempted", "Stations completed",
   "Total area", "Stations per 1,000 km^2"
 )
 
-# Statement about assigned sampling densities - vector of two
+# Statement about assigned sampling densities - numeric vector of two
 depthrange_hisamplingdensity <- allocated_sampled |>
-  filter(`Depth range (m)` != "All depths" & `Survey district` == "All areas") |>
+  dplyr::filter(`Depth range (m)` != "All depths" & `NMFS area` == "All areas") |>
   slice_max(n = 2, order_by = `Stations per 1,000 km^2`) |>
   dplyr::select(`Depth range (m)`) |>
   unlist()
 
 stationdensity_hisamplingdensity <- allocated_sampled |>
-  filter(`Depth range (m)` != "All depths" & `Survey district` == "All areas") |>
+  filter(`Depth range (m)` != "All depths" & `NMFS area` == "All areas") |>
   slice_max(n = 2, order_by = `Stations per 1,000 km^2`) |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   unlist()
 
 surveywide_samplingdensity <- allocated_sampled |>
-  filter(`Depth range (m)` == "All depths" & `Survey district` == "All areas") |>
+  filter(`Depth range (m)` == "All depths" & `NMFS area` == "All areas") |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   as.numeric() |>
   round(digits = 4)
@@ -209,12 +210,12 @@ table3s_list <- list()
 
 for (i in 1:nrow(report_species)) {
   # if single species, use biomass from GAP_PRODUCTS, if complex use biomass from gapindex.
-  if(grepl(pattern = "[0-9]", x = report_species$species_code[i])){
+  if (grepl(pattern = "[0-9]", x = report_species$species_code[i])) {
     bt <- biomass_gp
-  }else{
+  } else {
     bt <- biomass_subarea
   }
-  
+
   tab3 <- make_tab3(
     species_code = report_species$species_code[i],
     year = maxyr,
@@ -241,13 +242,13 @@ table4s_list <- list()
 
 for (i in 1:nrow(report_species)) {
   # if single species, use biomass from GAP_PRODUCTS, if complex use biomass from gapindex.
-  if(grepl(pattern = "[0-9]", x = report_species$species_code[i])){
+  if (grepl(pattern = "[0-9]", x = report_species$species_code[i])) {
     bt <- biomass_gp
-  }else{
+  } else {
     bt <- biomass_stratum_complexes |>
       dplyr::rename("AREA_ID" = "STRATUM")
   }
-  
+
   tab4 <- make_tab4(
     species_code = report_species$species_code[i],
     year = maxyr,
@@ -270,7 +271,7 @@ print("Done creating Table 4s")
 # Comparison of biomass between maxyr and compareyr -----------------------
 compare_tab <- biomass_total |>
   filter(YEAR %in% c(maxyr, compareyr) &
-           SPECIES_CODE %in% report_species$species_code) |>
+    SPECIES_CODE %in% report_species$species_code) |>
   dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) |>
   dplyr::arrange(YEAR) |>
   tidyr::pivot_wider(
@@ -285,7 +286,7 @@ names(compare_tab)
 
 compare_tab2 <- compare_tab |>
   left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
-  #arrange(-SPECIES_CODE) |>
+  # arrange(-SPECIES_CODE) |>
   dplyr::select(-(presentation:reportorder))
 
 write.csv(
@@ -315,4 +316,3 @@ save(table3s_list,
 save(table4s_list,
   file = paste0(dir_out_tables, "table4s_list.rdata")
 )
-
