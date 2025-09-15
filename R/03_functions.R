@@ -282,9 +282,9 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 
   area_lookup0 <- area_tbl |>
     dplyr::filter(AREA_TYPE %in% c(
-      "INPFC BY DEPTH",
-      "INPFC",
-      "DEPTH", "REGION"
+      "NMFS STATISTICAL AREA",
+      #"REGULATORY AREA",
+      "REGION"
     ))
   if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
     area_lookup <- area_lookup0 |>
@@ -301,10 +301,12 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       DEPTH_RANGE %in% c("1 - 500", "1 - 1000") ~ "All depths",
       DEPTH_RANGE == "NA - NA" ~ "All depths",
       TRUE ~ DEPTH_RANGE
-    )) |>
+    ),
+    PERCENT_POS = paste0(round((N_WEIGHT/N_HAUL)*100), "%")) |>
     dplyr::select(
       AREA_NAME, DEPTH_RANGE,
       N_HAUL, N_WEIGHT,
+      PERCENT_POS,
       CPUE_KGKM2_MEAN,
       BIOMASS_MT,
       # BIOMASS_VAR,
@@ -314,10 +316,11 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   # Format the columns
   combo <- combo0 |>
     dplyr::rename(
-      "Survey district" = AREA_NAME,
+      "NMFS area" = AREA_NAME,
       "Depth (m)" = DEPTH_RANGE,
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,
+      "Percent positive tows" = PERCENT_POS,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
       "Biomass (mt)" = BIOMASS_MT,
       # "Biomass variance (t)" = BIOMASS_VAR,
@@ -329,9 +332,12 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   combo$`Biomass (t)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
   combo_ord <- combo |>
-    dplyr::arrange(factor(`Survey district`, levels = c(district_order, "All")))
+    dplyr::arrange(factor(`NMFS area`, levels = c(district_order, "All"))) |>
+    dplyr::select(-`Depth (m)`) 
 
-  combo_ord$`Survey district`[which(combo_ord$`Survey district` == "All")] <- "All areas"
+  combo_ord$`NMFS area`[which(combo_ord$`NMFS area` == "All")] <- "All areas"
+  
+  
 
   return(combo_ord)
 }
