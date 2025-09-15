@@ -85,7 +85,7 @@ if (SRVY == "AI") {
 }
 if (SRVY == "GOA") {
   district_order <- c( # new GOA 2025+ districts
-    "Shumagin",
+    "Western Regulatory Area",
     "Chirikof",
     "Kodiak",
     "West Yakutat",
