@@ -221,11 +221,10 @@ for (i in 1:nrow(report_species)) {
     year = maxyr,
     biomass_tbl = bt,
     area_tbl = area_gp
-  ) |>
-    subset(`Depth (m)` != "701 - 1000") # this depth only surveyed before 2015
+  ) 
 
   write.csv(x = tab3, file = paste0(
-    dir_out_todaysrun, "tables/tab3_",
+    dir_out_srvy_yr, "tables/tab3_",
     report_species$species_code[i], "_", maxyr, ".csv"
   ))
   table3s_list[[i]] <- tab3
