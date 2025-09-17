@@ -245,7 +245,7 @@ for (i in 1:nrow(report_species)) {
     bt <- biomass_gp
   } else {
     bt <- biomass_stratum_complexes |>
-      dplyr::rename("AREA_ID" = "STRATUM")
+     dplyr::rename("AREA_ID" = "STRATUM")
   }
 
   tab4 <- make_tab4(
@@ -256,7 +256,7 @@ for (i in 1:nrow(report_species)) {
   )
 
   write.csv(x = tab4, file = paste0(
-    dir_out_todaysrun, "tables/tab4_",
+    dir_out_srvy_yr, "tables/tab4_",
     report_species$species_code[i], "_", maxyr, ".csv"
   ))
   table4s_list[[i]] <- tab4
