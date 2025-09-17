@@ -362,15 +362,31 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   biomass_yr <- biomass_tbl |> # might take this out of the function, not sure yet
     dplyr::filter(YEAR == year & SPECIES_CODE == species_code)
 
-  area_lookup <- area_tbl |>
-    dplyr::filter(AREA_TYPE == "STRATUM") |>
+  if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
+    design_yr <- ifelse(year > 2023, 2025, 1984)
+  } else {
+    design_yr <- 1991
+  }
+
+
+  area_lookup0 <- area_tbl |>
+    dplyr::filter(AREA_TYPE == "STRATUM" & DESIGN_YEAR == design_yr) |>
     dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M))
+
+  if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
+    area_lookup <- area_lookup0 |>
+      dplyr::filter(DESIGN_YEAR == ifelse(year < 2025, 1984, 2025)) # GOA design years
+  } else {
+    area_lookup <- area_lookup0 # All AI design years are 1980
+  }
+
 
   combo0 <- area_lookup |>
     dplyr::left_join(biomass_yr, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
+    dplyr::mutate(PERCENT_POS = paste0(round((N_WEIGHT / N_HAUL) * 100), "%")) |>
     dplyr::select(
       AREA_NAME, DEPTH_RANGE,
-      N_HAUL, N_WEIGHT,
+      N_HAUL, N_WEIGHT, PERCENT_POS,
       CPUE_KGKM2_MEAN, BIOMASS_MT
     )
 
@@ -380,6 +396,7 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Depth (m)" = DEPTH_RANGE,
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,
+      "Percent hauls with positive catch" = PERCENT_POS,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
       "Biomass (mt)" = BIOMASS_MT
     ) |>
