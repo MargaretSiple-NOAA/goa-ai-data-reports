@@ -87,9 +87,15 @@ if (SRVY == "GOA") {
     design.year = ifelse(maxyr < 2025, 1984, 2025)
   ) |>
     add_depths()
-
+    
+    goa_nmfs_areas <- akgfmaps::get_nmfs_areas(
+      set.crs = "auto"
+    ) |>
+      dplyr::filter(REP_AREA %in% c(610, 620, 630, 640, 650))
+  geo_order2 <- district_order  
+  
+    
   goa_inpfc <- goa_all$inpfc.strata
-
   geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
 
   goa_all$survey.area <- goa_all$survey.area |>
@@ -152,7 +158,8 @@ if (SRVY == "AI") {
   )
 }
 
-depthpal <- RColorBrewer::brewer.pal(n = ndepths, name = "Blues")
+depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
+
 
 # Palette for lines
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
@@ -180,18 +187,41 @@ speciescolors <- lengthen_pal(
 
 # 0b: make_total_surv_map: INPFC areas with stations sampled -----------------------------------
 if (make_total_surv_map) {
-  
-  palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
+  # old colors
+  # palette_map <- c("#dd7867", "#8cc8bc", "#b83326", "#5773c0", "#c8570d")
+  # alternate
+  # palette_map <- c("#4E79A7", "#A0CBE8", "#F28E2B", "#59A14F", "#F1CE63")
+  # new colors
+  palette_map <- c("#4E79A7", "#A0CBE8", "#F28E2B", "#FFBE7D", "#59A14F")
+
   #  Base map
+  # p1 <- ggplot() +
+  #   geom_sf(data = goa_all$akland) +
+  #   geom_sf(data = goa_inpfc, aes(fill = AREA_NAME)) + #used to be INPFC_STRATUM - 2x check this later
+  #   scale_fill_manual("INPFC area", values = palette_map, breaks = geo_order) +
+  #   geom_sf(data = goa_all$survey.area, fill = NA) +
+  #   geom_sf_text(
+  #     data = goa_inpfc, size = 4,
+  #     aes(label = AREA_NAME, geometry = geometry),
+  #     nudge_y = -240000
+  #   ) +
+  #   theme_light() +
+  #   theme(legend.position = "none")
+
+  #  Base map 2 - for new GOA survey design
   p1 <- ggplot() +
     geom_sf(data = goa_all$akland) +
-    geom_sf(data = goa_inpfc, aes(fill = AREA_NAME)) + #used to be INPFC_STRATUM - 2x check this later
-    scale_fill_manual("INPFC area", values = palette_map, breaks = geo_order) +
+    geom_sf(data = goa_nmfs_areas, aes(fill = REP_AREA)) +
+    scale_fill_manual("NMFS area",
+      values = palette_map,
+      breaks = c(610, 620, 630, 640, 650),
+      labels = geo_order2
+    ) +
     geom_sf(data = goa_all$survey.area, fill = NA) +
     geom_sf_text(
-      data = goa_inpfc, size = 4,
-      aes(label = AREA_NAME, geometry = geometry),
-      nudge_y = -240000
+      data = goa_nmfs_areas, size = 4,
+      aes(label = geo_order2, geometry = geometry),
+      nudge_y = -140000
     ) +
     theme_light() +
     theme(legend.position = "none")
@@ -210,7 +240,7 @@ if (make_total_surv_map) {
     geom_sf(data = thisyrshauldata, size = 0.5) +
     coord_sf(
       xlim = goa_all$plot.boundary$x,
-      ylim = c(goa_all$plot.boundary$y[1] - 150000, goa_all$plot.boundary$y[2])
+      ylim = c(goa_all$plot.boundary$y[1] - 250000, goa_all$plot.boundary$y[2])
     ) +
     guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
     ggspatial::annotation_scale(location = "br") +
@@ -260,7 +290,7 @@ if (make_total_surv_map) {
   print(station_map)
   dev.off()
 
-  save(station_map, file = paste0(dir_out_figures, maxyr, "_station_map.RDS"))
+  save(station_map, file = paste0(dir_out_srvy_yr, "figures/station_map.RDS"))
 }
 
 # 1. Biomass index relative to LT mean ---------------------------------------
