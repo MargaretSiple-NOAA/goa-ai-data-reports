@@ -334,7 +334,7 @@ if (make_biomass_timeseries) {
         color = accentline, lwd = 0.7, lty = 2
       ) +
       xlab("Year") +
-      ylab("Proportion of hauls where present (%)") +
+      ylab("Proportion of hauls \nwhere present (%)") +
       linetheme
 
     p3 <- ggplot() +
@@ -362,21 +362,21 @@ if (make_biomass_timeseries) {
       # cale_color_distiller(palette = "PiYG", type = "div") +
       scale_color_gradientn(colors = c("#8e0152", "#f7f7f7", "#276419")) +
       xlab("Year") +
-      ylab("Percent change in biomass from previous survey (%)") +
+      ylab("Percent change in biomass \nfrom previous survey (%)") +
       linetheme +
       theme(legend.position = "none")
 
     #p1 + p2 + p3
     
-    # If needed: make plot of CPUE distribution where present
-    # dat_cpue <- cpue_raw |> 
-    #   dplyr::filter(species_code == sp & cpue_kgkm2>0) 
+    #If needed: make plot of CPUE distribution where present
+    # dat_cpue <- cpue_raw |>
+    #   dplyr::filter(species_code == sp & cpue_kgkm2>0)
     # 
     # p4 <- dat_cpue |>
     #   ggplot(aes(x=year, y = cpue_kgkm2)) +
-    #   geom_jitter(alpha=0.2,size=2) + 
-    #   linetheme + 
-    #   xlab("Year") + 
+    #   geom_jitter(alpha=0.2,size=2) +
+    #   linetheme +
+    #   xlab("Year") +
     #   ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
 
     # Save just time series
@@ -390,20 +390,20 @@ if (make_biomass_timeseries) {
     print(p1)
     dev.off()
     
-    list_3panel_ts[[i]] <- p1 + p2 + p3 + p4
+    list_3panel_ts[[i]] <- p1 + p2 + p3
     names(list_3panel_ts)[[i]] <- report_species$species_code[i]
     
     # Save 3-panel figs
     png(
       filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_3panel_ts.png"),
-      width = 10, height = 4, units = "in", res = 200
+      width = 11, height = 4, units = "in", res = 200
     )
     print(p1 + p2 + p3)
     dev.off()
     
-    # Save 4-panel figs
+    ## Save 4-panel figs - not set up yet to save them all as a list in a data file
     # png(
-    #   filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_3panel_ts.png"),
+    #   filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_4panel_ts.png"),
     #   width = 8, height = 8, units = "in", res = 200
     # )
     # print(p1 + p2 + p3 + p4)
