@@ -33,6 +33,7 @@ table3s_list[["{{ species_code }}"]] |>
     #`CPUE (kg/km2)` = "CPUE\n(kg/km2)",
     `Biomass (mt)` = "Biomass\n(mt)"
   ) |>
+  bold(i = 6) |> #bold the row with the All Areas total
   compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
