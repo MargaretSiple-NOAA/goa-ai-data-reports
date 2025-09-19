@@ -268,7 +268,7 @@ nnewstations <- all_allocation |>
   nrow()
 
 if (nnewstations == 0) {
-  print("Code says no new stations were sampled this year. Is this correct?")
+  print("Code says no new stations were sampled this year. If this is not correct, check allocation table.")
 }
 
 # Of the new stations allocated to the different vessels, which ones were successfully sampled?
@@ -488,6 +488,11 @@ catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
 
 
 # Species with highest est'd biomass --------------------------------------
+# Load total biomass table with all species and complexes
+if(!exists("biomass_total")){
+  biomass_total <- read.csv(file = paste0(dir_out_srvy_yr,"tables/biomass_total_all.csv"))
+}
+
 biomass_maxyr <- biomass_total |>
   filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
 
@@ -520,11 +525,6 @@ if(!exists("cpue_raw")){
   cpue_raw <- read.csv(paste0(dir_out_srvy_yr,"tables/cpue_all.csv")) # Load cpue table with all species and complexes
 }
 
-if(!exists("biomass_total")){
-  biomass_total <- read.csv(paste0(dir_out_srvy_yr,"tables/biomass_total_all.csv")) # Load total biomass table with all species and complexes
-}
-
-
 # Species in complexes (presentation) -------------------------------------
 if (pres_or_report == "pres") {
   biomass_all <- read.csv("data/local_gap_products/biomass.csv")
@@ -541,8 +541,7 @@ if (pres_or_report == "pres") {
     summarise(species = toString(unique(common_name), .groups = "drop"))
 }
 
-
-
 # Notes and tidbits -------------------------------------------------------
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
+
