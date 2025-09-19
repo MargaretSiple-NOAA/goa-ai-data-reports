@@ -51,6 +51,10 @@ library(officer)
 ```{r child=here::here("gdrive","Methods.Rmd")}
 ```
 
+```{r fig.cap="Poly Nor'eastern net and footrope used in the survey", fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 8, dpi = 300}
+include_graphics(path = here::here("img/Poly Nor'E BottomTrawl.png"))
+```
+
 \newpage
 <!-- Tables -->
 
