@@ -294,20 +294,28 @@ if (make_total_surv_map) {
 }
 
 # 1. Biomass index relative to LT mean ---------------------------------------
-
 if (make_biomass_timeseries) {
   list_biomass_ts <- list()
+  list_3panel_ts <- list()
+  
   for (i in 1:nrow(report_species)) { #
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
 
-    dat <- biomass_total %>%
-      filter(SPECIES_CODE == report_species$species_code[i])
-    lta <- mean(dat$BIOMASS_MT)
+    dat <- biomass_total |>
+      filter(SPECIES_CODE == report_species$species_code[i]) |>
+      dplyr::mutate(PERCENT_OF_STATIONS = round((N_WEIGHT / N_HAUL) * 100)) |>
+      dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
 
-    p1 <- dat %>%
-      ggplot(aes(x = YEAR, y = BIOMASS_MT)) + # used to be TOTAL_BIOMASS
-      geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
+    dat$PERCENT_CHANGE_BIOMASS[1] <- NA # no difference calculated for first year of ts
+    
+    lta_biomass <- mean(dat$BIOMASS_MT)
+    lta_percent_stns <- mean(dat$PERCENT_OF_STATIONS)
+    lta_percent_change <- mean(dat$PERCENT_CHANGE_BIOMASS, na.rm = TRUE)
+
+    p1 <- dat |>
+      ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
+      geom_hline(yintercept = lta_biomass, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
         color = linecolor, linewidth = 0.9, width = 0.7
@@ -318,20 +326,97 @@ if (make_biomass_timeseries) {
       linetheme
     p1
 
+    p2 <- dat |>
+      ggplot(aes(x = YEAR, y = PERCENT_OF_STATIONS)) +
+      geom_point(color = linecolor, size = 3) +
+      geom_hline(
+        yintercept = lta_percent_stns,
+        color = accentline, lwd = 0.7, lty = 2
+      ) +
+      xlab("Year") +
+      ylab("Proportion of hauls where present (%)") +
+      linetheme
+
+    p3 <- ggplot() +
+      geom_hline(
+        yintercept = lta_percent_change,
+        color = accentline, lwd = 0.7, lty = 2
+      ) +
+      geom_point(
+        data = subset(dat, abs(PERCENT_CHANGE_BIOMASS) < 50),
+        aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS, color = PERCENT_CHANGE_BIOMASS),
+        size = 5
+      ) +
+      geom_point(
+        data = subset(dat, PERCENT_CHANGE_BIOMASS > 50),
+        aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS),
+        color = "#276419",
+        size = 5
+      ) +
+      geom_point(
+        data = subset(dat, PERCENT_CHANGE_BIOMASS < (-50)),
+        aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS),
+        color = "#8e0152",
+        size = 5
+      ) +
+      # cale_color_distiller(palette = "PiYG", type = "div") +
+      scale_color_gradientn(colors = c("#8e0152", "#f7f7f7", "#276419")) +
+      xlab("Year") +
+      ylab("Percent change in biomass from previous survey (%)") +
+      linetheme +
+      theme(legend.position = "none")
+
+    #p1 + p2 + p3
+    
+    # If needed: make plot of CPUE distribution where present
+    # dat_cpue <- cpue_raw |> 
+    #   dplyr::filter(species_code == sp & cpue_kgkm2>0) 
+    # 
+    # p4 <- dat_cpue |>
+    #   ggplot(aes(x=year, y = cpue_kgkm2)) +
+    #   geom_jitter(alpha=0.2,size=2) + 
+    #   linetheme + 
+    #   xlab("Year") + 
+    #   ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
+
+    # Save just time series
     list_biomass_ts[[i]] <- p1
     names(list_biomass_ts)[[i]] <- report_species$species_code[i]
 
     png(
       filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_ts.png"),
-      width = 7, height = 7, units = "in", res = 150
+      width = 7, height = 7, units = "in", res = 200
     )
     print(p1)
     dev.off()
+    
+    list_3panel_ts[[i]] <- p1 + p2 + p3 + p4
+    names(list_3panel_ts)[[i]] <- report_species$species_code[i]
+    
+    # Save 3-panel figs
+    png(
+      filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_3panel_ts.png"),
+      width = 10, height = 4, units = "in", res = 200
+    )
+    print(p1 + p2 + p3)
+    dev.off()
+    
+    # Save 4-panel figs
+    # png(
+    #   filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_3panel_ts.png"),
+    #   width = 8, height = 8, units = "in", res = 200
+    # )
+    # print(p1 + p2 + p3 + p4)
+    # dev.off()
+    
   } # /end species loop
-  names(list_biomass_ts) <- report_species$species_code
+  #names(list_biomass_ts) <- report_species$species_code
   save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
+  save(list_3panel_ts, file = paste0(dir_out_figures, "list_3panel_ts.rdata"))
   print("Done making biomass time series plots.")
 }
+
+
 
 
 # 2. Catch composition -------------------------------------------------------
