@@ -269,7 +269,7 @@ print("Done creating Table 4s")
 
 # Comparison of biomass between maxyr and compareyr -----------------------
 compare_tab <- biomass_total |>
-  filter(YEAR %in% c(maxyr, compareyr) &
+  dplyr::filter(YEAR %in% c(maxyr, compareyr) &
     SPECIES_CODE %in% report_species$species_code) |>
   dplyr::select(YEAR, SPECIES_CODE, BIOMASS_MT) |>
   dplyr::arrange(YEAR) |>
