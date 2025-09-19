@@ -221,7 +221,13 @@ for (i in 1:nrow(report_species)) {
     year = maxyr,
     biomass_tbl = bt,
     area_tbl = area_gp
-  ) 
+  )
+
+  # remove avg individual weight if this is a complex
+  if (grepl(pattern = "[A-Z]", x = report_species$species_code[i])) {
+    tab3 <- tab3 |>
+      dplyr::select(-`Average weight (kg)`)
+  }
 
   write.csv(x = tab3, file = paste0(
     dir_out_srvy_yr, "tables/tab3_",
@@ -233,7 +239,6 @@ for (i in 1:nrow(report_species)) {
 names(table3s_list) <- report_species$species_code
 
 print("Done creating Table 3s")
-
 
 # "Table 4"  --------------------------------------------------------------
 
