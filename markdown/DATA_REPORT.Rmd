@@ -1,5 +1,8 @@
 ---
-output:
+title: "2025 Gulf of Alaska Biennial Bottom Trawl Survey"
+subtitle: "Data Report"
+author: "Bethany Riggle, Alexandra Dowlin, Zack Oyafuso, Ned Laman, Margaret Siple"
+  output:
   officedown::rdocx_document: 
     reference_docx: styles_reference4.docx
     pandoc_args: ["--metadata-file=header.yaml"]
