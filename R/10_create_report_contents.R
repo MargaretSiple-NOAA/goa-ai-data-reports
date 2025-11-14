@@ -37,7 +37,7 @@ if (z) {
   source(here::here("R", "08_make_figures.R"))
 }
 
-# Clean up environment before saving values -------------------------------
+# Clean up environment before saving just the values (highest_elasmos, etc) --------------
 # Figures and printed tables
 rm(list = c(
   "list_tables",
@@ -76,4 +76,4 @@ rm(list = c(
 
 # Save all the values needed to make the report so you can easily load later --
 # The items present in this list are either intermediary (i.e., not objects used in the final report, like ai_central) or they are saved as rdata objects separately (e.g., list_cpue_bubbles)
-save(list = ls(), file = paste0(dir_out_todaysrun, "reportvalues.rdata"))
+save(list = ls(), file = paste0(dir_out_srvy_yr, "reportvalues.rdata"))
