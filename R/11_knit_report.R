@@ -7,11 +7,11 @@ source("R/01_directories.R")
 source("R/02_load_packages.R")
 source("R/03_functions.R")
 
-cat(
-  "Using report data from", tabledate, "for tables. \n",
-  "Using report data from", figuredate, "for figures. \n",
-  "Using report data from", reportvaluesdate, "for report values (mostly in-text values)."
-)
+# cat(
+#   "Using report data from", tabledate, "for tables. \n",
+#   "Using report data from", figuredate, "for figures. \n",
+#   "Using report data from", reportvaluesdate, "for report values (mostly in-text values)."
+# )
 
 
 # Load tables  ------------------------------------------------------------

@@ -52,10 +52,6 @@ for (i in 1:length(dirs)) {
 
 # Get tables and figures you already made ---------------------------------
 
-# if(is.na(tabledate) | is.na(figuredate)){
-#   print("Please choose the date when you last saved figures or tables.")
-# }
-
 dir_in_tables <- paste0(dir_out_srvy_yr,"/tables/")
 dir_in_figures <- paste0(dir_out_srvy_yr,"/figures/")
 dir_in_reportvalues <- paste0(dir_out_srvy_yr)
