@@ -1104,8 +1104,8 @@ if (make_ldscatter) {
       }
     }
     png(filename = paste0(
-      dir_out_figures, maxyr, "_",
-      report_species$spp_name_informal[i], "_ldscatter.png"
+      dir_out_figures, report_species$spp_name_informal[i], "_", maxyr, 
+      "_ldscatter.png"
     ), width = 9, height = 2, units = "in", res = 200)
     print(ldscatter)
     dev.off()
