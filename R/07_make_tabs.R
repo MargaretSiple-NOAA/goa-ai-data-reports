@@ -77,9 +77,7 @@ top_CPUE <- biomass_subarea |>
   dplyr::rename(
     "species_code" = SPECIES_CODE
   ) |>
-  dplyr::ungroup() #|>
-# dplyr::mutate(NMFS_STATISTICAL_AREA = ifelse(NMFS_STATISTICAL_AREA == "All", "All areas", INPFC_AREA))
-
+  dplyr::ungroup() 
 
 top_CPUE <- top_CPUE |>
   arrange(factor(NMFS_STATISTICAL_AREA, levels = c(district_order, "All")))
