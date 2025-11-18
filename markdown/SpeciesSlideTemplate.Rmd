@@ -15,9 +15,9 @@ print(list_joy_length[["{{species_code}}"]])
 ```
 :::
 ::::::
-<!-- ```{r echo=FALSE, error=TRUE} -->
-<!-- print(complex_sentence) -->
-<!-- ``` -->
+```{r echo=FALSE, error=TRUE}
+print(complex_sentence)
+```
 ----
 
 ## {{spp_name_informal_sen}} (*{{spp_name_scientific}}*)
