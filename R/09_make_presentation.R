@@ -10,22 +10,22 @@
 # 1. Biomass indices relative to LT mean
 make_biomass_timeseries <- TRUE
 # 2. Catch composition
-make_catch_comp <- TRUE
+make_catch_comp <- FALSE
 # 3. CPUE bubble map (Aleutians only)
 make_cpue_bubbles <- FALSE
-make_cpue_bubbles_strata <- TRUE
+make_cpue_bubbles_strata <- FALSE
 # The map that Jim I requested a while ago. It has bars instead of bubbles. Some assessment ppl like it:
 make_cpue_ianelli <- FALSE
 # 4. Length frequency plots by region and depth stratum (probably deprecated - not annual increments)
 make_length_freqs <- FALSE
 # 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
-make_joy_division_length <- TRUE
+make_joy_division_length <- FALSE
 # 6. CPUE IDW maps
 make_cpue_idw <- FALSE
 # 7. Plots of surface and bottom temperature
 make_temp_plot <- TRUE
 # make a special combined biomass plot for rebs
-make_complexes_figs <- TRUE
+make_complexes_figs <- FALSE
 
 
 # Report settings -------------------------------------------------------------
@@ -296,7 +296,7 @@ bubbletheme <- theme(
   legend.position = "bottom"
 )
 
-linetheme <- theme_bw(base_size = 12)
+linetheme <- theme_bw(base_size = 16)
 
 bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
@@ -387,6 +387,8 @@ if (make_complexes_figs) {
   print(paste("Generating figs for", unique(complex_lookup$complex)))
 
   # Long term averages
+  biomass_df_complexes
+  
   lta <- biomass_df_complexes |>
     group_by(SPECIES_CODE) |>
     summarize(lta_biomass = mean(BIOMASS_MT)) |>
@@ -632,7 +634,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       SKATES = "skates",
       THORNYHEADS = "thornyheads"
     )
-
+    cpue_raw_complexes <- cpue_raw |> filter(grepl(species_code, pattern = "[A-Za-z]"))
+    
     thisyrshauldata <- cpue_raw_complexes |> #cpue_table_complexes
       janitor::clean_names() |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
