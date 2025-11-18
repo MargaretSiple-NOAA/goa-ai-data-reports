@@ -1049,11 +1049,11 @@ if (make_ldscatter) {
         dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
       # make a new INPFC_AREA that is all of them combined
       ltoplot <- ltoplot %>%
-        mutate(INPFC_AREA = "All districts") %>%
+        mutate(NMFS_STATISTICAL_AREA = "All districts") %>%
         bind_rows(ltoplot)
 
       ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
-      ltoplot$INPFC_AREA <- as.factor(ltoplot$INPFC_AREA)
+      ltoplot$NMFS_STATISTICAL_AREA <- as.factor(ltoplot$NMFS_STATISTICAL_AREA)
       ltoplot$dummy_var <- 0
 
       nknots <- 4
@@ -1063,7 +1063,7 @@ if (make_ldscatter) {
           geom_point(alpha = 0.2, size = 0.8) +
           xlab(paste("Bottom depth (x", dscale, "m)")) +
           ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-          facet_wrap(~INPFC_AREA, nrow = 1) +
+          facet_wrap(~NMFS_STATISTICAL_AREA, nrow = 1) +
           theme_light(base_size = 10) +
           theme(
             panel.grid.major = element_blank(),
@@ -1074,25 +1074,25 @@ if (make_ldscatter) {
           )
         cat("NOTE: Not enough data to fit a GAM for", report_species$spp_name_informal[i], "- saving just the scatterplot \n")
       } else {
-        mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = INPFC_AREA, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
+        mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = NMFS_STATISTICAL_AREA, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
 
         ltoplot[c("predicted", "se")] <- stats::predict(mod1, newdata = ltoplot, se.fit = TRUE)
 
-        ltoplot$INPFC_AREA <- factor(ltoplot$INPFC_AREA, levels = c(district_order, "All districts"))
+        ltoplot$NMFS_STATISTICAL_AREA <- factor(ltoplot$NMFS_STATISTICAL_AREA, levels = c(district_order, "All districts"))
 
         # color scale
-        ncols <- length(unique(ltoplot$INPFC_AREA))
+        ncols <- length(unique(ltoplot$NMFS_STATISTICAL_AREA))
         pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
 
         ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
           geom_point(alpha = 0.2, size = 0.8) +
-          geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = INPFC_AREA), alpha = 0.2) +
-          geom_line(aes(y = predicted / lscale, color = INPFC_AREA), linewidth = 1) +
+          geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = NMFS_STATISTICAL_AREA), alpha = 0.2) +
+          geom_line(aes(y = predicted / lscale, color = NMFS_STATISTICAL_AREA), linewidth = 1) +
           scale_color_manual(values = pal) +
           scale_fill_manual(values = pal) +
           xlab(paste("Bottom depth (x", dscale, "m)")) +
           ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-          facet_wrap(~INPFC_AREA, nrow = 1) +
+          facet_wrap(~NMFS_STATISTICAL_AREA, nrow = 1) +
           theme_light(base_size = 10) +
           theme(
             panel.grid.major = element_blank(),
