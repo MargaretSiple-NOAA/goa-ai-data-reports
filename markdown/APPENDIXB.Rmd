@@ -15,24 +15,24 @@ library(flextable)
 ```
 
 ```{r echo=FALSE,tab.cap=paste0('Appendix Table B1. Fish and invertebrate species encountered and identified during the ', maxyr,' ',survname_long, ' bottom trawl survey.'), tab.id='b-specieslist',  tab.cap.style = "Table Caption"}
-appB %>% 
-  prep_appendix_b() %>%
-  flextable(col_keys = c("regulatory_area_name","family","common_name","dummy_col")) %>%
+appB |> 
+  prep_appendix_b() |>
+  flextable(col_keys = c("regulatory_area_name","family","common_name","dummy_col")) |>
   flextable::mk_par(
     j = "dummy_col",
     value = as_paragraph(as_i(species_2), " ", new_suffix)
-  ) %>%
+  ) |>
   set_header_labels(
     regulatory_area_name = "NMFS area",
     dummy_col = "Species name",
     family = "Family",
     common_name = "Common name"
-  ) %>%
-  theme_vanilla() %>%
-  fontsize(size = 9, part = "all") %>%
-  width(j = 1, width = 1.5, unit = "in") %>%
-  width(j = 2, width = 1.5, unit = "in") %>%
-  width(j = 3, width = 2, unit = "in") %>%
-  width(j = 4, width = 2, unit = "in") %>%
+  ) |>
+  theme_vanilla() |>
+  fontsize(size = 9, part = "all") |>
+  width(j = 1, width = 1.5, unit = "in") |>
+  width(j = 2, width = 1.5, unit = "in") |>
+  width(j = 3, width = 2, unit = "in") |>
+  width(j = 4, width = 2, unit = "in") |>
   line_spacing(space = 0.25)
 ```
