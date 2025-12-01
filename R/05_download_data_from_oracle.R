@@ -131,7 +131,12 @@ if (SRVY == "AI") {
 
 # GAP_PRODUCTS ------------------------------------------------------------
 
-# area
+# * TAXONOMIC_CLASSIFICATION ----------------------------------------------
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE SURVEY_SPECIES = 1")
+
+write.csv(x = a, "./data/local_gap_products/taxonomic_classification.csv", row.names = FALSE)
+
+# * AREA ------------------------------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
 a <- a |>
   dplyr::filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
@@ -181,7 +186,8 @@ complexes_data <- gapindex::get_data(
   channel = channel
 )
 
-cpue_raw_complexes <- gapindex::calc_cpue(gapdata = complexes_data)
+cpue_raw_complexes <- gapindex::calc_cpue(gapdata = complexes_data) |>
+  dplyr::left_join(haul)
 
 # glue together the species cpue from the gap_products table and the complexes cpue calculated from gapindex
 cpue_processed <- dplyr::bind_rows(
@@ -190,6 +196,7 @@ cpue_processed <- dplyr::bind_rows(
 )
 head(cpue_processed)
 unique(cpue_processed$species_code)
+any(is.na(cpue_processed$haul))
 
 # write.csv(cpue_raw, file = paste0(dir_out_srvy_yr, "tables/cpue_raw.csv"))
 write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_all.csv")) # use this in place of cpue_raw, everywhere
