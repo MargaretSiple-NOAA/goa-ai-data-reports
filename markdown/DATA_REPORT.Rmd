@@ -2,7 +2,7 @@
 title: "2025 Gulf of Alaska Biennial Bottom Trawl Survey"
 subtitle: "Data Report"
 author: "Bethany Riggle, Alexandra Dowlin, Zack Oyafuso, Ned Laman, Margaret Siple"
-  output:
+output:
   officedown::rdocx_document: 
     reference_docx: styles_reference4.docx
     pandoc_args: ["--metadata-file=header.yaml"]
@@ -54,62 +54,63 @@ library(officer)
 ```{r child=here::here("gdrive","Methods.Rmd")}
 ```
 
-```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 8, dpi = 300}
-include_graphics(path = here::here("img/Poly Nor'E BottomTrawl.png"))
+```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, "survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 8, dpi = 300}
+include_graphics(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
 ```
 
 \newpage
 <!-- Tables -->
 
 ```{r echo=FALSE,tab.cap=paste0('Ex-vessel prices used to allocate stations in the ', SRVY, ' ', maxyr, ' bottom trawl survey. The prices used for station allocation in ', maxyr, ' are from ', maxyr-2, '.'), tab.id='sp-prices',  tab.cap.style = "Table caption"}
-sp_prices %>%
-  dplyr::rename("Ex-vessel price (USD per lb)" = "Ex-vessel price") %>%
-  dplyr::filter(`Included in design` == "Y") %>%
-  dplyr::select(-`Included in design`, -Source) %>%
-  flextable() %>%
-  fix_border_issues() %>%
-  theme_vanilla() %>%
-  fontsize(size = 10, part = "all") %>%
-  italic(j = 1, part = "body") %>%
-  line_spacing(space = 0.75) %>%
-  align(align = "center", part = "all") %>%
-  align(j = c(1, 2), align = "left", part = "body") %>%
+sp_prices |>
+  dplyr::select(`Common name`,`Scientific name`,`Ex-vessel price`,`Included in design`) |>
+  dplyr::rename("Ex-vessel price (USD per lb)" = "Ex-vessel price") |>
+  dplyr::filter(`Included in design` == "Y") |>
+  dplyr::select(-`Included in design`) |>
+  flextable() |>
+  fix_border_issues() |>
+  theme_vanilla() |>
+  fontsize(size = 10, part = "all") |>
+  italic(j = 2, part = "body") |>
+  line_spacing(space = 0.75) |>
+  align(align = "center", part = "all") |>
+  align(j = c(1, 2), align = "left", part = "body") |>
   autofit()
 ```
 
 \newpage
 
 ```{r echo=FALSE,tab.cap=paste('Stations allocated and sampled during the', maxyr, SRVY,'bottom trawl survey.'), tab.id='stations-allocated',  tab.cap.style = "Table caption"}
-list_tables[["allocated_sampled"]] %>%
+list_tables[["allocated_sampled"]] |>
   # allocated_sampled %>%
   mutate(
     `Total area` = round(`Total area`, digits = 0),
     `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`, digits = 2)
-  ) %>%
-  flextable() %>%
-  merge_v(j = ~`Survey district`) %>%
-  fix_border_issues() %>%
-  theme_vanilla() %>%
-  fontsize(size = 8.5, part = "all") %>%
-  line_spacing(space = 0.75) %>%
-  fit_to_width(max_width = 7.5, unit = "in") %>%
+  ) |>
+  flextable() |>
+  merge_v(j = ~`NMFS area`) |>
+  fix_border_issues() |>
+  theme_vanilla() |>
+  fontsize(size = 8.5, part = "all") |>
+  line_spacing(space = 0.75) |>
+  fit_to_width(max_width = 7.5, unit = "in") |>
   compose(
     part = "header", i = 1, j = 7,
     value = as_paragraph(
       "Stations per 1,000 km",
       as_sup("2")
     )
-  ) %>%
+  ) |>
   compose(
     part = "header", i = 1, j = 6,
     value = as_paragraph(
       "Total area (km",
       as_sup("2"), ")"
     )
-  ) %>%
-  align(align = "center", part = "all") %>%
-  align(j = 1:2, align = "left", part = "body") %>%
-  hline(i = ~ break_position(`Survey district`), border = fp_border(color = "#5A5A5A", width = 3))
+  ) |>
+  align(align = "center", part = "all") |>
+  align(j = 1:2, align = "left", part = "body") |>
+  hline(i = ~ break_position(`NMFS area`), border = fp_border(color = "#5A5A5A", width = 3))
 
 ```
 \newpage
@@ -138,7 +139,7 @@ list_tables[["length-sample-sizes"]] %>%
 <br />
 
 <!-- Figures -->
-```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea).', 'Map of the GOA 2025 bottom trawl survey area indicating INPFC areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
+```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea).', 'Map of the GOA 2025 bottom trawl survey area indicating NMFS areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
 if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 ```
 
@@ -153,19 +154,19 @@ if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
 
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table caption"}
 
-  list_tables[["otos_target_sampled"]] %>%
+  list_tables[["otos_target_sampled"]] |>
     dplyr::rename(
       "Species" = "species",
       "Target N" = "target",
       "N collected" = "collection",
       "Percent difference between target and collection" = "percent.diff"
     ) %>%
-    flextable() %>%
-    theme_vanilla() %>%
-    fontsize(size = 9, part = "all") %>%
-    line_spacing(space = 0.5) %>%
-    align(align = "center", part = "all") %>%
-    align(j = 1, align = "left", part = "body") %>%
+    flextable() |>
+    theme_vanilla() |>
+    fontsize(size = 9, part = "all") |>
+    line_spacing(space = 0.5) |>
+    align(align = "center", part = "all") |>
+    align(j = 1, align = "left", part = "body") |>
     autofit()
 
 ```
@@ -198,15 +199,15 @@ list_temperature[['surfacetemp']]
 
 <!---BLOCK_MULTICOL_START--->
 ```{r echo=FALSE,tab.cap=paste('Mean CPUE [kg/ha] for the 20 most abundant groundfish species in each survey regulatory area during the', maxyr, SRVY, 'bottom trawl survey.'), tab.id='top-cpue', tab.cap.style = "Table caption"}
-top_CPUE_formatted(top_CPUE = top_CPUE) %>%
-  as_grouped_data(groups = "INPFC area") %>%
-  as_flextable(hide_grouplabel = TRUE) %>%
-  set_header_labels(`INPFC area` = "") %>%
-  bold(bold = TRUE, part = "header") %>%
-  align(i = ~ !is.na(`INPFC area`), align = "center") %>%
-  bold(i = ~ !is.na(`INPFC area`)) %>%
-  fit_to_width(max_width = 2, unit = "in") %>%
-  padding(padding.bottom = 0, padding.top = 0) %>%
+top_CPUE_formatted(top_CPUE = top_CPUE) |>
+  as_grouped_data(groups = "NMFS area") |>
+  as_flextable(hide_grouplabel = TRUE) |>
+  set_header_labels(`INPFC area` = "") |>
+  bold(bold = TRUE, part = "header") |>
+  align(i = ~ !is.na(`NMFS area`), align = "center") |>
+  bold(i = ~ !is.na(`NMFS area`)) |>
+  fit_to_width(max_width = 2, unit = "in") |>
+  padding(padding.bottom = 0, padding.top = 0) |>
   fontsize(size = 8, part = "all")
 
 ```
@@ -219,7 +220,7 @@ top_CPUE_formatted(top_CPUE = top_CPUE) %>%
 # report_species contains the list of species in the report
 src <- list()
 
-for (i in 1:nrow(report_species)) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
 
   species_code <- report_species$species_code[i]
 
@@ -246,67 +247,61 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
   spp_percent_change <- abs(spp_percent_change1)
   spp_incr_decr <- ifelse(spp_percent_change1 < 0, "decrease", "increase")
 
-  inpfc_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
-    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
-    # tidyr::fill(`Survey district`, .direction = "down") %>%
-    filter(`Depth (m)` == "All depths") %>%
-    filter(`Survey district` != "All areas") %>% # take out the total
-    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (mt)`))) %>%
-    filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
-    dplyr::select(`Survey district`) %>%
+  nmfs_highest_biomass <- table3s_list[paste(report_species$species_code[i])][[1]] |>
+    mutate(`NMFS area` = na_if(`NMFS area`, "")) |>
+    filter(`NMFS area` != "All areas") %>% # take out the total
+    mutate(biomass_numeric = as.numeric(gsub(",", "", `Biomass (mt)`))) |>
+    filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) |>
+    dplyr::select(`NMFS area`) %>%
     {
-      if (SRVY == "AI") left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else .
+      if (SRVY == "AI") left_join(., region_lu2, by = c("Survey district" = "REGULATORY_AREA_NAME")) %>% dplyr::select(., `INPFC_AREA_ABBREV`) else . # WILL NEED TO FIX THIS IN 2026!
     } %>%
     as.character()
 
-  inpfc_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
-    mutate(`Survey district` = na_if(`Survey district`, "")) %>%
-    tidyr::fill(`Survey district`, .direction = "down") %>%
-    filter(`Depth (m)` == "All depths") %>%
-    filter(`Survey district` != "All areas") %>% # take out the total
+  nmfs_highest_cpue <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
+    mutate(`NMFS area` = na_if(`NMFS area`, "")) %>%
+    filter(`NMFS area` != "All areas") %>% # take out the total
     {
       if (SRVY == "AI") filter(., `Survey district` != "Combined Aleutian Districts") else .
     } %>%
     mutate(cpue_numeric = as.numeric(gsub(",", "", `CPUE (kg/km2)`))) %>%
     dplyr::slice_max(cpue_numeric, n = 2) %>%
-    dplyr::select(`Survey district`) %>%
+    dplyr::select(`NMFS area`) %>%
     {
-      if (SRVY == "AI") {
-        left_join(., region_lu2, by = c("Survey district" = "INPFC_AREA")) %>%
+      if (SRVY == "AI") { # WILL NEED TO FIX THIS IN 2026!
+        left_join(., region_lu2, by = c("NMFS area" = "INPFC_AREA")) %>%
           dplyr::select(., `INPFC_AREA_ABBREV`)
       } else {
         .
       }
     } %>%
     magrittr::extract2(1)
-
-  depth_highest_biomass0 <- table3s_list[paste(report_species$species_code[i])][[1]] %>%
-    filter(`Survey district` == "All areas" & `Depth (m)` != "All depths") %>% # take out the total
+  # 
+  depth_highest_biomass0 <- table4s_list[paste(report_species$species_code[i])][[1]] %>%
     dplyr::mutate(biomass_numeric = chr_to_num(`Biomass (mt)`)) %>%
     filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) %>%
-    dplyr::select(`Depth (m)`) %>%
     as.character()
   depth_highest_biomass <- paste0(depth_highest_biomass0, "&nbsp;", "m")
-  
+  # 
   # Octopus
   if (species_code == 78403) { # true/false, if it's for octopus don't make length comp or length scatter figs and use a different template maybe
     src[[i]] <- knitr::knit_expand(here::here("markdown", "InvertebrateResultTemplate.Rmd"))
   } else {
   # Fish and fish complexes
-    region_longest <- meanlengths_area %>%
-      dplyr::filter(SPECIES_CODE == species_code) %>%
-      top_n(1, `Mean length`) %>%
-      {
-        ifelse(SRVY == "AI", dplyr::select(., INPFC_AREA_ABBREV), dplyr::select(., INPFC_AREA))
-      } %>%
-      as.character()
+    # region_longest <- meanlengths_area %>%
+    #   dplyr::filter(SPECIES_CODE == species_code) %>%
+    #   top_n(1, `Mean length`) %>%
+    #   {
+    #     ifelse(SRVY == "AI", dplyr::select(., INPFC_AREA_ABBREV), dplyr::select(., INPFC_AREA))
+    #   } %>%
+    #   as.character()
 
-    depth_longest0 <- meanlengths_depth %>%
-      dplyr::filter(SPECIES_CODE == species_code) %>%
-      top_n(1, `Mean length`) %>%
-      dplyr::select(`Depth range`) %>%
-      as.character()
-    depth_longest <- gsub(pattern = " ", replacement = "&nbsp;", x = depth_longest0)
+    # depth_longest0 <- meanlengths_depth %>%
+    #   dplyr::filter(SPECIES_CODE == species_code) %>%
+    #   top_n(1, `Mean length`) %>%
+    #   dplyr::select(`Depth range`) %>%
+    #   as.character()
+    # depth_longest <- gsub(pattern = " ", replacement = "&nbsp;", x = depth_longest0)
 
     spp_n_length <- meanlengths_area %>%
       dplyr::filter(SPECIES_CODE == species_code) %>%
