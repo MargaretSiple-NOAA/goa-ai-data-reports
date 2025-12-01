@@ -7,17 +7,11 @@ source("R/01_directories.R")
 source("R/02_load_packages.R")
 source("R/03_functions.R")
 
-# cat(
-#   "Using report data from", tabledate, "for tables. \n",
-#   "Using report data from", figuredate, "for figures. \n",
-#   "Using report data from", reportvaluesdate, "for report values (mostly in-text values)."
-# )
-
-
 # Load tables  ------------------------------------------------------------
 load(file = paste0(dir_in_tables, "report_tables.rdata")) # object: list_tables
 load(file = paste0(dir_in_tables, "table3s_list.rdata")) # object: table3s_list
 load(file = paste0(dir_in_tables, "table4s_list.rdata")) # object: table4s_list
+
 top_CPUE <- read.csv(
   file =
     paste0(dir_in_tables, "top_CPUE_", maxyr, ".csv")
@@ -37,6 +31,8 @@ if (SRVY == "GOA") {
 
 img1 <- png::readPNG(img1_path)
 
+# Station map
+load(paste0(dir_out_figures,"station_map.RDS"))
 
 # Maps with CPUE
 load(file = paste0(
