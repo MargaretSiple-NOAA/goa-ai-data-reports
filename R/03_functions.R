@@ -134,84 +134,6 @@ top_CPUE_formatted <- function(top_CPUE) {
 }
 
 
-#' Retrieve Table 3's (biomass per area and depth) for a species
-#'
-#' @param species_code (numeric) 5-digit species code
-#'
-#' @return a nice clean dataframe ready for formatting for the data report
-#' @export
-#' @details  This will work with a list of tables that is already subsetted to year and region! This was built to incorporate tables built by Paul or Nate.
-#'
-#' @examples
-#' prep_tab3(30060)
-# prep_tab3 <- function(speciescode, premade = TRUE) {
-#   if(premade){
-#     filepath <- paste0(dir_in_premadetabs, "Table 3/", speciescode, paste0("_", maxyr, ".csv"))
-#     if (!file.exists(filepath)) {
-#       stop("Species Table 3 file missing from the folder. Check directory and make sure you're on the VPN.")
-#     }
-#     x <- read.csv(file = filepath)
-#     # Fix this later
-#     if (SRVY == "AI") {
-#       x <- x %>%
-#         dplyr::slice(21:25, 1:20) # sloppy way to slice off the SBS and move it to the top
-#     } #/ AI exception
-#     
-#     cleaned_tab <- x %>%
-#       dplyr::rename(
-#         `Survey district` = Survey.District,
-#         `Depth (m)` = Depth..m.,
-#         `Haul count` = Haul.Count,
-#         `Hauls with catch` = Hauls.w.Catch,
-#         `CPUE (kg/ha)` = CPUE..kg.ha.,
-#         `Biomass (t)` = Biomass...t.,
-#         `Lower 95% CL` = X95..LCL..t.,
-#         `Upper 95% CL` = X95..UCL..t.,
-#         `Mean weight (kg)` = Weight...kg.
-#       ) |>
-#       dplyr::filter(`Depth (m)` != "701 - 1000")
-#     
-#     
-#   } #/ if(premade)
-#   
-#   # NOTE: HERE I WANT TO ADD A VERSION THAT TAKES IN TABLE 3 FROM THE *processed/table_3_allspps.csv file that I painstakingly made from GAP_PRODUCTS!
-# 
-#   return(cleaned_tab)
-# }
-
-# NOTE: If this breaks in the future, it may be because this table contains character values.
-prep_tab4 <- function(speciescode) {
-  filepath <- paste0(dir_in_premadetabs, "Table 4/csv files/", speciescode, "_", maxyr, "_t4.csv")
-  if (!file.exists(filepath)) {
-    print("Check species", speciescode)
-    stop("Species Table 4 file missing from the folder. Check directory and make sure you're on the VPN.")
-  }
-
-  x <- read.csv(file = filepath)
-  cleaned_tab <- x %>%
-    mutate(
-      CPUE..kg.ha. = round(CPUE..kg.ha., digits = 1),
-      Biomass..t. = round(Biomass..t., digits = 0),
-      Lower.CI.Biomass = round(Lower.CI.Biomass, digits = 0),
-      Upper.CI.Biomass = round(Upper.CI.Biomass, digits = 0)
-    ) %>%
-    dplyr::rename(
-      `Survey district` = INPFC_AREA,
-      `Depth range (m)` = DEPTH_RANGE,
-      `Subdistrict` = Stratum.Name,
-      `Number of hauls` = Number.of.Hauls,
-      `Hauls with catch` = Hauls.with.Catch,
-      `CPUE (kg/ha)` = CPUE..kg.ha.,
-      `Biomass (t)` = Biomass..t.,
-      `Lower 95% CL` = Lower.CI.Biomass,
-      `Upper 95% CL` = Upper.CI.Biomass
-    ) %>%
-    arrange(factor(`Survey district`, levels = district_order), `Depth range (m)`)
-
-  return(cleaned_tab)
-}
-
-
 #' Make "table 3" - haul count, hauls, CPUE, Biomass, confidence limits, and avg weight per haul
 #'
 #' @param species_code five-digit species code
@@ -368,30 +290,6 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   return(combo)
 }
 
-#' Make a rough draft of Table 4 with SQL - old and likely going to be deprecated bc uses old tables
-#'
-#' @param species_code species code (numeric)
-#' @param survey survey code, "AI" or "GOA" (character)
-#' @param year survey year (numeric)
-#'
-#' @return writes a csv file for each species for table 4.
-#' @export
-#' @details
-#' This function uses a table called GOA_STRATA but that table does contain all strata (both AI and GOA)
-#'
-#' @examples
-#' source("R/get_connected.R")
-#' make_tab4(species_code = 30060, survey = "GOA", year = 2023)
-#'
-# make_tab4_sql <- function(species_code = NULL, survey = NULL, year = NULL) {
-#   a <- RODBC::sqlQuery(channel, paste0(
-#     "SELECT DISTINCT INPFC_AREA SURVEY_DISTRICT, MIN_DEPTH||'-'||MAX_DEPTH DEPTH_M, DESCRIPTION SUBDISTRICT_NAME, HAUL_COUNT NUMBER_OF_HAULS, CATCH_COUNT HAULS_W_CATCH, MEAN_WGT_CPUE/100 CPUE_KG_HA, STRATUM_BIOMASS BIOMASS_T, MIN_BIOMASS LCL_T, MAX_BIOMASS UCL_T FROM GOA.GOA_STRATA a, ", survey, ".BIOMASS_STRATUM b WHERE a.SURVEY = \'", survey,"\' and b.YEAR = ", year," and b.SPECIES_CODE = ",species_code," and a.STRATUM = b.STRATUM order by -CPUE_KG_HA"
-#   ))
-#   
-#   dir_out <- paste0("data/local_", tolower(survey), "_processed/table4_", species_code, "_", survey, "_", year, ".csv")
-#   
-#   write.csv(x = a, file = dir_out, row.names = FALSE)
-# }
 
 
 # format appendix b contents so they will fit easily in a flextable
