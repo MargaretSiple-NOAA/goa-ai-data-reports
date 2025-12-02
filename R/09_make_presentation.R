@@ -634,9 +634,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       SKATES = "skates",
       THORNYHEADS = "thornyheads"
     )
-    cpue_raw_complexes <- cpue_raw |> filter(grepl(species_code, pattern = "[A-Za-z]"))
+    cpue_complexes <- cpue_processed |> filter(grepl(species_code, pattern = "[A-Za-z]"))
     
-    thisyrshauldata <- cpue_raw_complexes |> #cpue_table_complexes
+    thisyrshauldata <- cpue_complexes |> #cpue_table_complexes
       janitor::clean_names() |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
@@ -825,7 +825,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     spbubble <- report_species$species_code[bubble_index[i]]
     namebubble <- report_species$spp_name_informal[bubble_index[i]]
 
-    thisyrshauldata <- cpue_raw |>
+    thisyrshauldata <- cpue_processed |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
       st_as_sf(
@@ -1022,7 +1022,7 @@ if (make_cpue_idw) {
     sp <- report_species$species_code[s]
     namebubble <- report_species$spp_name_informal[s]
 
-    dat2plot <- cpue_raw |>
+    dat2plot <- cpue_processed |>
       filter(survey == SRVY & species_code == sp & year == maxyr)
     cpue_res <- 0.05 # 0.05 will take less time, 0.01 is best looking but takes ~10 mins per plot.
 
@@ -1066,7 +1066,7 @@ if (make_cpue_idw) {
 if (make_cpue_ianelli) {
   ianelli_style <- TRUE
   key.title <- ""
-  yrs <- unique(cpue_raw$year[cpue_raw$year > minyr]) ##
+  yrs <- unique(cpue_processed$year[cpue_processed$year > minyr]) ##
   row0 <- 2 # default
   legendtitle <- bquote(CPUE(kg / ha)) # inside fn
 
@@ -1075,7 +1075,7 @@ if (make_cpue_ianelli) {
   for (i in 1:nrow(report_species)) {
     for (y in 1:length(yrs)) {
       # i = 8
-      thisyrshauldata <- cpue_raw |>
+      thisyrshauldata <- cpue_processed |>
         # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
         dplyr::filter(year %in% yrs[y] &
           survey == SRVY &
