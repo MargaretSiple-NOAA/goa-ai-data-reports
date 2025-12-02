@@ -87,14 +87,14 @@ if (SRVY == "GOA") {
     design.year = ifelse(maxyr < 2025, 1984, 2025)
   ) |>
     add_depths()
-    
-    goa_nmfs_areas <- akgfmaps::get_nmfs_areas(
-      set.crs = "auto"
-    ) |>
-      dplyr::filter(REP_AREA %in% c(610, 620, 630, 640, 650))
-  geo_order2 <- district_order  
-  
-    
+
+  goa_nmfs_areas <- akgfmaps::get_nmfs_areas(
+    set.crs = "auto"
+  ) |>
+    dplyr::filter(REP_AREA %in% c(610, 620, 630, 640, 650))
+  geo_order2 <- district_order
+
+
   goa_inpfc <- goa_all$inpfc.strata
   geo_order <- c("Shumagin", "Chirikof", "Kodiak", "Yakutat", "Southeastern")
 
@@ -227,7 +227,7 @@ if (make_total_surv_map) {
     theme(legend.position = "none")
 
   # Where we sampled
-  thisyrshauldata <- cpue_raw |>
+  thisyrshauldata <- cpue_processed |>
     dplyr::filter(year == maxyr & survey == SRVY) |>
     st_as_sf(
       coords = c("longitude_dd_start", "latitude_dd_start"),
@@ -297,7 +297,7 @@ if (make_total_surv_map) {
 if (make_biomass_timeseries) {
   list_biomass_ts <- list()
   list_3panel_ts <- list()
-  
+
   for (i in 1:nrow(report_species)) { #
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
@@ -308,7 +308,7 @@ if (make_biomass_timeseries) {
       dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
 
     dat$PERCENT_CHANGE_BIOMASS[1] <- NA # no difference calculated for first year of ts
-    
+
     lta_biomass <- mean(dat$BIOMASS_MT)
     lta_percent_stns <- mean(dat$PERCENT_OF_STATIONS)
     lta_percent_change <- mean(dat$PERCENT_CHANGE_BIOMASS, na.rm = TRUE)
@@ -366,12 +366,12 @@ if (make_biomass_timeseries) {
       linetheme +
       theme(legend.position = "none")
 
-    #p1 + p2 + p3
-    
-    #If needed: make plot of CPUE distribution where present
-    # dat_cpue <- cpue_raw |>
+    # p1 + p2 + p3
+
+    # If needed: make plot of CPUE distribution where present
+    # dat_cpue <- cpue_processed |>
     #   dplyr::filter(species_code == sp & cpue_kgkm2>0)
-    # 
+    #
     # p4 <- dat_cpue |>
     #   ggplot(aes(x=year, y = cpue_kgkm2)) +
     #   geom_jitter(alpha=0.2,size=2) +
@@ -389,18 +389,18 @@ if (make_biomass_timeseries) {
     )
     print(p1)
     dev.off()
-    
+
     list_3panel_ts[[i]] <- p1 + p2 + p3
     names(list_3panel_ts)[[i]] <- report_species$species_code[i]
-    
+
     # Save 3-panel figs
     png(
-      filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_3panel_ts.png"),
+      filename = paste0(dir_out_figures, YEAR, "_", name_bms, "_biomass_3panel_ts.png"),
       width = 11, height = 4, units = "in", res = 200
     )
     print(p1 + p2 + p3)
     dev.off()
-    
+
     ## Save 4-panel figs - not set up yet to save them all as a list in a data file
     # png(
     #   filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_4panel_ts.png"),
@@ -408,9 +408,8 @@ if (make_biomass_timeseries) {
     # )
     # print(p1 + p2 + p3 + p4)
     # dev.off()
-    
   } # /end species loop
-  #names(list_biomass_ts) <- report_species$species_code
+  # names(list_biomass_ts) <- report_species$species_code
   save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
   save(list_3panel_ts, file = paste0(dir_out_figures, "list_3panel_ts.rdata"))
   print("Done making biomass time series plots.")
@@ -459,6 +458,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
   # * * COMPLEXES ----------
   list_cpue_bubbles_strata_complexes <- list()
 
+  cpue_complexes <- cpue_processed |>
+    filter(grepl(species_code, pattern = "[A-Za-z]"))
+
   for (i in 1:length(unique(complex_lookup$complex))) {
     # which complex to plot:
     complex_code <- unique(complex_lookup$complex)[i]
@@ -475,11 +477,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       SKATES = "skates",
       THORNYHEADS = "thornyheads"
     )
-    
-    cpue_raw_complexes <- cpue_raw |> 
-      filter(grepl(species_code, pattern = "[A-Za-z]"))
-    
-    thisyrshauldata <- cpue_raw_complexes |>
+
+
+
+    thisyrshauldata <- cpue_complexes |>
       janitor::clean_names() |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
@@ -632,17 +633,17 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
         scale_size(bquote("CPUE" ~ (kg / km^2)),
-                   limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
-                   guide = "legend"
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          guide = "legend"
         ) +
-        #scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
+        # scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
           ylim = reg_data$plot.boundary$y
         ) +
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
-        bubbletheme 
+        bubbletheme
     } # /GOA stratum bubble maps for complexes
 
     # ,out.width=9,out.height=8
@@ -672,7 +673,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     spbubble <- report_species$species_code[bubble_index[i]]
     namebubble <- report_species$spp_name_informal[bubble_index[i]]
 
-    thisyrshauldata <- cpue_raw |>
+    thisyrshauldata <- cpue_processed |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
       st_as_sf(
@@ -829,7 +830,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         ) +
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
-        bubbletheme 
+        bubbletheme
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     png(
@@ -861,15 +862,15 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 # 5. Length frequency - joy division plots ---------------------------------
 if (make_joy_division_length) {
   list_joy_length <- list()
-  if (file.exists( paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
-    report_pseudolengths <- read.csv( paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
+  if (file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
+    report_pseudolengths <- read.csv(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
   } else {
     cat("Pseudolength file not found. Return to the 06_prep_data.R file and create it again.")
   }
 
   species_year <- read.csv("data/local_gap_products/species_year.csv")
-  
-  
+
+
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
 
@@ -929,7 +930,7 @@ if (make_joy_division_length) {
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
   left_labels <- c(30420) # species for which you want the label on the left instead of the right!
-  
+
   # Loop thru species
   for (i in 1:nrow(report_species)) { #
     len2plot <- report_pseudolengths %>%
@@ -940,7 +941,7 @@ if (make_joy_division_length) {
       len2plot <- len2plot |>
         filter(YEAR >= species_year$YEAR[which(species_year$SPECIES_CODE == report_species$species_code[i])])
     }
-    
+
     # SSTH, YIL, and darkfin sculpin only show Unsexed; all other spps show only sexed lengths
     if (report_species$species_code[i] %in% c(30020, 21341, 21347, "THORNYHEADS")) {
       len2plot <- len2plot
@@ -989,8 +990,10 @@ if (make_joy_division_length) {
       scale_fill_gradientn(colours = joypal) +
       geom_label(
         data = n_labels,
-        mapping = aes(label = paste0("n = ", n), 
-                      x = ifelse(report_species$species_code[i] %in% left_labels,-Inf,Inf)),
+        mapping = aes(
+          label = paste0("n = ", n),
+          x = ifelse(report_species$species_code[i] %in% left_labels, -Inf, Inf)
+        ),
         fill = "white", label.size = NA,
         nudge_x = 0,
         nudge_y = 1,
@@ -1041,7 +1044,7 @@ if (make_ldscatter) {
       ldscatter <- ggplot() +
         theme_void()
     } else {
-      ltoplot <- length_maxyr_ldscatter %>%
+      ltoplot0 <- length_maxyr_ldscatter %>%
         dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
         dplyr::left_join(haul2, by = c(
           "CRUISEJOIN", "HAULJOIN", "HAUL",
@@ -1051,12 +1054,12 @@ if (make_ldscatter) {
         dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
         dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
       # make a new INPFC_AREA that is all of them combined
-      ltoplot <- ltoplot %>%
-        mutate(NMFS_STATISTICAL_AREA = "All districts") %>%
-        bind_rows(ltoplot)
+      ltoplot <- ltoplot0 %>%
+        mutate(REGULATORY_AREA_NAME = "All districts") %>%
+        bind_rows(ltoplot0)
 
       ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
-      ltoplot$NMFS_STATISTICAL_AREA <- as.factor(ltoplot$NMFS_STATISTICAL_AREA)
+      ltoplot$REGULATORY_AREA_NAME <- as.factor(ltoplot$REGULATORY_AREA_NAME)
       ltoplot$dummy_var <- 0
 
       nknots <- 4
@@ -1066,7 +1069,7 @@ if (make_ldscatter) {
           geom_point(alpha = 0.2, size = 0.8) +
           xlab(paste("Bottom depth (x", dscale, "m)")) +
           ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-          facet_wrap(~NMFS_STATISTICAL_AREA, nrow = 1) +
+          facet_wrap(~REGULATORY_AREA_NAME, nrow = 1) +
           theme_light(base_size = 10) +
           theme(
             panel.grid.major = element_blank(),
@@ -1077,25 +1080,25 @@ if (make_ldscatter) {
           )
         cat("NOTE: Not enough data to fit a GAM for", report_species$spp_name_informal[i], "- saving just the scatterplot \n")
       } else {
-        mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = NMFS_STATISTICAL_AREA, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
+        mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = REGULATORY_AREA_NAME, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
 
         ltoplot[c("predicted", "se")] <- stats::predict(mod1, newdata = ltoplot, se.fit = TRUE)
 
-        ltoplot$NMFS_STATISTICAL_AREA <- factor(ltoplot$NMFS_STATISTICAL_AREA, levels = c(district_order, "All districts"))
+        ltoplot$REGULATORY_AREA_NAME <- factor(ltoplot$REGULATORY_AREA_NAME, levels = c(district_order, "All districts"))
 
         # color scale
-        ncols <- length(unique(ltoplot$NMFS_STATISTICAL_AREA))
+        ncols <- length(unique(ltoplot$REGULATORY_AREA_NAME))
         pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
 
         ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
           geom_point(alpha = 0.2, size = 0.8) +
-          geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = NMFS_STATISTICAL_AREA), alpha = 0.2) +
-          geom_line(aes(y = predicted / lscale, color = NMFS_STATISTICAL_AREA), linewidth = 1) +
+          geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = REGULATORY_AREA_NAME), alpha = 0.2) +
+          geom_line(aes(y = predicted / lscale, color = REGULATORY_AREA_NAME), linewidth = 1) +
           scale_color_manual(values = pal) +
           scale_fill_manual(values = pal) +
           xlab(paste("Bottom depth (x", dscale, "m)")) +
           ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-          facet_wrap(~NMFS_STATISTICAL_AREA, nrow = 1) +
+          facet_wrap(~REGULATORY_AREA_NAME, nrow = 1) +
           theme_light(base_size = 10) +
           theme(
             panel.grid.major = element_blank(),
@@ -1107,7 +1110,7 @@ if (make_ldscatter) {
       }
     }
     png(filename = paste0(
-      dir_out_figures, report_species$spp_name_informal[i], "_", maxyr, 
+      dir_out_figures, report_species$spp_name_informal[i], "_", maxyr,
       "_ldscatter.png"
     ), width = 9, height = 2, units = "in", res = 200)
     print(ldscatter)
