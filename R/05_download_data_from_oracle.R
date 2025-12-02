@@ -36,7 +36,7 @@ haul <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL")
 
 write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
 
-if(!exists("haul")){
+if (!exists("haul")) {
   haul <- read.csv("./data/local_racebase/haul.csv")
 }
 
@@ -153,13 +153,13 @@ print("Finished downloading GAP_PRODUCTS.CPUE")
 # complex_lookup is defined in report_settings.
 # So far, this uses the cpue and the haul tables from above.
 # Filter and rename some columns
-if(!exists("cpue")){
+if (!exists("cpue")) {
   cpue <- read.csv("./data/local_gap_products/cpue.csv")
 }
 
 cpue_raw <- cpue |>
-  dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN?
-  dplyr::filter(REGION == SRVY) |>
+  dplyr::left_join(haul) |>
+  dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |>
   dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
   dplyr::rename(
     survey = "REGION",
@@ -172,7 +172,7 @@ cpue_raw <- cpue |>
 yrs_to_pull <- minyr:maxyr
 
 # ** complexes -------------------------------------------------
-## Pull data
+## Pull data - this is filtered to abundance haul = Y, years, and region
 complexes_data <- gapindex::get_data(
   year_set = yrs_to_pull,
   survey_set = SRVY,
@@ -187,7 +187,25 @@ complexes_data <- gapindex::get_data(
 )
 
 cpue_raw_complexes <- gapindex::calc_cpue(gapdata = complexes_data) |>
-  dplyr::left_join(haul)
+  dplyr::left_join(haul) |>
+  janitor::clean_names()
+
+# Redesign filtration step
+if (SRVY == "GOA" & maxyr >= 2025) {
+  cpue_raw_complexes <- cpue_raw_complexes |> filter(design_year == 2025)
+}
+
+# Trim columns to make cpue_raw and cpue_raw_complexes match
+cpue_raw_complexes <- cpue_raw_complexes |>
+  dplyr::select(
+    -start_latitude, -start_longitude,
+    -latitude_dd_end, -longitude_dd_end,
+    -region, -bottom_temperature_c,
+    -survey_definition_id, -depth_m, -design_year
+  )
+
+# Compare the columns between cpue_raw and cpue_raw_complexes
+janitor::compare_df_cols(cpue_raw, cpue_raw_complexes)
 
 # glue together the species cpue from the gap_products table and the complexes cpue calculated from gapindex
 cpue_processed <- dplyr::bind_rows(
@@ -199,7 +217,7 @@ unique(cpue_processed$species_code)
 any(is.na(cpue_processed$haul))
 
 # write.csv(cpue_raw, file = paste0(dir_out_srvy_yr, "tables/cpue_raw.csv"))
-write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_all.csv")) # use this in place of cpue_raw, everywhere
+write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_processed.csv")) # use this in place of cpue_raw, everywhere
 
 # * BIOMASS  --------------------------------------------------------------
 # biomass
@@ -216,7 +234,7 @@ print("Finished downloading GAP_PRODUCTS.BIOMASS")
 
 
 # Biomass for all species (not complexes)
-if(!exists("biomass")){
+if (!exists("biomass")) {
   biomass <- read.csv("./data/local_gap_products/biomass.csv")
 }
 
@@ -271,9 +289,9 @@ rm(list = c(
 
 print("Created cpue_table_complexes and biomass_total_complexes.")
 
-write.csv(biomass_stratum_complexes, file = paste0(dir_out_srvy_yr,"tables/biomass_stratum_complexes.csv")) # used in tables
-write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr,"tables/biomass_subarea_all.csv"))
-write.csv(biomass_total, file = paste0(dir_out_srvy_yr,"tables/biomass_total_all.csv"))
+write.csv(biomass_stratum_complexes, file = paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv")) # used in tables
+write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr, "tables/biomass_subarea_all.csv"))
+write.csv(biomass_total, file = paste0(dir_out_srvy_yr, "tables/biomass_total_all.csv"))
 
 
 # Stratum groups ----------------------------------------------------------
@@ -392,27 +410,26 @@ write.csv(sizecomp, file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
 # Create 'pseudolengths' table used for length comp figures ----------------
 # Janky but not sure how else to do it, so will have to deal. See notes below. This table is needed for joy division figs. Only make pseudolengths file if it isn't already there.
 if (!file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
-  
-  if(!exists("sizecomp")){
-    sizecomp <- read.csv(file = paste0(dir_out_srvy_yr,"tables/sizecomp_all.csv"))
+  if (!exists("sizecomp")) {
+    sizecomp <- read.csv(file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
   }
-  
+
   report_pseudolengths <- data.frame()
-  
+
   for (i in 1:nrow(report_species)) {
     sp_code <- report_species$species_code[i]
-    
+
     # Is the species code for a complex?
     if (grepl(x = sp_code, "[A-Za-z]")) {
-      sizecomp1 <- sizecomp[grepl("[A-Za-z]",sizecomp$SPECIES_CODE),]
+      sizecomp1 <- sizecomp[grepl("[A-Za-z]", sizecomp$SPECIES_CODE), ]
     } else {
-      sizecomp1 <- sizecomp[grepl("[0-9]",sizecomp$SPECIES_CODE),]
+      sizecomp1 <- sizecomp[grepl("[0-9]", sizecomp$SPECIES_CODE), ]
     }
-    
+
     if (nrow(sizecomp1) == 0) {
       stop(paste("No size comps for species", sp_code))
     }
-    
+
     males <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
@@ -424,7 +441,7 @@ if (!file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
       tidyr::uncount(prop_10k, .id = "id") |>
       dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
       mutate(Sex = "Male")
-    
+
     females <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
@@ -436,7 +453,7 @@ if (!file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
       uncount(prop_10k, .id = "id") |>
       dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
       mutate(Sex = "Female")
-    
+
     unsexed <- sizecomp1 |>
       dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
       dplyr::filter(SPECIES_CODE == sp_code) |>
@@ -449,13 +466,13 @@ if (!file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
       dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
       mutate(Sex = "Unsexed")
     all <- bind_rows(males, females, unsexed)
-    
+
     report_pseudolengths <- rbind(report_pseudolengths, all)
   }
-  
-  
+
+
   write.csv(report_pseudolengths, paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"), row.names = FALSE)
-  
+
   # Cleanup
   rm(list = c("males", "females", "unsexed", "report_pseudolengths"))
 }
@@ -586,10 +603,10 @@ if (use_gapindex) {
 }
 
 
-# 
+#
 # if (!use_gapindex) { # NOTE: GOING TO HAVE TO UPDATE THIS TO LOAD PROCESSED TABLES
 #   x <- read.csv(here::here("data", "local_gap_products", "biomass.csv"))
-# 
+#
 #   # Biomass for all species (not complexes)
 #   biomass_total <- x |>
 #     dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
@@ -599,12 +616,12 @@ if (use_gapindex) {
 #     ) |>
 #     mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
 #     mutate_at("SPECIES_CODE", as.character)
-# 
+#
 #   biomass_subarea_species <- x |>
 #     mutate_at("SPECIES_CODE", as.character)
-# 
+#
 #   x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
-# 
+#
 #   # Filter and rename some columns
 #   cpue_raw <- x |>
 #     dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN?
