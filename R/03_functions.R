@@ -496,9 +496,9 @@ format_tons <- function(x) {
 #     SURVEY = "Aleutian Islands"
 #   )
 # reg_dat <- reg_dat_ai
-# # cpue_raw is generated in prep_data.R and is a summary of cpue by species and station
+# # cpue_processed is generated in prep_data.R and is a summary of cpue by species and station
 # spcode <- 21921 #atka
-# thisyrshauldata <- cpue_raw %>%
+# thisyrshauldata <- cpue_processed %>%
 #   mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
 #   filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
 #   st_as_sf(
