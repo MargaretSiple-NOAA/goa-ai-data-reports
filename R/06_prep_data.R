@@ -158,9 +158,28 @@ if (maxyr <= 2021) {
 # This like a lookup table for allocating strata to the correct area and depth
 dat <- read.csv("data/local_gap_products/area.csv")
 
-region_lu <- dat |>
+stratum_lu <- dat |>
   dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
   dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == 2025 & AREA_TYPE == "STRATUM") |>
+  dplyr::rename(
+    STRATUM = "AREA_ID",
+    MIN_DEPTH = "DEPTH_MIN_M",
+    MAX_DEPTH = "DEPTH_MAX_M",
+    REGULATORY_AREA_NAME = "AREA_NAME",
+    AREA = "AREA_KM2"
+  ) |>
+  dplyr::select(
+    SURVEY, STRATUM, MIN_DEPTH, MAX_DEPTH,
+    REGULATORY_AREA_NAME, AREA, DESCRIPTION
+  ) |>
+  # dplyr::filter(STRATUM <= 794) |>
+  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
+  dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
+  dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
+
+region_lu <-  dat |>
+  dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
+  dplyr::filter(SURVEY_DEFINITION_ID == 47, AREA_TYPE == "NMFS STATISTICAL AREA", DESIGN_YEAR == design_year) |>
   dplyr::rename(
     STRATUM = "AREA_ID",
     MIN_DEPTH = "DEPTH_MIN_M",
@@ -341,7 +360,7 @@ specimen_maxyr <- S |>
 otos_collected <- specimen_maxyr |>
   filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
-    "CRUISEJOIN", "HAULJOIN", "HAUL",
+    "CRUISEJOIN", "HAULJOIN", "CRUISE", "HAUL",
     "REGION", "VESSEL", "YEAR"
   )) |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
