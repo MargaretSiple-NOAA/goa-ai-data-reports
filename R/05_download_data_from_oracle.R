@@ -210,13 +210,13 @@ janitor::compare_df_cols(cpue_raw, cpue_raw_complexes)
 # glue together the species cpue from the gap_products table and the complexes cpue calculated from gapindex
 cpue_processed <- dplyr::bind_rows(
   cpue_raw,
-  janitor::clean_names(cpue_raw_complexes)
+  cpue_raw_complexes
 )
+
 head(cpue_processed)
 unique(cpue_processed$species_code)
 any(is.na(cpue_processed$haul))
 
-# write.csv(cpue_raw, file = paste0(dir_out_srvy_yr, "tables/cpue_raw.csv"))
 write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_processed.csv")) # use this in place of cpue_raw, everywhere
 
 # * BIOMASS  --------------------------------------------------------------
