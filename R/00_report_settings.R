@@ -46,6 +46,7 @@ and this will become a permanent feature of our station allocations in the futur
 }
 
 YEAR <- maxyr
+design_year <- ifelse(SRVY=="GOA" & maxyr >=2025, 2025, 1984)
 
 # Vessels and captains
 vessel1 <- "FV&nbsp;Ocean Explorer"
@@ -85,7 +86,7 @@ if (SRVY == "AI") {
 }
 if (SRVY == "GOA") {
   district_order <- c( # new GOA 2025+ districts
-    "Western Regulatory Area",
+    "Shumagin", # This is the same as western GOA is the same as Western Regulatory Area
     "Chirikof",
     "Kodiak",
     "West Yakutat",
