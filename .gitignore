@@ -51,6 +51,7 @@ gdrive/
 output/
 bonus/
 /data/cpue_station.csv
+/R/xx_scratchpad.R
 
 # Ignore reformatted length data
 *report_pseudolengths.csv
