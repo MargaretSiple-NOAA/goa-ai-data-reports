@@ -475,7 +475,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       SKATES = "skates",
       THORNYHEADS = "thornyheads"
     )
-
+    
+    cpue_raw_complexes <- cpue_raw |> 
+      filter(grepl(species_code, pattern = "[A-Za-z]"))
+    
     thisyrshauldata <- cpue_raw_complexes |>
       janitor::clean_names() |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
@@ -811,7 +814,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
