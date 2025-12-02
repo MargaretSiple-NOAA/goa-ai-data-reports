@@ -1050,7 +1050,7 @@ if (make_ldscatter) {
           "CRUISEJOIN", "HAULJOIN", "HAUL",
           "REGION", "VESSEL", "CRUISE"
         )) %>%
-        dplyr::left_join(region_lu, by = "STRATUM") %>%
+        dplyr::left_join(stratum_lu, by = "STRATUM") %>%
         dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
         dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
       # make a new INPFC_AREA that is all of them combined
@@ -1110,7 +1110,7 @@ if (make_ldscatter) {
       }
     }
     png(filename = paste0(
-      dir_out_figures, report_species$spp_name_informal[i], "_", maxyr,
+      dir_out_figures, maxyr, "_", report_species$spp_name_informal[i],
       "_ldscatter.png"
     ), width = 9, height = 2, units = "in", res = 200)
     print(ldscatter)
