@@ -156,10 +156,6 @@ if (maxyr <= 2021) {
 
 # Get a table of the strata and depths / regions (source: GAP_PRODUCTS)
 # This like a lookup table for allocating strata to the correct area and depth
-# dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
-#
-
-
 dat <- read.csv("data/local_gap_products/area.csv")
 
 region_lu <- dat |>
@@ -364,7 +360,7 @@ otos_by_species <- specimen_maxyr |>
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup()
 
-# This is for the presentation only
+# This is used for the presentation only
 lengths_species <- length_maxyr_species |>
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
@@ -401,8 +397,7 @@ meanlengths_area <- length_maxyr |>
     "N" = sum(FREQUENCY, na.rm = TRUE),
     "Mean length" = weighted.mean(LENGTH, w = FREQUENCY, na.rm = TRUE)
   ) |>
-  ungroup() |>
-  dplyr::left_join(region_lu2)
+  ungroup() 
 
 meanlengths_depth <- length_maxyr |>
   dplyr::left_join(haul_maxyr, by = c(
@@ -468,8 +463,8 @@ fourth_highest_biomass_overall <- highest_biomass$common_name[4]
 # Need:
 # - cpue_raw
 # - biomass_total
-if (!exists("cpue_raw")) {
-  cpue_raw <- read.csv(paste0(dir_out_srvy_yr, "tables/cpue_all.csv")) # Load cpue table with all species and complexes
+if (!exists("cpue_processed")) {
+  cpue_processed <- read.csv(paste0(dir_out_srvy_yr, "tables/cpue_processed.csv")) # Load cpue table with all species and complexes
 }
 
 # Species in complexes (presentation) -------------------------------------
