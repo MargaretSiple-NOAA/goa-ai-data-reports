@@ -291,6 +291,7 @@ print("Created cpue_table_complexes and biomass_total_complexes.")
 
 write.csv(biomass_stratum_complexes, file = paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv")) # used in tables
 write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr, "tables/biomass_subarea_all.csv"))
+
 write.csv(biomass_total, file = paste0(dir_out_srvy_yr, "tables/biomass_total_all.csv"))
 
 
