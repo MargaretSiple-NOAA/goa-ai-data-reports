@@ -19,6 +19,9 @@ top_CPUE <- read.csv(
 
 compare_tab <- read.csv(paste0(dir_in_tables, maxyr, "_","comparison_w_previous_survey.csv"))
 
+if (!exists("sizecomp")) {
+  sizecomp <- read.csv(file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
+}
 
 # Load figures ------------------------------------------------------------
 # Static map of region
@@ -56,7 +59,7 @@ load(file = paste0(
 
 if(SRVY=="GOA"){
 load(file = paste0(
-  dir_in_figures, maxyr, "_station_map.RDS"
+  dir_out_srvy_yr, maxyr, "_station_map.RDS"
 )) # object: station_map
 }
 
