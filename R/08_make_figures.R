@@ -384,7 +384,7 @@ if (make_biomass_timeseries) {
     names(list_biomass_ts)[[i]] <- report_species$species_code[i]
 
     png(
-      filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_ts.png"),
+      filename = paste0(dir_out_figures, maxyr,  "_", name_bms,  "_biomass_ts.png"),
       width = 7, height = 7, units = "in", res = 200
     )
     print(p1)
@@ -395,7 +395,7 @@ if (make_biomass_timeseries) {
 
     # Save 3-panel figs
     png(
-      filename = paste0(dir_out_figures, YEAR, "_", name_bms, "_biomass_3panel_ts.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_3panel_ts.png"),
       width = 11, height = 4, units = "in", res = 200
     )
     print(p1 + p2 + p3)
