@@ -98,7 +98,7 @@ attempted <- haul |>
   group_by(STRATUM) |>
   distinct(STATIONID) |> # how many stations were attempted sampled?
   ungroup() |>
-  left_join(region_lu) |>
+  left_join(stratum_lu) |>
   group_by(REGULATORY_AREA_NAME, `Depth range`) |>
   dplyr::count(name = "attempted") |>
   ungroup()
@@ -107,12 +107,12 @@ succeeded <- haul_maxyr |> # already filtered to abundance_haul = Y
   group_by(STRATUM) |>
   distinct(STATIONID) |> # how many stations were sampled?
   ungroup() |>
-  left_join(region_lu) |>
+  left_join(stratum_lu) |>
   group_by(REGULATORY_AREA_NAME, `Depth range`) |>
   dplyr::count(name = "succeeded") |>
   ungroup()
 
-nmfs_depth_areas <- region_lu |>
+nmfs_depth_areas <- stratum_lu |>
   distinct(REGULATORY_AREA_NAME, STRATUM, AREA, `Depth range`) |>
   group_by(REGULATORY_AREA_NAME, `Depth range`) |>
   dplyr::summarize(AREA = sum(AREA)) |>
@@ -121,7 +121,7 @@ nmfs_depth_areas <- region_lu |>
 
 piece1 <- all_allocation |>
   dplyr::filter(YEAR == maxyr) |>
-  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  dplyr::left_join(stratum_lu, by = c("STRATUM")) |>
   dplyr::group_by(REGULATORY_AREA_NAME, `Depth range`) |>
   dplyr::count(name = "allocated") |>
   ungroup() |>
@@ -200,6 +200,10 @@ surveywide_samplingdensity <- allocated_sampled |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   as.numeric() |>
   round(digits = 4)
+
+list_samplingdensities <- list(depthrange_hisamplingdensity=depthrange_hisamplingdensity,
+                               stationdensity_hisamplingdensity=stationdensity_hisamplingdensity,
+                               surveywide_samplingdensity=surveywide_samplingdensity)
 
 # "Table 3" -----------------------------------------------------------
 # biomass_gp already loaded above
@@ -305,11 +309,17 @@ list_tables[["allocated_sampled"]] <- allocated_sampled # Stations allocated and
 list_tables[["length-sample-sizes"]] <- targetn # Target length size for species/species groups
 list_tables[["top_CPUE"]] <- top_CPUE # Top 20 species by CPUE in all the INPFC regions
 list_tables[["otos_target_sampled"]] <- otos_target_sampled # Otolith targets and whether they were met
+# list_tables[["depthrange_hisamplingdensity"]] <- depthrange_hisamplingdensity
+# list_tables[["stationdensity_hisamplingdensity"]] <- stationdensity_hisamplingdensity
+# list_tables[["surveywide_samplingdensity"]] <- stationdensity_hisamplingdensity
 
 
 save(list_tables,
   file = paste0(dir_out_tables, "report_tables.rdata")
 )
+
+save(list_samplingdensities,
+     file = paste0(dir_out_tables, "list_samplingdensities.rdata"))
 
 save(table3s_list,
   file = paste0(dir_out_tables, "table3s_list.rdata")
