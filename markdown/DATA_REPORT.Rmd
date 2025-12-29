@@ -140,7 +140,8 @@ list_tables[["length-sample-sizes"]] %>%
 
 <!-- Figures -->
 ```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea).', 'Map of the GOA 2025 bottom trawl survey area indicating NMFS areas. Black points indicate stations sampled in this survey.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
-if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
+# if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
+station_map
 ```
 
 
@@ -232,7 +233,7 @@ for (i in 1:3) { # nrow(report_species)
   year <- maxyr
   region <- survname_long
 
-  spps_ordered_by_biomass <- biomass_maxyr %>% # biomass_maxyr comes from AI.BIOMASS_TOTAL, subsetted to this year
+  spps_ordered_by_biomass <- biomass_maxyr %>% 
     dplyr::arrange(-BIOMASS_MT)
   xth <- which(spps_ordered_by_biomass$SPECIES_CODE == species_code)
 
@@ -269,8 +270,8 @@ for (i in 1:3) { # nrow(report_species)
     dplyr::select(`NMFS area`) %>%
     {
       if (SRVY == "AI") { # WILL NEED TO FIX THIS IN 2026!
-        left_join(., region_lu2, by = c("NMFS area" = "INPFC_AREA")) %>%
-          dplyr::select(., `INPFC_AREA_ABBREV`)
+        # left_join(., region_lu2, by = c("NMFS area" = "INPFC_AREA")) %>%
+        #   dplyr::select(., `INPFC_AREA_ABBREV`)
       } else {
         .
       }
@@ -288,20 +289,20 @@ for (i in 1:3) { # nrow(report_species)
     src[[i]] <- knitr::knit_expand(here::here("markdown", "InvertebrateResultTemplate.Rmd"))
   } else {
   # Fish and fish complexes
-    # region_longest <- meanlengths_area %>%
-    #   dplyr::filter(SPECIES_CODE == species_code) %>%
-    #   top_n(1, `Mean length`) %>%
-    #   {
-    #     ifelse(SRVY == "AI", dplyr::select(., INPFC_AREA_ABBREV), dplyr::select(., INPFC_AREA))
-    #   } %>%
-    #   as.character()
+    region_longest <- meanlengths_area %>%
+      dplyr::filter(SPECIES_CODE == species_code) %>%
+      top_n(1, `Mean length`) %>%
+      {
+        ifelse(SRVY == "AI", dplyr::select(., INPFC_AREA_ABBREV), dplyr::select(., REGULATORY_AREA_NAME))
+      } %>%
+      as.character()
 
-    # depth_longest0 <- meanlengths_depth %>%
-    #   dplyr::filter(SPECIES_CODE == species_code) %>%
-    #   top_n(1, `Mean length`) %>%
-    #   dplyr::select(`Depth range`) %>%
-    #   as.character()
-    # depth_longest <- gsub(pattern = " ", replacement = "&nbsp;", x = depth_longest0)
+    depth_longest0 <- meanlengths_depth %>%
+      dplyr::filter(SPECIES_CODE == species_code) %>%
+      top_n(1, `Mean length`) %>%
+      dplyr::select(`Depth range`) %>%
+      as.character()
+    depth_longest <- gsub(pattern = " ", replacement = "&nbsp;", x = depth_longest0)
 
     spp_n_length <- meanlengths_area %>%
       dplyr::filter(SPECIES_CODE == species_code) %>%
