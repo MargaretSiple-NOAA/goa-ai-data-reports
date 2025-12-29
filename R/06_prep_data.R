@@ -311,6 +311,12 @@ if (any(is.na(haul2$NET_WIDTH))) {
 }
 
 
+# Depths and areas with highest sampling densities ------------------------
+load(paste0(dir_out_tables,"list_samplingdensities.rdata"))
+depthrange_hisamplingdensity <- list_samplingdensities$depthrange_hisamplingdensity
+stationdensity_hisamplingdensity <- list_samplingdensities$stationdensity_hisamplingdensity
+surveywide_samplingdensity <- list_samplingdensities$surveywide_samplingdensity
+
 # Lengths and otos sampled -------------------------------------------
 L0 <- read.csv(here::here("data/local_racebase/length.csv"))
 L <- L0 |>
@@ -410,7 +416,7 @@ meanlengths_area <- length_maxyr |>
     "REGION", "VESSEL", "CRUISE", "YEAR", "HAUL"
   )) |>
   dplyr::filter(ABUNDANCE_HAUL == "Y") |>
-  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  dplyr::left_join(stratum_lu, by = c("STRATUM")) |>
   group_by(SPECIES_CODE, REGULATORY_AREA_NAME) |> # , `Depth range`
   dplyr::summarize(
     "N" = sum(FREQUENCY, na.rm = TRUE),
@@ -424,7 +430,7 @@ meanlengths_depth <- length_maxyr |>
     "REGION", "VESSEL", "CRUISE"
   )) |>
   dplyr::filter(ABUNDANCE_HAUL == "Y") |>
-  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  dplyr::left_join(stratum_lu, by = c("STRATUM")) |>
   dplyr::group_by(SPECIES_CODE, `Depth range`) |> # ,
   dplyr::summarize(
     "N" = sum(FREQUENCY, na.rm = TRUE),
