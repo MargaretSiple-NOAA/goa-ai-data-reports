@@ -21,3 +21,10 @@ Add to data reports once we have a finished Markdown output:
 - Also fix the rougheye-blackspotted summary. First bullet should say: "The rougheye - blackspotted rockfish complex includes rougheye rockfish (Sebastes aleutianus), blackspotted rockfish (Sebastes melanostictus), and unidentified rougheye and blackspotted rockfishes."
 - LAST: Update the TOC in Word so that the page numbers and stuff are correct.
 - LAST: Edit the abstract and make sure the language is right. 
+
+# Jim advice from AI 2024 report:
+Fix the section breaks between portrait and landscape pages. This will prevent lost pages.
+Make sure the TOC is set up correctly so that page numbers and bookmarks update properly.
+Double-check columns so headings in tables aren't split incorrectly.
+Create a simpler Styles palette so it is easier to keep headings and body text straight.
+Consider using consistent placement for figure and table captions so they don't appear to undulate when scrolling through pages. For example, anchor them at the 1" top or bottom margins.
