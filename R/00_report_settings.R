@@ -86,7 +86,7 @@ if (SRVY == "AI") {
 }
 if (SRVY == "GOA") {
   district_order <- c( # new GOA 2025+ districts
-    "Shumagin", # This is the same as western GOA is the same as Western Regulatory Area
+    "Western Regulatory Area", # This is the same as western GOA is the same as Shumagin (the INPFC designation)
     "Chirikof",
     "Kodiak",
     "West Yakutat",
@@ -94,6 +94,12 @@ if (SRVY == "GOA") {
   )
 }
 
+# from redesign project:
+# Western Regulatory Area: 159-170 longitude 
+# Chirikof: 154-159 longitude 
+# Kodiak: 147-154 longitude 
+# Yakutat:147-140 longitude
+# Southeast: 132-140 longitude
 
 # Report info -------------------------------------------------------------
 report_title <- paste0(
