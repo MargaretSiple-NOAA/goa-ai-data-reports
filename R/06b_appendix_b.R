@@ -16,8 +16,8 @@ haul <- read_csv("data/local_racebase/haul.csv")
 catch_maxyr <- catch |>
   filter(YEAR == maxyr & REGION == SRVY) |>
   left_join(haul, by = join_by(CRUISEJOIN, HAULJOIN, REGION, VESSEL, CRUISE, HAUL)) |> # need to merge with haul df to get stratum
-  left_join(region_lu, by = "STRATUM") |>
-  dplyr::select("SPECIES_CODE", "STRATUM", "REGULATORY_AREA_NAME", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
+  left_join(stratum_lu, by = "STRATUM") |> # used to be region_lu
+  dplyr::select("SPECIES_CODE","REGULATORY_AREA_NAME", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
   unique()
 
 
