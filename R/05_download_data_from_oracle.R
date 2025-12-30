@@ -187,30 +187,30 @@ complexes_data <- gapindex::get_data(
 )
 
 cpue_raw_complexes <- gapindex::calc_cpue(gapdata = complexes_data) |>
-  dplyr::left_join(haul) |>
-  janitor::clean_names()
+  dplyr::left_join(haul) #|>
+  #janitor::clean_names()
 
 # Redesign filtration step
 if (SRVY == "GOA" & maxyr >= 2025) {
-  cpue_raw_complexes <- cpue_raw_complexes |> filter(design_year == 2025)
+  cpue_raw_complexes <- cpue_raw_complexes |> filter(DESIGN_YEAR == 2025)
 }
 
 # Trim columns to make cpue_raw and cpue_raw_complexes match
 cpue_raw_complexes <- cpue_raw_complexes |>
   dplyr::select(
-    -start_latitude, -start_longitude,
-    -latitude_dd_end, -longitude_dd_end,
-    -region, -bottom_temperature_c,
-    -survey_definition_id, -depth_m, -design_year
+    -START_LATITUDE, -START_LONGITUDE,
+    -LATITUDE_DD_END, -LONGITUDE_DD_END,
+    -REGION, -BOTTOM_TEMPERATURE_C,
+    -SURVEY_DEFINITION_ID, -DEPTH_M, -DESIGN_YEAR
   )
 
 # Compare the columns between cpue_raw and cpue_raw_complexes
-janitor::compare_df_cols(cpue_raw, cpue_raw_complexes)
+# janitor::compare_df_cols(cpue_raw, cpue_raw_complexes)
 
 # glue together the species cpue from the gap_products table and the complexes cpue calculated from gapindex
 cpue_processed <- dplyr::bind_rows(
   cpue_raw,
-  cpue_raw_complexes
+  janitor::clean_names(cpue_raw_complexes)
 )
 
 head(cpue_processed)
@@ -352,7 +352,7 @@ sizecomp <- dplyr::filter(
   dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
   dplyr::filter(SPECIES_CODE %in% report_species$species_code)
 
-write.csv(x = sizeecomp, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
+write.csv(x = sizecomp, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
 
 print("Finished downloading GAP_PRODUCTS.SIZECOMP")
 
