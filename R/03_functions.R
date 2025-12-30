@@ -159,7 +159,6 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     dplyr::mutate(AVG_WEIGHT_KG = round((BIOMASS_MT / POPULATION_COUNT) * 1000, digits = 3))
 
   biomass_yr[which(biomass_yr$POPULATION_COUNT == 0), "AVG_WEIGHT_KG"] <- "--"
-  #biomass_yr[which(biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
   biomass_yr[which(biomass_yr$POPULATION_COUNT > 0 & biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
 
   area_lookup0 <- area_tbl |>
@@ -168,13 +167,15 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       #"REGULATORY AREA",
       "REGION"
     ))
+  
   if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
     area_lookup <- area_lookup0 |>
       dplyr::filter(DESIGN_YEAR == ifelse(year < 2025, 1984, 2025)) # GOA design years
+    
+    area_lookup$AREA_NAME[which(area_lookup$AREA_NAME=="Western Regulatory Area")] <- "Shumagin"
   } else {
     area_lookup <- area_lookup0 # All AI design years are 1980
   }
-
 
   combo0 <- area_lookup |>
     left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
@@ -219,7 +220,6 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 
   combo_ord$`NMFS area`[which(combo_ord$`NMFS area` == "All")] <- "All areas"
   
-  
 
   return(combo_ord)
 }
@@ -250,7 +250,6 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     design_yr <- 1991
   }
 
-
   area_lookup0 <- area_tbl |>
     dplyr::filter(AREA_TYPE == "STRATUM" & DESIGN_YEAR == design_yr) |>
     dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M))
@@ -270,8 +269,13 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       AREA_NAME, DEPTH_RANGE,
       N_HAUL, N_WEIGHT, PERCENT_POS,
       CPUE_KGKM2_MEAN, BIOMASS_MT
-    )
-
+    ) |>
+    dplyr::filter(N_WEIGHT > 0 & DEPTH_RANGE != "701 - 1000") |> # only show lines for strata where the species appeared and for strata we currently survey
+    dplyr::mutate(AREA_NAME = factor(AREA_NAME, levels = district_order)) |>
+    dplyr::group_by(AREA_NAME) |>
+    dplyr::arrange(DEPTH_RANGE, .by_group=TRUE) |>
+    dplyr::ungroup()
+    
   combo <- combo0 |>
     dplyr::rename(
       "Area name" = AREA_NAME,
@@ -281,12 +285,14 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Percent hauls with positive catch" = PERCENT_POS,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
       "Biomass (mt)" = BIOMASS_MT
-    ) |>
-    dplyr::filter(`Hauls with positive catch` > 0) # only show lines for strata where the species appeared
+    )
 
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
 
+  # Change "Shumagin" to "Western Regulatory Area"
+  #combo$`Area name`[which(combo$`Area name` == "Shumagin")] <- "Western Regulatory Area"
+  
   return(combo)
 }
 
@@ -498,7 +504,7 @@ format_tons <- function(x) {
 # reg_dat <- reg_dat_ai
 # # cpue_processed is generated in prep_data.R and is a summary of cpue by species and station
 # spcode <- 21921 #atka
-# thisyrshauldata <- cpue_processed %>%
+# thisyrshauldata <- cpue_raw %>%
 #   mutate(cpue_kgha = cpue_kgkm2 * 100) %>%
 #   filter(year == maxyr & survey == SRVY & species_code == spcode) %>%
 #   st_as_sf(
