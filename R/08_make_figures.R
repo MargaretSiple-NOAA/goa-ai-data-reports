@@ -384,7 +384,7 @@ if (make_biomass_timeseries) {
     names(list_biomass_ts)[[i]] <- report_species$species_code[i]
 
     png(
-      filename = paste0(dir_out_figures, maxyr,  "_", name_bms,  "_biomass_ts.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_ts.png"),
       width = 7, height = 7, units = "in", res = 200
     )
     print(p1)
@@ -414,8 +414,6 @@ if (make_biomass_timeseries) {
   save(list_3panel_ts, file = paste0(dir_out_figures, "list_3panel_ts.rdata"))
   print("Done making biomass time series plots.")
 }
-
-
 
 
 # 2. Catch composition -------------------------------------------------------
@@ -477,7 +475,6 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       SKATES = "skates",
       THORNYHEADS = "thornyheads"
     )
-
 
 
     thisyrshauldata <- cpue_complexes |>
@@ -933,9 +930,11 @@ if (make_joy_division_length) {
 
   # Loop thru species
   for (i in 1:nrow(report_species)) { #
-    len2plot <- report_pseudolengths %>%
+    len2plot <- report_pseudolengths |>
       filter(SPECIES_CODE == report_species$species_code[i])
-
+    if (nrow(len2plot) == 0) {
+      stop("pseudolength (expanded lengths) data missing for this species. Fix it!")
+    }
     # Subset to years when species was confidently ID'ed
     if (report_species$species_code[i] %in% species_year$SPECIES_CODE) {
       len2plot <- len2plot |>
@@ -994,7 +993,7 @@ if (make_joy_division_length) {
           label = paste0("n = ", n),
           x = ifelse(report_species$species_code[i] %in% left_labels, -Inf, Inf)
         ),
-        fill = "white", label.size = NA,
+        fill = "white", linewidth = NA,
         nudge_x = 0,
         nudge_y = 1,
         hjust = "inward", size = 3
