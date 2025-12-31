@@ -7,7 +7,7 @@
 # Fig 4. size comp plot 2 - "joy_division_length" - list_joy_length
 # Fig 5. Historical biomass plots - list_biomass_ts
 
-make_biomass_timeseries <- FALSE
+make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
 make_catch_comp <- TRUE
 # 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022.
