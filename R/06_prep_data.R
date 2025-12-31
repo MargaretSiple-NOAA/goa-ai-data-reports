@@ -119,15 +119,17 @@ if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
 # write.csv(file = "hauls_no_btemp.csv",x = hauls_no_btemp)
 
 # Econ info ---------------------------------------------------------------
-dat <- read.csv("data/GOA_planning_species_2021.csv")
+# dat <- read.csv("data/GOA_planning_species_2021.csv") #for 2021 report
+dat <-  read.csv("data/GOA_planning_species_2023.csv")
 sp_prices <- dat |>
-  dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) |>
+  dplyr::filter(!is.na(ex.vessel.price)) |>
+  dplyr::select(-species.code, common.name, species.name, -include, ex.vessel.price, -source) |>
   dplyr::rename(
     `Scientific name` = species.name,
     `Common name` = common.name,
-    `Included in design` = include,
+    #`Included in design` = include,
     `Ex-vessel price` = ex.vessel.price,
-    `Source` = source
+    #`Source` = source
   )
 
 pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), ])
