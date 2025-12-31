@@ -1,0 +1,55 @@
+﻿species.code,species.name,common.name,ex.vessel.price,include,source
+150,,"shark, general",,N,1
+310,,"shark, dogfish",,N,1
+400,,"skate, general",,N,1
+420,,"skate, big",,N,1
+435,,,,N,1
+440,,"skate, longnose",,N,1
+472,,"skate, Aleutian",,N,1
+10110,Atherestes stomias,arrowtooth flounder,0.11,Y,1
+10112,Atheresthes evermanni,Kamchatka flounder,0.15,Y,1
+10115,Reinhardtius hippoglossoides,Greenland turbot,0.15,Y,1
+10120,Hippoglossus stenolepis,Pacific halibut,6.41,Y,1
+10130,Hippoglossoides elassodon,flathead sole,0.15,Y,1
+10170,Parophrys vetulus,English sole,0.07,Y,1
+10180,Microstomus  pacificus,Dover sole,0.1,Y,1
+10200,Glyptocephalus zachirus,rex sole,0.13,Y,1
+10210,Limanda aspera,yellowfin sole,0.15,Y,1
+10220,Platichthys stellatus,starry flounder,0.14,Y,1
+10250,Psettichthys melanostictus,sand sole,0.07,Y,1
+10260,Lepidopsetta sp.,rock sole,0.15,Y,1
+10261,,,,N,1
+10262,,,,N,1
+10270,Isopsetta isolepis,butter sole,0.08,Y,1
+10285,Pleuronectes quadrituberculatus,Alaska plaice,0.15,Y,1
+20510,,sablefish (blackcod),,N,1
+21220,,grenadier (rattail),,N,1
+21230,,grenadier (giant),,N,1
+21232,,,,N,1
+21300,,sculpins,,N,1
+21720,,"cod, Pacific (gray)",,N,1
+21740,,"pollock, walleye",,N,1
+21910,,lingcod,,N,1
+21921,,"greenling, Atka mackerel",,N,1
+22500,,hake,,N,1
+30020,Sebastolobus sp.,thornyheads,0.25,Y,1
+30030,,,,N,1
+30051,Sebastes aleutianus,rougheye rockfish,0.23,Y,1
+30052,,,,N,1
+30060,Sebastes alutus,Pacific ocean perch,0.14,Y,1
+30100,Sebastes brevispinis,silvergray rockfish,0.14,Y,1
+30151,,dark rockfish,,N,1
+30152,Sebastes variabilis,dusky rockfish,0.13,Y,1
+30170,Sebastes crameri,darkblotched rockfish,0.13,Y,1
+30200,Sebastes elongatus,greenstripe rockfish,0.36,Y,1
+30240,Sebastes flavidus,yellowtail rockfish,0.15,Y,1
+30270,Sebastes helvomaculatus,rosethorn rockfish,0.59,Y,1
+30400,Sebastes paucispinis,boccacio,0.59,Y,1
+30410,Sebastes pinniger,canary rockfish,0.56,Y,1
+30420,Sebastes polyspinis,northern rockfish,0.14,Y,1
+30430,Sebastes proriger,redstripe rockfish,0.13,Y,1
+30470,Sebastes ruberrimus,yelloweye rockfish,0.48,Y,1
+30475,Sebastes babcocki,redbanded rockfish,0.42,Y,1
+30535,Sebastes variegatus,harlequin rockfish,0.13,Y,1
+30560,Sebastes zacentrus,sharpchin rockfish,0.13,Y,1
+30576,Sebastes borealis,shortraker rockfish,0.23,Y,1
