@@ -323,7 +323,8 @@ if (make_biomass_timeseries) {
       ylab("Estimated total biomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
-      linetheme
+      linetheme +
+      scale_x_continuous(limits = c(minyr,maxyr), breaks = pretty_breaks(n=3))
     p1
 
     p2 <- dat |>
@@ -335,7 +336,8 @@ if (make_biomass_timeseries) {
       ) +
       xlab("Year") +
       ylab("Proportion of hauls \nwhere present (%)") +
-      linetheme
+      linetheme +
+      scale_x_continuous(limits = c(minyr,maxyr), breaks = pretty_breaks(n=3))
 
     p3 <- ggplot() +
       geom_hline(
@@ -359,12 +361,13 @@ if (make_biomass_timeseries) {
         color = "#8e0152",
         size = 3
       ) +
-      # cale_color_distiller(palette = "PiYG", type = "div") +
+      # scale_color_distiller(palette = "PiYG", type = "div") +
       scale_color_gradientn(colors = c("#8e0152", "#f7f7f7", "#276419")) +
       xlab("Year") +
       ylab("Percent change in biomass \nfrom previous survey (%)") +
       linetheme +
-      theme(legend.position = "none")
+      theme(legend.position = "none") +
+      scale_x_continuous(limits = c(minyr,maxyr), breaks = pretty_breaks(n=3))
 
     # p1 + p2 + p3
 
