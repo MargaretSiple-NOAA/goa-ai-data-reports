@@ -139,7 +139,7 @@ bubbletheme <- theme(
 )
 
 
-linetheme <- theme_bw(base_size = 12)
+linetheme <- theme_bw(base_size = 10)
 
 bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
@@ -290,7 +290,7 @@ if (make_total_surv_map) {
   print(station_map)
   dev.off()
 
-  save(station_map, file = paste0(dir_out_srvy_yr, "figures/station_map.RDS"))
+  save(station_map, file = paste0(dir_out_srvy_yr, "figures/", maxyr, "_station_map.RDS"))
 }
 
 # 1. Biomass index relative to LT mean ---------------------------------------
@@ -345,19 +345,19 @@ if (make_biomass_timeseries) {
       geom_point(
         data = subset(dat, abs(PERCENT_CHANGE_BIOMASS) < 50),
         aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS, color = PERCENT_CHANGE_BIOMASS),
-        size = 5
+        size = 3
       ) +
       geom_point(
         data = subset(dat, PERCENT_CHANGE_BIOMASS > 50),
         aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS),
         color = "#276419",
-        size = 5
+        size = 3
       ) +
       geom_point(
         data = subset(dat, PERCENT_CHANGE_BIOMASS < (-50)),
         aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS),
         color = "#8e0152",
-        size = 5
+        size = 3
       ) +
       # cale_color_distiller(palette = "PiYG", type = "div") +
       scale_color_gradientn(colors = c("#8e0152", "#f7f7f7", "#276419")) +
@@ -396,7 +396,7 @@ if (make_biomass_timeseries) {
     # Save 3-panel figs
     png(
       filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_3panel_ts.png"),
-      width = 11, height = 4, units = "in", res = 200
+      width = 8, height = 3, units = "in", res = 200
     )
     print(p1 + p2 + p3)
     dev.off()

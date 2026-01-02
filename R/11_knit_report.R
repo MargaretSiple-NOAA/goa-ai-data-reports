@@ -59,7 +59,7 @@ load(file = paste0(
 
 if(SRVY=="GOA"){
 load(file = paste0(
-  dir_out_srvy_yr, maxyr, "_station_map.RDS"
+  dir_out_srvy_yr, "figures/", maxyr, "_station_map.RDS"
 )) # object: station_map
 }
 

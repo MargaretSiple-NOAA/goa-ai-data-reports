@@ -74,7 +74,7 @@ list_joy_length[["{{species_code}}"]]
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of  {{spp_name_informal}} in the {{region}} bottom trawl survey. The dottedhorizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of  {{spp_name_informal}} in the {{region}} bottom trawl survey. The dottedhorizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=7,fig.height=3, tab.cap.style = "Figure Caption"}
 list_3panel_ts[["{{species_code}}"]]
 ```
 

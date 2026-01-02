@@ -54,7 +54,7 @@ library(officer)
 ```{r child=here::here("gdrive","Methods.Rmd")}
 ```
 
-```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, "survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 8, dpi = 300}
+```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, "survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 8, dpi = 300, out.width="50%"}
 include_graphics(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
 ```
 
