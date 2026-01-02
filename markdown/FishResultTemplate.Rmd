@@ -30,7 +30,7 @@ table3s_list[["{{ species_code }}"]] |>
   set_header_labels(
     `Total haul count` = "Total \n haul count",
     `Hauls with positive catch` = "Hauls w/\npositive catch",
-    #`CPUE (kg/km2)` = "CPUE\n(kg/km2)",
+    `Percent positive tows` = "% positive tows",
     `Biomass (mt)` = "Biomass\n(mt)"
   ) |>
   bold(i = 6) |> #bold the row with the All Areas total
@@ -49,15 +49,22 @@ table4s_list[["{{ species_code }}"]] |>
   fontsize(size = 9, part = "all") |>
   fit_to_width(max_width = 8.25, unit = "in") |>
   align(align = "center", part = "all")|>
-  align(j = c(1, 5, 6), align = "left", part = "body") |>
+  align(j = c(1, 6, 7), align = "left", part = "body") |>
   align(i = 1, align = "center", part = "header") |>
   padding(padding = 1, part = "all")  |>
   set_table_properties(layout = "autofit") |>
   set_header_labels(`Total haul count` = "Total \n haul count",
                     `Hauls with positive catch` = "Hauls w/\npositive catch",
+                    `Percent hauls with positive catch` = "% positive tows",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
                     `Biomass (mt)` = "Biomass\n(mt)") |>
-  compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+  compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+```
+
+<br/>
+
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of  {{spp_name_informal}} in the {{region}} bottom trawl survey. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=3, tab.cap.style = "Figure Caption"}
+list_3panel_ts[["{{species_code}}"]]
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
@@ -70,12 +77,6 @@ list_cpue_bubbles_strata[["{{species_code}}"]]
 
 ```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
 list_joy_length[["{{species_code}}"]]
-```
-
-<br/>
-
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of  {{spp_name_informal}} in the {{region}} bottom trawl survey. The dottedhorizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=7,fig.height=3, tab.cap.style = "Figure Caption"}
-list_3panel_ts[["{{species_code}}"]]
 ```
 
 <br/>
