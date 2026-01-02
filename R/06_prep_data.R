@@ -123,13 +123,13 @@ if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
 dat <-  read.csv("data/GOA_planning_species_2023.csv")
 sp_prices <- dat |>
   dplyr::filter(!is.na(ex.vessel.price)) |>
-  dplyr::select(-species.code, common.name, species.name, -include, ex.vessel.price, -source) |>
+  dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) |>
   dplyr::rename(
     `Scientific name` = species.name,
     `Common name` = common.name,
-    #`Included in design` = include,
+    `Included in design` = include,
     `Ex-vessel price` = ex.vessel.price,
-    #`Source` = source
+    `Source` = source
   )
 
 pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), ])
