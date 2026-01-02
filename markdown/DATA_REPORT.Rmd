@@ -4,7 +4,7 @@ subtitle: "Data Report"
 author: "Bethany Riggle, Alexandra Dowlin, Zack Oyafuso, Ned Laman, Margaret Siple"
 output:
   officedown::rdocx_document: 
-    reference_docx: styles_reference4.docx
+    reference_docx: styles_reference_TimesNewRoman.docx
     pandoc_args: ["--metadata-file=header.yaml"]
     tables:
       caption:
@@ -54,8 +54,8 @@ library(officer)
 ```{r child=here::here("gdrive","Methods.Rmd")}
 ```
 
-```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, "survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 8, dpi = 300, out.width="50%"}
-include_graphics(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
+```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, "survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 6.5, dpi = 300, fig.asp={{net_asp}} }
+knitr::include_graphics(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
 ```
 
 \newpage

@@ -42,6 +42,11 @@ load(file = paste0(
   dir_in_figures, "list_cpue_bubbles_strata.rdata"
 )) # object: list_cpue_bubbles
 
+# 3-panel time series plots
+load(file = paste0(
+  dir_in_figures, "list_3panel_ts.rdata"
+)) # object: list_3panel_ts
+
 # Length comps
 load(file = paste0(
   dir_in_figures, "list_joy_length.rdata"
@@ -61,6 +66,8 @@ if(SRVY=="GOA"){
 load(file = paste0(
   dir_out_srvy_yr, "figures/", maxyr, "_station_map.RDS"
 )) # object: station_map
+  net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
+  net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figures aspect ratio
 }
 
 
