@@ -67,7 +67,7 @@ survnumber <- cruises |>
     "Gulf of Alaska Bottom Trawl Survey"
   )) |>
   filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) |> # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
-  dplyr::filter(CRUISE != 202001) |>
+  dplyr::filter(CRUISE != 202001 & YEAR <= maxyr) |>
   distinct(CRUISE) |>
   arrange(CRUISE) |>
   nrow() |>
