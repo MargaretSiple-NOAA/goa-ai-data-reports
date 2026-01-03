@@ -298,6 +298,16 @@ nestimatedspreads <- haul2 |>
 nfailedtows <- haul2 |>
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) |>
   nrow()
+# SQL version for nfailedtows (from Ned):
+# select count(*) from racebase.haul
+# where region = 'GOA' and cruise = 202101
+# and abundance_haul = 'N'
+# and haul_type = 3)
+
+# check the number of stations successfully sampled
+if((nestimatedspreads + nstations_w_marport_data)!=nstations){
+  print("Check nstations and nstations_w_marport_data! They are not adding up properly.")
+}
 
 # Number of stations with no marport data - this is a phrase
 no_marport_data <- paste(
