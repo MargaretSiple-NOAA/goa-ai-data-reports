@@ -10,7 +10,7 @@
 
 -   The highest {{spp_name_informal}} CPUEs were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} districts (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
 
--    On average, the longest individuals were found in the {{region_longest}} region and in a depth range of {{depth_longest}} (Figure `r officer::run_reference(paste0("lengthdepth-","{{species_code}}"))`). Historical length distributions by year are provided in Figure `r officer::run_reference(paste0("lengthcomp-","{{species_code}}"))`.
+-    On average, the longest individuals were found in the {{region_longest}} region and in a depth range of {{depth_longest}} (Figure `r officer::run_reference(paste0("lengthdepth-","{{species_code}}"))`). Historical length distributions are provided in Figure `r officer::run_reference(paste0("lengthcomp-","{{species_code}}"))`.
 
 `r if({{show.text}}){paste0("- ","{{sex_diff_sentence}}") }`
 
