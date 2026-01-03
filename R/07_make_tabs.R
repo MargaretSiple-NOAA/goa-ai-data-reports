@@ -28,6 +28,15 @@ otos_target_sampled <- df |>
   dplyr::mutate(percent.diff = round((collection - target) / target * 100)) |>
   dplyr::select(species, collection, target, percent.diff)
 
+# to check in SQL (from Ned)
+# (select common_name, count(*) otolith_count
+#   from racebase.specimen a, racebase.species b
+#   where region = 'GOA' and cruise = 202101
+#   and specimen_sample_type = 1
+#   and a.species_code = b.species_code
+#   group by common_name
+#   order by otolith_count)
+
 # Sp richness by subregion and family ------------------------------------------
 subregion_fam_div <- appB |>
   group_by(regulatory_area_name, family) |>
