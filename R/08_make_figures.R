@@ -324,7 +324,7 @@ if (make_biomass_timeseries) {
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme +
-      scale_x_continuous(limits = c(minyr,maxyr), breaks = pretty_breaks(n=3))
+      scale_x_continuous(limits = c(minyr, maxyr), breaks = pretty_breaks(n = 3))
     p1
 
     p2 <- dat |>
@@ -337,7 +337,7 @@ if (make_biomass_timeseries) {
       xlab("Year") +
       ylab("Proportion of hauls \nwhere present (%)") +
       linetheme +
-      scale_x_continuous(limits = c(minyr,maxyr), breaks = pretty_breaks(n=3))
+      scale_x_continuous(limits = c(minyr, maxyr), breaks = pretty_breaks(n = 3))
 
     p3 <- ggplot() +
       geom_hline(
@@ -367,7 +367,7 @@ if (make_biomass_timeseries) {
       ylab("Percent change in biomass \nfrom previous survey (%)") +
       linetheme +
       theme(legend.position = "none") +
-      scale_x_continuous(limits = c(minyr,maxyr), breaks = pretty_breaks(n=3))
+      scale_x_continuous(limits = c(minyr, maxyr), breaks = pretty_breaks(n = 3))
 
     # p1 + p2 + p3
 
@@ -1046,87 +1046,155 @@ if (make_ldscatter) {
       ldscatter <- ggplot() +
         theme_void()
     } else {
-      ltoplot0 <- length_maxyr_ldscatter %>%
-        dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
-        dplyr::left_join(haul2, by = c(
-          "CRUISEJOIN", "HAULJOIN", "HAUL",
-          "REGION", "VESSEL", "CRUISE"
-        )) %>%
-        dplyr::left_join(stratum_lu, by = "STRATUM") %>%
-        dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
-        dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
-      # make a new INPFC_AREA that is all of them combined
-      ltoplot <- ltoplot0 %>%
-        mutate(REGULATORY_AREA_NAME = "All districts") %>%
-        bind_rows(ltoplot0)
+      if (SRVY == "GOA" & maxyr >= 2025) {
+        ltoplot0 <- length_maxyr_ldscatter %>%
+          dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
+          dplyr::left_join(haul2, by = c(
+            "CRUISEJOIN", "HAULJOIN", "HAUL",
+            "REGION", "VESSEL", "CRUISE"
+          )) %>%
+          dplyr::left_join(stratum_lu, by = "STRATUM") %>%
+          dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
+          dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
+        # make a new INPFC_AREA that is all of them combined
+        ltoplot <- ltoplot0 %>%
+          mutate(REGULATORY_AREA_NAME = "All districts") %>%
+          bind_rows(ltoplot0)
 
-      ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
-      ltoplot$REGULATORY_AREA_NAME <- as.factor(ltoplot$REGULATORY_AREA_NAME)
-      ltoplot$dummy_var <- 0
+        ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
+        ltoplot$REGULATORY_AREA_NAME <- as.factor(ltoplot$REGULATORY_AREA_NAME)
+        ltoplot$dummy_var <- 0
 
-      nknots <- 4
+        nknots <- 4
 
-      if (nrow(ltoplot) < nknots * 2) {
-        ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
-          geom_point(alpha = 0.2, size = 0.8) +
-          xlab(paste("Bottom depth (x", dscale, "m)")) +
-          ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-          facet_wrap(~REGULATORY_AREA_NAME, nrow = 1) +
-          theme_light(base_size = 10) +
-          theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            legend.position = "none",
-            strip.background = element_blank(),
-            strip.text = element_text(colour = "black")
-          )
-        cat("NOTE: Not enough data to fit a GAM for", report_species$spp_name_informal[i], "- saving just the scatterplot \n")
-      } else {
-        mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = REGULATORY_AREA_NAME, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
+        if (nrow(ltoplot) < nknots * 2) {
+          ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
+            geom_point(alpha = 0.2, size = 0.8) +
+            xlab(paste("Bottom depth (x", dscale, "m)")) +
+            ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
+            facet_wrap(~REGULATORY_AREA_NAME, nrow = 1) +
+            theme_light(base_size = 10) +
+            theme(
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              legend.position = "none",
+              strip.background = element_blank(),
+              strip.text = element_text(colour = "black")
+            )
+          cat("NOTE: Not enough data to fit a GAM for", report_species$spp_name_informal[i], "- saving just the scatterplot \n")
+        } else {
+          mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = REGULATORY_AREA_NAME, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
 
-        ltoplot[c("predicted", "se")] <- stats::predict(mod1, newdata = ltoplot, se.fit = TRUE)
+          ltoplot[c("predicted", "se")] <- stats::predict(mod1, newdata = ltoplot, se.fit = TRUE)
 
-        ltoplot$REGULATORY_AREA_NAME <- factor(ltoplot$REGULATORY_AREA_NAME, levels = c(district_order, "All districts"))
+          ltoplot$REGULATORY_AREA_NAME <- factor(ltoplot$REGULATORY_AREA_NAME, levels = c(district_order, "All districts"))
 
-        # color scale
-        ncols <- length(unique(ltoplot$REGULATORY_AREA_NAME))
-        pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
+          # color scale
+          ncols <- length(unique(ltoplot$REGULATORY_AREA_NAME))
+          pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
 
-        ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
-          geom_point(alpha = 0.2, size = 0.8) +
-          geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = REGULATORY_AREA_NAME), alpha = 0.2) +
-          geom_line(aes(y = predicted / lscale, color = REGULATORY_AREA_NAME), linewidth = 1) +
-          scale_color_manual(values = pal) +
-          scale_fill_manual(values = pal) +
-          xlab(paste("Bottom depth (x", dscale, "m)")) +
-          ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
-          facet_wrap(~REGULATORY_AREA_NAME, nrow = 1) +
-          theme_light(base_size = 10) +
-          theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            legend.position = "none",
-            strip.background = element_blank(),
-            strip.text = element_text(colour = "black")
-          )
+          ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
+            geom_point(alpha = 0.2, size = 0.8) +
+            geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = REGULATORY_AREA_NAME), alpha = 0.2) +
+            geom_line(aes(y = predicted / lscale, color = REGULATORY_AREA_NAME), linewidth = 1) +
+            scale_color_manual(values = pal) +
+            scale_fill_manual(values = pal) +
+            xlab(paste("Bottom depth (x", dscale, "m)")) +
+            ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
+            facet_wrap(~REGULATORY_AREA_NAME, nrow = 1) +
+            theme_light(base_size = 10) +
+            theme(
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              legend.position = "none",
+              strip.background = element_blank(),
+              strip.text = element_text(colour = "black")
+            ) +
+            xlim(c(0, 10))
+        }
+      } else { # if survey is AI or GOA before redesign
+        ltoplot0 <- length_maxyr_ldscatter %>%
+          dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
+          dplyr::left_join(haul2, by = c(
+            "CRUISEJOIN", "HAULJOIN", "HAUL",
+            "REGION", "VESSEL", "CRUISE"
+          )) %>%
+          dplyr::left_join(region_lu, by = "STRATUM") %>%
+          dplyr::filter(ABUNDANCE_HAUL == "Y") %>%
+          dplyr::filter(HAULJOIN != -21810) # take out haul 191 from OEX 2022 which i JUST DISCOVERED has a depth of zero
+        # make a new INPFC_AREA that is all of them combined
+        ltoplot <- ltoplot0 %>%
+          mutate(INPFC_AREA = "All districts") %>%
+          bind_rows(ltoplot0)
+
+        ltoplot$HAULJOIN <- as.factor(ltoplot$HAULJOIN)
+        ltoplot$INPFC_AREA <- as.factor(ltoplot$INPFC_AREA)
+        ltoplot$dummy_var <- 0
+
+        nknots <- 4
+
+        if (nrow(ltoplot) < nknots * 2) {
+          ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
+            geom_point(alpha = 0.2, size = 0.8) +
+            xlab(paste("Bottom depth (x", dscale, "m)")) +
+            ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
+            facet_wrap(~INPFC_AREA, nrow = 1) +
+            theme_light(base_size = 10) +
+            theme(
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              legend.position = "none",
+              strip.background = element_blank(),
+              strip.text = element_text(colour = "black")
+            )
+          cat("NOTE: Not enough data to fit a GAM for", report_species$spp_name_informal[i], "- saving just the scatterplot \n")
+        } else {
+          mod1 <- mgcv::gam(data = ltoplot, formula = LENGTH ~ s(BOTTOM_DEPTH, by = INPFC_AREA, k = nknots) + s(HAULJOIN, bs = "re", by = dummy_var), na.action = "na.omit")
+
+          ltoplot[c("predicted", "se")] <- stats::predict(mod1, newdata = ltoplot, se.fit = TRUE)
+
+          ltoplot$INPFC_AREA <- factor(ltoplot$INPFC_AREA, levels = c(district_order, "All districts"))
+
+          # color scale
+          ncols <- length(unique(ltoplot$INPFC_AREA))
+          pal <- c(rep("#FF773D", times = ncols - 1), "#809BCE")
+
+          ldscatter <- ggplot(ltoplot, aes(x = BOTTOM_DEPTH / dscale, y = LENGTH / lscale)) +
+            geom_point(alpha = 0.2, size = 0.8) +
+            geom_ribbon(aes(ymin = (predicted - 1.96 * se) / lscale, ymax = (predicted + 1.96 * se) / lscale, fill = INPFC_AREA), alpha = 0.2) +
+            geom_line(aes(y = predicted / lscale, color = INPFC_AREA), linewidth = 1) +
+            scale_color_manual(values = pal) +
+            scale_fill_manual(values = pal) +
+            xlab(paste("Bottom depth (x", dscale, "m)")) +
+            ylab(ifelse(lscale == 10, "Length (cm)", "Length (mm)")) +
+            facet_wrap(~INPFC_AREA, nrow = 1) +
+            theme_light(base_size = 10) +
+            theme(
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              legend.position = "none",
+              strip.background = element_blank(),
+              strip.text = element_text(colour = "black")
+            ) +
+            xlim(c(0, 10))
+        } # end if statement for AI/old GOA
       }
+      png(filename = paste0(
+        dir_out_figures, maxyr, "_", report_species$spp_name_informal[i],
+        "_ldscatter.png"
+      ), width = 9, height = 2, units = "in", res = 200)
+      print(ldscatter)
+      dev.off()
+
+      list_ldscatter[[i]] <- ldscatter
+      print(paste("Done with length by depth scatter plot of", report_species$spp_name_informal[i]))
     }
-    png(filename = paste0(
-      dir_out_figures, maxyr, "_", report_species$spp_name_informal[i],
-      "_ldscatter.png"
-    ), width = 9, height = 2, units = "in", res = 200)
-    print(ldscatter)
-    dev.off()
 
-    list_ldscatter[[i]] <- ldscatter
-    print(paste("Done with length by depth scatter plot of", report_species$spp_name_informal[i]))
+    names(list_ldscatter) <- report_species$species_code
+    save(list_ldscatter, file = paste0(dir_out_figures, "list_ldscatter.rdata"))
+    print("Done with length by depth scatter plots.")
   }
-
-  names(list_ldscatter) <- report_species$species_code
-  save(list_ldscatter, file = paste0(dir_out_figures, "list_ldscatter.rdata"))
-  print("Done with length by depth scatter plots.")
-}
-
+} # end ldscatter plot making
 
 # 6. Surface and bottom temp -----------------------------------------------
 if (make_temp_plot) {
