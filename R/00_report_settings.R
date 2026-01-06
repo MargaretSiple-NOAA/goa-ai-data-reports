@@ -79,14 +79,25 @@ if (SRVY == "AI") {
     "Western Aleutians"
   ) # order of districts in the results
 }
+
 if (SRVY == "GOA") {
-  district_order <- c( # new GOA 2025+ districts
-    "Shumagin", # This is the same as western GOA is the same as Western Regulatory Area (the INPFC designation)
-    "Chirikof",
-    "Kodiak",
-    "West Yakutat",
-    "Southeast Outside"
-  )
+  if (maxyr >= 2025) {
+    district_order <- c( # new GOA 2025+ areas (NMFS regulatory areas)
+      "Shumagin", # This is the same as western GOA is the same as Western Regulatory Area (the INPFC designation)
+      "Chirikof",
+      "Kodiak",
+      "West Yakutat",
+      "Southeast Outside"
+    )
+  } else { # INPFC areas (for anything pre-2025)
+    district_order <- c(
+      "Shumagin",
+      "Chirikof",
+      "Kodiak",
+      "Yakutat",
+      "Southeastern"
+    )
+  }
 }
 
 # from redesign project:
