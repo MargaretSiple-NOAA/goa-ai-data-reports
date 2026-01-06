@@ -120,7 +120,7 @@ if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
 
 # Econ info ---------------------------------------------------------------
 # dat <- read.csv("data/GOA_planning_species_2021.csv") #for 2021 report
-dat <-  read.csv("data/GOA_planning_species_2023.csv")
+dat <- read.csv("data/GOA_planning_species_2023.csv")
 sp_prices <- dat |>
   dplyr::filter(!is.na(ex.vessel.price)) |>
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) |>
@@ -162,7 +162,7 @@ dat <- read.csv("data/local_gap_products/area.csv")
 
 stratum_lu <- dat |>
   dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
-  dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == 2025 & AREA_TYPE == "STRATUM") |>
+  dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == design_year & AREA_TYPE == "STRATUM") |>
   dplyr::rename(
     STRATUM = "AREA_ID",
     MIN_DEPTH = "DEPTH_MIN_M",
@@ -179,24 +179,69 @@ stratum_lu <- dat |>
   dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
   dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
 
-region_lu <-  dat |>
-  dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
-  dplyr::filter(SURVEY_DEFINITION_ID == 47, AREA_TYPE == "NMFS STATISTICAL AREA", DESIGN_YEAR == design_year) |>
-  dplyr::rename(
-    STRATUM = "AREA_ID",
-    MIN_DEPTH = "DEPTH_MIN_M",
-    MAX_DEPTH = "DEPTH_MAX_M",
-    REGULATORY_AREA_NAME = "AREA_NAME",
-    AREA = "AREA_KM2"
-  ) |>
-  dplyr::select(
-    SURVEY, STRATUM, MIN_DEPTH, MAX_DEPTH,
-    REGULATORY_AREA_NAME, AREA, DESCRIPTION
-  ) |>
-  # dplyr::filter(STRATUM <= 794) |>
-  tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
-  dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
-  dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
+if (SRVY == "GOA" & maxyr >= 2025) {
+  region_lu <- dat |>
+    dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
+    dplyr::filter(SURVEY_DEFINITION_ID == 47, AREA_TYPE == "NMFS STATISTICAL AREA", DESIGN_YEAR == design_year) |>
+    dplyr::rename(
+      STRATUM = "AREA_ID",
+      MIN_DEPTH = "DEPTH_MIN_M",
+      MAX_DEPTH = "DEPTH_MAX_M",
+      REGULATORY_AREA_NAME = "AREA_NAME",
+      AREA = "AREA_KM2"
+    ) |>
+    dplyr::select(
+      SURVEY, STRATUM, MIN_DEPTH, MAX_DEPTH,
+      REGULATORY_AREA_NAME, AREA, DESCRIPTION
+    ) |>
+    # dplyr::filter(STRATUM <= 794) |>
+    tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
+    dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
+    dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
+} else { # AI survey and old GOA
+  dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
+  region_lu <- dat |>
+    dplyr::filter(SURVEY == SRVY) |>
+    dplyr::select(
+      SURVEY, STRATUM, INPFC_AREA, MIN_DEPTH, MAX_DEPTH,
+      REGULATORY_AREA_NAME, AREA, DESCRIPTION
+    ) |>
+    dplyr::filter(STRATUM <= 794) |>
+    tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
+    dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
+    dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
+
+  # For AI years, add abbreviated area names:
+  region_lu2 <- region_lu |>
+    dplyr::group_by(INPFC_AREA) |>
+    dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
+    dplyr::ungroup() |>
+    mutate(INPFC_AREA_ABBREV = case_when(
+      INPFC_AREA == "Central Aleutians" ~ "Central AI",
+      INPFC_AREA == "Eastern Aleutians" ~ "Eastern AI",
+      INPFC_AREA == "Western Aleutians" ~ "Western AI",
+      INPFC_AREA == "Southern Bering Sea" ~ "SBS"
+    ))
+
+  # If it's an AI year, add Aleutian areas:
+  if (SRVY == "AI") {
+    INPFC_areas <- region_lu2 %>%
+      tibble::add_row(
+        INPFC_AREA = "All Aleutian Districts",
+        INPFC_AREA_AREA_km2 = sum(filter(region_lu2, INPFC_AREA != "Southern Bering Sea")$INPFC_AREA_AREA_km2)
+      ) %>%
+      tibble::add_row(
+        INPFC_AREA = "All Districts",
+        INPFC_AREA_AREA_km2 = sum(filter(region_lu2)$INPFC_AREA_AREA_km2)
+      )
+  } else {
+    INPFC_areas <- region_lu2 %>%
+      tibble::add_row(
+        INPFC_AREA = "All Districts",
+        INPFC_AREA_AREA_km2 = sum(region_lu2$INPFC_AREA_AREA_km2)
+      )
+  }
+} # /end if() for old GOA and AI designs
 
 
 nyears <- length(unique(filter(haul, REGION == SRVY)$CRUISE))
@@ -305,7 +350,7 @@ nfailedtows <- haul2 |>
 # and haul_type = 3)
 
 # check the number of stations successfully sampled
-if((nestimatedspreads + nstations_w_marport_data)!=nstations){
+if ((nestimatedspreads + nstations_w_marport_data) != nstations) {
   print("Check nstations and nstations_w_marport_data! They are not adding up properly.")
 }
 
@@ -324,7 +369,7 @@ if (any(is.na(haul2$NET_WIDTH))) {
 
 
 # Depths and areas with highest sampling densities ------------------------
-load(paste0(dir_out_tables,"list_samplingdensities.rdata"))
+load(paste0(dir_out_tables, "list_samplingdensities.rdata"))
 depthrange_hisamplingdensity <- list_samplingdensities$depthrange_hisamplingdensity
 stationdensity_hisamplingdensity <- list_samplingdensities$stationdensity_hisamplingdensity
 surveywide_samplingdensity <- list_samplingdensities$surveywide_samplingdensity
@@ -434,7 +479,7 @@ meanlengths_area <- length_maxyr |>
     "N" = sum(FREQUENCY, na.rm = TRUE),
     "Mean length" = weighted.mean(LENGTH, w = FREQUENCY, na.rm = TRUE)
   ) |>
-  ungroup() 
+  ungroup()
 
 meanlengths_depth <- length_maxyr |>
   dplyr::left_join(haul_maxyr, by = c(
@@ -452,8 +497,6 @@ meanlengths_depth <- length_maxyr |>
 
 total_otos <- sum(otos_collected$`Pairs of otoliths collected`) |>
   format(big.mark = ",")
-
-
 
 
 # Load pseudolengths file -------------------------------------------------
