@@ -636,7 +636,6 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
           guide = "legend"
         ) +
-        # scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
           ylim = reg_data$plot.boundary$y
@@ -815,7 +814,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
+        scale_size(bquote("CPUE" ~ (kg / km^2)),
+                   limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+                   guide = "legend"
+        ) +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
