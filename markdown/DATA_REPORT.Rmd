@@ -231,6 +231,7 @@ for (i in 1:3) { # nrow(report_species)
   spp_name_scientific <- report_species$spp_name_scientific[i]
 
   year <- maxyr
+  species_start_yr <- ifelse(species_code %in% species_year$SPECIES_CODE, species_year[which(species_year$SPECIES_CODE==species_code),'YEAR_STARTED'], minyr)
   region <- survname_long
 
   spps_ordered_by_biomass <- biomass_maxyr %>% 

@@ -63,7 +63,7 @@ table4s_list[["{{ species_code }}"]] |>
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of  {{spp_name_informal}} in the {{region}} bottom trawl survey. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=3, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{region}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=3, tab.cap.style = "Figure Caption"}
 list_3panel_ts[["{{species_code}}"]]
 ```
 
@@ -75,12 +75,12 @@ list_cpue_bubbles_strata[["{{species_code}}"]]
 
 <!---BLOCK_LANDSCAPE_STOP--->
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey between {{species_start_yr}} and {{maxyr}}. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
 list_joy_length[["{{species_code}}"]]
 ```
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths, not expanded to the full population.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths, not expanded to the full population. The x axis represents the full depth range where {{spp_name_informal}} were found.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
 list_ldscatter[["{{species_code}}"]]
 ```
