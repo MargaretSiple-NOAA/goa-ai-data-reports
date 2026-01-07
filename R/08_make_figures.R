@@ -1109,8 +1109,7 @@ if (make_ldscatter) {
               legend.position = "none",
               strip.background = element_blank(),
               strip.text = element_text(colour = "black")
-            ) +
-            xlim(c(0, 10))
+            ) 
         }
       } else { # if survey is AI or GOA before redesign
         ltoplot0 <- length_maxyr_ldscatter %>%
@@ -1175,8 +1174,7 @@ if (make_ldscatter) {
               legend.position = "none",
               strip.background = element_blank(),
               strip.text = element_text(colour = "black")
-            ) +
-            xlim(c(0, 10))
+            ) 
         } # end if statement for AI/old GOA
       }
       png(filename = paste0(
