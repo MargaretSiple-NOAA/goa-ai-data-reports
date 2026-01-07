@@ -815,8 +815,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
         scale_size(bquote("CPUE" ~ (kg / km^2)),
-                   limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
-                   guide = "legend"
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          guide = "legend"
         ) +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
@@ -1111,7 +1111,7 @@ if (make_ldscatter) {
               legend.position = "none",
               strip.background = element_blank(),
               strip.text = element_text(colour = "black")
-            ) 
+            )
         }
       } else { # if survey is AI or GOA before redesign
         ltoplot0 <- length_maxyr_ldscatter %>%
@@ -1176,24 +1176,24 @@ if (make_ldscatter) {
               legend.position = "none",
               strip.background = element_blank(),
               strip.text = element_text(colour = "black")
-            ) 
-        } # end if statement for AI/old GOA
-      }
-      png(filename = paste0(
-        dir_out_figures, maxyr, "_", report_species$spp_name_informal[i],
-        "_ldscatter.png"
-      ), width = 9, height = 2, units = "in", res = 200)
-      print(ldscatter)
-      dev.off()
-
-      list_ldscatter[[i]] <- ldscatter
-      print(paste("Done with length by depth scatter plot of", report_species$spp_name_informal[i]))
+            )
+        }
+      } # end if statement for AI/old GOA
     }
+    png(filename = paste0(
+      dir_out_figures, maxyr, "_", report_species$spp_name_informal[i],
+      "_ldscatter.png"
+    ), width = 9, height = 2, units = "in", res = 200)
+    print(ldscatter)
+    dev.off()
 
-    names(list_ldscatter) <- report_species$species_code
-    save(list_ldscatter, file = paste0(dir_out_figures, "list_ldscatter.rdata"))
-    print("Done with length by depth scatter plots.")
+    list_ldscatter[[i]] <- ldscatter
+    print(paste("Done with length by depth scatter plot of", report_species$spp_name_informal[i]))
   }
+
+  names(list_ldscatter) <- report_species$species_code
+  save(list_ldscatter, file = paste0(dir_out_figures, "list_ldscatter.rdata"))
+  print("Done with length by depth scatter plots.")
 } # end ldscatter plot making
 
 # 6. Surface and bottom temp -----------------------------------------------
