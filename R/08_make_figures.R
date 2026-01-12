@@ -303,11 +303,17 @@ if (make_biomass_timeseries) {
     name_bms <- report_species$spp_name_informal[i]
 
     dat <- biomass_total |>
-      filter(SPECIES_CODE == report_species$species_code[i]) |>
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
       dplyr::mutate(PERCENT_OF_STATIONS = round((N_WEIGHT / N_HAUL) * 100)) |>
       dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
 
     dat$PERCENT_CHANGE_BIOMASS[1] <- NA # no difference calculated for first year of ts
+    
+    # if the species has a start year after the start of the survey, filter to after that
+    if(sp %in% species_year$SPECIES_CODE){
+      dat <- dat |> 
+        dplyr::filter(YEAR > species_year$YEAR_STARTED[which(species_year$SPECIES_CODE == sp)])
+    }
 
     lta_biomass <- mean(dat$BIOMASS_MT)
     lta_percent_stns <- mean(dat$PERCENT_OF_STATIONS)

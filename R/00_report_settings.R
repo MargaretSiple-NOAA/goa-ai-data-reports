@@ -145,3 +145,9 @@ complex_lookup <- complex_lookup0 |>
 
 # Load species_year table
 species_year <- read.csv("data/local_gap_products/species_year.csv")
+
+# add complexes to species_year for easy lookup
+species_year <- species_year |>
+  dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
+  dplyr::add_row(SPECIES_CODE = c("NRSSRS", "REBS"), 
+                 YEAR_STARTED = c(1996, 2006))
