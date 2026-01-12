@@ -139,7 +139,7 @@ bubbletheme <- theme(
 )
 
 
-linetheme <- theme_bw(base_size = 10)
+linetheme <- theme_bw(base_size = 9)
 
 bartheme <- ggpubr::theme_classic2(base_size = 14) +
   theme(strip.background = element_blank())
@@ -320,7 +320,7 @@ if (make_biomass_timeseries) {
       geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
         color = linecolor, linewidth = 0.9, width = 0.7
       ) +
-      ylab("Estimated total biomass (mt)") +
+      ylab("Estimated total \nbiomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme +
@@ -329,7 +329,7 @@ if (make_biomass_timeseries) {
 
     p2 <- dat |>
       ggplot(aes(x = YEAR, y = PERCENT_OF_STATIONS)) +
-      geom_point(color = linecolor, size = 3) +
+      geom_point(color = linecolor, size = 2) +
       geom_hline(
         yintercept = lta_percent_stns,
         color = accentline, lwd = 0.7, lty = 2
@@ -347,19 +347,19 @@ if (make_biomass_timeseries) {
       geom_point(
         data = subset(dat, abs(PERCENT_CHANGE_BIOMASS) < 50),
         aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS, color = PERCENT_CHANGE_BIOMASS),
-        size = 3
+        size = 2
       ) +
       geom_point(
         data = subset(dat, PERCENT_CHANGE_BIOMASS > 50),
         aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS),
         color = "#276419",
-        size = 3
+        size = 2
       ) +
       geom_point(
         data = subset(dat, PERCENT_CHANGE_BIOMASS < (-50)),
         aes(x = YEAR, y = PERCENT_CHANGE_BIOMASS),
         color = "#8e0152",
-        size = 3
+        size = 2
       ) +
       # scale_color_distiller(palette = "PiYG", type = "div") +
       scale_color_gradientn(colors = c("#8e0152", "#f7f7f7", "#276419")) +
@@ -399,7 +399,7 @@ if (make_biomass_timeseries) {
     # Save 3-panel figs
     png(
       filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_3panel_ts.png"),
-      width = 8, height = 3, units = "in", res = 200
+      width = 6.5, height = 2, units = "in", res = 200
     )
     print(p1 + p2 + p3)
     dev.off()
