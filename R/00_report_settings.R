@@ -143,3 +143,5 @@ complex_lookup0 <- read.csv("data/complex_lookup.csv")
 complex_lookup <- complex_lookup0 |>
   dplyr::filter(region == SRVY)
 
+# Load species_year table
+species_year <- read.csv("data/local_gap_products/species_year.csv")

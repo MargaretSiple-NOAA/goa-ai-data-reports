@@ -870,9 +870,6 @@ if (make_joy_division_length) {
     cat("Pseudolength file not found. Return to the 06_prep_data.R file and create it again.")
   }
 
-  species_year <- read.csv("data/local_gap_products/species_year.csv")
-
-
   # This is repeated; deal with it later
   L0 <- read.csv(here::here("data/local_racebase/length.csv"))
 
