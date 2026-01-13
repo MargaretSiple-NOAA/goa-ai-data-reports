@@ -37,6 +37,10 @@ library(officedown)
 library(officer)
 ```
 
+```{r label}
+include_price_table <- ifelse(maxyr<2025 | SRVY=="AI", TRUE, FALSE)
+```
+
 # Preface
 ```{r child=here::here("gdrive","Preface.Rmd")}
 ```
@@ -63,7 +67,7 @@ knitr::include_graphics(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
 \newpage
 <!-- Tables -->
 
-```{r echo=FALSE,tab.cap=paste0('Ex-vessel prices used to allocate stations in the ', SRVY, ' ', maxyr, ' bottom trawl survey. The prices used for station allocation in ', maxyr, ' are from ', maxyr-2, '.'), tab.id='sp-prices',  tab.cap.style = "Table caption"}
+```{r eval=include_price_table,echo=FALSE,tab.cap=paste0('Ex-vessel prices used to allocate stations in the ', SRVY, ' ', maxyr, ' bottom trawl survey. The prices used for station allocation in ', maxyr, ' are from ', maxyr-2, '.'), tab.id='sp-prices',  tab.cap.style = "Table caption"}
 sp_prices |>
   dplyr::select(`Common name`,`Scientific name`,`Ex-vessel price`,`Included in design`) |>
   dplyr::rename("Ex-vessel price (USD per lb)" = "Ex-vessel price") |>
@@ -72,6 +76,7 @@ sp_prices |>
   flextable() |>
   fix_border_issues() |>
   theme_vanilla() |>
+  font(fontname = "Times New Roman", part = "all") |>
   fontsize(size = 10, part = "all") |>
   italic(j = 2, part = "body") |>
   line_spacing(space = 0.75) |>
@@ -118,21 +123,22 @@ list_tables[["allocated_sampled"]] |>
 \newpage
 
 ```{r echo=FALSE,tab.cap='Target numbers per haul of length samples for each managed species. Asterisk (*) indicates species that are not sexed; all other species are collected as sexed lengths.', tab.id='length-sample-sizes',  tab.cap.style = "Table caption"}
-list_tables[["length-sample-sizes"]] %>%
-  flextable(col_keys = c("dummy_col", "Target.sample.size")) %>%
+list_tables[["length-sample-sizes"]] |>
+  flextable(col_keys = c("dummy_col", "Target.sample.size")) |>
   flextable::mk_par(
     j = "dummy_col",
     value = as_paragraph(Species.or.species.group, " (", as_i(sci.name), sci.name.addendum, ")", star)
-  ) %>%
+  )  |>
   set_header_labels(
     dummy_col = "Species or species group",
     Target.sample.size = "Target sample size"
-  ) %>%
-  theme_vanilla() %>%
-  fontsize(size = 8.5, part = "all") %>%
-  align(i = 1, j = 2, align = "center", part = "header") %>%
-  align(j = 2, align = "center", part = "body") %>%
-  autofit() %>%
+  )  |>
+  theme_vanilla() |>
+  font(fontname = "Times New Roman", part = "all") |>
+  fontsize(size = 11, part = "all")  |>
+  align(i = 1, j = 2, align = "center", part = "header")  |>
+  align(j = 2, align = "center", part = "body")  |>
+  autofit()  |>
   line_spacing(space = 0.75)
 
 ```
@@ -162,13 +168,14 @@ station_map
       "Species" = "species",
       "Target N" = "target",
       "N collected" = "collection",
-      "Percent difference between target and collection" = "percent.diff"
+      "Percent difference \nbetween target and collection" = "percent.diff"
     ) %>%
     flextable() |>
     theme_vanilla() |>
+    font(fontname = "Times New Roman", part = "all") |>
     fontsize(size = 9, part = "all") |>
     line_spacing(space = 0.5) |>
-    align(align = "center", part = "all") |>
+    align(align = "center", part = "body") |>
     align(j = 1, align = "left", part = "body") |>
     autofit()
 

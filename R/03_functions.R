@@ -205,18 +205,18 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Hauls with positive catch" = N_WEIGHT,
       "Percent positive tows" = PERCENT_POS,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
-      "Biomass (mt)" = BIOMASS_MT,
+      "Biomass (t)" = BIOMASS_MT,
       # "Biomass variance (t)" = BIOMASS_VAR,
       "Average weight (kg)" = AVG_WEIGHT_KG
     )
 
   # Format numbers in CPUE and biomass columns
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
-  combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
+  combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
   combo_ord <- combo |>
     dplyr::arrange(factor(`NMFS area`, levels = c(district_order, "All"))) |>
-    dplyr::select(-`Depth (m)`) 
+    dplyr::select(-`Depth (m)`)
 
   combo_ord$`NMFS area`[which(combo_ord$`NMFS area` == "All")] <- "All areas"
   

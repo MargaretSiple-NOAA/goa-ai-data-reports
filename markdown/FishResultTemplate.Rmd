@@ -21,17 +21,19 @@ table3s_list[["{{ species_code }}"]] |>
   # table3s_list[[as.character(30060)]] |>
   flextable() |>
   theme_vanilla() |>
-  fontsize(size = 9, part = "all") |>
+  font(fontname = "Times New Roman", part = "all") |>
+  fontsize(size = 10, part = "all") |>
   fit_to_width(max_width = 8.25, unit = "in") |>
-  align(align = "center", part = "all") |>
+  align(align = "center", part = "body") |>
   align(j = 1, align = "left", part = "body") |>
   padding(padding = 1, part = "all") |>
   set_table_properties(layout = "autofit") |>
   set_header_labels(
     `Total haul count` = "Total \n haul count",
     `Hauls with positive catch` = "Hauls w/\npositive catch",
-    `Percent positive tows` = "% positive tows",
-    `Biomass (mt)` = "Biomass\n(mt)"
+    `Percent positive tows` = "% \npositive tows",
+    `Biomass (t)` = "Biomass\n(t)",
+    `Average weight (kg)` = "Average \nweight \n(kg)"
   ) |>
   bold(i = 6) |> #bold the row with the All Areas total
   compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
@@ -46,9 +48,10 @@ table4s_list[["{{ species_code }}"]] |>
   flextable() |>
   fix_border_issues() |>
   theme_vanilla() |>
-  fontsize(size = 9, part = "all") |>
+  font(fontname = "Times New Roman",part = "all") |>
+  fontsize(size = 10, part = "all") |>
   fit_to_width(max_width = 8.25, unit = "in") |>
-  align(align = "center", part = "all")|>
+  align(align = "center", part = "body")|>
   align(j = c(1, 6, 7), align = "left", part = "body") |>
   align(i = 1, align = "center", part = "header") |>
   padding(padding = 1, part = "all")  |>
