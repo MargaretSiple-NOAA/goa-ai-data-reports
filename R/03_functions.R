@@ -219,7 +219,6 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     dplyr::select(-`Depth (m)`)
 
   combo_ord$`NMFS area`[which(combo_ord$`NMFS area` == "All")] <- "All areas"
-  
 
   return(combo_ord)
 }
@@ -284,11 +283,11 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Hauls with positive catch" = N_WEIGHT,
       "Percent hauls with positive catch" = PERCENT_POS,
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
-      "Biomass (mt)" = BIOMASS_MT
+      "Biomass (t)" = BIOMASS_MT
     )
 
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
-  combo$`Biomass (mt)` <- format(round(combo$`Biomass (mt)`), big.mark = ",")
+  combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
   # Change "Shumagin" to "Western Regulatory Area"
   #combo$`Area name`[which(combo$`Area name` == "Shumagin")] <- "Western Regulatory Area"
