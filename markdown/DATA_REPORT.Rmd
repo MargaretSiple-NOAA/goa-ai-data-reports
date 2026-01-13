@@ -28,7 +28,9 @@ knitr::opts_chunk$set(
   fig.cap.style = "Image caption",
   fig.cap.pre = "Figure ",
   fig.cap.sep = ". -- ",
-  fig.align = "center",crop = TRUE
+  fig.align = "center",crop = TRUE,
+  tab.cap.fp_text = officer::fp_text_lite(italic = FALSE, bold = TRUE),
+  fig.cap.fp_text = officer::fp_text_lite(italic = FALSE, bold = TRUE)
 )
 
 library(officedown)
@@ -120,7 +122,7 @@ list_tables[["length-sample-sizes"]] %>%
   flextable(col_keys = c("dummy_col", "Target.sample.size")) %>%
   flextable::mk_par(
     j = "dummy_col",
-    value = as_paragraph(Species.or.species.group, " (", as_i(sci.name), sci.name.addendum, ")")
+    value = as_paragraph(Species.or.species.group, " (", as_i(sci.name), sci.name.addendum, ")", star)
   ) %>%
   set_header_labels(
     dummy_col = "Species or species group",

@@ -1,21 +1,21 @@
-Species.or.species.group,sci.name,sci.name.addendum,Target.sample.size
-walleye pollock,Gadus chalcogrammus,,100
-Pacific cod,Gadus macrocephalus,,100
-arrowtooth flounder (ATF),Atheresthes stomias,,150
-All rockfish species,Sebastes,spp.,100
-shortspine thornyhead,Sebastolobus alascanus,,100
-sablefish,Anoplopoma fimbria,,100
-Atka mackerel,Pleurogrammus monopterygius,,100
-All species of flatfish (except ATF),,Order Pleuronectiformes,100
-prowfish,Zaprora silenus,,100
-lingcod,Ophiodon elongatus,,100
-salmon,,Family Salmonidae,100
-yellow Irish lord,Hemilepidotus jordani,,100
-bigmouth sculpin,Hemilepidotus bolini,,100
-great sculpin,Myoxocephalus polyacanthocephalus,,100
-plain sculpin,Myoxocephalus jaok,,100
-warty sculpin,Myoxocephalus verrucosus,,100
-"forage fish (herring, eulachon, capelin, sand lance)",,Several families,100
-magistrate armhook squid,Berryteuthis magister,,100
-skates and sharks (total length),,Subclass Elasmobranchii,50
-grenadiers (tip of snout to insertion of first anal ray),,Family Macrouridae,50
+Species.or.species.group,sci.name,sci.name.addendum,star,Target.sample.size
+walleye pollock,Gadus chalcogrammus,,,100
+Pacific cod,Gadus macrocephalus,,,100
+arrowtooth flounder (ATF),Atheresthes stomias,,,150
+All rockfish species,Sebastes,spp.,,100
+shortspine thornyhead,Sebastolobus alascanus,,,100
+sablefish,Anoplopoma fimbria,,,100
+Atka mackerel,Pleurogrammus monopterygius,,,100
+All species of flatfish (except ATF),,Order Pleuronectiformes,,100
+prowfish,Zaprora silenus,,*,100
+lingcod,Ophiodon elongatus,,*,100
+salmon,,Family Salmonidae,*,100
+yellow Irish lord,Hemilepidotus jordani,,*,100
+bigmouth sculpin,Hemilepidotus bolini,,*,100
+great sculpin,Myoxocephalus polyacanthocephalus,,*,100
+plain sculpin,Myoxocephalus jaok,,*,100
+warty sculpin,Myoxocephalus verrucosus,,*,100
+"forage fish (herring, eulachon, capelin, sand lance)",,Several families,*,100
+magistrate armhook squid,Berryteuthis magister,,*,100
+skates and sharks (total length),,Subclass Elasmobranchii,,50
+grenadiers (tip of snout to insertion of first anal ray),,Family Macrouridae,,50
