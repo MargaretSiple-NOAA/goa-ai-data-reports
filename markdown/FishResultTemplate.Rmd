@@ -16,12 +16,12 @@
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left",ft.keepnext = FALSE}
+```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[["{{ species_code }}"]] |>
   # table3s_list[[as.character(30060)]] |>
   flextable() |>
   theme_vanilla() |>
-  font(fontname = "Times New Roman", part = "all") |>
+  font(fontname = tablefont, part = "all") |>
   fontsize(size = 10, part = "all") |>
   fit_to_width(max_width = 8.25, unit = "in") |>
   align(align = "center", part = "body") |>
@@ -41,14 +41,14 @@ table3s_list[["{{ species_code }}"]] |>
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by area and depth interval of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left",ft.keepnext = FALSE}
+```{r echo=FALSE,tab.cap='Summary by area and depth interval of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 
 table4s_list[["{{ species_code }}"]] |>
 # table4s_list[[as.character(30060)]] %>%
   flextable() |>
   fix_border_issues() |>
   theme_vanilla() |>
-  font(fontname = "Times New Roman",part = "all") |>
+  font(fontname = tablefont, part = "all") |>
   fontsize(size = 10, part = "all") |>
   fit_to_width(max_width = 8.25, unit = "in") |>
   align(align = "center", part = "body")|>
@@ -58,7 +58,7 @@ table4s_list[["{{ species_code }}"]] |>
   set_table_properties(layout = "autofit") |>
   set_header_labels(`Total haul count` = "Total \n haul count",
                     `Hauls with positive catch` = "Hauls w/\npositive catch",
-                    `Percent hauls with positive catch` = "% positive tows",
+                    `Percent hauls with positive catch` = "% \npositive tows",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
                     `Biomass (mt)` = "Biomass\n(mt)") |>
   compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
