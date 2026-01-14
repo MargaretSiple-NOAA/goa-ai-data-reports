@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
   fig.cap.style = "Image caption",
   fig.cap.pre = "Figure ",
   fig.cap.sep = ". -- ",
-  fig.align = "center",crop = TRUE,
+  fig.align = "center", crop = TRUE,
   tab.cap.fp_text = officer::fp_text_lite(italic = FALSE, bold = TRUE),
   fig.cap.fp_text = officer::fp_text_lite(italic = FALSE, bold = TRUE)
 )
@@ -82,7 +82,8 @@ sp_prices |>
   line_spacing(space = 0.75) |>
   align(align = "center", part = "all") |>
   align(j = c(1, 2), align = "left", part = "body") |>
-  autofit()
+  autofit() |>
+  fit_to_width(6.5)
 ```
 
 \newpage
@@ -101,14 +102,6 @@ list_tables[["allocated_sampled"]] |>
   font(fontname = tablefont, part = "all") |>
   fontsize(size = 11, part = "all") |>
   line_spacing(space = 0.75) |>
-  fit_to_width(max_width = 8.25, unit = "in") |>
-  compose(
-    part = "header", i = 1, j = 7,
-    value = as_paragraph(
-      "Stations per 1,000 km",
-      as_sup("2")
-    )
-  ) |>
   compose(
     part = "header", i = 1, j = 6,
     value = as_paragraph(
@@ -116,10 +109,19 @@ list_tables[["allocated_sampled"]] |>
       as_sup("2"), ")"
     )
   ) |>
+  compose(
+    part = "header", i = 1, j = 7,
+    value = as_paragraph(
+      "Stations per 1,000 km",
+      as_sup("2")
+    )
+  ) |>
   align(align = "center", part = "body") |>
   align(j = 1:2, align = "left", part = "body") |>
-  hline(i = ~ break_position(`NMFS area`), border = fp_border(color = "#5A5A5A", width = 3)) |>
-  autofit()
+  hline(i = ~ break_position(`NMFS area`), 
+        border = fp_border(color = "#5A5A5A", width = 3)) |>
+  autofit() |>
+  fit_to_width(6.5)
 
 ```
 \newpage
@@ -139,10 +141,10 @@ list_tables[["length-sample-sizes"]] |>
   font(fontname = tablefont, part = "all") |>
   fontsize(size = 11, part = "all")  |>
   align(i = 1, j = 2, align = "center", part = "header")  |>
-  align(j = 2, align = "center", part = "body")  |>
-  autofit()  |>
-  line_spacing(space = 0.75)
-
+  align(j = 2, align = "center", part = "body")  |>  
+  line_spacing(space = 0.75) |>
+  autofit() |>
+  fit_to_width(6.5)
 ```
 
 \newpage
@@ -179,7 +181,9 @@ list_tables[["otos_target_sampled"]] |>
     line_spacing(space = 0.5) |>
     align(align = "center", part = "body") |>
     align(j = 1, align = "left", part = "body") |>
-    set_table_properties(align = "left") 
+    set_table_properties(align = "left") |>  
+  autofit() |>
+  fit_to_width(6.5)
 
 ```
 
