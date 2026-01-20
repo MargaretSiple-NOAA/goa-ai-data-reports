@@ -55,12 +55,13 @@ table4s_list[["{{ species_code }}"]] |>
   align(j = c(1, 6, 7), align = "left", part = "body") |>
   align(i = 1, align = "center", part = "header") |>
   padding(padding = 1, part = "all")  |>
+  padding(padding.left = 4, padding.right = 4, part = "all") |>
   set_table_properties(layout = "autofit") |>
   set_header_labels(`Total haul count` = "Total \n haul count",
                     `Hauls with positive catch` = "Hauls w/\npositive catch",
-                    `Percent hauls with positive catch` = "% \npositive tows",
+                    `Percent hauls with positive catch` = "% \npositive \ntows",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
-                    `Biomass (mt)` = "Biomass\n(mt)") |>
+                    `Biomass (t)` = "Biomass\n(t)") |>
   compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
@@ -72,7 +73,7 @@ list_3panel_ts[["{{species_code}}"]]
 
 <!---BLOCK_LANDSCAPE_START--->
 
-```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE, kg/ha; X = no catch) of {{spp_name_informal}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
+```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE; X = no catch) of {{spp_name_informal}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
 list_cpue_bubbles_strata[["{{species_code}}"]]
 ```
 
