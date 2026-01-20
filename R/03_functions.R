@@ -289,6 +289,11 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
+  # sort the table by area, then depth
+  combo <- combo |>
+    mutate(depthorder = sub(pattern = "(^\\d+\\-).*", replacement = "\\1", x = `Depth (m)`)) |>
+    arrange(`Area name`, depthorder)
+  
   # Change "Shumagin" to "Western Regulatory Area"
   #combo$`Area name`[which(combo$`Area name` == "Shumagin")] <- "Western Regulatory Area"
   
