@@ -59,15 +59,21 @@
     <text variable="number-of-pages" suffix=" p."/>
   </macro>
 
-  <!-- ===== IN-TEXT CITATIONS ===== -->
+<!-- ===== IN-TEXT CITATIONS ===== -->
   <citation disambiguate-add-year-suffix="true">
-    <layout prefix="(" suffix=")" delimiter=", ">
-      <names variable="author">
-        <name form="short" and="text" delimiter=", "/>
-      </names>
-      <date variable="issued">
-        <date-part name="year"/>
-      </date>
+    <layout prefix="(" suffix=")" delimiter="; " delimiter-precedes-last="never">
+      <group delimiter=" ">
+        <names variable="author">
+          <name form="short" and="text" delimiter=", "/>
+          <substitute>
+            <names variable="editor"/>
+            <text variable="title" form="short"/>
+          </substitute>
+        </names>
+        <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </group>
     </layout>
   </citation>
 
