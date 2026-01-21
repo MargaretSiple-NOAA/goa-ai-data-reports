@@ -18,25 +18,26 @@
 
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[["{{ species_code }}"]] |>
-  # table3s_list[[as.character(30060)]] |>
-  flextable() |>
-  theme_vanilla() |>
-  font(fontname = tablefont, part = "all") |>
-  fontsize(size = 10, part = "all") |>
-  fit_to_width(max_width = 8.25, unit = "in") |>
-  align(align = "center", part = "body") |>
-  align(j = 1, align = "left", part = "body") |>
-  padding(padding = 1, part = "all") |>
-  set_table_properties(layout = "autofit") |>
-  set_header_labels(
-    `Total haul count` = "Total \n haul count",
-    `Hauls with positive catch` = "Hauls w/\npositive catch",
-    `Percent positive tows` = "% \npositive tows",
-    `Biomass (t)` = "Biomass\n(t)",
-    `Average weight (kg)` = "Average \nweight \n(kg)"
-  ) |>
-  bold(i = 6) |> #bold the row with the All Areas total
-  compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+    # table3s_list[[as.character(30060)]] |>
+    flextable() |>
+    theme_vanilla() |>
+    font(fontname = tablefont, part = "all") |>
+    fontsize(size = 10, part = "all") |>
+    fit_to_width(max_width = 8.25, unit = "in") |>
+    align(align = "center", part = "body") |>
+    align(align = "center", part = "header") |>
+    align(j = 1, align = "left", part = "body") |>
+    padding(padding = 1, part = "all") |>
+    set_table_properties(layout = "autofit") |>
+    set_header_labels(
+      `Total haul count` = "Total \n haul count",
+      `Hauls with positive catch` = "Hauls w/\npositive \ncatch",
+      `Percent positive tows` = "% \npositive \ntows",
+      `Biomass (t)` = "Biomass\n(t)",
+      `Average weight (kg)` = "Average \nweight \n(kg)"
+    ) |>
+    bold(i = 6) |> #bold the row with the All Areas total
+    compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 \newpage
