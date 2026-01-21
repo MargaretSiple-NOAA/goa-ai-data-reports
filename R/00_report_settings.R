@@ -9,13 +9,13 @@ pres_or_report <- "report" # if "pres" the scripts will only make a subset of th
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 tablefont <- "Arial"
-redesign <- ifelse(maxyr>=2025 & SRVY=="GOA", TRUE, FALSE)
 
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
 SRVY <- "GOA" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
+redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
 
 # Check survey year and region combo:
 if (maxyr %% 2 == 0 && SRVY == "GOA") {
@@ -27,7 +27,7 @@ if (maxyr %% 2 != 0 && SRVY == "AI") {
 
 
 if (SRVY == "AI") {
-  dates_conducted <- "the 5th of June through the 3rd of August" # 2024 - Change this for the year! 
+  dates_conducted <- "the 5th of June through the 3rd of August" # 2024 - Change this for the year!
 } else {
   dates_conducted <- "the 18th of May through the 6th of August" # 2021
 }
@@ -42,7 +42,7 @@ and this will become a permanent feature of our station allocations in the futur
 }
 
 YEAR <- maxyr
-design_year <- ifelse(SRVY=="GOA" & maxyr >=2025, 2025, 1984)
+design_year <- ifelse(SRVY == "GOA" & maxyr >= 2025, 2025, 1984)
 
 # Vessels and captains
 vessel1 <- "FV&nbsp;Ocean Explorer"
@@ -102,9 +102,9 @@ if (SRVY == "GOA") {
 }
 
 # from redesign project:
-# Western Regulatory Area: 159-170 longitude 
-# Chirikof: 154-159 longitude 
-# Kodiak: 147-154 longitude 
+# Western Regulatory Area: 159-170 longitude
+# Chirikof: 154-159 longitude
+# Kodiak: 147-154 longitude
 # Yakutat:147-140 longitude
 # Southeast: 132-140 longitude
 
@@ -150,5 +150,7 @@ species_year <- read.csv("data/local_gap_products/species_year.csv")
 # add complexes to species_year for easy lookup
 species_year <- species_year |>
   dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
-  dplyr::add_row(SPECIES_CODE = c("NRSSRS", "REBS"), 
-                 YEAR_STARTED = c(1996, 2006))
+  dplyr::add_row(
+    SPECIES_CODE = c("NRSSRS", "REBS"),
+    YEAR_STARTED = c(1996, 2006)
+  )
