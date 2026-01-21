@@ -57,7 +57,16 @@ include_price_table <- ifelse(maxyr<2025 | SRVY=="AI", TRUE, FALSE)
 ```
 
 # Methods
-```{r child=here::here("gdrive","Methods.Rmd")}
+```{r child=here::here("gdrive","Methods_part1.Rmd")}
+```
+
+```{r eval=redesign,child=here::here("gdrive","Methods_part2_2025onwards.Rmd")}
+```
+
+```{r eval=!redesign,child=here::here("gdrive","Methods_part2_pre2025.Rmd")}
+```
+
+```{r child=here::here("gdrive","Methods_part3.Rmd")}
 ```
 
 ```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, "survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 6.5, dpi = 300, fig.asp={{net_asp}} }
@@ -77,7 +86,7 @@ sp_prices |>
   fix_border_issues() |>
   theme_vanilla() |>
   font(fontname = tablefont, part = "all") |>
-  fontsize(size = 10, part = "all") |>
+  fontsize(size = 11, part = "all") |>
   italic(j = 2, part = "body") |>
   line_spacing(space = 0.75) |>
   align(align = "center", part = "all") |>
@@ -100,7 +109,7 @@ list_tables[["allocated_sampled"]] |>
   fix_border_issues() |>
   theme_vanilla() |>
   font(fontname = tablefont, part = "all") |>
-  fontsize(size = 11, part = "all") |>
+  fontsize(size = 10, part = "all") |>
   line_spacing(space = 0.75) |>
   compose(
     part = "header", i = 1, j = 6,
@@ -120,7 +129,7 @@ list_tables[["allocated_sampled"]] |>
   align(j = 1:2, align = "left", part = "body") |>
   hline(i = ~ break_position(`NMFS area`), 
         border = fp_border(color = "#5A5A5A", width = 3)) |>
-  autofit() |>
+  #autofit() |>
   fit_to_width(6.5)
 
 ```
