@@ -343,6 +343,8 @@ nestimatedspreads <- haul2 |>
 nfailedtows <- haul2 |>
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) |>
   nrow()
+
+pct_reduction_from_550 <- round((nstationsassigned/550) * 100)
 # SQL version for nfailedtows (from Ned):
 # select count(*) from racebase.haul
 # where region = 'GOA' and cruise = 202101
