@@ -79,11 +79,11 @@ write.csv(x = a, "./data/local_race_data/race_species_codes.csv", row.names = FA
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.VESSELS")
 write.csv(x = a, "./data/local_race_data/vessels.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.TAXONOMIC_RANKS")
-write.csv(x = a, "./data/local_race_data/taxonomic_ranks.csv", row.names = FALSE)
+# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.TAXONOMIC_RANKS")
+# write.csv(x = a, "./data/local_race_data/taxonomic_ranks.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.SPECIES_TAXONOMICS")
-write.csv(x = a, "./data/local_race_data/species_taxonomics.csv", row.names = FALSE)
+# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.SPECIES_TAXONOMICS")
+# write.csv(x = a, "./data/local_race_data/species_taxonomics.csv", row.names = FALSE)
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.V_CRUISES")
 write.csv(x = a, "./data/local_race_data/cruises.csv", row.names = FALSE)
@@ -132,7 +132,7 @@ if (SRVY == "AI") {
 # GAP_PRODUCTS ------------------------------------------------------------
 
 # * TAXONOMIC_CLASSIFICATION ----------------------------------------------
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE SURVEY_SPECIES = 1")
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE SURVEY_SPECIES = 1") # note: this table will move!
 
 write.csv(x = a, "./data/local_gap_products/taxonomic_classification.csv", row.names = FALSE)
 
