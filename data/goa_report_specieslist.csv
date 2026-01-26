@@ -1,62 +1,62 @@
-group,spp_name_informal,species_code,spp_name_scientific,presentation,report,reportorder,LWspecies,FMPspecies
-Miscellaneous,spiny dogfish,310,Squalus suckleyi,1,1,39,0,0
-Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1,1,1,1
-Flatfishes,flathead sole,10130,Hippoglossoides elassodon,1,1,7,0,1
-Flatfishes,Dover sole,10180,Microstomus pacificus,1,1,9,0,0
-Flatfishes,rex sole,10200,Glyptocephalus zachirus,1,1,8,0,1
-Flatfishes,starry flounder,10220,Platichthys stellatus,1,1,12,0,0
-Flatfishes,northern rock sole,10261,Lepidopsetta polyxystra,1,0,3,1,0
-Flatfishes,southern rock sole,10262,Lepidopsetta bilineata,1,0,4,1,0
-Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1,18,0,1
-Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1,15,1,1
-Roundfishes,walleye pollock,21740,Gadus chalcogrammus,1,1,16,1,1
-Roundfishes,Atka mackerel,21921,Pleurogrammus monopterygius,1,1,17,1,1
-Rockfishes,shortspine thornyhead,30020,Sebastolobus alascanus,1,1,28,0,0
-Rockfishes,rougheye rockfish,30051,Sebastes aleutianus,1,0,22,1,0
-Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,1,0,23,1,0
-Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1,20,1,1
-Rockfishes,dusky rockfish,30152,Sebastes variabilis,1,1,24,0,1
-Rockfishes,northern rockfish,30420,Sebastes polyspinis,1,1,21,1,1
-Skates,Big skate,420,Beringraja binoculata,1,0,48,0,0
-Skates,Bering skate,435,Bathyraja interrupta,0,0,47,0,0
-Skates,longnose skate,440,Raja rhina,1,0,49,0,0
-Skates,Alaska skate,471,Bathyraja parmifera,0,0,45,0,0
-Skates,Aleutian skate,472,Bathyraja aleutica,0,0,46,0,0
-Skates,leopard skate,477,Bathyraja panthera,0,0,51,0,0
-Skates,white blotched skate,480,Bathyraja maculata,0,0,50,0,0
-Flatfishes,Kamchatka flounder,10112,Atheresthes evermanni,1,0,2,0,0
-Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,1,0,6,0,0
-Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,1,0,5,0,0
-Flatfishes,English sole,10170,Parophrys vetulus,1,0,13,0,0
-Flatfishes,yellowfin sole,10210,Limanda aspera,1,0,10,0,0
-Flatfishes,butter sole,10270,Parophrys vetulus,1,0,14,0,0
+group,spp_name_informal,species_code,spp_name_scientific,presentation,report,reportorder,LWspecies,FMPspecies,Melissa_request
+Miscellaneous,spiny dogfish,310,Squalus suckleyi,1,0,39,0,0,0
+Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1,1,1,1,1
+Flatfishes,flathead sole,10130,Hippoglossoides elassodon,1,1,7,0,1,1
+Flatfishes,Dover sole,10180,Microstomus pacificus,1,0,9,0,0,0
+Flatfishes,rex sole,10200,Glyptocephalus zachirus,1,1,8,0,1,0
+Flatfishes,starry flounder,10220,Platichthys stellatus,1,0,12,0,0,0
+Flatfishes,northern rock sole,10261,Lepidopsetta polyxystra,1,0,3,1,0,0
+Flatfishes,southern rock sole,10262,Lepidopsetta bilineata,1,0,4,1,0,0
+Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1,18,0,1,0
+Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1,15,1,1,1
+Roundfishes,walleye pollock,21740,Gadus chalcogrammus,1,1,16,1,1,1
+Roundfishes,Atka mackerel,21921,Pleurogrammus monopterygius,1,1,17,1,1,1
+Rockfishes,shortspine thornyhead,30020,Sebastolobus alascanus,1,0,28,0,0,0
+Rockfishes,rougheye rockfish,30051,Sebastes aleutianus,1,0,22,1,0,0
+Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,1,1,23,1,0,0
+Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1,20,1,1,1
+Rockfishes,dusky rockfish,30152,Sebastes variabilis,1,1,24,0,1,1
+Rockfishes,northern rockfish,30420,Sebastes polyspinis,1,1,21,1,1,1
+Skates,Big skate,420,Beringraja binoculata,1,0,48,0,0,0
+Skates,Bering skate,435,Bathyraja interrupta,0,0,47,0,0,0
+Skates,longnose skate,440,Raja rhina,1,0,49,0,0,0
+Skates,Alaska skate,471,Bathyraja parmifera,0,0,45,0,0,0
+Skates,Aleutian skate,472,Bathyraja aleutica,0,0,46,0,0,0
+Skates,leopard skate,477,Bathyraja panthera,0,0,51,0,0,0
+Skates,white blotched skate,480,Bathyraja maculata,0,0,50,0,0,0
+Flatfishes,Kamchatka flounder,10112,Atheresthes evermanni,1,0,2,0,0,0
+Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,1,0,6,0,0,0
+Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,1,0,5,0,0,0
+Flatfishes,English sole,10170,Parophrys vetulus,1,0,13,0,0,0
+Flatfishes,yellowfin sole,10210,Limanda aspera,1,0,10,0,0,0
+Flatfishes,butter sole,10270,Parophrys vetulus,1,0,14,0,0,0
 Flatfishes,Alaska plaice,10285,"Pleuronectes
-quadrituberculatus",1,0,11,0,0
-Miscellaneous,Pacific herring,21110,Clupea pallasii,1,0,37,0,0
-Roundfishes,giant grenadier,21230,Albatrossia pectoralis,1,0,19,0,0
-Sculpins,darkfin sculpin,21341,Malacocottus zonurus,1,0,43,0,0
-Sculpins,yellow Irish lord,21347,Hemilepidotus jordani,1,0,42,0,0
-Sculpins,great sculpin,21370,Myoxocephalus polyacanthocephalus,1,0,44,0,0
-Miscellaneous,lingcod,21910,Ophiodon elongatus,1,0,41,0,0
-Miscellaneous,Pacific hake,22500,Merluccius productus,1,0,38,0,0
-Miscellaneous,eulachon,23010,Thaleichthys pacificus,1,0,36,0,0
-Miscellaneous,capelin,23041,Mallotus villosus,1,0,35,0,0
-Rockfishes,silvergray rockfish,30100,Sebastes brevispinis,1,0,30,0,0
-Rockfishes,dark rockfish,30151,Sebastes ciliatus,1,0,25,0,0
-Rockfishes,rosethorn rockfish,30270,Sebastes helvomaculatus,1,0,34,0,0
-Rockfishes,redstripe rockfish,30430,Sebastes proriger,1,0,29,0,0
-Rockfishes,yelloweye rockfish,30470,Sebastes ruberrimus,1,0,33,0,0
-Rockfishes,redbanded rockfish,30475,Sebastes babcocki,1,0,32,0,0
-Rockfishes,harlequin rockfish,30535,Sebastes variegatus,1,0,31,0,0
-Rockfishes,sharpchin rockfish,30560,Sebastes zacentrus,1,0,26,0,0
-Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,1,27,1,1
-Miscellaneous,giant octopus,78403,Enteroctopus dofleini,1,1,40,0,1
-Flatfishes,Deepwater flatfish complex,DEEPFLATS,various,1,1,52,0,1
-Rockfishes,Demersal shelf rockfish complex,DSROX,various,1,1,53,0,1
-Flatfishes,Northern - southern rock sole complex,NRSSRS,various,1,1,54,0,1
-Rockfishes,Other rockfish complex,OROX,various,1,1,55,0,1
-Rockfishes,Rougheye - blackspotted rockfish group,REBS,various,1,1,56,0,1
-Flatfishes,Shallow-water flatfish complex,SWFLATS,various,1,1,57,0,1
-Sharks,Sharks complex,SHARKS,various,1,1,58,0,1
-Skates,Skates complex,SKATES,various,1,1,59,0,1
-Miscellaneous,Thornyheads complex,THORNYHEADS,various,1,1,60,0,1
+quadrituberculatus",1,0,11,0,0,0
+Miscellaneous,Pacific herring,21110,Clupea pallasii,1,0,37,0,0,0
+Roundfishes,giant grenadier,21230,Albatrossia pectoralis,1,0,19,0,0,0
+Sculpins,darkfin sculpin,21341,Malacocottus zonurus,1,0,43,0,0,0
+Sculpins,yellow Irish lord,21347,Hemilepidotus jordani,1,0,42,0,0,0
+Sculpins,great sculpin,21370,Myoxocephalus polyacanthocephalus,1,0,44,0,0,0
+Miscellaneous,lingcod,21910,Ophiodon elongatus,1,0,41,0,0,0
+Miscellaneous,Pacific hake,22500,Merluccius productus,1,0,38,0,0,0
+Miscellaneous,eulachon,23010,Thaleichthys pacificus,1,0,36,0,0,0
+Miscellaneous,capelin,23041,Mallotus villosus,1,0,35,0,0,0
+Rockfishes,silvergray rockfish,30100,Sebastes brevispinis,1,0,30,0,0,0
+Rockfishes,dark rockfish,30151,Sebastes ciliatus,1,0,25,0,0,0
+Rockfishes,rosethorn rockfish,30270,Sebastes helvomaculatus,1,0,34,0,0,0
+Rockfishes,redstripe rockfish,30430,Sebastes proriger,1,0,29,0,0,0
+Rockfishes,yelloweye rockfish,30470,Sebastes ruberrimus,1,0,33,0,0,0
+Rockfishes,redbanded rockfish,30475,Sebastes babcocki,1,0,32,0,0,0
+Rockfishes,harlequin rockfish,30535,Sebastes variegatus,1,0,31,0,0,0
+Rockfishes,sharpchin rockfish,30560,Sebastes zacentrus,1,0,26,0,0,0
+Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,1,27,1,1,0
+Miscellaneous,giant octopus,78403,Enteroctopus dofleini,1,1,40,0,1,0
+Flatfishes,Deepwater flatfish complex,DEEPFLATS,various,1,1,52,0,1,1
+Rockfishes,Demersal shelf rockfish complex,DSROX,various,1,1,53,0,1,1
+Flatfishes,Northern - southern rock sole complex,NRSSRS,various,1,1,54,0,1,0
+Rockfishes,Other rockfish complex,OROX,various,1,1,55,0,1,0
+Rockfishes,Rougheye - blackspotted rockfish group,REBS,various,1,1,56,0,1,1
+Flatfishes,Shallow-water flatfish complex,SWFLATS,various,1,1,57,0,1,0
+Sharks,Sharks complex,SHARKS,various,1,1,58,0,1,1
+Skates,Skates complex,SKATES,various,1,1,59,0,1,1
+Miscellaneous,Thornyheads complex,THORNYHEADS,various,1,1,60,0,1,1
