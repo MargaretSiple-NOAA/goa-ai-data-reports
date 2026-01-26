@@ -291,8 +291,11 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 
   # sort the table by area, then depth
   combo <- combo |>
-    mutate(depthorder = sub(pattern = "(^\\d+\\-).*", replacement = "\\1", x = `Depth (m)`)) |>
-    arrange(`Area name`, depthorder)
+    dplyr::mutate(depthorder = sub(pattern = "(^\\d+\\-).*", # order by shallow end of depth range
+                            replacement = "\\1", 
+                            x = `Depth (m)`)) |>
+    dplyr::arrange(`Area name`, depthorder) |>
+    dplyr::select(-depthorder)
   
   # Change "Shumagin" to "Western Regulatory Area"
   #combo$`Area name`[which(combo$`Area name` == "Shumagin")] <- "Western Regulatory Area"
