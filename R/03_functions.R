@@ -291,9 +291,7 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 
   # sort the table by area, then depth
   combo <- combo |>
-    dplyr::mutate(depthorder = sub(pattern = "(^\\d+\\-).*", # order by shallow end of depth range
-                            replacement = "\\1", 
-                            x = `Depth (m)`)) |>
+    dplyr::mutate(depthorder = as.numeric(stringr::str_extract(`Depth (m)`, "[^- ]+"))) |>
     dplyr::arrange(`Area name`, depthorder) |>
     dplyr::select(-depthorder)
   
