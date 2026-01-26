@@ -1,15 +1,15 @@
 ﻿species.code,species.name,common.name,ex.vessel.price,include,source
-150,,"shark, general",,N,1
+150,Chondrichthyes,"shark, general",,N,1
 310,,"shark, dogfish",,N,1
 400,,"skate, general",,N,1
 420,,"skate, big",,N,1
-435,,,,N,1
+435,Bathyraja interrupta,Bering skate,,Y,1
 440,,"skate, longnose",,N,1
 472,,"skate, Aleutian",,N,1
 10110,Atherestes stomias,arrowtooth flounder,0.11,Y,1
 10112,Atheresthes evermanni,Kamchatka flounder,0.15,Y,1
 10115,Reinhardtius hippoglossoides,Greenland turbot,0.15,Y,1
-10120,Hippoglossus stenolepis,Pacific halibut,6.41,Y,1
+10120,Hippoglossus stenolepis,Pacific halibut,6.41,N,1
 10130,Hippoglossoides elassodon,flathead sole,0.15,Y,1
 10170,Parophrys vetulus,English sole,0.07,Y,1
 10180,Microstomus  pacificus,Dover sole,0.1,Y,1
@@ -22,7 +22,7 @@
 10262,,,,N,1
 10270,Isopsetta isolepis,butter sole,0.08,Y,1
 10285,Pleuronectes quadrituberculatus,Alaska plaice,0.15,Y,1
-20510,,sablefish (blackcod),,N,1
+20510,Anoplopoma fimbria,sablefish (blackcod),,N,1
 21220,,grenadier (rattail),,N,1
 21230,,grenadier (giant),,N,1
 21232,,,,N,1
