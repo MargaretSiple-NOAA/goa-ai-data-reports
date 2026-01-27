@@ -882,7 +882,7 @@ if (make_joy_division_length) {
   L3 <- L0 |>
     dplyr::mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # L is the big length table from RACEBASE
     dplyr::filter(REGION == SRVY) |> # want to keep all years for this fig
-    left_join(haul2, by = c(
+    left_join(haul3, by = c( # haul table needs to have all the years
       "HAULJOIN", "YEAR", "CRUISEJOIN",
       "VESSEL", "CRUISE", "HAUL"
     )) |>
@@ -890,13 +890,13 @@ if (make_joy_division_length) {
       VESSEL, YEAR, LENGTH, FREQUENCY, SEX,
       GEAR_DEPTH, STRATUM, SPECIES_CODE
     ) |>
-    dplyr::left_join(region_lu, by = "STRATUM") |>
+    #dplyr::left_join(stratum_lu, by = "STRATUM") |>
     mutate(Sex = case_when(
       SEX == 1 ~ "Male",
       SEX == 2 ~ "Female",
       SEX == 3 ~ "Unsexed"
-    )) |>
-    dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
+    )) #|>
+    #dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
 
   # get samples for individual species
   species_sample_sizes <- L3 |>
@@ -911,26 +911,22 @@ if (make_joy_division_length) {
       SPECIES_CODE = as.character(SPECIES_CODE)
     )
 
-  # get sample sizes for complexes
+  # get sample sizes for complexes - this actually basically doesn't matter bc we don't plot length comps for complexes. smh
   complex_map <- complex_lookup |>
-    select(species_code, complex)
+    dplyr::select(species_code, complex)
   
   complex_sample_sizes <- L3 |>
-    filter(
+    dplyr::filter(
       SPECIES_CODE %in% complex_lookup$species_code,
       YEAR >= minyr
     ) |>
-    left_join(complex_map, by = c("SPECIES_CODE" = "species_code")) |>
-    mutate(
-      SPECIES_CODE = ifelse(
-        is.na(complex),
-        as.character(SPECIES_CODE),
-        complex
-      )
-    ) |>
-    group_by(YEAR, SPECIES_CODE, Sex) |>
-    summarize(n = sum(FREQUENCY), .groups = "drop") |>
-    mutate(YEAR = as.integer(YEAR))
+    left_join(complex_map, by = c("SPECIES_CODE" = "species_code"), 
+              relationship = "many-to-many") |> # this will repeat lengths for species that are in multiple complexes, for example 10261 is in both NRSSRS and SWFLATS. That's what we want!
+    dplyr::group_by(YEAR, complex, Sex) |>
+    dplyr::summarize(n = sum(FREQUENCY), .groups = "drop") |>
+    dplyr::mutate(YEAR = as.integer(YEAR)) |>
+    dplyr::rename("SPECIES_CODE" = complex)
+    
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
   left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
@@ -1189,7 +1185,7 @@ if (make_ldscatter) {
     print(ldscatter)
     dev.off()
 
-    list_ldscatter[[i]] <- print(ldscatter)
+    list_ldscatter[[i]] <- ldscatter
     print(paste("Done with length by depth scatter plot of", report_species$spp_name_informal[i]))
   }
 
