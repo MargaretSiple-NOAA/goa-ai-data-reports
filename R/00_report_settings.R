@@ -154,3 +154,9 @@ species_year <- species_year |>
     SPECIES_CODE = c("NRSSRS", "REBS"),
     YEAR_STARTED = c(1996, 2006)
   )
+
+# Random figure settings we need, annoyingly:
+# for length-depth scatter:
+lscale <- 10
+dscale <- 100
+

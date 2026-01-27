@@ -92,7 +92,7 @@ if (SRVY == "GOA") {
     set.crs = "auto"
   ) |>
     dplyr::filter(REP_AREA %in% c(610, 620, 630, 640, 650))
-  geo_order2 <- district_order
+  #geo_order2 <- district_order
 
 
   goa_inpfc <- goa_all$inpfc.strata
@@ -215,12 +215,12 @@ if (make_total_surv_map) {
     scale_fill_manual("NMFS area",
       values = palette_map,
       breaks = c(610, 620, 630, 640, 650),
-      labels = geo_order2
+      labels = district_order
     ) +
     geom_sf(data = goa_all$survey.area, fill = NA) +
     geom_sf_text(
       data = goa_nmfs_areas, size = 4,
-      aes(label = geo_order2, geometry = geometry),
+      aes(label = district_order, geometry = geometry),
       nudge_y = -140000
     ) +
     theme_light() +
@@ -912,25 +912,24 @@ if (make_joy_division_length) {
     )
 
   # get sample sizes for complexes
+  complex_map <- complex_lookup |>
+    select(species_code, complex)
+  
   complex_sample_sizes <- L3 |>
-    dplyr::filter(SPECIES_CODE %in% complex_lookup$species_code) |>
-    dplyr::filter(YEAR >= minyr) |>
-    dplyr::mutate(SPECIES_CODE = case_when(SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OROX")] ~ "OROX",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "REBS")] ~ "REBS",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "OFLATS")] ~ "OFLATS",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "DEEPFLATS")] ~ "DEEPFLATS",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "DSROX")] ~ "DSROX",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "NRSSRS")] ~ "NRSSRS",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SWFLATS")] ~ "SWFLATS",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SHARKS")] ~ "SHARKS",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "SKATES")] ~ "SKATES",
-      SPECIES_CODE %in% complex_lookup$species_code[which(complex_lookup$complex == "THORNYHEADS")] ~ "THORNYHEADS",
-      .default = as.character(SPECIES_CODE)
-    )) |>
-    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
-    dplyr::group_by(YEAR, SPECIES_CODE, Sex) |>
-    dplyr::summarize(n = sum(FREQUENCY)) |>
-    ungroup() |>
+    filter(
+      SPECIES_CODE %in% complex_lookup$species_code,
+      YEAR >= minyr
+    ) |>
+    left_join(complex_map, by = c("SPECIES_CODE" = "species_code")) |>
+    mutate(
+      SPECIES_CODE = ifelse(
+        is.na(complex),
+        as.character(SPECIES_CODE),
+        complex
+      )
+    ) |>
+    group_by(YEAR, SPECIES_CODE, Sex) |>
+    summarize(n = sum(FREQUENCY), .groups = "drop") |>
     mutate(YEAR = as.integer(YEAR))
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
@@ -939,14 +938,14 @@ if (make_joy_division_length) {
   # Loop thru species
   for (i in 1:nrow(report_species)) { #
     len2plot <- report_pseudolengths |>
-      filter(SPECIES_CODE == report_species$species_code[i])
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i])
     if (nrow(len2plot) == 0) {
       stop("pseudolength (expanded lengths) data missing for this species. Fix it!")
     }
     # Subset to years when species was confidently ID'ed
     if (report_species$species_code[i] %in% species_year$SPECIES_CODE) {
       len2plot <- len2plot |>
-        filter(YEAR >= species_year$YEAR[which(species_year$SPECIES_CODE == report_species$species_code[i])])
+        dplyr::filter(YEAR >= species_year$YEAR[which(species_year$SPECIES_CODE == report_species$species_code[i])])
     }
 
     # SSTH, YIL, and darkfin sculpin only show Unsexed; all other spps show only sexed lengths
@@ -959,7 +958,7 @@ if (make_joy_division_length) {
 
     # Save median lengths by year and sex for species i
     medlines_sp <- report_pseudolengths %>%
-      filter(SPECIES_CODE == report_species$species_code[i]) %>%
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) %>%
       group_by(YEAR, Sex) %>%
       dplyr::summarize(medlength = median(LENGTH, na.rm = T)) %>%
       ungroup()
@@ -967,7 +966,7 @@ if (make_joy_division_length) {
     # Lengths to plot
     len2plot2 <- len2plot %>%
       left_join(sample_sizes %>%
-        filter(SPECIES_CODE == report_species$species_code[i]))
+        dplyr::filter(SPECIES_CODE == report_species$species_code[i]))
 
     yrbreaks <- unique(len2plot2$YEAR)
     lengthlimits <- range(len2plot2$LENGTH)
@@ -1037,8 +1036,8 @@ if (make_joy_division_length) {
 
 # 5b. Length by depth scatterplot with GAM -------------------------------------
 if (make_ldscatter) {
-  lscale <- 10
-  dscale <- 100
+  # lscale <- 10
+  # dscale <- 100
 
   length_maxyr_ldscatter <- length_maxyr |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
@@ -1190,7 +1189,7 @@ if (make_ldscatter) {
     print(ldscatter)
     dev.off()
 
-    list_ldscatter[[i]] <- ldscatter
+    list_ldscatter[[i]] <- print(ldscatter)
     print(paste("Done with length by depth scatter plot of", report_species$spp_name_informal[i]))
   }
 
