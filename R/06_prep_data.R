@@ -250,6 +250,10 @@ haul2 <- haul |>
   mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
   filter(YEAR == maxyr & REGION == SRVY)
 
+haul3 <- haul |> # preserves all years (to merge for joy division plots)
+  mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
+  filter(REGION == SRVY & HAUL_TYPE == 3)
+
 avg_net_height <- haul |>
   filter(REGION == SRVY, CRUISE >= 199101 & ABUNDANCE_HAUL == "Y") |>
   summarize(mean(NET_HEIGHT, na.rm = T)) |>
