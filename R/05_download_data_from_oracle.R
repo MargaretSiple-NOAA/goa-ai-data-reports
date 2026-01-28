@@ -169,10 +169,11 @@ cpue_raw <- cpue |>
   janitor::clean_names() |>
   dplyr::mutate(species_code = as.character(species_code))
 
-yrs_to_pull <- minyr:maxyr
 
 # ** complexes -------------------------------------------------
 ## Pull data - this is filtered to abundance haul = Y, years, and region
+yrs_to_pull <- minyr:maxyr
+
 complexes_data <- gapindex::get_data(
   year_set = yrs_to_pull,
   survey_set = SRVY,
@@ -186,13 +187,12 @@ complexes_data <- gapindex::get_data(
   channel = channel
 )
 
-cpue_raw_complexes <- gapindex::calc_cpue(gapdata = complexes_data) |>
-  dplyr::left_join(haul) #|>
-  #janitor::clean_names()
+cpue_raw_complexes0 <- gapindex::calc_cpue(gapdata = complexes_data) |>
+  dplyr::left_join(haul) 
 
 # Redesign filtration step
 if (SRVY == "GOA" & maxyr >= 2025) {
-  cpue_raw_complexes <- cpue_raw_complexes |> filter(DESIGN_YEAR == 2025)
+  cpue_raw_complexes <- cpue_raw_complexes0 |> dplyr::filter(DESIGN_YEAR == 2025)
 }
 
 # Trim columns to make cpue_raw and cpue_raw_complexes match
@@ -201,7 +201,7 @@ cpue_raw_complexes <- cpue_raw_complexes |>
     -START_LATITUDE, -START_LONGITUDE,
     -LATITUDE_DD_END, -LONGITUDE_DD_END,
     -REGION, -BOTTOM_TEMPERATURE_C,
-    -SURVEY_DEFINITION_ID, -DEPTH_M, -DESIGN_YEAR
+     -DEPTH_M
   )
 
 # Compare the columns between cpue_raw and cpue_raw_complexes
@@ -320,17 +320,16 @@ if (SRVY == "GOA") {
 
 write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
-print("Finished downloading GAP_PRODUCTS.CPUE")
-print("Finished downloading GAP_PRODUCTS tables.")
+print("Finished downloading stratum and species groups.")
 
 
 # * SIZECOMP --------------------------------------------------------------
 # size comps - recreate the sizecomp table as it was in AI and GOA schemas
 # MAY NEED TO WORK ON THIS MORE LATER. THIS SHOULD DOWNLOAD THE RAW TABLE AND THAT SHOULD BE PROCESSED LATER.
 # ** species ----------------------------------------------
-sizecomp <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
+sizecomp0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
 sizecomp <- dplyr::filter(
-  sizecomp, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) # &
+  sizecomp0, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) # &
   # AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
 ) |>
   dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(
