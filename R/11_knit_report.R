@@ -88,7 +88,7 @@ rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
 Sys.time() - starttime
 
 #  time for 4 species: about 40-50 seconds
-#  for all species: about 12 mins
+#  for all species: about 5 mins
 
 
 # Make the appendices -----------------------------------------------------

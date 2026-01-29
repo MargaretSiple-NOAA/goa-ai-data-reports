@@ -1032,7 +1032,7 @@ if (make_joy_division_length) {
 
 # 5b. Length by depth scatterplot with GAM -------------------------------------
 if (make_ldscatter) {
-  # lscale <- 10
+  # lscale <- 10 # these were moved to 00_report_settings.R
   # dscale <- 100
 
   length_maxyr_ldscatter <- length_maxyr |>

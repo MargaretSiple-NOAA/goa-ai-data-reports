@@ -86,11 +86,10 @@ top_CPUE <- biomass_subarea |>
   dplyr::rename(
     "species_code" = SPECIES_CODE
   ) |>
-  dplyr::ungroup() 
+  dplyr::ungroup()
 
 top_CPUE <- top_CPUE |>
   arrange(factor(NMFS_STATISTICAL_AREA, levels = c(district_order, "All")))
-
 
 
 write.csv(
@@ -136,7 +135,7 @@ piece1 <- all_allocation |>
   ungroup() |>
   left_join(attempted) |>
   left_join(succeeded) |>
-  left_join(nmfs_depth_areas)# START HERE NEXT TIME
+  left_join(nmfs_depth_areas) # START HERE NEXT TIME
 
 depth_areas <- piece1 |>
   group_by(REGULATORY_AREA_NAME) |>
@@ -210,9 +209,11 @@ surveywide_samplingdensity <- allocated_sampled |>
   as.numeric() |>
   round(digits = 4)
 
-list_samplingdensities <- list(depthrange_hisamplingdensity=depthrange_hisamplingdensity,
-                               stationdensity_hisamplingdensity=stationdensity_hisamplingdensity,
-                               surveywide_samplingdensity=surveywide_samplingdensity)
+list_samplingdensities <- list(
+  depthrange_hisamplingdensity = depthrange_hisamplingdensity,
+  stationdensity_hisamplingdensity = stationdensity_hisamplingdensity,
+  surveywide_samplingdensity = surveywide_samplingdensity
+)
 
 # "Table 3" -----------------------------------------------------------
 # biomass_gp already loaded above
@@ -261,7 +262,7 @@ for (i in 1:nrow(report_species)) {
     bt <- biomass_gp
   } else {
     bt <- biomass_stratum_complexes |>
-     dplyr::rename("AREA_ID" = "STRATUM")
+      dplyr::rename("AREA_ID" = "STRATUM")
   }
 
   tab4 <- make_tab4(
@@ -328,7 +329,8 @@ save(list_tables,
 )
 
 save(list_samplingdensities,
-     file = paste0(dir_out_tables, "list_samplingdensities.rdata"))
+  file = paste0(dir_out_tables, "list_samplingdensities.rdata")
+)
 
 save(table3s_list,
   file = paste0(dir_out_tables, "table3s_list.rdata")
