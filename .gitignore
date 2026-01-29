@@ -51,6 +51,9 @@ gdrive/
 output/
 bonus/
 /data/cpue_station.csv
+
+# Ignore 'bespoke' data products that I used this repo to create
+bespoke/
 /R/xx_scratchpad.R
 
 # Ignore reformatted length data
