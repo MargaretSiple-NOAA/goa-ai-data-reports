@@ -1496,12 +1496,12 @@ if (make_temp_plot) {
     sstdat <- sstdat |> filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
   }
 
-  sst_summary <- sstdat |>
-    mutate(
-      bottom_stz = bottom - mean(bottom, na.rm = T),
-      surface_stz = surface - mean(surface, na.rm = T)
-    ) |>
-    pivot_longer(cols = bottom:surface_stz)
+  # sst_summary <- sstdat |>
+  #   mutate(
+  #     bottom_stz = bottom - mean(bottom, na.rm = T),
+  #     surface_stz = surface - mean(surface, na.rm = T)
+  #   ) |>
+  #   pivot_longer(cols = bottom:surface_stz)
 
   plotdat <- haul |>
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
