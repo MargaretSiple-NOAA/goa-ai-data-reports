@@ -51,8 +51,8 @@ captain1 <- "Dan Carney"
 captain2 <- "Paulo da Cruz"
 
 # Internal reviewers
-reviewer1 <- "XXXX"
-reviewer2 <- "YYYY"
+reviewer1 <- "Thaddaeus Buser"
+reviewer2 <- "Susanne McDermott"
 
 ref_compareyr <- "@von_szalay_data_2017" # should be included in cite/bibliography.bib
 
