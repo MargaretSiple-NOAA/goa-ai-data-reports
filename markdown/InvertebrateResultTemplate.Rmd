@@ -51,6 +51,10 @@ table4s_list[[as.character({{species_code}})]] |>
                     `Biomass (t)` = "Biomass\n(mt)")
 ```
 
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{region}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
+list_3panel_ts[["{{species_code}}"]]
+```
+
 <!---BLOCK_LANDSCAPE_START--->
 ```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE, kg/ha; X = no catch) of {{spp_name_informal}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5, dpi=300}
 list_cpue_bubbles_strata[[as.character({{species_code}})]]
