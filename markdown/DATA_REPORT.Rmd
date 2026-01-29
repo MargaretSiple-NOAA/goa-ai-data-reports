@@ -73,7 +73,7 @@ include_price_table <- ifelse(maxyr<2025 | SRVY=="AI", TRUE, FALSE)
 ```{r child=here::here("gdrive","Methods_part3.Rmd")}
 ```
 
-```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used in the",maxyr,survname_long, "survey"), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 6.5, dpi = 300, fig.asp={{net_asp}} }
+```{r fig.cap=paste("Diagram of the Poly Nor'eastern bottom trawl gear used."), fig.id='net-diagram',  fig.cap.style = "Figure Caption", fig.width = 6.5, dpi = 300, fig.asp={{net_asp}} }
 knitr::include_graphics(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
 ```
 
@@ -249,7 +249,7 @@ top_CPUE_formatted(top_CPUE = top_CPUE) |>
 # report_species contains the list of species in the report
 src <- list()
 
-for (i in 12:16) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # nrow(report_species)
   # 12:16 includes some complexes and some single-species stocks
 
   species_code <- report_species$species_code[i]
