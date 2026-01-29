@@ -9,7 +9,7 @@
 
 -   The largest estimated biomass for the {{spp_name_informal_low}} was in the {{nmfs_highest_biomass}} region and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
 
--   The highest {{spp_name_informal}} CPUEs were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} districts (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
+-   The highest CPUEs for the {{spp_name_informal}} were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} districts (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
 
 -   Length compositions and size by depth are not shown for complexes; these data are available upon request.
 
@@ -39,25 +39,32 @@ table3s_list[["{{ species_code }}"]] |>
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by survey district (INPFC area), survey subdistrict, and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+```{r echo=FALSE,tab.cap='Summary by survey district (NMFS area), survey subdistrict, and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 
 table4s_list[["{{ species_code }}"]] |>
 # table4s_list[[as.character(30060)]] %>%
  flextable() |>
   fix_border_issues() |>
   theme_vanilla() |>
-  fontsize(size = 9, part = "all") |>
+  font(fontname = tablefont, part = "all") |>
+  fontsize(size = 10, part = "all") |>
   fit_to_width(max_width = 8.25, unit = "in") |>
-  align(align = "center", part = "all")|>
-  align(j = c(1, 5, 6), align = "left", part = "body") |>
+  align(align = "center", part = "body")|>
+  align(j = c(1, 6, 7), align = "left", part = "body") |>
   align(i = 1, align = "center", part = "header") |>
   padding(padding = 1, part = "all")  |>
+  padding(padding.left = 4, padding.right = 4, part = "all") |>
   set_table_properties(layout = "autofit") |>
   set_header_labels(`Total haul count` = "Total \n haul count",
                     `Hauls with positive catch` = "Hauls w/\npositive catch",
+                    `Percent hauls with positive catch` = "% \npositive \ntows",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
                     `Biomass (t)` = "Biomass\n(t)") |>
-  compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+  compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+```
+
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{region}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
+list_3panel_ts[["{{species_code}}"]]
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
