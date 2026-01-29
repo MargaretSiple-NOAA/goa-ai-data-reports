@@ -33,7 +33,8 @@ table3s_list[["{{ species_code }}"]] |>
       `Hauls with positive catch` = "Hauls w/\npositive \ncatch",
       `Percent positive tows` = "% \npositive \ntows",
       `Biomass (t)` = "Biomass\n(t)",
-      `Average weight (kg)` = "Average \nweight \n(kg)"
+      `Average weight (kg)` = "Average \nweight \n(kg)",
+      `% biomass in area` = "% \n biomass \n in area"
     ) |>
     bold(i = 6) |> #bold the row with the All Areas total
     compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))

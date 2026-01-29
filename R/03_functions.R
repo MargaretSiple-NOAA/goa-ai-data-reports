@@ -185,7 +185,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
         DEPTH_RANGE == "NA - NA" ~ "All depths",
         TRUE ~ DEPTH_RANGE
       ),
-      PERCENT_POS = paste0(round((N_WEIGHT / N_HAUL) * 100), "%")
+      PERCENT_POS = paste0(round((N_WEIGHT / N_HAUL) * 100), "%"),
     ) |>
     dplyr::select(
       AREA_NAME, DEPTH_RANGE,
@@ -196,6 +196,8 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       # BIOMASS_VAR,
       AVG_WEIGHT_KG
     )
+  
+  combo0$PERCENT_IN_AREA <- paste0(round((combo0$BIOMASS_MT/combo0$BIOMASS_MT[which(combo0$AREA_NAME=="All")])*100),"%")
 
   # Format the columns
   combo <- combo0 |>
@@ -208,13 +210,16 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "CPUE (kg/km2)" = CPUE_KGKM2_MEAN,
       "Biomass (t)" = BIOMASS_MT,
       # "Biomass variance (t)" = BIOMASS_VAR,
-      "Average weight (kg)" = AVG_WEIGHT_KG
+      "Average weight (kg)" = AVG_WEIGHT_KG,
+      "% biomass in area" = PERCENT_IN_AREA
     )
 
   # Format numbers in CPUE and biomass columns
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
+  
+  
   combo_ord <- combo |>
     dplyr::arrange(factor(`NMFS area`, levels = c(district_order, "All"))) |>
     dplyr::select(-`Depth (m)`)
