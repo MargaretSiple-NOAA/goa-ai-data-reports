@@ -41,7 +41,6 @@ sex_diff_size_statement <- function(species_lengths) {
   females <- species_lengths$LENGTH * (species_lengths$FEMALES / sum(species_lengths$FEMALES))
 
 
-
   z <- ks.test(males, females)
   diff <- ifelse(z$p.value < 0.05, TRUE, FALSE)
   if (diff) {
@@ -63,13 +62,13 @@ sex_diff_size_statement <- function(species_lengths) {
 
 # Function to calculate confidence intervals for lognormal distribution - hopefully will be deprecated starting with the AI 2024 DPR.
 lognorm_ci <- function(mean, variance, alpha = 0.05) {
-  sigma <- sqrt(log(1 + variance/mean^2)) # Calculate standard deviation
-  z <- qnorm(1 - alpha/2) # Calculate z-value for given alpha (two-tailed)
-  
+  sigma <- sqrt(log(1 + variance / mean^2)) # Calculate standard deviation
+  z <- qnorm(1 - alpha / 2) # Calculate z-value for given alpha (two-tailed)
+
   # Calculate lower and upper confidence bounds
   lower <- exp(log(mean) - z * sigma)
   upper <- exp(log(mean) + z * sigma)
-  
+
   return(c(lower, upper))
 }
 
@@ -123,13 +122,13 @@ chr_to_num <- function(x) {
 top_CPUE_formatted <- function(top_CPUE) {
   x <- top_CPUE %>%
     # existing changes in markdown file:
-    dplyr::select(NMFS_STATISTICAL_AREA , common_name, wgted_mean_cpue_kgha) %>%
+    dplyr::select(NMFS_STATISTICAL_AREA, common_name, wgted_mean_cpue_kgha) %>%
     dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha, digits = 1)) %>%
     dplyr::rename(
       `NMFS area` = NMFS_STATISTICAL_AREA,
       Species = common_name,
       `CPUE (kg/ha)` = wgted_mean_cpue_kgha
-    ) 
+    )
   return(x)
 }
 
@@ -146,9 +145,9 @@ top_CPUE_formatted <- function(top_CPUE) {
 #' @export
 #'
 #' @examples
-#' 
-#biomass_tbl <- read.csv("./data/local_gap_products/biomass.csv",header=TRUE)
-#area_tbl <- read.csv("./data/local_gap_products/area.csv",header=TRUE)
+#'
+# biomass_tbl <- read.csv("./data/local_gap_products/biomass.csv",header=TRUE)
+# area_tbl <- read.csv("./data/local_gap_products/area.csv",header=TRUE)
 make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   if (length(unique(biomass_tbl$SURVEY_DEFINITION_ID)) > 1) {
     stop("More than one survey definition ID.")
@@ -164,15 +163,15 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   area_lookup0 <- area_tbl |>
     dplyr::filter(AREA_TYPE %in% c(
       "NMFS STATISTICAL AREA",
-      #"REGULATORY AREA",
+      # "REGULATORY AREA",
       "REGION"
     ))
-  
+
   if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
     area_lookup <- area_lookup0 |>
       dplyr::filter(DESIGN_YEAR == ifelse(year < 2025, 1984, 2025)) # GOA design years
-    
-    area_lookup$AREA_NAME[which(area_lookup$AREA_NAME=="Western Regulatory Area")] <- "Shumagin"
+
+    area_lookup$AREA_NAME[which(area_lookup$AREA_NAME == "Western Regulatory Area")] <- "Shumagin"
   } else {
     area_lookup <- area_lookup0 # All AI design years are 1980
   }
@@ -180,12 +179,14 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   combo0 <- area_lookup |>
     left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
     dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)) |>
-    dplyr::mutate(DEPTH_RANGE = case_when(
-      DEPTH_RANGE %in% c("1 - 500", "1 - 1000") ~ "All depths",
-      DEPTH_RANGE == "NA - NA" ~ "All depths",
-      TRUE ~ DEPTH_RANGE
-    ),
-    PERCENT_POS = paste0(round((N_WEIGHT/N_HAUL)*100), "%")) |>
+    dplyr::mutate(
+      DEPTH_RANGE = case_when(
+        DEPTH_RANGE %in% c("1 - 500", "1 - 1000") ~ "All depths",
+        DEPTH_RANGE == "NA - NA" ~ "All depths",
+        TRUE ~ DEPTH_RANGE
+      ),
+      PERCENT_POS = paste0(round((N_WEIGHT / N_HAUL) * 100), "%")
+    ) |>
     dplyr::select(
       AREA_NAME, DEPTH_RANGE,
       N_HAUL, N_WEIGHT,
@@ -272,9 +273,9 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     dplyr::filter(N_WEIGHT > 0 & DEPTH_RANGE != "701 - 1000") |> # only show lines for strata where the species appeared and for strata we currently survey
     dplyr::mutate(AREA_NAME = factor(AREA_NAME, levels = district_order)) |>
     dplyr::group_by(AREA_NAME) |>
-    dplyr::arrange(DEPTH_RANGE, .by_group=TRUE) |>
+    dplyr::arrange(DEPTH_RANGE, .by_group = TRUE) |>
     dplyr::ungroup()
-    
+
   combo <- combo0 |>
     dplyr::rename(
       "Area name" = AREA_NAME,
@@ -294,13 +295,12 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
     dplyr::mutate(depthorder = as.numeric(stringr::str_extract(`Depth (m)`, "[^- ]+"))) |>
     dplyr::arrange(`Area name`, depthorder) |>
     dplyr::select(-depthorder)
-  
+
   # Change "Shumagin" to "Western Regulatory Area"
-  #combo$`Area name`[which(combo$`Area name` == "Shumagin")] <- "Western Regulatory Area"
-  
+  # combo$`Area name`[which(combo$`Area name` == "Shumagin")] <- "Western Regulatory Area"
+
   return(combo)
 }
-
 
 
 # format appendix b contents so they will fit easily in a flextable
@@ -329,16 +329,15 @@ prep_appendix_b <- function(df) {
 }
 
 
-
 # function to identify outliers in species IDs for each year
 check_outlier <- function(species_code, year, catch_data, plot = FALSE) {
   sp_catch <- catch_data %>%
     filter(SPECIES_CODE == species_code) %>%
     dplyr::select(SPECIES_NAME, START_LONGITUDE, START_LATITUDE, YEAR)
-  
+
   clustering <- dbscan(sp_catch[, 2:3], eps = 0.9, minPts = 2, borderPoints = FALSE)
-  
-  
+
+
   # outliers from this year
   tmp <- sp_catch %>%
     mutate(
@@ -346,21 +345,21 @@ check_outlier <- function(species_code, year, catch_data, plot = FALSE) {
       outlier = ifelse(cluster == 0, "flag", "")
     ) %>%
     filter(YEAR == year)
-  
-  
+
+
   # vector to plot
   o <- tmp[tmp$outlier != "", ]
-  
+
   out <- tmp %>%
     dplyr::select(-cluster) %>%
     filter(outlier != "")
-  
-  
+
+
   if (plot & length(o) > 0) {
     world <- map_data("world2", wrap = c(40, 400)) %>%
       filter(region %in% c("Russia", "USA", "Canada"))
     sp <- sp_catch$SPECIES_NAME[1]
-    
+
     p <- ggplot() +
       geom_polygon(
         data = world, aes(x = long, y = lat, group = group),
@@ -380,7 +379,7 @@ check_outlier <- function(species_code, year, catch_data, plot = FALSE) {
       ggtitle(label = sp)
     print(p)
   }
-  
+
   return(out)
 }
 
@@ -643,24 +642,25 @@ plot_pa_xbyx <- function(spcode, # speciescode
 }
 
 plot_idw_xbyx <- function(
-    yrs,
-    dat,
-    lat,
-    lon,
-    var,
-    year,
-    key.title = "",
-    grid = "extrapolation.grid",
-    extrap.box,
-    set.breaks = "auto", # seq(from = -2, to = 20, by = 2),
-    grid.cell = c(0.02, 0.02),
-    row0 = 2,
-    region = "bs.south",
-    dist_unit = "nm", # nautical miles
-    col_viridis = "mako",
-    plot_coldpool = FALSE,
-    plot_stratum = TRUE,
-    use.survey.bathymetry = FALSE) {
+  yrs,
+  dat,
+  lat,
+  lon,
+  var,
+  year,
+  key.title = "",
+  grid = "extrapolation.grid",
+  extrap.box,
+  set.breaks = "auto", # seq(from = -2, to = 20, by = 2),
+  grid.cell = c(0.02, 0.02),
+  row0 = 2,
+  region = "bs.south",
+  dist_unit = "nm", # nautical miles
+  col_viridis = "mako",
+  plot_coldpool = FALSE,
+  plot_stratum = TRUE,
+  use.survey.bathymetry = FALSE
+) {
   reg_dat <- akgfmaps::get_base_layers(select.region = region)
   yrs <- as.numeric(sort(x = yrs, decreasing = T))
   figure <- ggplot()
@@ -726,7 +726,6 @@ plot_idw_xbyx <- function(
     figure <- figure +
       geom_stars(data = stars_list, na.rm = TRUE)
   }
-
 
 
   if (plot_coldpool) {
@@ -926,4 +925,3 @@ plot_idw_xbyx <- function(
 #   row0 <- 2 # default
 #   legendtitle <- bquote(CPUE(kg / ha)) # inside fn
 # }
-
