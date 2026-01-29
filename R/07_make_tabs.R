@@ -181,8 +181,10 @@ all_areas_depths <- all_areas |>
   tibble::add_column(NMFS_AREA = "All areas", .before = "Depth range")
 
 allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths) |>
-  dplyr::arrange(factor(NMFS_AREA, levels = c(district_order, "All areas"))) |>
-  dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`))
+  dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`)) |>
+  dplyr::mutate(depthorder = ifelse(`Depth range`=="All depths",1000,as.numeric(stringr::str_extract(`Depth range`, "[^- ]+")))) |>
+  dplyr::arrange(factor(NMFS_AREA, levels = c(district_order, "All areas")), depthorder) |>
+  dplyr::select(-depthorder)
 
 colnames(allocated_sampled) <- c(
   "NMFS area", "Depth range (m)",
