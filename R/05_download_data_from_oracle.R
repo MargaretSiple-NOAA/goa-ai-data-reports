@@ -192,7 +192,8 @@ cpue_raw_complexes0 <- gapindex::calc_cpue(gapdata = complexes_data) |>
 
 # Redesign filtration step
 if (SRVY == "GOA" & maxyr >= 2025) {
-  cpue_raw_complexes <- cpue_raw_complexes0 |> dplyr::filter(DESIGN_YEAR == 2025)
+  cpue_raw_complexes <- cpue_raw_complexes0 #|> 
+    #dplyr::filter(DESIGN_YEAR == 2025) # let's see if this blows everything up
 }
 
 # Trim columns to make cpue_raw and cpue_raw_complexes match
@@ -359,9 +360,6 @@ print("Finished downloading GAP_PRODUCTS.SIZECOMP")
 # ** complexes ------------------------------------------------------------
 # Regardless of whether gapindex=TRUE or not, you will always need gapindex to calculate biomass, cpue, sizecomp tables for the complexes.
 ## Pull data.
-
-# cpue_raw_caps_complexes <- gapindex::calc_cpue(gapdata = complexes_data) |>
-# janitor::clean_names()
 
 sizecomp_stratum_complexes <- gapindex::calc_sizecomp_stratum(
   gapdata = complexes_data,
