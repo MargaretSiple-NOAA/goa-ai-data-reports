@@ -510,7 +510,7 @@ if (!exists("report_pseudolengths")) {
   report_pseudolengths <- read.csv(file = paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
 }
 
-if(!all(unique(report_pseudolengths$SPECIES_CODE) %in% report_species$species_code)){
+if(!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CODE))){
   print("STOP HERE AND RE-RUN DATA DOWNLOAD WITH NEW REPORT SPECIES LIST")
 }
 
