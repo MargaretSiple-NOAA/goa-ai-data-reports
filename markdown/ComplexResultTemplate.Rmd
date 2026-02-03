@@ -18,22 +18,23 @@
 
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[["{{ species_code }}"]] |>
-  #table3s_list[[as.character(30060)]] |>
+  #table3s_list[[as.character("NRSSRS")]] |>
    flextable() |>
-  theme_vanilla() |>
-  fontsize(size = 9, part = "all") |>
-  fit_to_width(max_width = 8.25, unit = "in") |>
-  align(align = "center", part = "all") |>
-  align(j = 1, align = "left", part = "body") |>
-  padding(padding = 1, part = "all") |>
-  set_table_properties(layout = "autofit") |>
-  set_header_labels(
+  flextable::theme_vanilla() |>
+  flextable::fontsize(size = 9, part = "all") |>
+  flextable::fit_to_width(max_width = 8.25, unit = "in") |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::align(j = 1, align = "left", part = "body") |>
+  flextable::padding(padding = 1, part = "all") |>
+  flextable::set_table_properties(layout = "autofit") |>
+  flextable::set_header_labels(
     `Total haul count` = "Total \n haul count",
     `Hauls with positive catch` = "Hauls w/\npositive catch",
     #`CPUE (kg/km2)` = "CPUE\n(kg/km2)",
-    `Biomass (t)` = "Biomass\n(t)"
+    `Biomass (t)` = "Biomass\n(t)",
+    `% biomass in area` = "% \n biomass \n in area"
   ) |>
-  compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+  flextable::compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 \newpage
@@ -41,25 +42,25 @@ table3s_list[["{{ species_code }}"]] |>
 ```{r echo=FALSE,tab.cap='Summary by survey district (NMFS area), survey subdistrict, and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 
 table4s_list[["{{ species_code }}"]] |>
-# table4s_list[[as.character(30060)]] %>%
+# table4s_list[[as.character("NRSSRS")]] %>%
  flextable() |>
-  fix_border_issues() |>
-  theme_vanilla() |>
-  font(fontname = tablefont, part = "all") |>
-  fontsize(size = 10, part = "all") |>
-  fit_to_width(max_width = 8.25, unit = "in") |>
-  align(align = "center", part = "body")|>
-  align(j = c(1, 6, 7), align = "left", part = "body") |>
-  align(i = 1, align = "center", part = "header") |>
-  padding(padding = 1, part = "all")  |>
-  padding(padding.left = 4, padding.right = 4, part = "all") |>
-  set_table_properties(layout = "autofit") |>
-  set_header_labels(`Total haul count` = "Total \n haul count",
+  flextable::fix_border_issues() |>
+  flextable::theme_vanilla() |>
+  flextable::font(fontname = tablefont, part = "all") |>
+  flextable::fontsize(size = 10, part = "all") |>
+  flextable::fit_to_width(max_width = 8.25, unit = "in") |>
+  flextable::align(align = "center", part = "body")|>
+  flextable::align(j = c(1, 6, 7), align = "left", part = "body") |>
+  flextable::align(i = 1, align = "center", part = "header") |>
+  flextable::padding(padding = 1, part = "all")  |>
+  flextable::padding(padding.left = 4, padding.right = 4, part = "all") |>
+  flextable::set_table_properties(layout = "autofit") |>
+  flextable::set_header_labels(`Total haul count` = "Total \n haul count",
                     `Hauls with positive catch` = "Hauls w/\npositive catch",
                     `Percent hauls with positive catch` = "% \npositive \ntows",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
                     `Biomass (t)` = "Biomass\n(t)") |>
-  compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+  flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 ```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{region}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}

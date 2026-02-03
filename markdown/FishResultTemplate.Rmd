@@ -11,7 +11,7 @@
 
 -   On average, the longest individuals were found in the {{region_longest}} region and in a depth range of {{depth_longest}} (Figure `r officer::run_reference(paste0("lengthdepth-","{{species_code}}"))`). Historical length distributions are provided in Figure `r officer::run_reference(paste0("lengthcomp-","{{species_code}}"))`.
 
-`r if({{show.text}}){paste0("- ","{{sex_diff_sentence}}") }`
+<!-- `r if({{show.text}}){paste0("- ","{{sex_diff_sentence}}") }` -->
 
 \newpage
 
@@ -20,15 +20,15 @@ table3s_list[["{{ species_code }}"]] |>
     # table3s_list[[as.character(30060)]] |>
     flextable() |>
     theme_vanilla() |>
-    font(fontname = tablefont, part = "all") |>
+    flextable::font(fontname = tablefont, part = "all") |>
     fontsize(size = 10, part = "all") |>
     fit_to_width(max_width = 8.25, unit = "in") |>
-    align(align = "center", part = "body") |>
-    align(align = "center", part = "header") |>
-    align(j = 1, align = "left", part = "body") |>
-    padding(padding = 1, part = "all") |>
-    set_table_properties(layout = "autofit") |>
-    set_header_labels(
+    flextable::align(align = "center", part = "body") |>
+    flextable::align(align = "center", part = "header") |>
+    flextable::align(j = 1, align = "left", part = "body") |>
+    flextable::padding(padding = 1, part = "all") |>
+    flextable::set_table_properties(layout = "autofit") |>
+    flextable::set_header_labels(
       `Total haul count` = "Total \n haul count",
       `Hauls with positive catch` = "Hauls w/\npositive \ncatch",
       `Percent positive tows` = "% \npositive \ntows",
@@ -36,8 +36,8 @@ table3s_list[["{{ species_code }}"]] |>
       `Average weight (kg)` = "Average \nweight \n(kg)",
       `% biomass in area` = "% \n biomass \n in area"
     ) |>
-    bold(i = 6) |> #bold the row with the All Areas total
-    compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+    flextable::bold(i = 6) |> #bold the row with the All Areas total
+    flextable::compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 \newpage
@@ -47,23 +47,23 @@ table3s_list[["{{ species_code }}"]] |>
 table4s_list[["{{ species_code }}"]] |>
 # table4s_list[[as.character(30060)]] %>%
   flextable() |>
-  fix_border_issues() |>
-  theme_vanilla() |>
-  font(fontname = tablefont, part = "all") |>
-  fontsize(size = 10, part = "all") |>
-  fit_to_width(max_width = 8.25, unit = "in") |>
-  align(align = "center", part = "body")|>
-  align(j = c(1, 6, 7), align = "left", part = "body") |>
-  align(i = 1, align = "center", part = "header") |>
-  padding(padding = 1, part = "all")  |>
-  padding(padding.left = 4, padding.right = 4, part = "all") |>
-  set_table_properties(layout = "autofit") |>
-  set_header_labels(`Total haul count` = "Total \n haul count",
+  flextable::fix_border_issues() |>
+  flextable::theme_vanilla() |>
+  flextable::font(fontname = tablefont, part = "all") |>
+  flextable::fontsize(size = 10, part = "all") |>
+  flextable::fit_to_width(max_width = 8.25, unit = "in") |>
+  flextable::align(align = "center", part = "body")|>
+  flextable::align(j = c(1, 6, 7), align = "left", part = "body") |>
+  flextable::align(i = 1, align = "center", part = "header") |>
+  flextable::padding(padding = 1, part = "all")  |>
+  flextable::padding(padding.left = 4, padding.right = 4, part = "all") |>
+  flextable::set_table_properties(layout = "autofit") |>
+  flextable::set_header_labels(`Total haul count` = "Total \n haul count",
                     `Hauls with positive catch` = "Hauls w/\npositive catch",
                     `Percent hauls with positive catch` = "% \npositive \ntows",
                     `CPUE (kg/km2)` = "CPUE\n(kg/km2)",
                     `Biomass (t)` = "Biomass\n(t)") |>
-  compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+  flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 <br/>
@@ -86,6 +86,6 @@ list_joy_length[["{{species_code}}"]]
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent predictions from a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths. The x axis represents the full depth range where {{spp_name_informal}} were collected.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent predictions from a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths. The x-axis represents the full depth range where {{spp_name_informal}} were collected.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
 list_ldscatter[["{{species_code}}"]]
 ```

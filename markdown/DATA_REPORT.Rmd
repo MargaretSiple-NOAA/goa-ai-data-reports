@@ -89,52 +89,52 @@ sp_prices |>
   flextable() |>
   fix_border_issues() |>
   theme_vanilla() |>
-  font(fontname = tablefont, part = "all") |>
-  fontsize(size = 11, part = "all") |>
-  italic(j = 2, part = "body") |>
-  line_spacing(space = 0.75) |>
-  align(align = "center", part = "all") |>
-  align(j = c(1, 2), align = "left", part = "body") |>
-  autofit() |>
-  fit_to_width(6.5)
+  flextable::font(fontname = tablefont, part = "all") |>
+  flextable::fontsize(size = 11, part = "all") |>
+  flextable::italic(j = 2, part = "body") |>
+  flextable::line_spacing(space = 0.75) |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::align(j = c(1, 2), align = "left", part = "body") |>
+  flextable::autofit() |>
+  flextable::fit_to_width(6.5)
 ```
 
 \newpage
 
 ```{r echo=FALSE,tab.cap=paste('Stations allocated and sampled during the', maxyr, SRVY,'bottom trawl survey.'), tab.id='stations-allocated',  tab.cap.style = "Table caption"}
 list_tables[["allocated_sampled"]] |>
-  # allocated_sampled %>%
-  mutate(
+  # allocated_sampled |>
+  dplyr::mutate(
     `Total area` = round(`Total area`, digits = 0),
     `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`, digits = 2)
   ) |>
   flextable() |>
-  merge_v(j = ~`NMFS area`) |>
-  fix_border_issues() |>
-  theme_vanilla() |>
-  font(fontname = tablefont, part = "all") |>
-  fontsize(size = 10, part = "all") |>
-  line_spacing(space = 0.75) |>
-  compose(
+  flextable::merge_v(j = ~`NMFS area`) |>
+  flextable::fix_border_issues() |>
+  flextable::theme_vanilla() |>
+  flextable::font(fontname = tablefont, part = "all") |>
+  flextable::fontsize(size = 10, part = "all") |>
+  flextable::line_spacing(space = 0.75) |>
+  flextable::compose(
     part = "header", i = 1, j = 6,
     value = as_paragraph(
       "Total area (km",
       as_sup("2"), ")"
     )
   ) |>
-  compose(
+  flextable::compose(
     part = "header", i = 1, j = 7,
     value = as_paragraph(
       "Stations per 1,000 km",
       as_sup("2")
     )
   ) |>
-  align(align = "center", part = "body") |>
-  align(j = 1:2, align = "left", part = "body") |>
-  hline(i = ~ break_position(`NMFS area`), 
+  flextable::align(align = "center", part = "body") |>
+  flextable::align(j = 1:2, align = "left", part = "body") |>
+  flextable::hline(i = ~ break_position(`NMFS area`), 
         border = fp_border(color = "#5A5A5A", width = 3)) |>
   #autofit() |>
-  fit_to_width(6.5)
+  flextable::fit_to_width(6.5)
 
 ```
 \newpage
@@ -151,13 +151,13 @@ list_tables[["length-sample-sizes"]] |>
     Target.sample.size = "Target sample size"
   )  |>
   theme_vanilla() |>
-  font(fontname = tablefont, part = "all") |>
-  fontsize(size = 11, part = "all")  |>
-  align(i = 1, j = 2, align = "center", part = "header")  |>
-  align(j = 2, align = "center", part = "body")  |>  
-  line_spacing(space = 0.75) |>
-  autofit() |>
-  fit_to_width(6.5)
+  flextable::font(fontname = tablefont, part = "all") |>
+  flextable::fontsize(size = 11, part = "all")  |>
+  flextable::align(i = 1, j = 2, align = "center", part = "header")  |>
+  flextable::align(j = 2, align = "center", part = "body")  |>  
+  flextable::line_spacing(space = 0.75) |>
+  flextable::autofit() |>
+  flextable::fit_to_width(6.5)
 ```
 
 \newpage
@@ -181,22 +181,22 @@ station_map
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table caption"}
 
 list_tables[["otos_target_sampled"]] |>
-    dplyr::rename(
-      "Species" = "species",
-      "Target N" = "target",
-      "N collected" = "collection",
-      "Percent difference \nbetween target and collection" = "percent.diff"
-    ) |>
-    flextable() |>
-    theme_vanilla() |>
-    font(fontname = tablefont, part = "all") |>
-    fontsize(size = 11, part = "all") |>
-    line_spacing(space = 0.5) |>
-    align(align = "center", part = "body") |>
-    align(j = 1, align = "left", part = "body") |>
-    set_table_properties(align = "left") |>  
-  autofit() |>
-  fit_to_width(6.5)
+  dplyr::rename(
+    "Species" = "species",
+    "Target N" = "target",
+    "N collected" = "collection",
+    "Percent difference \nbetween target and collection" = "percent.diff"
+  ) |>
+  flextable() |>
+  theme_vanilla() |>
+  flextable::font(fontname = tablefont, part = "all") |>
+  flextable::fontsize(size = 11, part = "all") |>
+  flextable::line_spacing(space = 0.5) |>
+  flextable::align(align = "center", part = "body") |>
+  flextable::align(j = 1, align = "left", part = "body") |>
+  flextable::set_table_properties(align = "left") |>
+  flextable::autofit() |>
+  flextable::fit_to_width(6.5)
 
 ```
 
@@ -229,14 +229,14 @@ list_temperature[['surfacetemp']]
 <!---BLOCK_MULTICOL_START--->
 ```{r echo=FALSE,tab.cap=paste('Mean CPUE [kg/ha] for the 20 most abundant groundfish species in each survey regulatory area during the', maxyr, SRVY, 'bottom trawl survey.'), tab.id='top-cpue', tab.cap.style = "Table caption"}
 top_CPUE_formatted(top_CPUE = top_CPUE) |>
-  as_grouped_data(groups = "NMFS area") |>
-  as_flextable(hide_grouplabel = TRUE) |>
-  set_header_labels(`INPFC area` = "") |>
-  bold(bold = TRUE, part = "header") |>
-  align(i = ~ !is.na(`NMFS area`), align = "center") |>
-  bold(i = ~ !is.na(`NMFS area`)) |>
-  fit_to_width(max_width = 2, unit = "in") |>
-  padding(padding.bottom = 0, padding.top = 0) |>
+  flextable::as_grouped_data(groups = "NMFS area") |>
+  flextable::as_flextable(hide_grouplabel = TRUE) |>
+  flextable::set_header_labels(`INPFC area` = "") |>
+  flextable::bold(bold = TRUE, part = "header") |>
+  flextable::align(i = ~ !is.na(`NMFS area`), align = "center") |>
+  flextable::bold(i = ~ !is.na(`NMFS area`)) |>
+  flextable::fit_to_width(max_width = 2, unit = "in") |>
+  flextable::padding(padding.bottom = 0, padding.top = 0) |>
   fontsize(size = 8, part = "all")
 
 ```
