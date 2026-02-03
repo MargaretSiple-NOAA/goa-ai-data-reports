@@ -113,7 +113,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
-report_authors <- "B. Riggle, A. Dowlin, M. Siple"
+report_authors <- "M. Siple, Z. Oyafuso, B. Riggle, A. Dowlin"
 report_yr <- maxyr
 
 
@@ -159,4 +159,7 @@ species_year <- species_year |>
 # for length-depth scatter:
 lscale <- 10
 dscale <- 100
+
+# For labels on length diagrams
+left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
 
