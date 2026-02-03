@@ -193,7 +193,7 @@ cpue_raw_complexes0 <- gapindex::calc_cpue(gapdata = complexes_data) |>
 # Redesign filtration step
 if (SRVY == "GOA" & maxyr >= 2025) {
   cpue_raw_complexes <- cpue_raw_complexes0 #|> 
-    #dplyr::filter(DESIGN_YEAR == 2025) # let's see if this blows everything up
+    #dplyr::filter(DESIGN_YEAR == 2025) # January 2026: let's see if this blows everything up
 }
 
 # Trim columns to make cpue_raw and cpue_raw_complexes match

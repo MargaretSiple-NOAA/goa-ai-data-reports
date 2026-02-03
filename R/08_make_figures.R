@@ -929,7 +929,7 @@ if (make_joy_division_length) {
     
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
-  left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
+  #left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
 
   # Loop thru species
   for (i in 1:nrow(report_species)) { #
