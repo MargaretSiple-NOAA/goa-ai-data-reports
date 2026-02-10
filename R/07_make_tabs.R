@@ -57,7 +57,8 @@ area_gp <- read.csv("data/local_gap_products/area.csv")
 if (SRVY == "GOA") {
   area_gp_reg_area <- area_gp |>
     dplyr::filter(AREA_TYPE %in% c("NMFS STATISTICAL AREA", "REGION") &
-      DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984))
+      DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984)) 
+  area_gp_reg_area$AREA_NAME[which(area_gp_reg_area$AREA_NAME=="Western Regulatory Area")] = "Shumagin"
 } else {
   area_gp_reg_area <- area_gp |>
     dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
@@ -76,7 +77,6 @@ top_CPUE <- biomass_subarea |>
   dplyr::filter(YEAR == maxyr & grepl(pattern = "[0-9]", x = SPECIES_CODE)) |>
   dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
   dplyr::right_join(area_gp_reg_area, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
-  # dplyr::filter(AREA_TYPE == "NMFS STATISTICAL AREA") |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
   dplyr::rename("NMFS_STATISTICAL_AREA" = AREA_NAME) |>
   dplyr::mutate(wgted_mean_cpue_kgha = CPUE_KGKM2_MEAN / 100) |> # convert to hectares
