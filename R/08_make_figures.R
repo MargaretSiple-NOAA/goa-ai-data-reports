@@ -92,7 +92,7 @@ if (SRVY == "GOA") {
     set.crs = "auto"
   ) |>
     dplyr::filter(REP_AREA %in% c(610, 620, 630, 640, 650))
-  #geo_order2 <- district_order
+  # geo_order2 <- district_order
 
 
   goa_inpfc <- goa_all$inpfc.strata
@@ -308,10 +308,10 @@ if (make_biomass_timeseries) {
       dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
 
     dat$PERCENT_CHANGE_BIOMASS[1] <- NA # no difference calculated for first year of ts
-    
+
     # if the species has a start year after the start of the survey, filter to after that
-    if(sp %in% species_year$SPECIES_CODE){
-      dat <- dat |> 
+    if (sp %in% species_year$SPECIES_CODE) {
+      dat <- dat |>
         dplyr::filter(YEAR > species_year$YEAR_STARTED[which(species_year$SPECIES_CODE == sp)])
     }
 
@@ -890,13 +890,13 @@ if (make_joy_division_length) {
       VESSEL, YEAR, LENGTH, FREQUENCY, SEX,
       GEAR_DEPTH, STRATUM, SPECIES_CODE
     ) |>
-    #dplyr::left_join(stratum_lu, by = "STRATUM") |>
+    # dplyr::left_join(stratum_lu, by = "STRATUM") |>
     mutate(Sex = case_when(
       SEX == 1 ~ "Male",
       SEX == 2 ~ "Female",
       SEX == 3 ~ "Unsexed"
     )) #|>
-    #dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
+  # dplyr::select(-SEX, -MIN_DEPTH, -MAX_DEPTH)
 
   # get samples for individual species
   species_sample_sizes <- L3 |>
@@ -914,22 +914,24 @@ if (make_joy_division_length) {
   # get sample sizes for complexes - this actually basically doesn't matter bc we don't plot length comps for complexes. smh
   complex_map <- complex_lookup |>
     dplyr::select(species_code, complex)
-  
+
   complex_sample_sizes <- L3 |>
     dplyr::filter(
       SPECIES_CODE %in% complex_lookup$species_code,
       YEAR >= minyr
     ) |>
-    left_join(complex_map, by = c("SPECIES_CODE" = "species_code"), 
-              relationship = "many-to-many") |> # this will repeat lengths for species that are in multiple complexes, for example 10261 is in both NRSSRS and SWFLATS. That's what we want!
+    left_join(complex_map,
+      by = c("SPECIES_CODE" = "species_code"),
+      relationship = "many-to-many"
+    ) |> # this will repeat lengths for species that are in multiple complexes, for example 10261 is in both NRSSRS and SWFLATS. That's what we want!
     dplyr::group_by(YEAR, complex, Sex) |>
     dplyr::summarize(n = sum(FREQUENCY), .groups = "drop") |>
     dplyr::mutate(YEAR = as.integer(YEAR)) |>
     dplyr::rename("SPECIES_CODE" = complex)
-    
+
 
   sample_sizes <- bind_rows(species_sample_sizes, complex_sample_sizes)
-  #left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
+  # left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
 
   # Loop thru species
   for (i in 1:nrow(report_species)) { #
@@ -1293,34 +1295,30 @@ if (make_temp_plot) {
       linetype = Average,
       x = Start_year, xend = maxyr
     ))
-  
+
   # new simplified temp plot
   yearly_ci <- plotdat |>
-    dplyr::filter(YEAR>=minyr) |>
+    dplyr::filter(YEAR >= minyr) |>
     dplyr::group_by(YEAR) |>
     dplyr::summarize(
       surface_mean = mean(SURFACE_TEMPERATURE, na.rm = TRUE),
-      surface_sd   = sd(SURFACE_TEMPERATURE, na.rm = TRUE),
-      surface_n    = sum(!is.na(SURFACE_TEMPERATURE)),
-      
-      bottom_mean  = mean(GEAR_TEMPERATURE, na.rm = TRUE),
-      bottom_sd    = sd(GEAR_TEMPERATURE, na.rm = TRUE),
-      bottom_n     = sum(!is.na(GEAR_TEMPERATURE)),
+      surface_sd = sd(SURFACE_TEMPERATURE, na.rm = TRUE),
+      surface_n = sum(!is.na(SURFACE_TEMPERATURE)),
+      bottom_mean = mean(GEAR_TEMPERATURE, na.rm = TRUE),
+      bottom_sd = sd(GEAR_TEMPERATURE, na.rm = TRUE),
+      bottom_n = sum(!is.na(GEAR_TEMPERATURE)),
       .groups = "drop"
     ) |>
     mutate(
       surface_se = surface_sd / sqrt(surface_n),
-      bottom_se  = bottom_sd  / sqrt(bottom_n),
-      
+      bottom_se  = bottom_sd / sqrt(bottom_n),
       surface_lo = surface_mean - 1.96 * surface_se,
       surface_hi = surface_mean + 1.96 * surface_se,
-      
-      bottom_lo  = bottom_mean  - 1.96 * bottom_se,
-      bottom_hi  = bottom_mean  + 1.96 * bottom_se
+      bottom_lo  = bottom_mean - 1.96 * bottom_se,
+      bottom_hi  = bottom_mean + 1.96 * bottom_se
     )
-  
-  
-  
+
+
   line_temperature <- yearly_ci |>
     # surface
     ggplot(aes(x = YEAR, y = surface_mean)) +
@@ -1337,28 +1335,36 @@ if (make_temp_plot) {
     ) +
     xlab("Year") +
     ylab(expression("Temperature "(degree * C))) +
-    geom_segment(y = surface_temp_avgs$Value[1],
-                 yend = surface_temp_avgs$Value[1], 
-                 x=surface_temp_avgs$Start_year[1],
-                 xend = maxyr,
-                 color = "#68abb8", alpha=0.4) +
-    geom_segment(y = bottom_temp_avgs$Value[1],
-                 yend = bottom_temp_avgs$Value[1], 
-                 x=bottom_temp_avgs$Start_year[1],
-                 xend = maxyr,
-                 color = "#2a5674", alpha=0.4) +
-    geom_segment(y = surface_temp_avgs$Value[2],
-                 yend = surface_temp_avgs$Value[2], 
-                 x=surface_temp_avgs$Start_year[2],
-                 xend = maxyr,
-                 color = "#68abb8", alpha=0.4,lty = 2) +
-    geom_segment(y = bottom_temp_avgs$Value[2],
-                 yend = bottom_temp_avgs$Value[2], 
-                 x=bottom_temp_avgs$Start_year[2],
-                 xend = maxyr,
-                 color = "#2a5674", alpha=0.4,lty = 2) +
-    annotate(geom = "text", x = 1999, y=11.5,label = "Surface temperature",color = "#68abb8") +
-    annotate(geom = "text", x = 1999, y=6.5,label = "Bottom temperature",color = "#2a5674") +
+    geom_segment(
+      y = surface_temp_avgs$Value[1],
+      yend = surface_temp_avgs$Value[1],
+      x = surface_temp_avgs$Start_year[1],
+      xend = maxyr,
+      color = "#68abb8", alpha = 0.4
+    ) +
+    geom_segment(
+      y = bottom_temp_avgs$Value[1],
+      yend = bottom_temp_avgs$Value[1],
+      x = bottom_temp_avgs$Start_year[1],
+      xend = maxyr,
+      color = "#2a5674", alpha = 0.4
+    ) +
+    geom_segment(
+      y = surface_temp_avgs$Value[2],
+      yend = surface_temp_avgs$Value[2],
+      x = surface_temp_avgs$Start_year[2],
+      xend = maxyr,
+      color = "#68abb8", alpha = 0.4, lty = 2
+    ) +
+    geom_segment(
+      y = bottom_temp_avgs$Value[2],
+      yend = bottom_temp_avgs$Value[2],
+      x = bottom_temp_avgs$Start_year[2],
+      xend = maxyr,
+      color = "#2a5674", alpha = 0.4, lty = 2
+    ) +
+    annotate(geom = "text", x = 1999, y = 11.5, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 6.5, label = "Bottom temperature", color = "#2a5674") +
     theme_bw(base_size = 14)
 
   png(
@@ -1378,7 +1384,7 @@ if (make_temp_plot) {
   )
   print(surface_temp_plot)
   dev.off()
-  
+
   png(
     filename = paste0(
       dir_out_figures, maxyr, "_temps_combined.png"
@@ -1392,7 +1398,7 @@ if (make_temp_plot) {
   list_temperature[[2]] <- surface_temp_plot
   list_temperature[[3]] <- line_temperature
 
-  names(list_temperature) <- c("bottomtemp", "surfacetemp","linetemp")
+  names(list_temperature) <- c("bottomtemp", "surfacetemp", "linetemp")
 
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
