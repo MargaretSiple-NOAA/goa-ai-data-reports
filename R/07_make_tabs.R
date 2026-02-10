@@ -209,7 +209,7 @@ surveywide_samplingdensity <- allocated_sampled |>
   filter(`Depth range (m)` == "All depths" & `NMFS area` == "All areas") |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   as.numeric() |>
-  round(digits = 4)
+  round(digits = 5)
 
 list_samplingdensities <- list(
   depthrange_hisamplingdensity = depthrange_hisamplingdensity,
