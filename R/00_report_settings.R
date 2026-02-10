@@ -155,6 +155,11 @@ species_year <- species_year |>
     YEAR_STARTED = c(1996, 2006)
   )
 
+# Did we have an IPHC person aboard? 
+if(maxyr < 2023){
+  iphc_sentence <- "When halibut were retained by the onboard IPHC sampler, sample sizes were determine by IPHC protocols."}else{
+    iphc_sentence <- ""}
+
 # Random figure settings we need, annoyingly:
 # for length-depth scatter:
 lscale <- 10
