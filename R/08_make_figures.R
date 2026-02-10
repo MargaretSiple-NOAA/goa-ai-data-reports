@@ -1239,7 +1239,7 @@ if (make_temp_plot) {
     as.numeric()
   bottom_temp_avgs <- data.frame(
     "Average" = c("10-year", "20-year"),
-    "Value" = c(bottom_temp_20yr, bottom_temp_10yr),
+    "Value" = c(bottom_temp_10yr, bottom_temp_20yr),
     Start_year = c(maxyr - 10, maxyr - 20)
   )
 
@@ -1271,7 +1271,7 @@ if (make_temp_plot) {
     as.numeric()
   surface_temp_avgs <- data.frame(
     "Average" = c("10-year", "20-year"),
-    "Value" = c(surface_temp_20yr, surface_temp_10yr),
+    "Value" = c(surface_temp_10yr, surface_temp_20yr),
     "Start_year" = c(maxyr - 10, maxyr - 20)
   )
 
@@ -1357,9 +1357,9 @@ if (make_temp_plot) {
                  x=bottom_temp_avgs$Start_year[2],
                  xend = maxyr,
                  color = "#2a5674", alpha=0.4,lty = 2) +
-    annotate(geom = "text", x = 1999, y=11,label = "Surface temperature",color = "#68abb8",fontface = 2) +
+    annotate(geom = "text", x = 1999, y=11.5,label = "Surface temperature",color = "#68abb8") +
     annotate(geom = "text", x = 1999, y=6.5,label = "Bottom temperature",color = "#2a5674") +
-    linetheme
+    theme_bw(base_size = 14)
 
   png(
     filename = paste0(
