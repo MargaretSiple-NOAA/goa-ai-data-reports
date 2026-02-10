@@ -203,20 +203,12 @@ list_tables[["otos_target_sampled"]] |>
 <br />
 <br />
 
-```{r fig.cap='Bottom temperature measured at the headrope of the trawl. Larger brown points represent the median. Shaded distributions represent the density of measurements. Horizontal lines show the mean bottom (gear) temperature over the past 10 and 20 years.', fig.id='bottom-temp',  fig.cap.style = "Figure Caption", fig.width=6}
-list_temperature[['bottomtemp']]
+```{r fig.cap='Surface and bottom (gear) temperatures from survey tows. Bottom temperature is measured at the headrope of the trawl. Horizontal lines show the mean of each time series over the past 10 (solid) and 20 (dashed) years. Vertical lines indicate 95% confidence intervals.', fig.id='line-temperature',  fig.cap.style = "Figure Caption", fig.width=6}
+list_temperature[['linetemp']]
 ```
 
 <br />
 <br />
-
-```{r fig.cap='Surface temperatures from the survey. Larger brown points represent the median. Shaded distributions represent the density of measurements. Horizontal lines show the mean surface temperature over the past 10 and 20 years.', fig.id='surface-temp',  fig.cap.style = "Figure Caption", fig.width=6}
-list_temperature[['surfacetemp']]
-```
-
-<br />
-<br />
-
 
 
 <!-- NOTE: Figures after this first one are all per species until the appendix. -->
