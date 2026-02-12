@@ -4,11 +4,11 @@
 <!-- These are the summary bullet points. -->
 - The {{spp_name_informal_sen}} includes {{f2}} and {{f4}}.
 
-- {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant group caught in the {{year}} {{region}} survey. Their total biomass was estimated to be {{species_biomass}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`), which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}}.
+- {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant group caught in the {{year}} {{SRVY}} survey. Their total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`, Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
 
--   The largest estimated biomass for the {{spp_name_informal_low}} was in the {{nmfs_highest_biomass}} region and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
+-   The largest estimated biomass for the {{spp_name_informal_low}} was in the {{nmfs_highest_biomass}} statistical area and the depth range with the largest estimated biomass was {{depth_highest_biomass}} (Table `r officer::run_reference(paste0("table2-","{{species_code}}"))`).
 
--   The highest CPUEs for the {{spp_name_informal}} were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} districts (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
+-   The highest CPUEs for the {{spp_name_informal}} were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} statistical areas (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
 
 -   Length compositions and size by depth are not shown for complexes; these data are available upon request.
 

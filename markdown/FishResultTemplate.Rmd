@@ -3,19 +3,19 @@
 
 <!-- These are the summary bullet points. -->
 
--   {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{region}} survey. Their total biomass was estimated to be {{species_biomass}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`), which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}}.
+-   {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{SRVY}} survey. Their total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`, Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
 
--   The largest estimated biomass for {{spp_name_informal}} was in the {{nmfs_highest_biomass}} district and the depth range with the largest estimated biomass was {{depth_highest_biomass}}.
+-   The largest estimated biomass for {{spp_name_informal}} was in the {{nmfs_highest_biomass}} statistical area and the depth range with the largest estimated biomass was {{depth_highest_biomass}} (Table `r officer::run_reference(paste0("table2-","{{species_code}}"))`).
 
--   The highest {{spp_name_informal}} CPUEs were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} districts (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
+-   The highest {{spp_name_informal}} CPUEs were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} statistical areas (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
 
--   On average, the longest individuals were found in the {{region_longest}} region and in a depth range of {{depth_longest}} (Figure `r officer::run_reference(paste0("lengthdepth-","{{species_code}}"))`). Historical length distributions are provided in Figure `r officer::run_reference(paste0("lengthcomp-","{{species_code}}"))`.
+-   On average, the longest individuals were found in the {{region_longest}} statistical area and in a depth range of {{depth_longest}} (Figure `r officer::run_reference(paste0("lengthdepth-","{{species_code}}"))`). Historical length distributions are provided in Figure `r officer::run_reference(paste0("lengthcomp-","{{species_code}}"))`.
 
 <!-- `r if({{show.text}}){paste0("- ","{{sex_diff_sentence}}") }` -->
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{SRVY}} trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates, and average fish weight.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[["{{ species_code }}"]] |>
     # table3s_list[[as.character(30060)]] |>
     flextable() |>
@@ -42,7 +42,7 @@ table3s_list[["{{ species_code }}"]] |>
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by area and depth interval of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+```{r echo=FALSE,tab.cap='Summary by area and depth interval of {{year}} {{SRVY}} survey trawl effort (number of hauls), number of hauls containing {{spp_name_informal}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 
 table4s_list[["{{ species_code }}"]] |>
 # table4s_list[[as.character(30060)]] %>%
@@ -68,24 +68,24 @@ table4s_list[["{{ species_code }}"]] |>
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{region}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
 list_3panel_ts[["{{species_code}}"]]
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
 
-```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE; X = no catch) of {{spp_name_informal}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
+```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE; X = no catch) of {{spp_name_informal}} in the {{year}} {{SRVY}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
 list_cpue_bubbles_strata[["{{species_code}}"]]
 ```
 
 <!---BLOCK_LANDSCAPE_STOP--->
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{region}} bottom trawl survey between {{species_start_yr}} and {{maxyr}}. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey between {{species_start_yr}} and {{maxyr}}. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
 list_joy_length[["{{species_code}}"]]
 ```
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{region}} bottom trawl survey. Lines represent predictions from a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths. The x-axis represents the full depth range where {{spp_name_informal}} were collected.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{SRVY}} bottom trawl survey. Lines represent predictions from a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths. The x-axis represents the full depth range where {{spp_name_informal}} were collected.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
 list_ldscatter[["{{species_code}}"]]
 ```
