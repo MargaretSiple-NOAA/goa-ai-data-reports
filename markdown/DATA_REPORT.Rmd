@@ -305,7 +305,8 @@ for (i in 1:nrow(report_species)) { # nrow(report_species)
     dplyr::filter(biomass_numeric == max(biomass_numeric, na.rm = TRUE)) |>
     dplyr::select(`Depth (m)`) |>
     as.character()
-  depth_highest_biomass <- paste0(depth_highest_biomass0, "&nbsp;", "m")
+  #depth_highest_biomass <- paste0(depth_highest_biomass0, "&nbsp;", "m")
+  depth_highest_biomass <- gsub(pattern = " ", replacement = "&nbsp;", x = depth_highest_biomass0)
   # 
   # Octopus
   if (species_code == 78403) { # true/false, if it's for octopus don't make length comp or length scatter figs and use a different template maybe

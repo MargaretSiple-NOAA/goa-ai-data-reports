@@ -3,11 +3,12 @@
 
 <!-- These are the summary bullet points. For invertebrates, the two bullet points about size are left out, as there are no size comps for things like giant octopus. -->
 
--  {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{SRVY}} survey. The total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`, Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
+-  {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{SRVY}} survey. The total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
+
+-  The highest {{spp_name_informal}} CPUEs were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} statistical areas (Table `r officer::run_reference(paste0("table1-",{{species_code}}))` and Fig. `r officer::run_reference(paste0("cpue-",{{species_code}}))`). 
 
 -  The largest estimated biomass for {{spp_name_informal}} was in the {{nmfs_highest_biomass}} statistical area, and the depth range with the largest estimated biomass was {{depth_highest_biomass}} (Table `r officer::run_reference(paste0("table2-","{{species_code}}"))`).
 
--  The highest {{spp_name_informal}} CPUEs were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} statistical areas (Table `r officer::run_reference(paste0("table1-",{{species_code}}))` and Fig. `r officer::run_reference(paste0("cpue-",{{species_code}}))`). 
 
 \newpage
 ```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of trawl hauls), number of hauls containing {{spp_name_informal}}, their mean CPUE and biomass estimates, and average individual weight.', tab.id=paste0("table1-",{{species_code}}),  tab.cap.style = "Table caption",tab.align="left"}

@@ -4,11 +4,11 @@
 <!-- These are the summary bullet points. -->
 - The {{spp_name_informal_sen}} includes {{f2}} and {{f4}}.
 
-- {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant group caught in the {{year}} {{SRVY}} survey. Their total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`, Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
-
--   The largest estimated biomass for the {{spp_name_informal_low}} was in the {{nmfs_highest_biomass}} statistical area and the depth range with the largest estimated biomass was {{depth_highest_biomass}} (Table `r officer::run_reference(paste0("table2-","{{species_code}}"))`).
+- {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant group caught in the {{year}} {{SRVY}} survey. Their total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
 
 -   The highest CPUEs for the {{spp_name_informal}} were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} statistical areas (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
+
+-   The largest estimated biomass for the {{spp_name_informal_low}} was in the {{nmfs_highest_biomass}} statistical area and the depth range with the largest estimated biomass was {{depth_highest_biomass}} (Table `r officer::run_reference(paste0("table2-","{{species_code}}"))`).
 
 -   Length compositions and size by depth are not shown for complexes; these data are available upon request.
 
@@ -21,7 +21,7 @@ table3s_list[["{{ species_code }}"]] |>
   #table3s_list[[as.character("NRSSRS")]] |>
    flextable() |>
   flextable::theme_vanilla() |>
-  flextable::fontsize(size = 9, part = "all") |>
+  flextable::fontsize(size = 10, part = "all") |>
   flextable::fit_to_width(max_width = 8.25, unit = "in") |>
   flextable::align(align = "center", part = "all") |>
   flextable::align(j = 1, align = "left", part = "body") |>
@@ -30,6 +30,7 @@ table3s_list[["{{ species_code }}"]] |>
   flextable::set_header_labels(
     `Total haul count` = "Total \n haul count",
     `Hauls with positive catch` = "Hauls w/\npositive catch",
+    `Percent positive tows` = "% \npositive \ntows",
     #`CPUE (kg/km2)` = "CPUE\n(kg/km2)",
     `Biomass (t)` = "Biomass\n(t)",
     `% biomass in area` = "% \n biomass \n in area"

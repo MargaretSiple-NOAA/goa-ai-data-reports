@@ -3,13 +3,13 @@
 
 <!-- These are the summary bullet points. -->
 
--   {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{SRVY}} survey. Their total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))`, Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
-
--   The largest estimated biomass for {{spp_name_informal}} was in the {{nmfs_highest_biomass}} statistical area and the depth range with the largest estimated biomass was {{depth_highest_biomass}} (Table `r officer::run_reference(paste0("table2-","{{species_code}}"))`).
+-   {{spp_name_informal_sen}} was the `r scales::ordinal({{xth}})` most abundant species caught in the {{year}} {{SRVY}} survey. Their total biomass was estimated to be {{species_biomass}}, which is a {{spp_percent_change}}% {{spp_incr_decr}} from {{compareyr}} (Fig. `r officer::run_reference(paste0("threepanel-","{{species_code}}"))`).
 
 -   The highest {{spp_name_informal}} CPUEs were recorded in the {{nmfs_highest_cpue[1]}} and {{nmfs_highest_cpue[2]}} statistical areas (Table `r officer::run_reference(paste0("table1-","{{species_code}}"))` and Fig. `r officer::run_reference(paste0("cpue-","{{species_code}}"))`).
 
--   On average, the longest individuals were found in the {{region_longest}} statistical area and in a depth range of {{depth_longest}} (Figure `r officer::run_reference(paste0("lengthdepth-","{{species_code}}"))`). Historical length distributions are provided in Figure `r officer::run_reference(paste0("lengthcomp-","{{species_code}}"))`.
+-   The largest estimated biomass for {{spp_name_informal}} was in the {{nmfs_highest_biomass}} statistical area and the depth range with the largest estimated biomass was {{depth_highest_biomass}} (Table `r officer::run_reference(paste0("table2-","{{species_code}}"))`).
+
+-  Historical length distributions are provided in Figure `r officer::run_reference(paste0("lengthcomp-","{{species_code}}"))`. On average, the longest individuals were found in the {{region_longest}} statistical area and in a depth range of {{depth_longest}} (Fig. `r officer::run_reference(paste0("lengthdepth-","{{species_code}}"))`). 
 
 <!-- `r if({{show.text}}){paste0("- ","{{sex_diff_sentence}}") }` -->
 
