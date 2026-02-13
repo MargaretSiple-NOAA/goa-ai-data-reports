@@ -3,13 +3,6 @@ biomass_round <- function(x) {
   round(x, digits = 0)
 }
 
-# https://github.com/geanders/weathermetrics/blob/master/R/temperature_conversions.R
-c2f <- function(T.celsius, round = 2) {
-  T.fahrenheit <- (9 / 5) * T.celsius + 32
-  T.fahrenheit <- round(T.fahrenheit, digits = round)
-  return(T.fahrenheit)
-}
-
 # Other conversions
 divnmi2forkm2 <- 1 / 3.429904
 divkm2fornmi2 <- 3.429904
@@ -120,10 +113,10 @@ chr_to_num <- function(x) {
 #'
 #' @examples
 top_CPUE_formatted <- function(top_CPUE) {
-  x <- top_CPUE %>%
+  x <- top_CPUE |>
     # existing changes in markdown file:
-    dplyr::select(NMFS_STATISTICAL_AREA, common_name, wgted_mean_cpue_kgha) %>%
-    dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha, digits = 1)) %>%
+    dplyr::select(NMFS_STATISTICAL_AREA, common_name, wgted_mean_cpue_kgha) |>
+    dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha, digits = 1)) |>
     dplyr::rename(
       `NMFS area` = NMFS_STATISTICAL_AREA,
       Species = common_name,
