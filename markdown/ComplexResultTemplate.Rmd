@@ -16,7 +16,7 @@
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{region}} trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+```{r echo=FALSE,tab.cap='Summary by survey districts and depth intervals of {{year}} {{SRVY}} trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[["{{ species_code }}"]] |>
   #table3s_list[[as.character("NRSSRS")]] |>
    flextable() |>
@@ -40,7 +40,7 @@ table3s_list[["{{ species_code }}"]] |>
 
 \newpage
 
-```{r echo=FALSE,tab.cap='Summary by survey district (NMFS area), survey subdistrict, and depth intervals of {{year}} {{region}} survey trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
+```{r echo=FALSE,tab.cap='Summary by survey district (NMFS area), survey subdistrict, and depth intervals of {{year}} {{SRVY}} survey trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 
 table4s_list[["{{ species_code }}"]] |>
 # table4s_list[[as.character("NRSSRS")]] %>%
@@ -64,13 +64,13 @@ table4s_list[["{{ species_code }}"]] |>
   flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{region}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
 list_3panel_ts[["{{species_code}}"]]
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
 
-```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE, kg/ha; X = no catch) of the {{spp_name_informal_low}} in the {{year}} {{region}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
+```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE, kg/ha; X = no catch) of the {{spp_name_informal_low}} in the {{year}} {{SRVY}} summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
 list_cpue_bubbles_strata[["{{species_code}}"]]
 ```
 
