@@ -12,8 +12,6 @@ make_biomass_timeseries <- TRUE
 make_catch_comp <- TRUE
 # 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022.
 make_cpue_bubbles_strata <- TRUE
-# 3b. CPUE bubble maps, Emily M edition - strata not shown. Bubbles are purple. Scale bar and legend with CPUE scale are shown.
-make_cpue_bubbles <- FALSE
 # 5. Length frequency plots as joy division plots
 make_joy_division_length <- TRUE
 # 5b. Length vs. depth, faceted by district with GAM-predicted size by depth.
