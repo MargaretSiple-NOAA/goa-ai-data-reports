@@ -120,7 +120,10 @@ if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
 
 # Econ info ---------------------------------------------------------------
 # dat <- read.csv("data/GOA_planning_species_2021.csv") #for 2021 report
-dat <- read.csv("data/GOA_planning_species_2023.csv")
+# dat <- read.csv("data/GOA_planning_species_2023.csv")
+
+# dat <- read.csv("data/GOA_planning_species_2019.csv")
+
 sp_prices <- dat |>
   dplyr::filter(!is.na(ex.vessel.price)) |>
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) |>
@@ -137,7 +140,15 @@ pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), 
 # Station allocation, counts, etc. ----------------------------------------
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
-  all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2025/Station Allocation/goa_2025_station_allocation_450.xlsx", sheet = "Station Allocation") # customize from year to year
+  if (maxyr == 2025) {
+    all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2025/Station Allocation/goa_2025_station_allocation_450.xlsx", sheet = "Station Allocation") # customize from year to year
+  }
+  if (maxyr == 2019) {
+    all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2019/Station allocation/GOA2019_ 2 boat_550_RNDM_stations.xlsx", sheet = "GOA2019_ 2 boat_550_RNDM_statio") # customize from year to year
+  }
+  if (!maxyr %in% c(2019, 2021, 2025)) {
+    print("make sure your allocation file directory is set. Or modify this part of the code to be less janky :)")
+  }
 } else {
   all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
 }
@@ -276,9 +287,13 @@ if (maxyr > 2023) {
     nrow()
 }
 
-nnewstations <- all_allocation |>
-  filter(YEAR == maxyr & STATION_TYPE == "new_stn") |>
-  nrow()
+if (maxyr > 2021) {
+  nnewstations <- all_allocation |>
+    filter(YEAR == maxyr & STATION_TYPE == "new_stn") |>
+    nrow()
+} else {
+  nnewstations <- 0
+}
 
 if (nnewstations == 0) {
   print("Code says no new stations were sampled this year. If this is not correct, check allocation table.")
@@ -348,7 +363,7 @@ nfailedtows <- haul2 |>
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) |>
   nrow()
 
-pct_reduction_from_520 <- abs(round(((nstationsassigned-520)/520) * 100))
+pct_reduction_from_520 <- abs(round(((nstationsassigned - 520) / 520) * 100))
 # SQL version for nfailedtows (from Ned):
 # select count(*) from racebase.haul
 # where region = 'GOA' and cruise = 202101
@@ -372,13 +387,6 @@ if (any(is.na(haul2$NET_WIDTH))) {
 } else {
   marportpredsentence <- "Net width data were collected for all hauls using a Marport net spread sensor."
 }
-
-
-# Depths and areas with highest sampling densities ------------------------
-load(paste0(dir_out_tables, "list_samplingdensities.rdata"))
-depthrange_hisamplingdensity <- list_samplingdensities$depthrange_hisamplingdensity
-stationdensity_hisamplingdensity <- list_samplingdensities$stationdensity_hisamplingdensity
-surveywide_samplingdensity <- list_samplingdensities$surveywide_samplingdensity
 
 # Lengths and otos sampled -------------------------------------------
 L0 <- read.csv(here::here("data/local_racebase/length.csv"))
@@ -510,7 +518,7 @@ if (!exists("report_pseudolengths")) {
   report_pseudolengths <- read.csv(file = paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
 }
 
-if(!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CODE))){
+if (!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CODE))) {
   print("STOP HERE AND RE-RUN DATA DOWNLOAD WITH NEW REPORT SPECIES LIST")
 }
 
@@ -576,3 +584,5 @@ if (pres_or_report == "pres") {
 # Notes and tidbits -------------------------------------------------------
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
+
+# Tally up the otoliths collected for oto comparison table
