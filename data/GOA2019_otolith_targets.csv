@@ -1,19 +1,19 @@
 species,target,collection,diff,% diff,notes
-Atka mackerel,100,,,,all up to 10
-Walleye pollock,1500,,,,"5 random if catch=10-500 pollock; 10 if catch > 500. If juveniles <25 cm dominate in any catch, only collect otoliths from 2 of the < 25 fish and allocate the remainder of the sample to larger fish."
-Pacific Cod,1000,,,,"None when <10, 5 when 10-100, 10 when > 100"
-Northern rock sole,500,,,,"None when <10, 5 when 10-100, 10 when > 100"
-Southern rock sole,500,,,,"None when <10, 5 when 10-100, 10 when > 100"
-Rex sole,500,,,,None when < 10; 3  when >= 10
-Dover sole,500,,,,"None when <10,  5 when 10-100, 10 when > 100"
-Flathead sole,500,,,,"None when <10,  3 when 10-100,  5 when > 100"
-arrowtooth flounder,900,,,,"None when <2, 2 when >=2"
-Shortspine thornyhead,350,,,,"None when <10, 4 when  >= 10"
-Rougheye rockfish,400,,,,N/A
-Blackspotted rockfish,500,,,,N/A
-Pacific ocean perch,1000,,,,all up to 5
-Northern rockfish,700,,,,all up to 10
-Shortraker rockfish,400,,,,N/A
-Dusky rockfish,500,,,,all up to 10
-Harlequin rockfish,,,,,N/A
-Sablefish,600,,,,ALL 15 random sablefish per tow @ stations <200 m
+Atka mackerel,400,42,358,-89.5,all up to 10
+Walleye pollock,1500,995,505,-33.66666667,"5 random if catch=10-500 pollock; 10 if catch > 500. If juveniles <25 cm dominate in any catch, only collect otoliths from 2 of the < 25 fish and allocate the remainder of the sample to larger fish."
+Pacific Cod,1000,500,500,-50,"None when <10, 5 when 10-100, 10 when > 100"
+Northern rock sole,500,328,172,-34.4,"None when <10, 5 when 10-100, 10 when > 100"
+Southern rock sole,500,674,-174,34.8,"None when <10, 5 when 10-100, 10 when > 100"
+Rex sole,500,684,-184,36.8,None when < 10; 3  when >= 10
+Dover sole,500,336,164,-32.8,"None when <10,  5 when 10-100, 10 when > 100"
+Flathead sole,700,686,14,-2,"None when <10,  3 when 10-100,  5 when > 100"
+arrowtooth flounder,900,898,2,-0.222222222,"None when <2, 2 when >=2"
+Shortspine thornyhead,350,411,-61,17.42857143,"None when <10, 4 when  >= 10"
+Rougheye rockfish,400,665,-265,66.25,N/A
+Blackspotted rockfish,500,451,49,-9.8,N/A
+Pacific ocean perch,1000,1231,-231,23.1,all up to 5
+Northern rockfish,700,369,331,-47.28571429,all up to 10
+Shortraker rockfish,400,350,50,-12.5,N/A
+Dusky rockfish,500,547,-47,9.4,all up to 10
+Harlequin rockfish,200,338,-138,69,N/A
+Sablefish,600,1769,-1169,194.8333333,ALL 15 random sablefish per tow @ stations <200 m
