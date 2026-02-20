@@ -11,6 +11,7 @@ source("R/03_functions.R")
 load(file = paste0(dir_in_tables, "report_tables.rdata")) # object: list_tables
 load(file = paste0(dir_in_tables, "table3s_list.rdata")) # object: table3s_list
 load(file = paste0(dir_in_tables, "table4s_list.rdata")) # object: table4s_list
+load(file = paste0(dir_out_tables, "list_samplingdensities.rdata")) # object: list_samplingdensities.rdata
 
 top_CPUE <- read.csv(
   file =
