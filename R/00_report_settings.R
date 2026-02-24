@@ -10,6 +10,11 @@ use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using 
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 tablefont <- "Arial"
 
+#YEAR <- maxyr
+design_year <- ifelse(SRVY == "AI", 1980, 1984)
+if(SRVY == "GOA" & maxyr >= 2025){
+  design_year <- 2025
+}
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
@@ -40,9 +45,6 @@ and this will become a permanent feature of our station allocations in the futur
 } else {
   preassignedstationstatement <- ""
 }
-
-YEAR <- maxyr
-design_year <- ifelse(SRVY == "GOA" & maxyr >= 2025, 2025, 1984)
 
 # Vessels and captains
 vessel1 <- "FV&nbsp;Ocean Explorer"
