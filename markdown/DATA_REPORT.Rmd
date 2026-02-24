@@ -38,7 +38,7 @@ library(officer)
 ```
 
 ```{r label}
-include_price_table <- ifelse(maxyr<2025 | SRVY=="AI", TRUE, FALSE)
+include_price_table <- ifelse(maxyr < 2025 | SRVY == "AI", TRUE, FALSE)
 ```
 
 # Preface
@@ -102,40 +102,10 @@ sp_prices |>
 \newpage
 
 ```{r echo=FALSE,tab.cap=paste('Stations allocated and sampled during the', maxyr, SRVY,'bottom trawl survey.'), tab.id='stations-allocated',  tab.cap.style = "Table caption"}
+# turned this into a function bc it got too bulky
 list_tables[["allocated_sampled"]] |>
   # allocated_sampled |>
-  dplyr::mutate(
-    `Total area` = round(`Total area`, digits = 0),
-    `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`, digits = 2)
-  ) |>
-  flextable() |>
-  flextable::merge_v(j = ~`NMFS area`) |>
-  flextable::fix_border_issues() |>
-  flextable::theme_vanilla() |>
-  flextable::font(fontname = tablefont, part = "all") |>
-  flextable::fontsize(size = 10, part = "all") |>
-  flextable::line_spacing(space = 0.75) |>
-  flextable::compose(
-    part = "header", i = 1, j = 6,
-    value = as_paragraph(
-      "Total area (km",
-      as_sup("2"), ")"
-    )
-  ) |>
-  flextable::compose(
-    part = "header", i = 1, j = 7,
-    value = as_paragraph(
-      "Stations per 1,000 km",
-      as_sup("2")
-    )
-  ) |>
-  flextable::align(align = "center", part = "body") |>
-  flextable::align(j = 1:2, align = "left", part = "body") |>
-  flextable::hline(i = ~ break_position(`NMFS area`), 
-        border = fp_border(color = "#5A5A5A", width = 3)) |>
-  #autofit() |>
-  flextable::fit_to_width(6.5)
-
+  format_allocated_sampled(area_label = "INPFC area", tablefont = tablefont)
 ```
 \newpage
 

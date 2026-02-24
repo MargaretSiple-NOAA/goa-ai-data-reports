@@ -54,15 +54,16 @@ biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
 
 area_gp <- read.csv("data/local_gap_products/area.csv")
 
-if (SRVY == "GOA") {
+if(SRVY == "GOA" & maxyr >= 2025){
   area_gp_reg_area <- area_gp |>
     dplyr::filter(AREA_TYPE %in% c("NMFS STATISTICAL AREA", "REGION") &
-      DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984)) 
+                    DESIGN_YEAR == 2025)
+      #DESIGN_YEAR == ifelse(maxyr >= 2025, 2025, 1984)) #DESIGN_YEAR == 2025
   area_gp_reg_area$AREA_NAME[which(area_gp_reg_area$AREA_NAME=="Western Regulatory Area")] = "Shumagin"
 } else {
   area_gp_reg_area <- area_gp |>
     dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
-      DESIGN_YEAR == 1980)
+      DESIGN_YEAR == ifelse(SRVY=="GOA", 1984, 1980)) # get proper design year
 }
 
 topn <- 20
@@ -78,9 +79,10 @@ top_CPUE <- biomass_subarea |>
   dplyr::filter(SPECIES_CODE < 40001) |> # take out inverts
   dplyr::right_join(area_gp_reg_area, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
   dplyr::select(AREA_NAME, N_HAUL, SPECIES_CODE, CPUE_KGKM2_MEAN) |>
-  dplyr::rename("NMFS_STATISTICAL_AREA" = AREA_NAME) |>
+  #dplyr::rename("NMFS_STATISTICAL_AREA" = AREA_NAME) |> # will change if needed
   dplyr::mutate(wgted_mean_cpue_kgha = CPUE_KGKM2_MEAN / 100) |> # convert to hectares
-  group_by(NMFS_STATISTICAL_AREA) |>
+  #group_by(NMFS_STATISTICAL_AREA) |>
+  dplyr::group_by(AREA_NAME) |>
   dplyr::slice_max(n = topn, order_by = wgted_mean_cpue_kgha, with_ties = FALSE) |>
   left_join(species_names, by = c("SPECIES_CODE" = "species_code")) |>
   dplyr::rename(
@@ -89,7 +91,8 @@ top_CPUE <- biomass_subarea |>
   dplyr::ungroup()
 
 top_CPUE <- top_CPUE |>
-  arrange(factor(NMFS_STATISTICAL_AREA, levels = c(district_order, "All")))
+  arrange(factor(AREA_NAME, levels = c(district_order, "All")))
+  #arrange(factor(NMFS_STATISTICAL_AREA, levels = c(district_order, "All")))
 
 
 write.csv(
@@ -100,113 +103,28 @@ write.csv(
 
 # Stations allocated, attempted, succeeded --------------------------------
 
-attempted <- haul |>
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |> # extract year
-  filter(REGION == SRVY & YEAR == maxyr) |>
-  group_by(STRATUM) |>
-  distinct(STATIONID) |> # how many stations were attempted sampled?
-  ungroup() |>
-  left_join(stratum_lu) |>
-  group_by(REGULATORY_AREA_NAME, `Depth range`) |>
-  dplyr::count(name = "attempted") |>
-  ungroup()
+allocated_sampled <- make_allocated_sampled(haul_maxyr = haul_maxyr, 
+                                            all_allocation = all_allocation,
+                                            maxyr = maxyr, 
+                                            district_order = district_order,
+                                            area_lookup_table = region_lu)
 
-succeeded <- haul_maxyr |> # already filtered to abundance_haul = Y
-  group_by(STRATUM) |>
-  distinct(STATIONID) |> # how many stations were sampled?
-  ungroup() |>
-  left_join(stratum_lu) |>
-  group_by(REGULATORY_AREA_NAME, `Depth range`) |>
-  dplyr::count(name = "succeeded") |>
-  ungroup()
-
-nmfs_depth_areas <- stratum_lu |>
-  distinct(REGULATORY_AREA_NAME, STRATUM, AREA, `Depth range`) |>
-  group_by(REGULATORY_AREA_NAME, `Depth range`) |>
-  dplyr::summarize(AREA = sum(AREA)) |>
-  ungroup()
-
-
-piece1 <- all_allocation |>
-  dplyr::filter(YEAR == maxyr) |>
-  dplyr::left_join(stratum_lu, by = c("STRATUM")) |>
-  dplyr::group_by(REGULATORY_AREA_NAME, `Depth range`) |>
-  dplyr::count(name = "allocated") |>
-  ungroup() |>
-  left_join(attempted) |>
-  left_join(succeeded) |>
-  left_join(nmfs_depth_areas) # START HERE NEXT TIME
-
-depth_areas <- piece1 |>
-  group_by(REGULATORY_AREA_NAME) |>
-  dplyr::summarize(
-    AREA = sum(AREA),
-    allocated = sum(allocated),
-    attempted = sum(attempted),
-    succeeded = sum(succeeded)
-  ) |>
-  ungroup() |>
-  mutate(`Depth range` = "All depths")
-
-allocated_prep <- piece1 |>
-  bind_rows(depth_areas) |>
-  arrange(REGULATORY_AREA_NAME, `Depth range`) |>
-  dplyr::arrange(factor(REGULATORY_AREA_NAME, levels = district_order)) |>
-  mutate(stations_per_1000km2 = (succeeded / AREA) * 1000) |>
-  mutate(
-    AREA = round(AREA, digits = 1),
-    stations_per_1000km2 = round(stations_per_1000km2, digits = 2)
-  ) |>
-  dplyr::rename(NMFS_AREA = "REGULATORY_AREA_NAME")
-
-
-all_areas <- allocated_prep |>
-  filter(`Depth range` != "All depths") |>
-  group_by(`Depth range`) |>
-  dplyr::summarize(
-    allocated = sum(allocated),
-    attempted = sum(attempted),
-    succeeded = sum(succeeded),
-    AREA = sum(AREA)
-  ) |>
-  dplyr::mutate(stations_per_1000km2 = round((succeeded / AREA) * 1000, digits = 2)) |>
-  ungroup() |>
-  tibble::add_column(NMFS_AREA = "All areas", .before = "Depth range")
-
-all_areas_depths <- all_areas |>
-  dplyr::summarize(across(allocated:AREA, sum)) |>
-  tibble::add_column(`Depth range` = "All depths", .before = "allocated") |>
-  ungroup() |>
-  mutate(stations_per_1000km2 = succeeded / AREA) |>
-  tibble::add_column(NMFS_AREA = "All areas", .before = "Depth range")
-
-allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths) |>
-  dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`)) |>
-  dplyr::mutate(depthorder = ifelse(`Depth range`=="All depths",1000,as.numeric(stringr::str_extract(`Depth range`, "[^- ]+")))) |>
-  dplyr::arrange(factor(NMFS_AREA, levels = c(district_order, "All areas")), depthorder) |>
-  dplyr::select(-depthorder)
-
-colnames(allocated_sampled) <- c(
-  "NMFS area", "Depth range (m)",
-  "Stations allocated", "Stations attempted", "Stations completed",
-  "Total area", "Stations per 1,000 km^2"
-)
 
 # Statement about assigned sampling densities - numeric vector of two
 depthrange_hisamplingdensity <- allocated_sampled |>
-  dplyr::filter(`Depth range (m)` != "All depths" & `NMFS area` == "All areas") |>
+  dplyr::filter(`Depth range (m)` != "All depths" & `Management area` == "All areas") |>
   slice_max(n = 2, order_by = `Stations per 1,000 km^2`) |>
   dplyr::select(`Depth range (m)`) |>
   unlist()
 
 stationdensity_hisamplingdensity <- allocated_sampled |>
-  filter(`Depth range (m)` != "All depths" & `NMFS area` == "All areas") |>
+  filter(`Depth range (m)` != "All depths" & `Management area` == "All areas") |>
   slice_max(n = 2, order_by = `Stations per 1,000 km^2`) |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   unlist()
 
 surveywide_samplingdensity <- allocated_sampled |>
-  filter(`Depth range (m)` == "All depths" & `NMFS area` == "All areas") |>
+  filter(`Depth range (m)` == "All depths" & `Management area` == "All areas") |>
   dplyr::select(`Stations per 1,000 km^2`) |>
   as.numeric() |>
   round(digits = 5)
@@ -216,6 +134,14 @@ list_samplingdensities <- list(
   stationdensity_hisamplingdensity = stationdensity_hisamplingdensity,
   surveywide_samplingdensity = surveywide_samplingdensity
 )
+
+save(list_samplingdensities, file = paste0(dir_out_tables, "list_samplingdensities.rdata"))
+
+# load(paste0(dir_out_tables, "list_samplingdensities.rdata"))
+# 
+# depthrange_hisamplingdensity <- list_samplingdensities$depthrange_hisamplingdensity
+# stationdensity_hisamplingdensity <- list_samplingdensities$stationdensity_hisamplingdensity
+# surveywide_samplingdensity <- list_samplingdensities$surveywide_samplingdensity
 
 # "Table 3" -----------------------------------------------------------
 # biomass_gp already loaded above
