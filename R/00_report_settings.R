@@ -10,17 +10,18 @@ use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using 
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 tablefont <- "Arial"
 
-#YEAR <- maxyr
-design_year <- ifelse(SRVY == "AI", 1980, 1984)
-if(SRVY == "GOA" & maxyr >= 2025){
-  design_year <- 2025
-}
+YEAR <- maxyr # probably can simplify this later
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
 SRVY <- "GOA" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
+
+design_year <- ifelse(SRVY == "AI", 1980, 1984)
+if(SRVY == "GOA" & maxyr >= 2025){
+  design_year <- 2025
+}
 
 # Check survey year and region combo:
 if (maxyr %% 2 == 0 && SRVY == "GOA") {
