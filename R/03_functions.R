@@ -147,7 +147,7 @@ top_CPUE_formatted <- function(top_CPUE) {
 #'
 # biomass_tbl <- read.csv("./data/local_gap_products/biomass.csv",header=TRUE)
 # area_tbl <- read.csv("./data/local_gap_products/area.csv",header=TRUE)
-make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
+make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, design_year = design_year) {
   if (length(unique(biomass_tbl$SURVEY_DEFINITION_ID)) > 1) {
     stop("More than one survey definition ID.")
   }
@@ -158,22 +158,33 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
 
   biomass_yr[which(biomass_yr$POPULATION_COUNT == 0), "AVG_WEIGHT_KG"] <- "--"
   biomass_yr[which(biomass_yr$POPULATION_COUNT > 0 & biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
-
+  
+  srvy <- switch(as.character(biomass_tbl$SURVEY_DEFINITION_ID[1]),
+                 "47" = "GOA", "52" = "AI")
+  
+  if(srvy=="GOA" & year>=2025){
   area_lookup0 <- area_tbl |>
     dplyr::filter(AREA_TYPE %in% c(
       "NMFS STATISTICAL AREA",
       # "REGULATORY AREA",
       "REGION"
     ))
+  
+  area_name <- "NMFS area"
+  }else{
+      area_lookup0 <- area_tbl |>
+        dplyr::filter(AREA_TYPE %in% c(
+          "INPFC BY DEPTH",
+          "INPFC",
+          "DEPTH", "REGION"
+        )) 
+      area_name <- "INPFC area"
+    }
 
-  if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
     area_lookup <- area_lookup0 |>
-      dplyr::filter(DESIGN_YEAR == ifelse(year < 2025, 1984, 2025)) # GOA design years
+      dplyr::filter(DESIGN_YEAR == design_year) # GOA design years
 
     area_lookup$AREA_NAME[which(area_lookup$AREA_NAME == "Western Regulatory Area")] <- "Shumagin"
-  } else {
-    area_lookup <- area_lookup0 # All AI design years are 1980
-  }
 
   combo0 <- area_lookup |>
     left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
@@ -201,7 +212,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
   # Format the columns
   combo <- combo0 |>
     dplyr::rename(
-      "NMFS area" = AREA_NAME,
+      area_name = AREA_NAME,
       "Depth (m)" = DEPTH_RANGE,
       "Total haul count" = N_HAUL,
       "Hauls with positive catch" = N_WEIGHT,
@@ -211,7 +222,8 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       # "Biomass variance (t)" = BIOMASS_VAR,
       "Average weight (kg)" = AVG_WEIGHT_KG,
       "% biomass in area" = PERCENT_IN_AREA
-    )
+    ) |>
+    dplyr::filter(!is.na(`Total haul count`))
 
   # Format numbers in CPUE and biomass columns
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
