@@ -7,7 +7,7 @@ source("R/00_report_settings.R")
 # Functions, packages, directories ---------------------------------------------
 source("R/01_directories.R")
 source("R/02_load_packages.R")
-source("R/03_functions.R") # May not need all these functions.
+source("R/03_functions.R")
 
 # Get text from Google Drive --------------------------------------------------
 y <- TRUE
@@ -16,7 +16,7 @@ if (y) {
 }
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
-x <- TRUE
+x <- FALSE # only need to do this 1-2x per report cycle and it takes a long time.
 if (x) {
   source("R/05_download_data_from_oracle.R")
 }
