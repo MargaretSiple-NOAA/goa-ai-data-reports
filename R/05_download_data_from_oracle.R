@@ -17,12 +17,12 @@ channel <- gapindex::get_connected(db = "AFSC")
 ################## DOWNLOAD TABLES##########################################
 # RACEBASE ----------------------------------------------------------------
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH")
+a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/catch.csv", row.names = FALSE)
 
 print("Finished downloading CATCH")
 
-haul <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL")
+haul <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL WHERE REGION IN ('GOA','AI')")
 # haul <- RODBC::sqlQuery(
 #   channel,
 #   paste0(
@@ -42,15 +42,15 @@ if (!exists("haul")) {
 
 print("Finished downloading HAUL")
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH")
+a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
 
 print("Finished downloading LENGTH")
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN")
+a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/specimen.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.STRATUM")
+a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.STRATUM WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/stratum.csv", row.names = FALSE)
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.STATIONS")
@@ -70,36 +70,26 @@ print("Finished downloading SPECIMEN, STRATUM, SPECIES, CRUISE and SPECIES_CLASS
 
 # RACE_DATA ---------------------------------------------------------------
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.HAULS")
-write.csv(x = a, "./data/local_race_data/hauls.csv", row.names = FALSE)
-
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.RACE_SPECIES_CODES")
 write.csv(x = a, "./data/local_race_data/race_species_codes.csv", row.names = FALSE)
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.VESSELS")
 write.csv(x = a, "./data/local_race_data/vessels.csv", row.names = FALSE)
 
-# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.TAXONOMIC_RANKS")
-# write.csv(x = a, "./data/local_race_data/taxonomic_ranks.csv", row.names = FALSE)
-
-# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.SPECIES_TAXONOMICS")
-# write.csv(x = a, "./data/local_race_data/species_taxonomics.csv", row.names = FALSE)
-
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.V_CRUISES")
 write.csv(x = a, "./data/local_race_data/cruises.csv", row.names = FALSE)
 
 print("Finished downloading RACE_DATA tables. We may not need all of these forever.")
 
-
-# ADFG --------------------------------------------------------------------
-
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH_ADFG")
-write.csv(x = a, "./data/length_ADFG.csv", row.names = FALSE)
-
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN_ADFG")
-write.csv(x = a, "./data/specimen_ADFG.csv", row.names = FALSE)
-
-print("Finished downloading ADF&G tables")
+# # ADFG --------------------------------------------------------------------
+# 
+# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH_ADFG")# do I need this? 
+# write.csv(x = a, "./data/length_ADFG.csv", row.names = FALSE)
+# 
+# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN_ADFG")# do I need this? 
+# write.csv(x = a, "./data/specimen_ADFG.csv", row.names = FALSE)
+# 
+# print("Finished downloading ADF&G tables")
 
 # GOA ---------------------------------------------------------------------
 
@@ -159,7 +149,7 @@ if (!exists("cpue")) {
 
 cpue_raw <- cpue |>
   dplyr::left_join(haul) |>
-  dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |>
+  dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |> #
   dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
   dplyr::rename(
     survey = "REGION",
@@ -227,12 +217,13 @@ write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_processed.
 # * BIOMASS  --------------------------------------------------------------
 # biomass
 # ** species --------------------------------------------------
-biomass <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS")
+biomass0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS WHERE SURVEY_DEFINITION_ID IN (47, 52)") 
+
 biomass <- dplyr::filter(
-  biomass,
-  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) # &
-  # YEAR == maxyr
+  biomass0,
+  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) 
 )
+
 write.csv(x = biomass, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
 print("Finished downloading GAP_PRODUCTS.BIOMASS")
