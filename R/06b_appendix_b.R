@@ -106,21 +106,21 @@ appB0 <- species_maxyr |>
   )) |>
   dplyr::mutate(family_taxon = case_when(
     species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon
-  )) 
+  ))
 
 if (SRVY == "GOA" & design_year >= 2025) {
-appB <- appB0 |>
-  dplyr::select(regulatory_area_name, species_name, common_name,
-    family = family_taxon, phylum = phylum_taxon,
-    major_group, tax_group
-  ) |>
-  distinct() |>
-  arrange(regulatory_area_name, tax_group, major_group, species_name)
-}else{
+  appB <- appB0 |>
+    dplyr::select(regulatory_area_name, species_name, common_name,
+      family = family_taxon, phylum = phylum_taxon,
+      major_group, tax_group
+    ) |>
+    distinct() |>
+    arrange(regulatory_area_name, tax_group, major_group, species_name)
+} else {
   appB <- appB0 |>
     dplyr::select(inpfc_area, species_name, common_name,
-                  family = family_taxon, phylum = phylum_taxon,
-                  major_group, tax_group
+      family = family_taxon, phylum = phylum_taxon,
+      major_group, tax_group
     ) |>
     distinct() |>
     arrange(inpfc_area, tax_group, major_group, species_name)
@@ -135,11 +135,11 @@ appB <- appB0 |>
 
 
 # statement for text
-if(SRVY == "GOA" & design_year >= 2025){
-total_diversity <- appB |>
-  dplyr::select(-regulatory_area_name) |>
-  unique()
-}else{
+if (SRVY == "GOA" & design_year >= 2025) {
+  total_diversity <- appB |>
+    dplyr::select(-regulatory_area_name) |>
+    unique()
+} else {
   total_diversity <- appB |>
     dplyr::select(-inpfc_area) |>
     unique()
