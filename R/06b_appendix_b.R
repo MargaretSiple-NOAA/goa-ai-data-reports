@@ -24,8 +24,8 @@ if (SRVY == "GOA" & design_year >= 2025) {
     unique()
 } else { # for AI and old GOA surveys
   catch_maxyr <- catch_maxyr0 |> # need to merge with haul df to get stratum
-    left_join(region_lu, by = "STRATUM") |>
-    dplyr::select("SPECIES_CODE", "REGULATORY_AREA_NAME", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
+    left_join(region_lu, by = "STRATUM") |> # this and the following line are different
+    dplyr::select("SPECIES_CODE", "INPFC_AREA", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
     unique()
 }
 
@@ -89,7 +89,7 @@ outlier_spp <- species_maxyr |>
 # Generate tables/stats ----------------------------------------------------
 
 # Table for Appendix B
-appB <- species_maxyr |>
+appB0 <- species_maxyr |>
   left_join(taxonomy, by = "SPECIES_CODE") |>
   left_join(species_codes) |>
   janitor::clean_names() |>
@@ -106,27 +106,44 @@ appB <- species_maxyr |>
   )) |>
   dplyr::mutate(family_taxon = case_when(
     species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon
-  )) |>
+  )) 
+
+if (SRVY == "GOA" & design_year >= 2025) {
+appB <- appB0 |>
   dplyr::select(regulatory_area_name, species_name, common_name,
     family = family_taxon, phylum = phylum_taxon,
     major_group, tax_group
   ) |>
   distinct() |>
   arrange(regulatory_area_name, tax_group, major_group, species_name)
-
+}else{
+  appB <- appB0 |>
+    dplyr::select(inpfc_area, species_name, common_name,
+                  family = family_taxon, phylum = phylum_taxon,
+                  major_group, tax_group
+    ) |>
+    distinct() |>
+    arrange(inpfc_area, tax_group, major_group, species_name)
+}
 
 # diversity by subregion
-subregion_diversity <- appB |>
-  group_by(regulatory_area_name, tax_group) |>
-  tally(name = "nsp") |>
-  pivot_wider(names_from = tax_group, values_from = nsp)
-subregion_diversity
+# subregion_diversity <- appB |>
+#   group_by(regulatory_area_name, tax_group) |>
+#   tally(name = "nsp") |>
+#   pivot_wider(names_from = tax_group, values_from = nsp)
+# subregion_diversity
 
 
 # statement for text
+if(SRVY == "GOA" & design_year >= 2025){
 total_diversity <- appB |>
   dplyr::select(-regulatory_area_name) |>
   unique()
+}else{
+  total_diversity <- appB |>
+    dplyr::select(-inpfc_area) |>
+    unique()
+}
 
 n_fish <- total_diversity |> filter(tax_group == "fish")
 n_fam <- length(unique(n_fish$family))
