@@ -120,7 +120,7 @@ if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
 
 # Econ info ---------------------------------------------------------------
 # dat <- read.csv("data/GOA_planning_species_2021.csv") #for 2021 report
-# dat <- read.csv("data/GOA_planning_species_2023.csv")
+dat <- read.csv("data/GOA_planning_species_2023.csv")
 
 # dat <- read.csv("data/GOA_planning_species_2019.csv")
 
@@ -171,9 +171,10 @@ if (maxyr <= 2021) {
 # This like a lookup table for allocating strata to the correct area and depth
 dat <- read.csv("data/local_gap_products/area.csv")
 
+area_type <- ifelse(SRVY == "GOA" & maxyr >= 2025, "STRATUM", "INPFC BY DEPTH")
 stratum_lu <- dat |>
   dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
-  dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == design_year & AREA_TYPE == "STRATUM") |>
+  dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == design_year & AREA_TYPE == area_type) |>
   dplyr::rename(
     STRATUM = "AREA_ID",
     MIN_DEPTH = "DEPTH_MIN_M",
@@ -209,7 +210,7 @@ if (SRVY == "GOA" & maxyr >= 2025) {
     tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
     dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
     dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
-} else { # AI survey and old GOA
+} else { # AI, pre-2025 GOA
   dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
   region_lu <- dat |>
     dplyr::filter(SURVEY == SRVY) |>
@@ -223,6 +224,7 @@ if (SRVY == "GOA" & maxyr >= 2025) {
     dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
   # For AI years, add abbreviated area names:
+
   region_lu2 <- region_lu |>
     dplyr::group_by(INPFC_AREA) |>
     dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
@@ -446,6 +448,7 @@ otos_collected <- specimen_maxyr |>
   ungroup() |>
   arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
 
+# Otolith collections - can use in oto sampling comparison table if needed
 otos_by_species <- specimen_maxyr |>
   filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
