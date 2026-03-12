@@ -38,6 +38,7 @@ otos_target_sampled <- df |>
 #   order by otolith_count)
 
 # Sp richness by subregion and family ------------------------------------------
+if(SRVY=="GOA" & design_year>=2025){
 subregion_fam_div <- appB |>
   group_by(regulatory_area_name, family) |>
   tally(name = "nsp") |>
@@ -46,7 +47,16 @@ subregion_fam_div <- appB |>
   ungroup() |>
   mutate_at(2:6, ~ replace_na(., 0)) |>
   relocate(any_of(c("Family", district_order)))
-
+}else{
+  subregion_fam_div <- appB |>
+    group_by(inpfc_area, family) |>
+    tally(name = "nsp") |>
+    pivot_wider(names_from = inpfc_area, values_from = nsp) |>
+    dplyr::rename(Family = family) |>
+    ungroup() |>
+    mutate_at(2:6, ~ replace_na(., 0)) |>
+    relocate(any_of(c("Family", district_order)))
+}
 
 # "Table 2": Mean CPUE 20 most abundant groundfish spps ------------------------
 # Can convert this into a function later
@@ -107,7 +117,7 @@ allocated_sampled <- make_allocated_sampled(haul_maxyr = haul_maxyr,
                                             all_allocation = all_allocation,
                                             maxyr = maxyr, 
                                             district_order = district_order,
-                                            area_lookup_table = region_lu)
+                                            area_lookup_table = region_lu) # should be region_lu regardless of region and design_yr
 
 
 # Statement about assigned sampling densities - numeric vector of two

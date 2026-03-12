@@ -147,7 +147,7 @@ top_CPUE_formatted <- function(top_CPUE) {
 #'
 # biomass_tbl <- read.csv("./data/local_gap_products/biomass.csv",header=TRUE)
 # area_tbl <- read.csv("./data/local_gap_products/area.csv",header=TRUE)
-make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, design_year = design_year) {
+make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, design_year_in = design_year) {
   if (length(unique(biomass_tbl$SURVEY_DEFINITION_ID)) > 1) {
     stop("More than one survey definition ID.")
   }
@@ -158,33 +158,35 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
 
   biomass_yr[which(biomass_yr$POPULATION_COUNT == 0), "AVG_WEIGHT_KG"] <- "--"
   biomass_yr[which(biomass_yr$POPULATION_COUNT > 0 & biomass_yr$AVG_WEIGHT_KG < 0.001), "AVG_WEIGHT_KG"] <- "< 0.001"
-  
+
   srvy <- switch(as.character(biomass_tbl$SURVEY_DEFINITION_ID[1]),
-                 "47" = "GOA", "52" = "AI")
-  
-  if(srvy=="GOA" & year>=2025){
-  area_lookup0 <- area_tbl |>
-    dplyr::filter(AREA_TYPE %in% c(
-      "NMFS STATISTICAL AREA",
-      # "REGULATORY AREA",
-      "REGION"
-    ))
-  
-  area_name <- "NMFS area"
-  }else{
-      area_lookup0 <- area_tbl |>
-        dplyr::filter(AREA_TYPE %in% c(
-          "INPFC BY DEPTH",
-          "INPFC",
-          "DEPTH", "REGION"
-        )) 
-      area_name <- "INPFC area"
-    }
+    "47" = "GOA",
+    "52" = "AI"
+  )
 
-    area_lookup <- area_lookup0 |>
-      dplyr::filter(DESIGN_YEAR == design_year) # GOA design years
+  if (srvy == "GOA" & year >= 2025) {
+    area_lookup0 <- area_tbl |>
+      dplyr::filter(AREA_TYPE %in% c(
+        "NMFS STATISTICAL AREA",
+        # "REGULATORY AREA",
+        "REGION"
+      ))
 
-    area_lookup$AREA_NAME[which(area_lookup$AREA_NAME == "Western Regulatory Area")] <- "Shumagin"
+    area_name <- "NMFS area"
+  } else {
+    area_lookup0 <- area_tbl |>
+      dplyr::filter(AREA_TYPE %in% c(
+        "INPFC BY DEPTH",
+        "INPFC",
+        "DEPTH", "REGION"
+      ))
+    area_name <- "INPFC area"
+  }
+
+  area_lookup <- area_lookup0 |>
+    dplyr::filter(DESIGN_YEAR == design_year_in) # GOA design years
+
+  area_lookup$AREA_NAME[which(area_lookup$AREA_NAME == "Western Regulatory Area")] <- "Shumagin"
 
   combo0 <- area_lookup |>
     left_join(biomass_yr, by = join_by(SURVEY_DEFINITION_ID, AREA_ID)) |>
@@ -206,8 +208,8 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
       # BIOMASS_VAR,
       AVG_WEIGHT_KG
     )
-  
-  combo0$PERCENT_IN_AREA <- paste0(round((combo0$BIOMASS_MT/combo0$BIOMASS_MT[which(combo0$AREA_NAME=="All")])*100),"%")
+
+  combo0$PERCENT_IN_AREA <- paste0(round((combo0$BIOMASS_MT / combo0$BIOMASS_MT[which(combo0$AREA_NAME == "All")]) * 100), "%")
 
   # Format the columns
   combo <- combo0 |>
@@ -229,13 +231,17 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
   combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
   combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
-  
-  
   combo_ord <- combo |>
-    dplyr::arrange(factor(`NMFS area`, levels = c(district_order, "All"))) |>
+    dplyr::arrange(factor(area_name, levels = c(district_order, "All"))) |>
     dplyr::select(-`Depth (m)`)
 
-  combo_ord$`NMFS area`[which(combo_ord$`NMFS area` == "All")] <- "All areas"
+  if (srvy == "GOA" & year >= 2025) {
+    colnames(combo_ord)[which(colnames(combo_ord) == "area_name")] <- "NMFS area"
+    combo_ord$`NMFS area`[which(combo_ord$`NMFS area` == "All")] <- "All areas"
+  } else {
+    colnames(combo_ord)[which(colnames(combo_ord) == "area_name")] <- "INPFC area"
+    combo_ord$`NMFS area`[which(combo_ord$`INPFC area` == "All")] <- "All areas"
+  }
 
   return(combo_ord)
 }
