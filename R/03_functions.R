@@ -115,17 +115,17 @@ chr_to_num <- function(x) {
 top_CPUE_formatted <- function(top_CPUE) {
   x0 <- top_CPUE |>
     # existing changes in markdown file:
-    #dplyr::select(NMFS_STATISTICAL_AREA, common_name, wgted_mean_cpue_kgha) |>
+    # dplyr::select(NMFS_STATISTICAL_AREA, common_name, wgted_mean_cpue_kgha) |>
     dplyr::select(AREA_NAME, common_name, wgted_mean_cpue_kgha) |>
     dplyr::mutate(wgted_mean_cpue_kgha = round(wgted_mean_cpue_kgha, digits = 1)) |>
     dplyr::rename(
-      #`NMFS area` = NMFS_STATISTICAL_AREA,
+      # `NMFS area` = NMFS_STATISTICAL_AREA,
       Species = common_name,
       `CPUE (kg/ha)` = wgted_mean_cpue_kgha
     )
-  if(SRVY=="GOA" & maxyr >= 2025){
+  if (SRVY == "GOA" & maxyr >= 2025) {
     x <- x0 |> dplyr::rename(`NMFS area` = AREA_NAME)
-  }else{
+  } else {
     x <- x0 |> dplyr::rename(`INPFC area` = AREA_NAME)
   }
   return(x)
@@ -258,47 +258,55 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
 #'
 #' @examples
 make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
-  if (length(unique(biomass_tbl$SURVEY_DEFINITION_ID)) > 1) {
-    stop("More than one survey definition ID.")
-  }
+  survey_ids <- unique(biomass_tbl$SURVEY_DEFINITION_ID)
+  if (length(survey_ids) > 1) stop("More than one survey definition ID.")
 
-  # Filter the two raw tables
-  biomass_yr <- biomass_tbl |> # might take this out of the function, not sure yet
-    dplyr::filter(YEAR == year & SPECIES_CODE == species_code)
+  survey_id <- survey_ids[1]
 
-  if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
-    design_yr <- ifelse(year > 2023, 2025, 1984)
+  biomass_yr <- biomass_tbl |>
+    dplyr::filter(YEAR == year, SPECIES_CODE == species_code)
+
+  # Determine design year
+  design_yr <- if (survey_id == 47) {
+    ifelse(year > 2023, 2025, 1984)
   } else {
-    design_yr <- 1991
+    1991
   }
 
-  area_lookup0 <- area_tbl |>
-    dplyr::filter(AREA_TYPE == "STRATUM" & DESIGN_YEAR == design_yr) |>
-    dplyr::mutate(DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M))
+  # Area lookup
+  area_lookup <- area_tbl |>
+    dplyr::filter(
+      AREA_TYPE == "STRATUM",
+      DESIGN_YEAR == design_yr
+    ) |>
+    dplyr::mutate(
+      DEPTH_RANGE = paste(DEPTH_MIN_M, "-", DEPTH_MAX_M)
+    )
 
-  if (biomass_yr$SURVEY_DEFINITION_ID[1] == 47) {
-    area_lookup <- area_lookup0 |>
-      dplyr::filter(DESIGN_YEAR == ifelse(year < 2025, 1984, 2025)) # GOA design years
-  } else {
-    area_lookup <- area_lookup0 # All AI design years are 1980
-  }
-
-
-  combo0 <- area_lookup |>
+  combo <- area_lookup |>
     dplyr::left_join(biomass_yr, by = c("SURVEY_DEFINITION_ID", "AREA_ID")) |>
-    dplyr::mutate(PERCENT_POS = paste0(round((N_WEIGHT / N_HAUL) * 100), "%")) |>
+    dplyr::mutate(
+      PERCENT_POS = paste0(round((N_WEIGHT / N_HAUL) * 100), "%")
+    ) |>
     dplyr::select(
       AREA_NAME, DEPTH_RANGE,
       N_HAUL, N_WEIGHT, PERCENT_POS,
       CPUE_KGKM2_MEAN, BIOMASS_MT
     ) |>
-    dplyr::filter(N_WEIGHT > 0 & DEPTH_RANGE != "701 - 1000") |> # only show lines for strata where the species appeared and for strata we currently survey
-    dplyr::mutate(AREA_NAME = factor(AREA_NAME, levels = district_order)) |>
-    dplyr::group_by(AREA_NAME) |>
-    dplyr::arrange(DEPTH_RANGE, .by_group = TRUE) |>
-    dplyr::ungroup()
+    dplyr::filter(N_WEIGHT > 0, DEPTH_RANGE != "701 - 1000")
 
-  combo <- combo0 |>
+  # Special ordering for 2025 design
+  if (design_yr == 2025) {
+    combo <- combo |>
+      dplyr::mutate(AREA_NAME = factor(AREA_NAME, levels = district_order)) |>
+      dplyr::arrange(AREA_NAME, DEPTH_RANGE)
+  } else {
+    combo <- combo |>
+      dplyr::arrange(AREA_NAME, DEPTH_RANGE)
+  }
+
+  # Rename columns
+  combo <- combo |>
     dplyr::rename(
       "Area name" = AREA_NAME,
       "Depth (m)" = DEPTH_RANGE,
@@ -309,17 +317,20 @@ make_tab4 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl) {
       "Biomass (t)" = BIOMASS_MT
     )
 
-  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, digits = 1)
+  combo$`CPUE (kg/km2)` <- round(combo$`CPUE (kg/km2)`, 1)
   combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
-  # sort the table by area, then depth
   combo <- combo |>
-    dplyr::mutate(depthorder = as.numeric(stringr::str_extract(`Depth (m)`, "[^- ]+"))) |>
+    dplyr::mutate(
+      depthorder = as.numeric(stringr::str_extract(`Depth (m)`, "[^- ]+"))
+    ) |>
     dplyr::arrange(`Area name`, depthorder) |>
     dplyr::select(-depthorder)
 
-  # Change "Shumagin" to "Western Regulatory Area"
-  # combo$`Area name`[which(combo$`Area name` == "Shumagin")] <- "Western Regulatory Area"
+  # Column name change for older surveys
+  if (design_yr != 2025) {
+    names(combo)[names(combo) == "Area name"] <- "Stratum name"
+  }
 
   return(combo)
 }
@@ -444,47 +455,46 @@ add_depths <- function(x, stratum_lookup_tab = stratum_lookup) {
 #' @export
 #'
 #' @examples
-make_allocated_sampled <- function(haul_maxyr = haul_maxyr, 
-                                   all_allocation = all_allocation, 
-                                   maxyr = maxyr, 
-                                   district_order = district_order, 
-                                   area_lookup_table = region_lu){
-  
-  if("INPFC_AREA" %in% colnames(area_lookup_table)){
-    colnames(area_lookup_table)[which(colnames(area_lookup_table)=="INPFC_AREA")] <- "AREA_NAME"
+make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
+                                   all_allocation = all_allocation,
+                                   maxyr = maxyr,
+                                   district_order = district_order,
+                                   area_lookup_table = region_lu) {
+  if ("INPFC_AREA" %in% colnames(area_lookup_table)) {
+    colnames(area_lookup_table)[which(colnames(area_lookup_table) == "INPFC_AREA")] <- "AREA_NAME"
   } # may need to add another chunk here for the GOA survey post-2025
-  
+
   attempted <- haul_maxyr |>
     group_by(STRATUM) |>
-    distinct(STATIONID) |> 
+    distinct(STATIONID) |>
     ungroup() |>
-    left_join(area_lookup_table) |> 
+    left_join(area_lookup_table) |>
     group_by(AREA_NAME, `Depth range`) |>
     dplyr::count(name = "attempted") |>
     ungroup() |>
     dplyr::filter(!is.na(AREA_NAME))
-  
+
   succeeded <- haul_maxyr |> # already filtered to abundance_haul = Y
     group_by(STRATUM) |>
-    distinct(STATIONID) |> 
+    distinct(STATIONID) |>
     ungroup() |>
-    left_join(area_lookup_table) |> 
+    left_join(area_lookup_table) |>
     group_by(AREA_NAME, `Depth range`) |>
     dplyr::count(name = "succeeded") |>
     ungroup()
-  
-  depth_areas0 <- area_lookup_table |> 
+
+  depth_areas0 <- area_lookup_table |>
     distinct(AREA_NAME, STRATUM, AREA, `Depth range`) |>
     group_by(AREA_NAME, `Depth range`) |>
     dplyr::summarize(AREA = sum(AREA)) |>
     ungroup()
-  
-  if("stratum" %in% colnames(all_allocation)){
-  all_allocation <- all_allocation |> dplyr::rename('STRATUM' = stratum) # in case stratum isn't capitalized
+
+  if ("stratum" %in% colnames(all_allocation)) {
+    all_allocation <- all_allocation |> dplyr::rename("STRATUM" = stratum) # in case stratum isn't capitalized
   }
-  
+
   piece1 <- all_allocation |>
-    #dplyr::filter(YEAR == maxyr) |>
+    # dplyr::filter(YEAR == maxyr) |>
     dplyr::left_join(area_lookup_table, by = c("STRATUM")) |>
     dplyr::group_by(AREA_NAME, `Depth range`) |>
     dplyr::count(name = "allocated") |>
@@ -492,7 +502,7 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     left_join(attempted) |>
     left_join(succeeded) |>
     left_join(depth_areas0)
-  
+
   depth_areas <- piece1 |>
     group_by(AREA_NAME) |>
     dplyr::summarize(
@@ -503,7 +513,7 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     ) |>
     ungroup() |>
     mutate(`Depth range` = "All depths")
-  
+
   allocated_prep <- piece1 |>
     bind_rows(depth_areas) |>
     arrange(AREA_NAME, `Depth range`) |>
@@ -513,8 +523,8 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
       AREA = round(AREA, digits = 1),
       stations_per_1000km2 = round(stations_per_1000km2, digits = 2)
     ) |>
-      dplyr::rename(MANAGEMENT_AREA = "AREA_NAME")
-  
+    dplyr::rename(MANAGEMENT_AREA = "AREA_NAME")
+
   all_areas <- allocated_prep |>
     filter(`Depth range` != "All depths") |>
     group_by(`Depth range`) |>
@@ -527,32 +537,32 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     dplyr::mutate(stations_per_1000km2 = round((succeeded / AREA) * 1000, digits = 2)) |>
     ungroup() |>
     tibble::add_column(MANAGEMENT_AREA = "All areas", .before = "Depth range")
-  
+
   all_areas_depths <- all_areas |>
     dplyr::summarize(across(allocated:AREA, sum)) |>
     tibble::add_column(`Depth range` = "All depths", .before = "allocated") |>
     ungroup() |>
     mutate(stations_per_1000km2 = succeeded / AREA) |>
     tibble::add_column(MANAGEMENT_AREA = "All areas", .before = "Depth range")
-  
+
   allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths) |>
     dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`)) |>
-    dplyr::mutate(depthorder = ifelse(`Depth range`=="All depths",1000,as.numeric(stringr::str_extract(`Depth range`, "[^- ]+")))) |>
+    dplyr::mutate(depthorder = ifelse(`Depth range` == "All depths", 1000, as.numeric(stringr::str_extract(`Depth range`, "[^- ]+")))) |>
     dplyr::arrange(factor(MANAGEMENT_AREA, levels = c(district_order, "All areas")), depthorder) |>
     dplyr::select(-depthorder)
-  
+
   colnames(allocated_sampled) <- c(
     "Management area", "Depth range (m)",
     "Stations allocated", "Stations attempted", "Stations completed",
     "Total area", "Stations per 1,000 km^2"
   )
-  
+
   return(allocated_sampled)
 }
 
-format_allocated_sampled <- function(allocated_sampled, area_label, tablefont = tablefont){
+format_allocated_sampled <- function(allocated_sampled, area_label, tablefont = tablefont) {
   # rename first column to desired management label
-  if(area_label =="NMFS area"){
+  if (area_label == "NMFS area") {
     allocated_sampled |>
       dplyr::mutate(
         `Total area` = round(`Total area`, 0),
@@ -560,7 +570,7 @@ format_allocated_sampled <- function(allocated_sampled, area_label, tablefont = 
       ) |>
       dplyr::rename("NMFS area" = `Management area`) |>
       flextable::flextable() |>
-      flextable::merge_v(j = ~ `NMFS area`) |>
+      flextable::merge_v(j = ~`NMFS area`) |>
       flextable::fix_border_issues() |>
       flextable::theme_vanilla() |>
       flextable::font(fontname = tablefont, part = "all") |>
@@ -587,42 +597,41 @@ format_allocated_sampled <- function(allocated_sampled, area_label, tablefont = 
         border = officer::fp_border(color = "#5A5A5A", width = 3)
       ) |>
       flextable::fit_to_width(6.5)
-  }else{
-  
-  allocated_sampled |>
-    dplyr::mutate(
-      `Total area` = round(`Total area`, 0),
-      `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`, 2)
-    ) |>
-    dplyr::rename("INPFC area" = `Management area`) |>
-    flextable::flextable() |>
-    flextable::merge_v(j = ~ `INPFC area`) |>
-    flextable::fix_border_issues() |>
-    flextable::theme_vanilla() |>
-    flextable::font(fontname = tablefont, part = "all") |>
-    flextable::fontsize(size = 10, part = "all") |>
-    flextable::line_spacing(space = 0.75) |>
-    flextable::compose(
-      part = "header", i = 1, j = 6,
-      value = flextable::as_paragraph(
-        "Total area (km",
-        flextable::as_sup("2"), ")"
-      )
-    ) |>
-    flextable::compose(
-      part = "header", i = 1, j = 7,
-      value = flextable::as_paragraph(
-        "Stations per 1,000 km",
-        flextable::as_sup("2")
-      )
-    ) |>
-    flextable::align(align = "center", part = "body") |>
-    flextable::align(j = 1:2, align = "left", part = "body") |>
-    flextable::hline(
-      i = ~ break_position(`INPFC area`),
-      border = officer::fp_border(color = "#5A5A5A", width = 3)
-    ) |>
-    flextable::fit_to_width(6.5)
+  } else {
+    allocated_sampled |>
+      dplyr::mutate(
+        `Total area` = round(`Total area`, 0),
+        `Stations per 1,000 km^2` = round(`Stations per 1,000 km^2`, 2)
+      ) |>
+      dplyr::rename("INPFC area" = `Management area`) |>
+      flextable::flextable() |>
+      flextable::merge_v(j = ~`INPFC area`) |>
+      flextable::fix_border_issues() |>
+      flextable::theme_vanilla() |>
+      flextable::font(fontname = tablefont, part = "all") |>
+      flextable::fontsize(size = 10, part = "all") |>
+      flextable::line_spacing(space = 0.75) |>
+      flextable::compose(
+        part = "header", i = 1, j = 6,
+        value = flextable::as_paragraph(
+          "Total area (km",
+          flextable::as_sup("2"), ")"
+        )
+      ) |>
+      flextable::compose(
+        part = "header", i = 1, j = 7,
+        value = flextable::as_paragraph(
+          "Stations per 1,000 km",
+          flextable::as_sup("2")
+        )
+      ) |>
+      flextable::align(align = "center", part = "body") |>
+      flextable::align(j = 1:2, align = "left", part = "body") |>
+      flextable::hline(
+        i = ~ break_position(`INPFC area`),
+        border = officer::fp_border(color = "#5A5A5A", width = 3)
+      ) |>
+      flextable::fit_to_width(6.5)
   }
 }
 
@@ -1135,38 +1144,39 @@ plot_idw_xbyx <- function(
 }
 
 
-#   
+#
 #' Plot stratum cpue and haul cpue together
 #' @author Sean K. Rohan
 #' @param cpue_table a table of cpue's; output from gapindex::calc_cpue()
-#' @param survey_strata sf feature collection containing map_layers for the year or years you want to show data for. Output from akgfmaps::get_base_layers(); use bind_rows to create 
+#' @param survey_strata sf feature collection containing map_layers for the year or years you want to show data for. Output from akgfmaps::get_base_layers(); use bind_rows to create
 #' @param data_type either "cpue" or "biomass" -- what variable to plot
-#' @param year 
+#' @param year
 #'
 #' @returns ggplot object containing either a side by side comparison plot with the previous year, or a plot of a single year of cpue or biomass (depending on data_type).
 #' @export
 #'
 #' @examples
 #' # map_layers <-  akgfmaps::get_base_layers(select.region = "GOA", set.crs = "EPSG:3338")
-#' 
-#' map_layers_1984 <-  akgfmaps::get_base_layers(select.region = "GOA", set.crs = "EPSG:3338", design.year = 1984)
-#' survey_strata <- 
+#'
+#' map_layers_1984 <- akgfmaps::get_base_layers(select.region = "GOA", set.crs = "EPSG:3338", design.year = 1984)
+#' survey_strata <-
 #'   dplyr::bind_rows(
 #'     map_layers$survey.strata,
-#'     map_layers_1984$survey.strata)
-#'     channel <- gapindex::get_connected(check_access = FALSE)
+#'     map_layers_1984$survey.strata
+#'   )
+#' channel <- gapindex::get_connected(check_access = FALSE)
 # '
 #' species_code <- 10261
 #' select.region <- "GOA"
-#' 
+#'
 #' dat <- gapindex::get_data(
-#'   year_set = c(2023, 2025), 
-#'  survey_set = "GOA",
+#'   year_set = c(2023, 2025),
+#'   survey_set = "GOA",
 #'   spp_codes = species_code,
 #'   channel = channel
 #' )
-#' 
-#' cpue <- 
+#'
+#' cpue <-
 #'   gapindex::calc_cpue(gapdata = dat)
 #' stratum_haul_map(cpue_table = cpue, survey_strata = survey_strata, data_type = "cpue")
 stratum_haul_map <- function(cpue_table, survey_strata, data_type = "cpue") {
