@@ -160,7 +160,7 @@ species_year <- species_year |>
 
 # Did we have an IPHC person aboard? 
 if(maxyr < 2023){
-  iphc_sentence <- "When halibut were retained by the onboard IPHC sampler, sample sizes were determine by IPHC protocols."}else{
+  iphc_sentence <- "When halibut were retained by the onboard IPHC sampler, sample sizes were determined by IPHC protocols."}else{
     iphc_sentence <- ""}
 
 # Random figure settings we need, annoyingly:
