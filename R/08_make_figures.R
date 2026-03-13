@@ -301,6 +301,7 @@ if (make_biomass_timeseries) {
     name_bms <- report_species$spp_name_informal[i]
 
     dat <- biomass_total |>
+      dplyr::arrange(YEAR) |>
       dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
       dplyr::mutate(PERCENT_OF_STATIONS = round((N_WEIGHT / N_HAUL) * 100)) |>
       dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
