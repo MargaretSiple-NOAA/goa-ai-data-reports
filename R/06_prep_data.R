@@ -548,10 +548,10 @@ highest_biomass_flatfish <- highest_biomass |>
   filter(major_group == "Flatfish")
 
 highest_chonds <- biomass_total |>
-  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) |>
+  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) |>
   janitor::clean_names() |>
   dplyr::left_join(species_names) |>
-  filter(major_group == "Chondrichthyans") |>
+  dplyr::filter(major_group == "Chondrichthyans") |>
   dplyr::slice_max(n = 3, order_by = biomass_mt, with_ties = FALSE)
 
 highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[1])
