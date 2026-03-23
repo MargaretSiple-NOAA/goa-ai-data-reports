@@ -240,7 +240,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
     combo_ord$`NMFS area`[which(combo_ord$`NMFS area` == "All")] <- "All areas"
   } else {
     colnames(combo_ord)[which(colnames(combo_ord) == "area_name")] <- "INPFC area"
-    combo_ord$`NMFS area`[which(combo_ord$`INPFC area` == "All")] <- "All areas"
+    combo_ord$`INPFC area`[which(combo_ord$`INPFC area` == "All")] <- "All areas"
   }
 
   return(combo_ord)
