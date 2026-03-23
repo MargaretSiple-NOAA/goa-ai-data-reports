@@ -62,14 +62,14 @@ haul_maxyr <- haul |>
 cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
 
 survnumber <- cruises |>
-  filter(SURVEY_NAME == ifelse(SRVY == "AI",
+  dplyr::filter(SURVEY_NAME == ifelse(SRVY == "AI",
     "Aleutian Islands Bottom Trawl Survey",
     "Gulf of Alaska Bottom Trawl Survey"
   )) |>
-  filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) |> # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
+  dplyr::filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) |> # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
   dplyr::filter(CRUISE != 202001 & YEAR <= maxyr) |>
-  distinct(CRUISE) |>
-  arrange(CRUISE) |>
+  dplyr::distinct(YEAR) |>
+  dplyr::arrange(YEAR) |>
   nrow() |>
   scales::ordinal()
 
@@ -589,3 +589,4 @@ if (pres_or_report == "pres") {
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
 
 # Tally up the otoliths collected for oto comparison table
+
