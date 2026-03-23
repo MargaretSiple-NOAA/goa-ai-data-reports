@@ -139,6 +139,9 @@ subregion_diversity <- appB |>
     pivot_wider(names_from = tax_group, values_from = nsp)
 }
 
+# standardize colnames to work for both areas, all years 
+colnames(subregion_diversity)[which(colnames(subregion_diversity)=='inpfc_area')] <- 'regulatory_area_name'
+
 head(subregion_diversity)
 
 
