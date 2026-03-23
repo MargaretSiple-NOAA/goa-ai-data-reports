@@ -127,11 +127,19 @@ if (SRVY == "GOA" & design_year >= 2025) {
 }
 
 # diversity by subregion
-# subregion_diversity <- appB |>
-#   group_by(regulatory_area_name, tax_group) |>
-#   tally(name = "nsp") |>
-#   pivot_wider(names_from = tax_group, values_from = nsp)
-# subregion_diversity
+if(SRVY == "AI" | maxyr < 2025){
+subregion_diversity <- appB |>
+  group_by(inpfc_area, tax_group) |>
+  tally(name = "nsp") |>
+  pivot_wider(names_from = tax_group, values_from = nsp)
+}else{
+  subregion_diversity <- appB |>
+    group_by(regulatory_area_name, tax_group) |>
+    tally(name = "nsp") |>
+    pivot_wider(names_from = tax_group, values_from = nsp)
+}
+
+head(subregion_diversity)
 
 
 # statement for text
