@@ -1199,33 +1199,9 @@ if (make_ldscatter) {
 if (make_temp_plot) {
   list_temperature <- list()
 
-  sstdat <- haul |>
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
-    filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) |>
-    filter(PERFORMANCE >= 0) |>
-    group_by(YEAR) |>
-    dplyr::summarize(
-      bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
-      surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
-    ) |>
-    ungroup() |>
-    as.data.frame() |>
-    mutate(YEAR = as.numeric(YEAR))
-
-  if (SRVY == "GOA") {
-    sstdat <- sstdat |> filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
-  }
-
-  # sst_summary <- sstdat |>
-  #   mutate(
-  #     bottom_stz = bottom - mean(bottom, na.rm = T),
-  #     surface_stz = surface - mean(surface, na.rm = T)
-  #   ) |>
-  #   pivot_longer(cols = bottom:surface_stz)
-
   plotdat <- haul |>
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
-    filter(PERFORMANCE >= 0) |>
+    filter(PERFORMANCE >= 0 & ABUNDANCE_HAUL == "Y") |>
     filter(REGION == SRVY & YEAR != 1997) |> # YEAR >= 1994 &
     filter(CRUISE != 201402) |> # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
@@ -1362,7 +1338,7 @@ if (make_temp_plot) {
       xend = maxyr,
       color = "#2a5674", alpha = 0.4, lty = 2
     ) +
-    annotate(geom = "text", x = 1999, y = 11.5, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 12, label = "Surface temperature", color = "#68abb8") +
     annotate(geom = "text", x = 1999, y = 6.5, label = "Bottom temperature", color = "#2a5674") +
     theme_bw(base_size = 14)
 
