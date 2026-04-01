@@ -141,7 +141,7 @@ pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), 
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
   if (maxyr == 2025) {
-    all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2025/Station Allocation/goa_2025_station_allocation_450.xlsx", sheet = "Station Allocation") # customize from year to year
+    all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2025/Station Logs/Station Allocation/goa_2025_station_allocation_450.xlsx", sheet = "Station Allocation") # customize from year to year
   }
   if (maxyr == 2019) {
     all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2019/Station allocation/GOA2019_ 2 boat_550_RNDM_stations.xlsx", sheet = "GOA2019_ 2 boat_550_RNDM_statio") # customize from year to year
