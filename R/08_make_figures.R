@@ -9,7 +9,7 @@
 
 make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
-make_catch_comp <- TRUE
+make_catch_comp <- FALSE
 # 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022.
 make_cpue_bubbles_strata <- TRUE
 # 5. Length frequency plots as joy division plots
@@ -139,7 +139,7 @@ bubbletheme <- theme(
 
 linetheme <- theme_bw(base_size = 9)
 
-bartheme <- ggpubr::theme_classic2(base_size = 14) +
+bartheme <- ggpubr::theme_classic2(base_size = 12) +
   theme(strip.background = element_blank())
 
 # * Palettes ----------------------------------------------------------------
@@ -427,6 +427,7 @@ if (make_biomass_timeseries) {
 # 2. Catch composition -------------------------------------------------------
 if (make_catch_comp) {
   head(biomass_total)
+  
   biomass_total_filtered <- biomass_total |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
@@ -448,15 +449,44 @@ if (make_catch_comp) {
     ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
-    theme(legend.position = "bottom")
+    theme(legend.position = "bottom") +
+    guides(fill = guide_legend(ncol = 3))
 
   png(
     filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
-    width = 11, height = 6, units = "in", res = 200
+    width = 8, height = 8, units = "in", res = 200
   )
   print(p2)
   dev.off()
 }
+
+
+
+# 2b. All stocks in the report/pres: time series --------------------------
+# biomass_goa0 <- read.csv(file = "C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/GOA_2025/tables/biomass_total_all.csv")
+# biomass_goa <- biomass_goa0 |> 
+#   dplyr::filter(SPECIES_CODE %in% report_species$species_code) |>
+#   left_join(species_names, by = c('SPECIES_CODE' = 'species_code'))
+# 
+# stock_summaries <- biomass_goa |>
+#   dplyr::group_by(common_name) |>
+#   dplyr::summarize(ltmean = mean(BIOMASS_MT)) |>
+#   ungroup()
+# 
+# png("All_Species_ts_summary.png",width = 9,height = 7, units = 'in', res = 200)
+# biomass_goa |> 
+#   ggplot(aes(x=YEAR, y = BIOMASS_MT/1000,color = major_group, fill = major_group)) +
+#   geom_hline(data = stock_summaries,aes(yintercept = ltmean/1000), color = '#2b8cbe',lty=2) +
+#   geom_point() +
+#   geom_line() +
+#   geom_ribbon(mapping = aes(ymin = MIN_BIOMASS/1000, ymax=MAX_BIOMASS/1000),alpha=0.2, color = NA) +
+#   facet_wrap(~common_name, scales = "free_y", labeller = label_wrap_gen(width = 25)) +
+#   ggthemes::scale_color_tableau() +
+#   ggthemes::scale_fill_tableau() +
+#   xlab("Year") +
+#   ylab("Biomass (x 1,000 mt)") +
+#   ggsidekick::theme_sleek()
+# dev.off()
 
 # 3. CPUE maps - depths colored in (presented at GPT 2022 and 2024 with strata colored in) ----------------------------------------------------------
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
@@ -1364,7 +1394,7 @@ if (make_temp_plot) {
     filename = paste0(
       dir_out_figures, maxyr, "_temps_combined.png"
     ),
-    width = 8, height = 5.5, units = "in", res = 200
+    width = 8, height = 8, units = "in", res = 200
   )
   print(line_temperature)
   dev.off()
