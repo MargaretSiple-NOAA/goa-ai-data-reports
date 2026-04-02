@@ -196,7 +196,7 @@ if (make_total_surv_map) {
   # alternate
   # palette_map <- c("#4E79A7", "#A0CBE8", "#F28E2B", "#59A14F", "#F1CE63")
   # new colors
-  palette_map <- c("#4E79A7", "#A0CBE8", "#F28E2B", "#FFBE7D", "#59A14F")
+  palette_map <- c('#a6611a','#dfc27d','#f5f5f5','#80cdc1','#018571')
 
   #  Base map
   # p1 <- ggplot() +
