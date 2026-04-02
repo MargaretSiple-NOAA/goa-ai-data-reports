@@ -2,7 +2,7 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2019 # Change this for the year!
+maxyr <- 2025 # Change this for the year!
 minyr <- 1990 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
 compareyr <- 2017 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
@@ -160,7 +160,7 @@ species_year <- species_year |>
 
 # Did we have an IPHC person aboard? 
 if(maxyr < 2023){
-  iphc_sentence <- "When halibut were retained by the onboard IPHC sampler, sample sizes were determined by IPHC protocols."}else{
+  iphc_sentence <- "When halibut were retained onboard, sample sizes were set in consultation with the IPHC. Halibut sample sizes are available in the otolith collection schedule and approved scientific collections requests."}else{
     iphc_sentence <- ""}
 
 # Random figure settings we need, annoyingly:
