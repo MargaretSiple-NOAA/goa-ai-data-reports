@@ -179,6 +179,12 @@ speciescolors <- lengthen_pal(
   x = 1:(nrow(report_species) + 1)
 )
 
+# Palette for bar colors if using only single species (no complexes)
+single_speciescolors <- lengthen_pal(
+  shortpal = c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497"),
+  x = 1:(length(report_species$species_code[which(grepl(report_species$species, pattern = "[0-9]"))]) + 1)
+)
+
 # 0. Static figure: INPFC areas ----------------------------------------------
 
 # This figure is loaded in knit_report; it is static.
@@ -427,7 +433,7 @@ if (make_biomass_timeseries) {
 # 2. Catch composition -------------------------------------------------------
 if (make_catch_comp) {
   head(biomass_total)
-  
+
   biomass_total_filtered <- biomass_total |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
@@ -435,7 +441,9 @@ if (make_catch_comp) {
     mutate(spp_name_informal = tidyr::replace_na(
       data = spp_name_informal,
       replace = "Other species"
-    ))
+    )) |>
+    # NEW: filter to ONLY single species
+    dplyr::filter(grepl(pattern = "[0-9]", x = SPECIES_CODE))
 
   biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
     levels = c(report_species$spp_name_informal, "Other species")
@@ -444,7 +452,7 @@ if (make_catch_comp) {
   p2 <- biomass_total_filtered |>
     ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 10e6, x = YEAR)) +
     geom_bar(position = "stack", stat = "identity") +
-    scale_fill_manual("", values = speciescolors) +
+    scale_fill_manual("", values = single_speciescolors) +
     xlab("Year") +
     ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
     scale_y_continuous(expand = c(0, 0)) +
