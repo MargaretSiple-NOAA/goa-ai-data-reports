@@ -2,7 +2,7 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2025 # Change this for the year!
+maxyr <- 2019 # Change this for the year!
 minyr <- 1990 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
 compareyr <- 2017 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
