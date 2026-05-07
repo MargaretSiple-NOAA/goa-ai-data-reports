@@ -83,7 +83,7 @@ starttime <- Sys.time()
 rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_dir = dir_out_chapters,
   output_file = "DATA_REPORT.docx"
-).
+)
 
 Sys.time() - starttime
 
