@@ -52,6 +52,9 @@ output/
 bonus/
 /data/cpue_station.csv
 
+# Do NOT ignore species_year table:
+!data/species_year.csv
+
 # Ignore 'bespoke' data products that I used this repo to create
 bespoke/
 /R/xx_scratchpad.R
