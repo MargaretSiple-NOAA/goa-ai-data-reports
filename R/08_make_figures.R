@@ -433,39 +433,31 @@ if (make_biomass_timeseries) {
 # 2. Catch composition -------------------------------------------------------
 if (make_catch_comp) {
   head(biomass_total)
-
   biomass_total_filtered <- biomass_total |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
-      by = c("SPECIES_CODE" = "species_code")
-    ) %>%
-    mutate(spp_name_informal = tidyr::replace_na(
-      data = spp_name_informal,
-      replace = "Other species"
-    )) |>
-    # NEW: filter to ONLY single species
-    dplyr::filter(grepl(pattern = "[0-9]", x = SPECIES_CODE))
-
+              by = c("SPECIES_CODE" = "species_code")
+    ) |>
+    mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal, replace = "Other species"))
+  
   biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
-    levels = c(report_species$spp_name_informal, "Other species")
+                                                     levels = c(report_species$spp_name_informal, "Other species")
   )
-
+  
   p2 <- biomass_total_filtered |>
-    ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 10e6, x = YEAR)) +
+    filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
+    ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 1e6, x = YEAR)) +
     geom_bar(position = "stack", stat = "identity") +
-    scale_fill_manual("", values = single_speciescolors) +
+    scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
+    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6, " t)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
-    theme(legend.position = "bottom") +
-    guides(fill = guide_legend(ncol = 3))
-
-  png(
-    filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
-    width = 8, height = 8, units = "in", res = 200
-  )
-  print(p2)
-  dev.off()
+    theme(legend.position = "bottom")
+  
+  ggsave(plot = p2, filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"))
+  
+  save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
 
 
