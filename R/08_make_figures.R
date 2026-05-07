@@ -196,7 +196,7 @@ if (make_total_surv_map) {
   # alternate
   # palette_map <- c("#4E79A7", "#A0CBE8", "#F28E2B", "#59A14F", "#F1CE63")
   # new colors
-  palette_map <- c('#a6611a','#dfc27d','#f5f5f5','#80cdc1','#018571')
+  palette_map <- c("#a6611a", "#dfc27d", "#f5f5f5", "#80cdc1", "#018571")
 
   #  Base map
   # p1 <- ggplot() +
@@ -436,14 +436,14 @@ if (make_catch_comp) {
   biomass_total_filtered <- biomass_total |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
-              by = c("SPECIES_CODE" = "species_code")
+      by = c("SPECIES_CODE" = "species_code")
     ) |>
     mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal, replace = "Other species"))
-  
+
   biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
-                                                     levels = c(report_species$spp_name_informal, "Other species")
+    levels = c(report_species$spp_name_informal, "Other species")
   )
-  
+
   p2 <- biomass_total_filtered |>
     filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
     ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 1e6, x = YEAR)) +
@@ -454,27 +454,26 @@ if (make_catch_comp) {
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
-  
+
   ggsave(plot = p2, filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"))
-  
+
   save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
 
 
-
 # 2b. All stocks in the report/pres: time series --------------------------
 # biomass_goa0 <- read.csv(file = "C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/GOA_2025/tables/biomass_total_all.csv")
-# biomass_goa <- biomass_goa0 |> 
+# biomass_goa <- biomass_goa0 |>
 #   dplyr::filter(SPECIES_CODE %in% report_species$species_code) |>
 #   left_join(species_names, by = c('SPECIES_CODE' = 'species_code'))
-# 
+#
 # stock_summaries <- biomass_goa |>
 #   dplyr::group_by(common_name) |>
 #   dplyr::summarize(ltmean = mean(BIOMASS_MT)) |>
 #   ungroup()
-# 
+#
 # png("All_Species_ts_summary.png",width = 9,height = 7, units = 'in', res = 200)
-# biomass_goa |> 
+# biomass_goa |>
 #   ggplot(aes(x=YEAR, y = BIOMASS_MT/1000,color = major_group, fill = major_group)) +
 #   geom_hline(data = stock_summaries,aes(yintercept = ltmean/1000), color = '#2b8cbe',lty=2) +
 #   geom_point() +
@@ -1232,7 +1231,7 @@ if (make_temp_plot) {
   plotdat <- haul |>
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
     filter(PERFORMANCE >= 0 & ABUNDANCE_HAUL == "Y") |>
-    filter(REGION == SRVY & YEAR != 1997) |> # YEAR >= 1994 &
+    filter(REGION == SRVY & YEAR != 1997 & YEAR >= minyr & YEAR <= maxyr) |> # YEAR >= 1994 &
     filter(CRUISE != 201402) |> # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
 
