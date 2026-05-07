@@ -1,5 +1,5 @@
 ---
-title: "2025 Gulf of Alaska Biennial Bottom Trawl Survey"
+title: "2019 Gulf of Alaska Biennial Bottom Trawl Survey"
 subtitle: "Data Report"
 author: "Margaret Siple, Zack Oyafuso, Bethany Riggle, Alexandra Dowlin"
 output:
