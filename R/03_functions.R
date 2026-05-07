@@ -210,6 +210,8 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
     )
 
   combo0$PERCENT_IN_AREA <- paste0(round((combo0$BIOMASS_MT / combo0$BIOMASS_MT[which(combo0$AREA_NAME == "All")]) * 100), "%")
+  # Fix the zeroes
+  combo0$PERCENT_IN_AREA[which(grepl("N",(combo0$PERCENT_IN_AREA)))] <- "0%"
 
   # Format the columns
   combo <- combo0 |>
