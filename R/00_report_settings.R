@@ -148,7 +148,9 @@ complex_lookup <- complex_lookup0 |>
   dplyr::filter(region == SRVY)
 
 # Load species_year table
-species_year <- read.csv("data/local_gap_products/species_year.csv")
+if(file.exists("data/local_gap_products/species_year.csv")){
+  species_year <- read.csv("data/local_gap_products/species_year.csv")
+}
 
 # add complexes to species_year for easy lookup
 species_year <- species_year |>
