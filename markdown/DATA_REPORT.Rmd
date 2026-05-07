@@ -288,6 +288,7 @@ for (i in 12:16) { # nrow(report_species)
     ))
 
   # 3. Define Highest Biomass
+  # This is called nmfs_highest_biomass but it can actually be infpc highest biomass if this is Aleutians or backlooged GOA.
   nmfs_highest_biomass <- df_clean |>
     slice_max(`Biomass (t)_num`, n = 1, with_ties = FALSE) |>
     pull(Area)
