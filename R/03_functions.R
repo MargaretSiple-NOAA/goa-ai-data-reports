@@ -463,7 +463,10 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
   if ("INPFC_AREA" %in% colnames(area_lookup_table)) {
     colnames(area_lookup_table)[which(colnames(area_lookup_table) == "INPFC_AREA")] <- "AREA_NAME"
   } # may need to add another chunk here for the GOA survey post-2025
-
+  if(haul_maxyr$REGION[1] == "GOA" & haul_maxyr$YEAR[1] >=2025){
+    colnames(area_lookup_table)[which(colnames(area_lookup_table) == "REGULATORY_AREA_NAME")] <- "AREA_NAME"
+  }
+  
   attempted <- haul_maxyr |>
     group_by(STRATUM) |>
     distinct(STATIONID) |>
