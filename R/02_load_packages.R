@@ -3,27 +3,27 @@
 # Packages in development (require devtools) -----------------------------------
 
 if(!"nmfspalette" %in% installed.packages()){
-  devtools::install_github("nmfs-general-modeling-tools/nmfspalette")
+  pak::pak("nmfs-general-modeling-tools/nmfspalette")
 }
 
 if(!"coldpool" %in% installed.packages()){
-  devtools::install_github("afsc-gap-products/coldpool")
+  pak::pak("afsc-gap-products/coldpool")
 }
 
-if(!"akgfmaps" %in% installed.packages()){
-  devtools::install_github("afsc-gap-products/akgfmaps", build_vignettes = TRUE)
+if(!"akgfmaps" %in% installed.packages() | packageVersion("akgfmaps") < "4.2.1"){
+  pak::pak("afsc-gap-products/akgfmaps")
 }
 
 if(!"knitcitations" %in% installed.packages()){
-  devtools::install_github("cboettig/knitcitations")
+  pak::pak("cboettig/knitcitations")
 }
 
 if(!"PNWColors" %in% installed.packages()){
-  devtools::install_github("jakelawlor/PNWColors")
+  pak::pak("jakelawlor/PNWColors")
 }
 
 if(!"gapindex" %in% installed.packages()){
-  devtools::install_github("afsc-gap-products/gapindex")
+  pak::pak("afsc-gap-products/gapindex")
 }
 
 # List and load required packages -----------------------------------------
@@ -34,6 +34,7 @@ PKG <- c(
   # Markdown
   "knitr", 
   "rmarkdown", 
+  "magick",
   
   # Graphics
   "ggplot2", 
