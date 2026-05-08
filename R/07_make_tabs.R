@@ -17,6 +17,7 @@ cl <- fp_border(color = "#5A5A5A", width = 3)
 if (!exists("biomass_stratum_complexes")) {
   biomass_stratum_complexes <- read.csv(paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv"))
 }
+
 # Length targets ----------------------------------------------------------
 targetn <- read.csv(here::here("data", "target_n.csv"))
 
@@ -277,3 +278,4 @@ save(table3s_list,
 save(table4s_list,
   file = paste0(dir_out_tables, "table4s_list.rdata")
 )
+

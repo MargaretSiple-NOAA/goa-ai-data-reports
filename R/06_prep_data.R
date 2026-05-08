@@ -172,9 +172,12 @@ if (maxyr <= 2021) {
 dat <- read.csv("data/local_gap_products/area.csv")
 
 area_type <- ifelse(SRVY == "GOA" & maxyr >= 2025, "STRATUM", "INPFC BY DEPTH")
+
 stratum_lu <- dat |>
   dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
-  dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == design_year & AREA_TYPE == area_type) |>
+  dplyr::filter(SURVEY_DEFINITION_ID == 47 & 
+                  DESIGN_YEAR == design_year & 
+                  AREA_TYPE == area_type) |>
   dplyr::rename(
     STRATUM = "AREA_ID",
     MIN_DEPTH = "DEPTH_MIN_M",

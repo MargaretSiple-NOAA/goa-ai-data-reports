@@ -221,7 +221,7 @@ biomass0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS WHERE S
 
 biomass <- dplyr::filter(
   biomass0,
-  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) 
+  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)
 )
 
 write.csv(x = biomass, "./data/local_gap_products/biomass.csv", row.names = FALSE)
