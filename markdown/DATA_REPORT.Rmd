@@ -82,7 +82,7 @@ knitr::include_graphics(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
 
 ```{r eval=include_price_table,echo=FALSE,tab.cap=paste0('Ex-vessel prices used to allocate stations in the ', SRVY, ' ', maxyr, ' bottom trawl survey. The prices used for station allocation in ', maxyr, ' are from ', maxyr-2, '.'), tab.id='sp-prices',  tab.cap.style = "Table caption"}
 sp_prices |>
-  dplyr::select(`Common name`,`Scientific name`,`Ex-vessel price`,`Included in design`) |>
+  dplyr::select(`Common name`, `Scientific name`, `Ex-vessel price`, `Included in design`) |>
   dplyr::rename("Ex-vessel price (USD per lb)" = "Ex-vessel price") |>
   dplyr::filter(`Included in design` == "Y") |>
   dplyr::select(-`Included in design`) |>
@@ -115,16 +115,16 @@ list_tables[["length-sample-sizes"]] |>
   flextable::mk_par(
     j = "dummy_col",
     value = as_paragraph(Species.or.species.group, " (", as_i(sci.name), sci.name.addendum, ")", star)
-  )  |>
+  ) |>
   set_header_labels(
     dummy_col = "Species or species group",
     Target.sample.size = "Target sample size"
-  )  |>
+  ) |>
   theme_vanilla() |>
   flextable::font(fontname = tablefont, part = "all") |>
-  flextable::fontsize(size = 11, part = "all")  |>
-  flextable::align(i = 1, j = 2, align = "center", part = "header")  |>
-  flextable::align(j = 2, align = "center", part = "body")  |>  
+  flextable::fontsize(size = 11, part = "all") |>
+  flextable::align(i = 1, j = 2, align = "center", part = "header") |>
+  flextable::align(j = 2, align = "center", part = "body") |>
   flextable::line_spacing(space = 0.75) |>
   flextable::autofit() |>
   flextable::fit_to_width(6.5)
@@ -149,7 +149,6 @@ station_map
 <br />
 
 ```{r echo=FALSE,tab.cap='Otolith samples collected compared to otolith targets. A negative percent difference indicates an otolith sample shortfall; positive percent difference indicates that the target was exceeded.', tab.id='otolith-goal-sample-summary',  tab.cap.style = "Table caption"}
-
 list_tables[["otos_target_sampled"]] |>
   dplyr::rename(
     "Species" = "species",
@@ -167,14 +166,13 @@ list_tables[["otos_target_sampled"]] |>
   flextable::set_table_properties(align = "left") |>
   flextable::autofit() |>
   flextable::fit_to_width(6.5)
-
 ```
 
 <br />
 <br />
 
 ```{r fig.cap='Surface and bottom (gear) temperatures from survey tows. Bottom temperature is measured at the headrope of the trawl. Horizontal lines show the mean of each time series over the past 10 (solid) and 20 (dashed) years. Vertical lines indicate 95% confidence intervals.', fig.id='line-temperature',  fig.cap.style = "Figure Caption", fig.width=6}
-list_temperature[['linetemp']]
+list_temperature[["linetemp"]]
 ```
 
 <br />
@@ -198,8 +196,8 @@ top_CPUE_formatted(top_CPUE = top_CPUE) |>
   flextable::as_flextable(hide_grouplabel = TRUE) |>
   flextable::set_header_labels(group_var = "") |> # Cleans up the group header
   flextable::bold(bold = TRUE, part = "header") |>
-  flextable::align(i = as.formula(paste0("~ !is.na(`", group_var, "`)")), align = "center") |> 
-  flextable::bold(i = as.formula(paste0("~ !is.na(`", group_var, "`)"))) |> 
+  flextable::align(i = as.formula(paste0("~ !is.na(`", group_var, "`)")), align = "center") |>
+  flextable::bold(i = as.formula(paste0("~ !is.na(`", group_var, "`)"))) |>
   flextable::fit_to_width(max_width = 2, unit = "in") |>
   flextable::padding(padding.bottom = 0, padding.top = 0) |>
   flextable::fontsize(size = 8, part = "all")
@@ -339,14 +337,20 @@ for (i in 12:16) { # nrow(report_species)
       skate_len_sentence <- ""
     }
 
+    # write a sentence about which sex, if either, is larger on average than the other
+    sex_diff_sentence <- ""
+    show.text <- FALSE
+
     if (species_code %in% c(30060, 10110, 21740, 21720, 10120, 20510)) { # "the big six"
-      # Check if there is a sex difference
-      sex_diff_sentence <- sex_diff_size_statement(species_lengths = dplyr::filter(sizecomp, SPECIES_CODE == species_code & YEAR == maxyr))
-      # If no difference, don't show the bullet point about it
-      show.text <- ifelse(sex_diff_sentence == "", FALSE, TRUE)
-      # If it's not in the "big six" don't show the bullet point about it
-    } else {
-      show.text <- FALSE
+
+      sex_diff_sentence <- sex_diff_size_statement(
+        species_lengths = dplyr::filter(
+          sizecomp,
+          SPECIES_CODE == species_code & YEAR == maxyr
+        )
+      )
+
+      show.text <- sex_diff_sentence != ""
     }
 
     # Complexes
