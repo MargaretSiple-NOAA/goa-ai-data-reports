@@ -3,27 +3,27 @@
 # Packages in development (require devtools) -----------------------------------
 
 if(!"nmfspalette" %in% installed.packages()){
-  pak::pak("nmfs-general-modeling-tools/nmfspalette")
+  remotes::install_github("nmfs-general-modeling-tools/nmfspalette")
 }
 
 if(!"coldpool" %in% installed.packages()){
-  pak::pak("afsc-gap-products/coldpool")
+  remotes::install_github("afsc-gap-products/coldpool")
 }
 
 if(!"akgfmaps" %in% installed.packages() | packageVersion("akgfmaps") < "4.2.1"){
-  pak::pak("afsc-gap-products/akgfmaps")
+  remotes::install_github("afsc-gap-products/akgfmaps", build_vignettes = TRUE)
 }
 
 if(!"knitcitations" %in% installed.packages()){
-  pak::pak("cboettig/knitcitations")
+  remotes::install_github("cboettig/knitcitations")
 }
 
 if(!"PNWColors" %in% installed.packages()){
-  pak::pak("jakelawlor/PNWColors")
+  remotes::install_github("jakelawlor/PNWColors")
 }
 
 if(!"gapindex" %in% installed.packages()){
-  pak::pak("afsc-gap-products/gapindex")
+  remotes::install_github("afsc-gap-products/gapindex")
 }
 
 # List and load required packages -----------------------------------------
