@@ -93,6 +93,8 @@ PKG <- c(
   "stars",
   "grid", 
   "dbscan",
+  "rnaturalearth",
+  "rnaturalearthdata",
   
   # check website links
   "pingr",
