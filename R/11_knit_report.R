@@ -96,29 +96,29 @@ Sys.time() - starttime
 source("R/12_make_appendices.R")
 
 # Append the appendices using officer -------------------------------------
-gc() # clean up unused memory again (helps for giant data objects)
-
-maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
-  body_add_break()
-
-fullreport <- body_add_docx(
-  x = maindoc,
-  src = paste0(appendix_dir, "Appendix A/Appendix A 2023.docx")
-) %>%
-  body_add_break()
-
-# Make Appendix B
-source(here::here("R", "12_make_appendices.R"))
-
-fullreport <- body_add_docx(fullreport,
-  src = (paste0(dir_out_chapters, "AppendixB.docx"))
-) %>%
-  body_add_break()
-
-# Add Appendix C
-fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "Appendix C/APPENDIX C_2023.docx")
-) %>%
-  body_add_break()
-
-print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))
+# gc() # clean up unused memory again (helps for giant data objects)
+# 
+# maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
+#   body_add_break()
+# 
+# fullreport <- body_add_docx(
+#   x = maindoc,
+#   src = paste0(appendix_dir, "Appendix A/Appendix A 2023.docx")
+# ) %>%
+#   body_add_break()
+# 
+# # Make Appendix B
+# source(here::here("R", "12_make_appendices.R"))
+# 
+# fullreport <- body_add_docx(fullreport,
+#   src = (paste0(dir_out_chapters, "AppendixB.docx"))
+# ) %>%
+#   body_add_break()
+# 
+# # Add Appendix C
+# fullreport <- body_add_docx(fullreport,
+#   src = paste0(appendix_dir, "Appendix C/APPENDIX C_2023.docx")
+# ) %>%
+#   body_add_break()
+# 
+# print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))
