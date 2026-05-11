@@ -1,7 +1,7 @@
 ---
 title: "2019 Gulf of Alaska Biennial Bottom Trawl Survey"
 subtitle: "Data Report"
-author: "Margaret Siple, Zack Oyafuso, Bethany Riggle, Alexandra Dowlin"
+author: "Bethany Riggle, Margaret Siple, Alexandra Dowlin"
 output:
   officedown::rdocx_document: 
     reference_docx: styles_reference4.docx
