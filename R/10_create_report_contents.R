@@ -16,7 +16,7 @@ if (y) {
 }
 
 # Get data from RACEBASE and AI/GOA schemas ------------------------------------
-x <- FALSE # only need to do this 1-2x per report cycle and it takes a long time.
+x <- TRUE # only need to do this 1-2x per report cycle and it takes a long time.
 if (x) {
   source("R/05_download_data_from_oracle.R")
 }
