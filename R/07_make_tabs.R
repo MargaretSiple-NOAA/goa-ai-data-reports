@@ -18,6 +18,9 @@ if (!exists("biomass_stratum_complexes")) {
   biomass_stratum_complexes <- read.csv(paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv"))
 }
 
+biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
+area_gp <- read.csv("data/local_gap_products/area.csv")
+
 # Length targets ----------------------------------------------------------
 targetn <- read.csv(here::here("data", "target_n.csv"))
 
@@ -61,9 +64,6 @@ subregion_fam_div <- appB |>
 
 # "Table 2": Mean CPUE 20 most abundant groundfish spps ------------------------
 # Can convert this into a function later
-biomass_gp <- read.csv("data/local_gap_products/biomass.csv")
-
-area_gp <- read.csv("data/local_gap_products/area.csv")
 
 if(SRVY == "GOA" & maxyr >= 2025){
   area_gp_reg_area <- area_gp |>
