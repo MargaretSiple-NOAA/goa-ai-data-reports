@@ -591,7 +591,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           color = "black"
         ) +
         scale_size(
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none"
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -677,7 +677,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
         bubbletheme
-    } # /GOA stratum bubble maps for complexes
+    } # /stratum bubble maps for complexes
 
     # ,out.width=9,out.height=8
     png(
@@ -781,7 +781,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
         scale_size(
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none"
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -894,6 +894,94 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
+
+# New approach (faster maybe?) - uncomment after GOA-2019 draft is created bc I haven't tested it for GOA yet
+# if (make_cpue_bubbles_strata) {
+#   cpue_sf <- cpue_processed |>
+#     janitor::clean_names() |>
+#     filter(
+#       year == maxyr,
+#       survey == SRVY
+#     ) |>
+#     st_as_sf(
+#       coords = c("longitude_dd_start", "latitude_dd_start"),
+#       crs = "EPSG:4326"
+#     ) |>
+#     st_transform(crs = reg_data$crs)
+# 
+#   max_cpue <- max(cpue_sf$cpue_kgkm2, na.rm = TRUE)
+# 
+#   list_cpue_bubbles_strata <- vector(
+#     "list",
+#     nrow(report_species)
+#   )
+# 
+#   for (i in seq_len(nrow(report_species))) {
+#     species_code_i <- report_species$species_code[i]
+#     display_name_i <- report_species$spp_name_informal[i]
+# 
+#     thisyrshauldata <- cpue_sf |>
+#       filter(species_code == species_code_i)
+# 
+#     if (nrow(thisyrshauldata) == 0) {
+#       next
+#     }
+# 
+#     # create fig
+#     if (SRVY == "AI") {
+#       final_obj <- make_ai_plot(
+#         haul_data = thisyrshauldata,
+#         display_name = display_name_i
+#       )
+#     } else {
+#       final_obj <- make_bubble_panel(
+#         strata_data = reg_data$survey.strata,
+#         land_data = reg_data$akland,
+#         haul_data = thisyrshauldata,
+#         xlim = reg_data$plot.boundary$x,
+#         ylim = reg_data$plot.boundary$y,
+#         lon_breaks = reg_data$lon.breaks,
+#         lat_breaks = reg_data$lat.breaks,
+#         subtitle = display_name_i,
+#         show_legend = TRUE
+#       )
+#     }
+# 
+#     # save png
+#     png(
+#       filename = paste0(
+#         dir_out_figures,
+#         maxyr,
+#         "_",
+#         display_name_i,
+#         "_bubble.png"
+#       ),
+#       width = 9,
+#       height = 8,
+#       units = "in",
+#       res = 200
+#     )
+# 
+#     print(final_obj)
+# 
+#     dev.off()
+# 
+#     # store in list
+#     list_cpue_bubbles_strata[[i]] <- final_obj
+#   }
+# 
+#   names(list_cpue_bubbles_strata) <- plot_species$species_code
+# 
+#   save(
+#     list_cpue_bubbles_strata,
+#     file = paste0(
+#       dir_out_figures,
+#       "list_cpue_bubbles_strata.rdata"
+#     )
+#   )
+# 
+#   print("Done with CPUE bubble maps showing stratum areas.")
+# }
 
 # 5. Length frequency - joy division plots ---------------------------------
 if (make_joy_division_length) {
