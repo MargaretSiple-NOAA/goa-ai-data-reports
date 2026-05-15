@@ -211,7 +211,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
 
   combo0$PERCENT_IN_AREA <- paste0(round((combo0$BIOMASS_MT / combo0$BIOMASS_MT[which(combo0$AREA_NAME == "All")]) * 100), "%")
   # Fix the zeroes
-  combo0$PERCENT_IN_AREA[which(grepl("N",(combo0$PERCENT_IN_AREA)))] <- "0%"
+  combo0$PERCENT_IN_AREA[which(grepl("N", (combo0$PERCENT_IN_AREA)))] <- "0%"
 
   # Format the columns
   combo <- combo0 |>
@@ -465,10 +465,10 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
   if ("INPFC_AREA" %in% colnames(area_lookup_table)) {
     colnames(area_lookup_table)[which(colnames(area_lookup_table) == "INPFC_AREA")] <- "AREA_NAME"
   } # may need to add another chunk here for the GOA survey post-2025
-  if(haul_maxyr$REGION[1] == "GOA" & haul_maxyr$YEAR[1] >=2025){
+  if (haul_maxyr$REGION[1] == "GOA" & haul_maxyr$YEAR[1] >= 2025) {
     colnames(area_lookup_table)[which(colnames(area_lookup_table) == "REGULATORY_AREA_NAME")] <- "AREA_NAME"
   }
-  
+
   attempted <- haul_maxyr |>
     group_by(STRATUM) |>
     distinct(STATIONID) |>
@@ -1356,6 +1356,106 @@ stratum_haul_map <- function(cpue_table, survey_strata, data_type = "cpue") {
   }
   return(p)
 }
+
+make_bubble_panel <- function(
+  strata_data,
+  land_data,
+  haul_data,
+  xlim,
+  ylim,
+  lon_breaks,
+  lat_breaks,
+  subtitle = NULL,
+  show_legend = FALSE
+) {
+  ggplot() +
+    geom_sf(
+      data = strata_data,
+      aes(
+        fill = factor(DEPTH_MAX_M),
+        color = factor(DEPTH_MAX_M)
+      )
+    ) +
+    scale_fill_manual(
+      name = "Maximum \nstratum depth (m)",
+      values = depthpal,
+      guide = if (show_legend) "legend" else "none"
+    ) +
+    scale_color_manual(
+      values = depthpal,
+      guide = "none"
+    ) +
+    geom_sf(data = land_data) +
+    geom_sf(
+      data = dplyr::filter(haul_data, cpue_kgkm2 == 0),
+      color = "darkred",
+      shape = 4,
+      size = 1,
+      stroke = 1
+    ) +
+    geom_sf(
+      data = dplyr::filter(haul_data, cpue_kgkm2 > 0),
+      aes(size = cpue_kgkm2),
+      alpha = 0.7,
+      color = "black"
+    ) +
+    scale_size(
+      bquote("CPUE" ~ (kg / km^2)),
+      limits = c(1, max(haul_data$cpue_kgkm2, na.rm = TRUE)),
+      guide = if (show_legend) "legend" else "none"
+    ) +
+    coord_sf(
+      xlim = xlim,
+      ylim = ylim
+    ) +
+    scale_x_continuous(breaks = lon_breaks) +
+    scale_y_continuous(breaks = lat_breaks) +
+    labs(subtitle = subtitle) +
+    bubbletheme
+}
+
+make_ai_plot <- function(haul_data, display_name) {
+  p3a <- make_bubble_panel(
+    strata_data = ai_east$survey.strata,
+    land_data = reg_data$akland,
+    haul_data = haul_data,
+    xlim = ai_east$plot.boundary$x,
+    ylim = ai_east$plot.boundary$y,
+    lon_breaks = reg_data$lon.breaks,
+    lat_breaks = reg_data$lat.breaks,
+    subtitle = "Eastern Aleutians \nand Southern Bering Sea",
+    show_legend = TRUE
+  ) +
+    theme(legend.position = "left")
+
+  p3b <- make_bubble_panel(
+    strata_data = ai_central$survey.strata,
+    land_data = ai_central$akland,
+    haul_data = haul_data,
+    xlim = ai_central$plot.boundary$x,
+    ylim = ai_central$plot.boundary$y,
+    lon_breaks = ai_central$lon.breaks,
+    lat_breaks = ai_central$lat.breaks,
+    subtitle = "Central Aleutians"
+  )
+
+  p3c <- make_bubble_panel(
+    strata_data = ai_west$survey.strata,
+    land_data = ai_west$akland,
+    haul_data = haul_data,
+    xlim = ai_west$plot.boundary$x,
+    ylim = ai_west$plot.boundary$y,
+    lon_breaks = ai_west$lon.breaks,
+    lat_breaks = ai_west$lat.breaks,
+    subtitle = paste0(display_name, " - Western Aleutians - ", YEAR)
+  )
+
+  toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
+  bottomrow <- cowplot::plot_grid(p3a, rel_widths = c(1, 2))
+
+  cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
+}
+
 
 # LATER: Add an independent function to plot CPUE as bars instead of circles
 # plot_ianelli <- function(region, species, year){
