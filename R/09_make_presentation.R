@@ -33,10 +33,14 @@ source("R/00_report_settings.R")
 source("R/01_directories.R")
 source("R/02_load_packages.R")
 
-SRVY <- "GOA"
-maxyr <- 2025 # Change this for the year!
-compareyr <- 2023
-dates_conducted <- "May 25th through August 3rd 2025" # EDIT
+# SRVY <- "GOA"
+# maxyr <- 2025 # Change this for the year!
+# compareyr <- 2023
+print(SRVY)
+print(maxyr)
+print(compareyr)
+print(dates_conducted)
+
 if (SRVY == "GOA") {
   all_allocation <- read.csv(here::here("data", "local_goa", "goa_station_allocation.csv"))
   preassignedstationstatement <- "This year, we pre-assigned XX% of the total XXX stations allocated as “new” meaning the each vessel had to trawl around a dozen previously untrawled stations last summer
