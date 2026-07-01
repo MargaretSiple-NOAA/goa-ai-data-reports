@@ -2,9 +2,9 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2019 # Change this for the year!
-minyr <- 1990 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
-compareyr <- 2017 # Change this for the year!
+maxyr <- 2024 # Change this for the year!
+minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
+compareyr <- 2022 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
@@ -14,11 +14,11 @@ YEAR <- maxyr # probably can simplify this later
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
-SRVY <- "GOA" # Options: "GOA", "AI"
+SRVY <- "AI" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
 
-design_year <- ifelse(SRVY == "AI", 1980, 1984)
+design_year <- ifelse(SRVY == "AI", 1991, 1984) # used to be 1980; I changed to 1991 for table merging
 if(SRVY == "GOA" & maxyr >= 2025){
   design_year <- 2025
 }
@@ -33,7 +33,7 @@ if (maxyr %% 2 != 0 && SRVY == "AI") {
 
 
 if (SRVY == "AI") {
-  dates_conducted <- "the 5th of June through the 3rd of August" # NEED TO CHANGE FOR 2019
+  dates_conducted <- "the 30th of May through the 8th of August"
 } else {
   dates_conducted <- "the 18th of May through the 6th of August" # 
 }
