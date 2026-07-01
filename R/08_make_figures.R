@@ -9,7 +9,7 @@
 
 make_biomass_timeseries <- TRUE
 # 2. Catch composition plot
-make_catch_comp <- TRUE
+make_catch_comp <- FALSE
 # 3. CPUE bubble maps - strata are shaded in. These were presented at GPT 2022.
 make_cpue_bubbles_strata <- TRUE
 # 5. Length frequency plots as joy division plots
@@ -139,7 +139,7 @@ bubbletheme <- theme(
 
 linetheme <- theme_bw(base_size = 9)
 
-bartheme <- ggpubr::theme_classic2(base_size = 14) +
+bartheme <- ggpubr::theme_classic2(base_size = 12) +
   theme(strip.background = element_blank())
 
 # * Palettes ----------------------------------------------------------------
@@ -179,6 +179,12 @@ speciescolors <- lengthen_pal(
   x = 1:(nrow(report_species) + 1)
 )
 
+# Palette for bar colors if using only single species (no complexes)
+single_speciescolors <- lengthen_pal(
+  shortpal = c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497"),
+  x = 1:(length(report_species$species_code[which(grepl(report_species$species, pattern = "[0-9]"))]) + 1)
+)
+
 # 0. Static figure: INPFC areas ----------------------------------------------
 
 # This figure is loaded in knit_report; it is static.
@@ -190,7 +196,7 @@ if (make_total_surv_map) {
   # alternate
   # palette_map <- c("#4E79A7", "#A0CBE8", "#F28E2B", "#59A14F", "#F1CE63")
   # new colors
-  palette_map <- c("#4E79A7", "#A0CBE8", "#F28E2B", "#FFBE7D", "#59A14F")
+  palette_map <- c("#a6611a", "#dfc27d", "#f5f5f5", "#80cdc1", "#018571")
 
   #  Base map
   # p1 <- ggplot() +
@@ -301,6 +307,7 @@ if (make_biomass_timeseries) {
     name_bms <- report_species$spp_name_informal[i]
 
     dat <- biomass_total |>
+      dplyr::arrange(YEAR) |>
       dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
       dplyr::mutate(PERCENT_OF_STATIONS = round((N_WEIGHT / N_HAUL) * 100)) |>
       dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
@@ -427,35 +434,58 @@ if (make_biomass_timeseries) {
 if (make_catch_comp) {
   head(biomass_total)
   biomass_total_filtered <- biomass_total |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
-    ) %>%
-    mutate(spp_name_informal = tidyr::replace_na(
-      data = spp_name_informal,
-      replace = "Other species"
-    ))
+    ) |>
+    mutate(spp_name_informal = tidyr::replace_na(data = spp_name_informal, replace = "Other species"))
 
   biomass_total_filtered$spp_name_informal <- factor(biomass_total_filtered$spp_name_informal,
     levels = c(report_species$spp_name_informal, "Other species")
   )
 
   p2 <- biomass_total_filtered |>
-    ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 10e6, x = YEAR)) +
+    filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
+    ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 1e6, x = YEAR)) +
     geom_bar(position = "stack", stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated biomass (\u00D7 ", 10^6, " mt)"))) +
+    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6, " t)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
 
-  png(
-    filename = paste0(dir_out_figures, YEAR, "_biomass_catchcomp.png"),
-    width = 11, height = 6, units = "in", res = 200
-  )
-  print(p2)
-  dev.off()
+  ggsave(plot = p2, filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"))
+
+  save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
+
+
+# 2b. All stocks in the report/pres: time series --------------------------
+# biomass_goa0 <- read.csv(file = "C:/Users/margaret.siple/Work/Data reports/goa-ai-data-reports/output/GOA_2025/tables/biomass_total_all.csv")
+# biomass_goa <- biomass_goa0 |>
+#   dplyr::filter(SPECIES_CODE %in% report_species$species_code) |>
+#   left_join(species_names, by = c('SPECIES_CODE' = 'species_code'))
+#
+# stock_summaries <- biomass_goa |>
+#   dplyr::group_by(common_name) |>
+#   dplyr::summarize(ltmean = mean(BIOMASS_MT)) |>
+#   ungroup()
+#
+# png("All_Species_ts_summary.png",width = 9,height = 7, units = 'in', res = 200)
+# biomass_goa |>
+#   ggplot(aes(x=YEAR, y = BIOMASS_MT/1000,color = major_group, fill = major_group)) +
+#   geom_hline(data = stock_summaries,aes(yintercept = ltmean/1000), color = '#2b8cbe',lty=2) +
+#   geom_point() +
+#   geom_line() +
+#   geom_ribbon(mapping = aes(ymin = MIN_BIOMASS/1000, ymax=MAX_BIOMASS/1000),alpha=0.2, color = NA) +
+#   facet_wrap(~common_name, scales = "free_y", labeller = label_wrap_gen(width = 25)) +
+#   ggthemes::scale_color_tableau() +
+#   ggthemes::scale_fill_tableau() +
+#   xlab("Year") +
+#   ylab("Biomass (x 1,000 mt)") +
+#   ggsidekick::theme_sleek()
+# dev.off()
 
 # 3. CPUE maps - depths colored in (presented at GPT 2022 and 2024 with strata colored in) ----------------------------------------------------------
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
@@ -561,7 +591,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           color = "black"
         ) +
         scale_size(
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none"
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -647,7 +677,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = reg_data$lon.breaks) +
         scale_y_continuous(breaks = reg_data$lat.breaks) +
         bubbletheme
-    } # /GOA stratum bubble maps for complexes
+    } # /stratum bubble maps for complexes
 
     # ,out.width=9,out.height=8
     png(
@@ -751,7 +781,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
         scale_size(
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none"
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -864,6 +894,94 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
+
+# New approach (faster maybe?) - uncomment after GOA-2019 draft is created bc I haven't tested it for GOA yet
+# if (make_cpue_bubbles_strata) {
+#   cpue_sf <- cpue_processed |>
+#     janitor::clean_names() |>
+#     filter(
+#       year == maxyr,
+#       survey == SRVY
+#     ) |>
+#     st_as_sf(
+#       coords = c("longitude_dd_start", "latitude_dd_start"),
+#       crs = "EPSG:4326"
+#     ) |>
+#     st_transform(crs = reg_data$crs)
+# 
+#   max_cpue <- max(cpue_sf$cpue_kgkm2, na.rm = TRUE)
+# 
+#   list_cpue_bubbles_strata <- vector(
+#     "list",
+#     nrow(report_species)
+#   )
+# 
+#   for (i in seq_len(nrow(report_species))) {
+#     species_code_i <- report_species$species_code[i]
+#     display_name_i <- report_species$spp_name_informal[i]
+# 
+#     thisyrshauldata <- cpue_sf |>
+#       filter(species_code == species_code_i)
+# 
+#     if (nrow(thisyrshauldata) == 0) {
+#       next
+#     }
+# 
+#     # create fig
+#     if (SRVY == "AI") {
+#       final_obj <- make_ai_plot(
+#         haul_data = thisyrshauldata,
+#         display_name = display_name_i
+#       )
+#     } else {
+#       final_obj <- make_bubble_panel(
+#         strata_data = reg_data$survey.strata,
+#         land_data = reg_data$akland,
+#         haul_data = thisyrshauldata,
+#         xlim = reg_data$plot.boundary$x,
+#         ylim = reg_data$plot.boundary$y,
+#         lon_breaks = reg_data$lon.breaks,
+#         lat_breaks = reg_data$lat.breaks,
+#         subtitle = display_name_i,
+#         show_legend = TRUE
+#       )
+#     }
+# 
+#     # save png
+#     png(
+#       filename = paste0(
+#         dir_out_figures,
+#         maxyr,
+#         "_",
+#         display_name_i,
+#         "_bubble.png"
+#       ),
+#       width = 9,
+#       height = 8,
+#       units = "in",
+#       res = 200
+#     )
+# 
+#     print(final_obj)
+# 
+#     dev.off()
+# 
+#     # store in list
+#     list_cpue_bubbles_strata[[i]] <- final_obj
+#   }
+# 
+#   names(list_cpue_bubbles_strata) <- plot_species$species_code
+# 
+#   save(
+#     list_cpue_bubbles_strata,
+#     file = paste0(
+#       dir_out_figures,
+#       "list_cpue_bubbles_strata.rdata"
+#     )
+#   )
+# 
+#   print("Done with CPUE bubble maps showing stratum areas.")
+# }
 
 # 5. Length frequency - joy division plots ---------------------------------
 if (make_joy_division_length) {
@@ -1198,34 +1316,10 @@ if (make_ldscatter) {
 if (make_temp_plot) {
   list_temperature <- list()
 
-  sstdat <- haul |>
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
-    filter(YEAR >= 1994 & REGION == SRVY & YEAR != 1997) |>
-    filter(PERFORMANCE >= 0) |>
-    group_by(YEAR) |>
-    dplyr::summarize(
-      bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
-      surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
-    ) |>
-    ungroup() |>
-    as.data.frame() |>
-    mutate(YEAR = as.numeric(YEAR))
-
-  if (SRVY == "GOA") {
-    sstdat <- sstdat |> filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
-  }
-
-  # sst_summary <- sstdat |>
-  #   mutate(
-  #     bottom_stz = bottom - mean(bottom, na.rm = T),
-  #     surface_stz = surface - mean(surface, na.rm = T)
-  #   ) |>
-  #   pivot_longer(cols = bottom:surface_stz)
-
   plotdat <- haul |>
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
-    filter(PERFORMANCE >= 0) |>
-    filter(REGION == SRVY & YEAR != 1997) |> # YEAR >= 1994 &
+    filter(PERFORMANCE >= 0 & ABUNDANCE_HAUL == "Y") |>
+    filter(REGION == SRVY & YEAR != 1997 & YEAR >= minyr & YEAR <= maxyr) |> # YEAR >= 1994 &
     filter(CRUISE != 201402) |> # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
 
@@ -1361,7 +1455,7 @@ if (make_temp_plot) {
       xend = maxyr,
       color = "#2a5674", alpha = 0.4, lty = 2
     ) +
-    annotate(geom = "text", x = 1999, y = 11.5, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 12, label = "Surface temperature", color = "#68abb8") +
     annotate(geom = "text", x = 1999, y = 6.5, label = "Bottom temperature", color = "#2a5674") +
     theme_bw(base_size = 14)
 
@@ -1387,7 +1481,7 @@ if (make_temp_plot) {
     filename = paste0(
       dir_out_figures, maxyr, "_temps_combined.png"
     ),
-    width = 8, height = 5.5, units = "in", res = 200
+    width = 8, height = 8, units = "in", res = 200
   )
   print(line_temperature)
   dev.off()

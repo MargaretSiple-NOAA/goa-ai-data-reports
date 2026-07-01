@@ -26,7 +26,3 @@ a1 |>
 ```
 
 <br/>
-
-```{r echo=FALSE,tab.cap=paste0('Appendix Table A2. Summary codes used for the ', survname_long, ' bottom trawl survey including depth, stratum number, name and area.'), tab.id='a-codelist',  tab.cap.style = "Table Caption"}
-data.frame(replace = 1:4,me = letters[1:4]) |> flextable()#placeholder, obviously
-```

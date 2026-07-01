@@ -2,20 +2,26 @@
 
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
-maxyr <- 2025 # Change this for the year!
-minyr <- 1990 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
-compareyr <- 2023 # Change this for the year!
+maxyr <- 2024 # Change this for the year!
+minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
+compareyr <- 2022 # Change this for the year!
 pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
 use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 tablefont <- "Arial"
 
+YEAR <- maxyr # probably can simplify this later
 # Survey information ------------------------------------------------------
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
-SRVY <- "GOA" # Options: "GOA", "AI"
+SRVY <- "AI" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
+
+design_year <- ifelse(SRVY == "AI", 1991, 1984) # used to be 1980; I changed to 1991 for table merging
+if(SRVY == "GOA" & maxyr >= 2025){
+  design_year <- 2025
+}
 
 # Check survey year and region combo:
 if (maxyr %% 2 == 0 && SRVY == "GOA") {
@@ -27,9 +33,9 @@ if (maxyr %% 2 != 0 && SRVY == "AI") {
 
 
 if (SRVY == "AI") {
-  dates_conducted <- "the 5th of June through the 3rd of August" # 2024 - Change this for the year!
+  dates_conducted <- "the 30th of May through the 8th of August"
 } else {
-  dates_conducted <- "the 18th of May through the 6th of August" # 2021
+  dates_conducted <- "the 18th of May through the 6th of August" # 
 }
 
 
@@ -41,18 +47,15 @@ and this will become a permanent feature of our station allocations in the futur
   preassignedstationstatement <- ""
 }
 
-YEAR <- maxyr
-design_year <- ifelse(SRVY == "GOA" & maxyr >= 2025, 2025, 1984)
-
 # Vessels and captains
-vessel1 <- "FV&nbsp;Ocean Explorer"
-vessel2 <- "FV&nbsp;Alaska Provider"
+vessel1 <- "FV&nbsp;*Ocean Explorer*"
+vessel2 <- "FV&nbsp;*Alaska Provider*"
 captain1 <- "Dan Carney"
-captain2 <- "Paulo da Cruz"
+captain2 <- "Loren Reynolds"
 
 # Internal reviewers
-reviewer1 <- "Thaddaeus Buser"
-reviewer2 <- "Susanne McDermott"
+reviewer1 <- "INSERT REVIEWER NAME 1"
+reviewer2 <- "INSERT REVIEWER NAME 2"
 
 ref_compareyr <- "@von_szalay_data_2017" # should be included in cite/bibliography.bib
 
@@ -113,7 +116,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
-report_authors <- "M. Siple, Z. Oyafuso, B. Riggle, A. Dowlin"
+report_authors <- "B. Riggle, M.Siple, A. Dowlin"
 report_yr <- maxyr
 
 
@@ -145,7 +148,9 @@ complex_lookup <- complex_lookup0 |>
   dplyr::filter(region == SRVY)
 
 # Load species_year table
-species_year <- read.csv("data/local_gap_products/species_year.csv")
+if(file.exists("data/local_gap_products/species_year.csv")){
+  species_year <- read.csv("data/local_gap_products/species_year.csv")
+}
 
 # add complexes to species_year for easy lookup
 species_year <- species_year |>
@@ -157,7 +162,7 @@ species_year <- species_year |>
 
 # Did we have an IPHC person aboard? 
 if(maxyr < 2023){
-  iphc_sentence <- "When halibut were retained by the onboard IPHC sampler, sample sizes were determine by IPHC protocols."}else{
+  iphc_sentence <- "When halibut were retained onboard, sample sizes were set in consultation with the IPHC. Halibut sample sizes are available in the otolith collection schedule and approved scientific collections requests."}else{
     iphc_sentence <- ""}
 
 # Random figure settings we need, annoyingly:

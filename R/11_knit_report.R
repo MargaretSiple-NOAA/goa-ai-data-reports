@@ -17,7 +17,7 @@ top_CPUE <- read.csv(
     paste0(dir_in_tables, "top_CPUE_", maxyr, ".csv")
 ) # /topcpue
 
-compare_tab <- read.csv(paste0(dir_in_tables, maxyr, "_","comparison_w_previous_survey.csv"))
+compare_tab <- read.csv(paste0(dir_in_tables, maxyr, "_", "comparison_w_previous_survey.csv"))
 
 if (!exists("sizecomp")) {
   sizecomp <- read.csv(file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
@@ -35,7 +35,13 @@ if (SRVY == "GOA") {
 img1 <- png::readPNG(img1_path)
 
 # Station map
-load(paste0(dir_out_figures,"station_map.RDS"))
+if (SRVY == "GOA") {
+  load(file = paste0(
+    dir_out_srvy_yr, "figures/", maxyr, "_station_map.RDS"
+  )) # object: station_map
+  net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
+  net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figures aspect ratio
+}
 
 # Maps with CPUE
 load(file = paste0(
@@ -62,17 +68,10 @@ load(file = paste0(
   dir_in_figures, "list_ldscatter.rdata"
 )) # object: list_ldscatter
 
-if(SRVY=="GOA"){
-load(file = paste0(
-  dir_out_srvy_yr, "figures/", maxyr, "_station_map.RDS"
-)) # object: station_map
-  net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
-  net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figures aspect ratio
-}
-
 
 # Load the individual values ----------------------------------------------
 load(file = paste0(dir_in_reportvalues, "/reportvalues.rdata"))
+load(file = paste0(dir_out_tables, "list_samplingdensities.rdata")) # object: list_samplingdensities.rdata
 
 # Render the markdown doc! -----------------------------------------------------
 
@@ -85,6 +84,7 @@ rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_dir = dir_out_chapters,
   output_file = "DATA_REPORT.docx"
 )
+
 Sys.time() - starttime
 
 #  time for 4 species: about 40-50 seconds
@@ -96,29 +96,29 @@ Sys.time() - starttime
 source("R/12_make_appendices.R")
 
 # Append the appendices using officer -------------------------------------
-gc() # clean up unused memory again (helps for giant data objects)
-
-maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
-  body_add_break()
-
-fullreport <- body_add_docx(
-  x = maindoc,
-  src = paste0(appendix_dir, "Appendix A/Appendix A 2023.docx")
-) %>%
-  body_add_break()
-
-# Make Appendix B
-source(here::here("R", "12_make_appendices.R"))
-
-fullreport <- body_add_docx(fullreport,
-  src = (paste0(dir_out_chapters, "AppendixB.docx"))
-) %>%
-  body_add_break()
-
-# Add Appendix C
-fullreport <- body_add_docx(fullreport,
-  src = paste0(appendix_dir, "Appendix C/APPENDIX C_2023.docx")
-) %>%
-  body_add_break()
-
-print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))
+# gc() # clean up unused memory again (helps for giant data objects)
+# 
+# maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
+#   body_add_break()
+# 
+# fullreport <- body_add_docx(
+#   x = maindoc,
+#   src = paste0(appendix_dir, "Appendix A/Appendix A 2023.docx")
+# ) %>%
+#   body_add_break()
+# 
+# # Make Appendix B
+# source(here::here("R", "12_make_appendices.R"))
+# 
+# fullreport <- body_add_docx(fullreport,
+#   src = (paste0(dir_out_chapters, "AppendixB.docx"))
+# ) %>%
+#   body_add_break()
+# 
+# # Add Appendix C
+# fullreport <- body_add_docx(fullreport,
+#   src = paste0(appendix_dir, "Appendix C/APPENDIX C_2023.docx")
+# ) %>%
+#   body_add_break()
+# 
+# print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))

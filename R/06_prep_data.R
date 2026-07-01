@@ -62,14 +62,14 @@ haul_maxyr <- haul |>
 cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
 
 survnumber <- cruises |>
-  filter(SURVEY_NAME == ifelse(SRVY == "AI",
+  dplyr::filter(SURVEY_NAME == ifelse(SRVY == "AI",
     "Aleutian Islands Bottom Trawl Survey",
     "Gulf of Alaska Bottom Trawl Survey"
   )) |>
-  filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) |> # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
+  dplyr::filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) |> # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
   dplyr::filter(CRUISE != 202001 & YEAR <= maxyr) |>
-  distinct(CRUISE) |>
-  arrange(CRUISE) |>
+  dplyr::distinct(YEAR) |>
+  dplyr::arrange(YEAR) |>
   nrow() |>
   scales::ordinal()
 
@@ -121,6 +121,9 @@ if (nhauls_no_btemp > 0 & nhauls_no_stemp > 0) {
 # Econ info ---------------------------------------------------------------
 # dat <- read.csv("data/GOA_planning_species_2021.csv") #for 2021 report
 dat <- read.csv("data/GOA_planning_species_2023.csv")
+
+# dat <- read.csv("data/GOA_planning_species_2019.csv")
+
 sp_prices <- dat |>
   dplyr::filter(!is.na(ex.vessel.price)) |>
   dplyr::select(-species.code, common.name, species.name, include, ex.vessel.price, source) |>
@@ -137,7 +140,15 @@ pricespeciescount <- nrow(sp_prices[which(!is.na(sp_prices$`Ex-vessel price`)), 
 # Station allocation, counts, etc. ----------------------------------------
 # Station allocation table (source: AI or GOA schema)
 if (SRVY == "GOA") {
-  all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2025/Station Allocation/goa_2025_station_allocation_450.xlsx", sheet = "Station Allocation") # customize from year to year
+  if (maxyr == 2025) {
+    all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2025/Station Logs/Station Allocation/goa_2025_station_allocation_450.xlsx", sheet = "Station Allocation") # customize from year to year
+  }
+  if (maxyr == 2019) {
+    all_allocation <- readxl::read_xlsx(path = "G:/GOA/GOA 2019/Station allocation/GOA2019_ 2 boat_550_RNDM_stations.xlsx", sheet = "GOA2019_ 2 boat_550_RNDM_statio") # customize from year to year
+  }
+  if (!maxyr %in% c(2019, 2021, 2025)) {
+    print("make sure your allocation file directory is set. Or modify this part of the code to be less janky :)")
+  }
 } else {
   all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
 }
@@ -160,9 +171,13 @@ if (maxyr <= 2021) {
 # This like a lookup table for allocating strata to the correct area and depth
 dat <- read.csv("data/local_gap_products/area.csv")
 
+area_type <- ifelse(SRVY == "GOA" & maxyr >= 2025, "STRATUM", "INPFC BY DEPTH")
+
 stratum_lu <- dat |>
   dplyr::mutate(SURVEY = ifelse(SURVEY_DEFINITION_ID == 47, "GOA", "AI")) |>
-  dplyr::filter(SURVEY_DEFINITION_ID == 47 & DESIGN_YEAR == design_year & AREA_TYPE == "STRATUM") |>
+  dplyr::filter(SURVEY_DEFINITION_ID == 47 & 
+                  DESIGN_YEAR == design_year & 
+                  AREA_TYPE == area_type) |>
   dplyr::rename(
     STRATUM = "AREA_ID",
     MIN_DEPTH = "DEPTH_MIN_M",
@@ -198,7 +213,7 @@ if (SRVY == "GOA" & maxyr >= 2025) {
     tidyr::unite("Depth range", MIN_DEPTH:MAX_DEPTH, sep = " - ", remove = FALSE) |>
     dplyr::mutate(`Depth range` = paste0(`Depth range`, " m")) |>
     dplyr::mutate(REGULATORY_AREA_NAME = str_trim(REGULATORY_AREA_NAME))
-} else { # AI survey and old GOA
+} else { # AI, pre-2025 GOA
   dat <- read.csv(here::here("data", "goa_strata.csv"), header = TRUE)
   region_lu <- dat |>
     dplyr::filter(SURVEY == SRVY) |>
@@ -212,6 +227,7 @@ if (SRVY == "GOA" & maxyr >= 2025) {
     dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
   # For AI years, add abbreviated area names:
+
   region_lu2 <- region_lu |>
     dplyr::group_by(INPFC_AREA) |>
     dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
@@ -276,9 +292,13 @@ if (maxyr > 2023) {
     nrow()
 }
 
-nnewstations <- all_allocation |>
-  filter(YEAR == maxyr & STATION_TYPE == "new_stn") |>
-  nrow()
+if (maxyr > 2021) {
+  nnewstations <- all_allocation |>
+    filter(YEAR == maxyr & STATION_TYPE == "new_stn") |>
+    nrow()
+} else {
+  nnewstations <- 0
+}
 
 if (nnewstations == 0) {
   print("Code says no new stations were sampled this year. If this is not correct, check allocation table.")
@@ -348,7 +368,7 @@ nfailedtows <- haul2 |>
   filter(HAUL_TYPE == 3 & PERFORMANCE < 0) |>
   nrow()
 
-pct_reduction_from_520 <- abs(round(((nstationsassigned-520)/520) * 100))
+pct_reduction_from_520 <- abs(round(((nstationsassigned - 520) / 520) * 100))
 # SQL version for nfailedtows (from Ned):
 # select count(*) from racebase.haul
 # where region = 'GOA' and cruise = 202101
@@ -372,13 +392,6 @@ if (any(is.na(haul2$NET_WIDTH))) {
 } else {
   marportpredsentence <- "Net width data were collected for all hauls using a Marport net spread sensor."
 }
-
-
-# Depths and areas with highest sampling densities ------------------------
-load(paste0(dir_out_tables, "list_samplingdensities.rdata"))
-depthrange_hisamplingdensity <- list_samplingdensities$depthrange_hisamplingdensity
-stationdensity_hisamplingdensity <- list_samplingdensities$stationdensity_hisamplingdensity
-surveywide_samplingdensity <- list_samplingdensities$surveywide_samplingdensity
 
 # Lengths and otos sampled -------------------------------------------
 L0 <- read.csv(here::here("data/local_racebase/length.csv"))
@@ -438,6 +451,7 @@ otos_collected <- specimen_maxyr |>
   ungroup() |>
   arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
 
+# Otolith collections - can use in oto sampling comparison table if needed
 otos_by_species <- specimen_maxyr |>
   filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
@@ -510,7 +524,7 @@ if (!exists("report_pseudolengths")) {
   report_pseudolengths <- read.csv(file = paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
 }
 
-if(!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CODE))){
+if (!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CODE))) {
   print("STOP HERE AND RE-RUN DATA DOWNLOAD WITH NEW REPORT SPECIES LIST")
 }
 
@@ -537,10 +551,10 @@ highest_biomass_flatfish <- highest_biomass |>
   filter(major_group == "Flatfish")
 
 highest_chonds <- biomass_total |>
-  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) |>
+  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) |>
   janitor::clean_names() |>
   dplyr::left_join(species_names) |>
-  filter(major_group == "Chondrichthyans") |>
+  dplyr::filter(major_group == "Chondrichthyans") |>
   dplyr::slice_max(n = 3, order_by = biomass_mt, with_ties = FALSE)
 
 highest_biomass_overall <- stringr::str_to_sentence(highest_biomass$common_name[1])
@@ -576,3 +590,6 @@ if (pres_or_report == "pres") {
 # Notes and tidbits -------------------------------------------------------
 
 # Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
+
+# Tally up the otoliths collected for oto comparison table
+
