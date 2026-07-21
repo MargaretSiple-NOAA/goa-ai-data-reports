@@ -24,18 +24,13 @@ make_joy_division_length <- FALSE
 make_cpue_idw <- FALSE
 # 7. Plots of surface and bottom temperature
 make_temp_plot <- TRUE
-# make a special combined biomass plot for rebs
-make_complexes_figs <- FALSE
 
 
-# Report settings -------------------------------------------------------------
+# Report settings & packages----------------------------------------------------
 source("R/00_report_settings.R")
 source("R/01_directories.R")
-source("R/02_load_packages.R")
 
-# SRVY <- "GOA"
-# maxyr <- 2025 # Change this for the year!
-# compareyr <- 2023
+# print out settings to confirm they're right
 print(SRVY)
 print(maxyr)
 print(compareyr)
@@ -192,6 +187,10 @@ if (SRVY == "AI") {
   ai_east$survey.strata <- ai_east$survey.strata |>
     mutate(strat_depth = substr(STRATUM, 3, 3))
 
+  stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
+    dplyr::filter(AREA_TYPE == "STRATUM") |>
+    dplyr::select(AREA_ID, DEPTH_MAX_M)
+  
   nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
 }
 
@@ -308,19 +307,6 @@ bartheme <- ggpubr::theme_classic2(base_size = 14) +
 
 # Palettes ----------------------------------------------------------------
 
-if (SRVY == "AI") {
-  stratumpal <- lengthen_pal(
-    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
-    x = 1:nstrata
-  ) |>
-    colorspace::lighten(amount = 0.3, space = "HCL")
-} else {
-  stratumpal <- lengthen_pal(
-    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
-    x = 1:nstrata
-  )
-}
-
 # Palette for lines
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
@@ -345,10 +331,9 @@ pct_col <- c("#fc8d59", "#7fbf7b") # another orange option: #fc8d59
 
 ################### CHUNKS ##################################################
 # These can be run individually as needed. For example, if you want to modify all the biomass time series plots at once. If you know you already have satisfactory versions of all these plots, you don't need to re-run this code! The presentation knitting section will check if figs are available and will load them if not.
-# ###########################################################################
+#############################################################################
 
 # 1. Biomass index relative to LT mean ---------------------------------------
-
 if (make_biomass_timeseries) {
   list_biomass_ts <- list()
   for (i in 1:nrow(report_species)) {
@@ -384,201 +369,6 @@ if (make_biomass_timeseries) {
   save(list_biomass_ts, file = paste0(dir_out_figures, "list_biomass_ts.rdata"))
   print("Done with biomass time series plots.")
 }
-
-# 1b. Complexes: Biomass & CPUE maps------------------------------------------
-# Use gapindex package with GROUP variable to plot biomass for the complexes through time. Complexes like REBS don't get generated automatically for tables in GAP_PRODUCTS so we have to make them by hand here. These species are assessed as a complex so assessment folks want to see Plan Team plots for the complex together.
-if (make_complexes_figs) {
-  print(paste("Generating figs for", unique(complex_lookup$complex)))
-
-  # Long term averages
-  biomass_df_complexes
-  
-  lta <- biomass_df_complexes |>
-    group_by(SPECIES_CODE) |>
-    summarize(lta_biomass = mean(BIOMASS_MT)) |>
-    ungroup()
-
-  # Biomass time series
-  biomass_ts_complexes <- list()
-
-  for (i in 1:length(unique(complex_lookup$complex))) {
-    complex <- unique(complex_lookup$complex)[i]
-    p1 <- biomass_df_complexes |>
-      dplyr::filter(SPECIES_CODE == complex) |>
-      ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
-      geom_hline(
-        yintercept = as.numeric(lta[which(lta$SPECIES_CODE == complex), "lta_biomass"]),
-        color = accentline, lwd = 0.7, lty = 2
-      ) +
-      geom_point(color = linecolor, size = 2) +
-      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS),
-        color = linecolor, linewidth = 0.9, width = 0.7
-      ) +
-      ylab("Estimated total biomass (t)") +
-      xlab("Year") +
-      scale_y_continuous(labels = scales::label_comma()) +
-      annotate(label = name_bms, geom = "label", x = Inf, y = Inf, hjust = 1, vjust = 1) +
-      linetheme +
-      annotate("text",
-        x = 2000, y = 50000,
-        label = "* Uses 2SD approximation for confidence intervals"
-      )
-
-    png(
-      filename = paste0(dir_out_figures, complex, "_", SRVY, "_", maxyr, "_biomass_ts.png"),
-      width = 7, height = 7, units = "in", res = 150
-    )
-    print(p1)
-    dev.off()
-
-    biomass_ts_complexes[[i]] <- p1
-    names(biomass_ts_complexes)[i] <- complex
-  }
-
-  save(biomass_ts_complexes, file = paste0(dir_out_figures, "biomass_ts_complexes.rdata"))
-
-
-  # CPUE maps
-  # list_cpue_bubbles_strata_complexes <- list()
-  #
-  # for (i in 1:length(unique(complex_lookup$complex))) {
-  #   complex_code <- unique(complex_lookup$complex)[i]
-  #   namebubble <- switch(complex_code,
-  #                        DEEPFLATS = "Deepwater flatfish",
-  #                        DSROX = "Deep shelf rockfish",
-  #                        NRSSRS = "Northern/southern rock sole",
-  #                        SWFLATS = "Shallow-water flatfish",
-  #                        SHARKS = "Sharks",
-  #                        SKATES = "Skates",
-  #                        THORNYHEADS = "Thornyheads",
-  #                        REBS = "Rougheye/blackspotted rockfish",
-  #                        OROX = "Other rockfish",
-  #                        OFLATS = "Other flatfish",
-  #                        )
-  #
-  #   thisyrshauldata <- cpue_table_complexes |>
-  #     janitor::clean_names() |>
-  #     #dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
-  #     dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
-  #     st_as_sf(
-  #       coords = c("longitude_dd_start", "latitude_dd_start"),
-  #       crs = "EPSG:4326"
-  #     ) |>
-  #     st_transform(crs = reg_data$crs)
-  #
-  #   # MAPS
-  #   p3a <- ggplot() +
-  #     geom_sf(
-  #       data = ai_east$survey.strata,
-  #       mapping = aes(
-  #         fill = factor(STRATUM),
-  #         color = factor(STRATUM)
-  #       )
-  #     ) +
-  #     scale_fill_manual(values = stratumpal, guide = "none") +
-  #     scale_color_manual(values = stratumpal, guide = "none") +
-  #     geom_sf(data = reg_data$akland) +
-  #     geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0),
-  #             aes(size = cpue_kgkm2), alpha = 0.5) +
-  #     scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-  #     geom_sf( # x's for places where cpue=0
-  #       data = filter(thisyrshauldata, cpue_kgkm2 == 0),
-  #       alpha = 1,
-  #       color = "red",
-  #       shape = 4,
-  #       size = 1
-  #     ) +
-  #     coord_sf(
-  #       xlim = ai_east$plot.boundary$x,
-  #       ylim = ai_east$plot.boundary$y
-  #     ) +
-  #     scale_x_continuous(breaks = reg_data$lon.breaks) +
-  #     scale_y_continuous(breaks = reg_data$lat.breaks) +
-  #     labs(subtitle = "Eastern Aleutians \nand Southern Bering Sea") +
-  #     bubbletheme
-  #
-  #   p3b <- ggplot() +
-  #     geom_sf(
-  #       data = ai_central$survey.strata,
-  #       mapping = aes(
-  #         fill = factor(STRATUM),
-  #         color = factor(STRATUM)
-  #       )
-  #     ) +
-  #     scale_fill_manual(values = stratumpal, guide = "none") +
-  #     scale_color_manual(values = stratumpal, guide = "none") +
-  #     geom_sf(data = ai_central$akland) +
-  #     geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0),
-  #             aes(size = cpue_kgkm2), alpha = 0.5) +
-  #     scale_size(bquote("CPUE" ~ (kg / km^2)),
-  #                limits = c(1, max(thisyrshauldata$cpue_kgkm2))) +
-  #     geom_sf( # x's for places where cpue=0
-  #       data = filter(thisyrshauldata, cpue_kgkm2 == 0),
-  #       alpha = 1,
-  #       color = "red",
-  #       shape = 4,
-  #       size = 1
-  #     ) +
-  #     coord_sf(
-  #       xlim = ai_central$plot.boundary$x,
-  #       ylim = ai_central$plot.boundary$y
-  #     ) +
-  #     scale_x_continuous(breaks = ai_central$lon.breaks) +
-  #     scale_y_continuous(breaks = ai_central$lat.breaks) +
-  #     labs(subtitle = "Central Aleutians") +
-  #     bubbletheme +
-  #     theme(legend.position = "left")
-  #
-  #   p3c <- ggplot() +
-  #     geom_sf(
-  #       data = ai_west$survey.strata,
-  #       mapping = aes(
-  #         fill = factor(STRATUM),
-  #         color = factor(STRATUM)
-  #       )
-  #     ) +
-  #     scale_fill_manual(values = stratumpal, guide = "none") +
-  #     scale_color_manual(values = stratumpal, guide = "none") +
-  #     geom_sf(data = ai_west$akland) +
-  #     geom_sf(data = filter(thisyrshauldata, cpue_kgkm2>0),
-  #             aes(size = cpue_kgkm2), alpha = 0.5) +
-  #     scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
-  #     geom_sf( # x's for places where cpue=0
-  #       data = filter(thisyrshauldata, cpue_kgkm2 == 0),
-  #       alpha = 1,
-  #       color = "red",
-  #       shape = 4,
-  #       size = 1
-  #     ) +
-  #     coord_sf(
-  #       xlim = ai_east$plot.boundary$x,
-  #       ylim = ai_east$plot.boundary$y
-  #     ) +
-  #     coord_sf(
-  #       xlim = ai_west$plot.boundary$x,
-  #       ylim = ai_west$plot.boundary$y
-  #     ) +
-  #     scale_x_continuous(breaks = ai_west$lon.breaks) +
-  #     scale_y_continuous(breaks = ai_west$lat.breaks) +
-  #     labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-  #     bubbletheme
-  #
-  #   toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
-  #   bottomrow <- cowplot::plot_grid(NULL, p3a, rel_widths = c(1, 2))
-  #   final_obj <- cowplot::plot_grid(toprow, p3b, bottomrow, ncol = 1)
-  #
-  #   # ,out.width=9,out.height=8
-  #   png(
-  #     filename = paste0(dir_out_figures, complex_code, "_", maxyr, "_bubble.png"),
-  #     width = 9, height = 8, units = "in", res = 200
-  #   )
-  #   print(final_obj)
-  #
-  #   dev.off()
-  #
-  #   list_cpue_bubbles_strata_complexes[[i]] <- final_obj
-  #   names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
-} # /all complexes figs loop
 
 # 2. Catch composition -------------------------------------------------------
 if (make_catch_comp) {
