@@ -143,18 +143,6 @@ bartheme <- ggpubr::theme_classic2(base_size = 12) +
   theme(strip.background = element_blank())
 
 # * Palettes ----------------------------------------------------------------
-if (SRVY == "AI") {
-  stratumpal <- lengthen_pal(
-    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
-    x = 1:nstrata
-  ) |>
-    colorspace::lighten(amount = 0.3, space = "HCL")
-} else {
-  stratumpal <- lengthen_pal(
-    shortpal = RColorBrewer::brewer.pal(n = 9, name = "PuBu"),
-    x = 1:nstrata
-  )
-}
 
 depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
 
