@@ -312,7 +312,6 @@ linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
 # Palette for depth shading for strata
-# depthcolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:4]
 depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
 
 # Palette for joy div plot
@@ -323,7 +322,7 @@ joypal <- lengthen_pal(
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
-  shortpal = c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497"),
+  shortpal = paletteer::paletteer_d("ggthemes::Superfishel_Stone"), #c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497")
   x = 1:(nrow(report_species[which(!grepl("[A-Za-z]", report_species$species_code)), ]) + 1)
 )
 
@@ -386,11 +385,11 @@ if (make_catch_comp) {
 
   p2 <- biomass_total_filtered |>
     filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
-    ggplot(aes(fill = spp_name_informal, y = BIOMASS_MT / 1e6, x = YEAR)) +
-    geom_bar(position = "stack", stat = "identity") +
+    ggplot(aes(x = YEAR, y = BIOMASS_MT / 1e6, fill = fct_reorder(spp_name_informal, BIOMASS_MT))) +
+    geom_bar(stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated \nbiomass (\u00D7", 10^6, " t)"))) +
+    ylab(expression(paste("Total estimated \nbiomass (x", 10^6, " t)"))) +
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
