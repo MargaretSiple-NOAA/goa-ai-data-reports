@@ -10,7 +10,7 @@
 # 1. Biomass indices relative to LT mean
 make_biomass_timeseries <- TRUE
 # 2. Catch composition
-make_catch_comp <- FALSE
+make_catch_comp <- TRUE
 # 3. CPUE bubble map (Aleutians only)
 make_cpue_bubbles <- FALSE
 make_cpue_bubbles_strata <- FALSE
@@ -301,7 +301,7 @@ bubbletheme <- theme(
 
 linetheme <- theme_bw(base_size = 16)
 
-bartheme <- ggpubr::theme_classic2(base_size = 14) +
+bartheme <- ggpubr::theme_classic2(base_size = 20) +
   theme(strip.background = element_blank())
 
 
@@ -385,21 +385,19 @@ if (make_catch_comp) {
 
   p2 <- biomass_total_filtered |>
     filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
-    ggplot(aes(x = YEAR, y = BIOMASS_MT / 1e6, fill = fct_reorder(spp_name_informal, BIOMASS_MT,.desc = TRUE))) +
+    ggplot(aes(x = YEAR, y = BIOMASS_MT / 1e6, fill = fct_reorder(spp_name_informal, BIOMASS_MT, .desc = TRUE))) +
     geom_bar(stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
-    ylab(expression(paste("Total estimated \nbiomass (x", 10^6, " t)"))) +
+    ylab("Total estimated biomass (millions of tons)") + # expression(paste("Total estimated biomass (\u00d7 ", 10^6," t)"))
     scale_y_continuous(expand = c(0, 0)) +
     bartheme +
     theme(legend.position = "bottom")
 
-  # png(
-  #   filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"),
-  #   width = 9, height = 6, units = "in", res = 150
-  # )
-  ggsave(plot = p2, filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"))
-  # dev.off()
+  ggsave(
+    plot = p2,
+    filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"), width = 13, height = 9, units = "in"
+  )
 
   save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
