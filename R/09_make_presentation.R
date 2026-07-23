@@ -385,7 +385,7 @@ if (make_catch_comp) {
 
   p2 <- biomass_total_filtered |>
     filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
-    ggplot(aes(x = YEAR, y = BIOMASS_MT / 1e6, fill = fct_reorder(spp_name_informal, BIOMASS_MT))) +
+    ggplot(aes(x = YEAR, y = BIOMASS_MT / 1e6, fill = fct_reorder(spp_name_informal, BIOMASS_MT,.desc = TRUE))) +
     geom_bar(stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
     xlab("Year") +
