@@ -13,11 +13,9 @@ make_biomass_timeseries <- TRUE
 make_catch_comp <- TRUE
 # 3. CPUE bubble map (Aleutians only)
 make_cpue_bubbles <- FALSE
-make_cpue_bubbles_strata <- FALSE
+make_cpue_bubbles_strata <- TRUE
 # The map that Jim I requested a while ago. It has bars instead of bubbles. Some assessment ppl like it:
 make_cpue_ianelli <- FALSE
-# 4. Length frequency plots by region and depth stratum (probably deprecated - not annual increments)
-make_length_freqs <- FALSE
 # 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
 make_joy_division_length <- FALSE
 # 6. CPUE IDW maps
@@ -232,7 +230,7 @@ if (SRVY == "GOA") {
 }
 
 # Load map stuff if making any kind of bubble maps
-if (make_cpue_bubbles | make_cpue_ianelli | make_cpue_bubbles_strata | make_complexes_figs) {
+if (make_cpue_bubbles | make_cpue_ianelli | make_cpue_bubbles_strata) {
   if (SRVY == "GOA") {
     # MAY NEED TO ADD THIS BACK IN
     # reg_dat_goa <- akgfmaps::get_base_layers(
