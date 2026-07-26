@@ -17,8 +17,8 @@ make_cpue_bubbles_strata <- TRUE
 # The map that Jim I requested a while ago. It has bars instead of bubbles. Some assessment ppl like it:
 make_cpue_ianelli <- FALSE
 # 5. Length frequency plots as joy division plots (preferred length plot by stock assessment folx)
-make_joy_division_length <- FALSE
-# 6. CPUE IDW maps
+make_joy_division_length <- TRUE
+# 6. CPUE IDW maps - I've never used these for GOA or AI
 make_cpue_idw <- FALSE
 # 7. Plots of surface and bottom temperature
 make_temp_plot <- TRUE
@@ -171,20 +171,22 @@ if (SRVY == "AI") {
   ai_east <- akgfmaps::get_base_layers(
     select.region = "ai.east",
     set.crs = "auto"
-  )
+  ) |> 
+    add_depths()
+  
   ai_central <- akgfmaps::get_base_layers(
     select.region = "ai.central",
     set.crs = "auto"
-  )
+  )|> 
+    add_depths()
+  
   ai_west <- akgfmaps::get_base_layers(
     select.region = "ai.west",
     set.crs = "auto"
-  )
+  ) |> 
+    add_depths()
 
-  # Make a category that is just the depth of the stratum, for easy labeling
-  ai_east$survey.strata <- ai_east$survey.strata |>
-    mutate(strat_depth = substr(STRATUM, 3, 3))
-
+  # stratum lookup table just for this region
   stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
     dplyr::filter(AREA_TYPE == "STRATUM") |>
     dplyr::select(AREA_ID, DEPTH_MAX_M)
@@ -193,14 +195,6 @@ if (SRVY == "AI") {
 }
 
 if (SRVY == "GOA") {
-  #   a <- read.csv("data/goa_strata.csv")
-  #   a <- dplyr::filter(a, MIN_DEPTH < 700 & SURVEY == "GOA")
-  #   nstrata <- length(unique(a$STRATUM))
-  # } else {
-  #   a <- read.csv("data/goa_strata.csv")
-  #   a <- dplyr::filter(a, SURVEY == "AI")
-  #   nstrata <- length(unique(a$STRATUM))
-
   stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
     dplyr::filter(AREA_TYPE == "STRATUM" & DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025)) |>
     dplyr::select(AREA_ID, DEPTH_MAX_M)
@@ -213,7 +207,7 @@ if (SRVY == "GOA") {
     set.crs = "auto",
     design.year = ifelse(maxyr < 2025, 1984, 2025)
   ) |>
-    add_depths()
+    add_depths(stratum_lookup_tab = stratum_lookup)
 
   goa_inpfc <- goa_all$inpfc.strata
 
@@ -249,7 +243,9 @@ if (make_cpue_bubbles | make_cpue_ianelli | make_cpue_bubbles_strata) {
     reg_dat_ai <- akgfmaps::get_base_layers(
       select.region = "ai",
       set.crs = "EPSG:3338"
-    )
+    ) |>
+      add_depths(stratum_lookup_tab = stratum_lookup)
+    
     reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
       dplyr::mutate(
         SRVY = "AI",
@@ -326,8 +322,8 @@ speciescolors <- lengthen_pal(
 
 pct_col <- c("#fc8d59", "#7fbf7b") # another orange option: #fc8d59
 
-################### CHUNKS ##################################################
-# These can be run individually as needed. For example, if you want to modify all the biomass time series plots at once. If you know you already have satisfactory versions of all these plots, you don't need to re-run this code! The presentation knitting section will check if figs are available and will load them if not.
+################### MAKE PLOTS ##############################################
+# These can be run individually as needed. For example, if you want to modify all the biomass time series plots at once, just go to the biomass time series plots. If you know you already have satisfactory versions of all these plots, you don't need to re-run this code! The presentation knitting section will check if figs are available and will load them if not.
 #############################################################################
 
 # 1. Biomass index relative to LT mean ---------------------------------------
@@ -423,7 +419,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       SKATES = "skates",
       THORNYHEADS = "thornyheads"
     )
-    cpue_complexes <- cpue_processed |> filter(grepl(species_code, pattern = "[A-Za-z]"))
+    cpue_complexes <- cpue_processed |> 
+      dplyr::filter(grepl(species_code, pattern = "[A-Za-z]"))
     
     thisyrshauldata <- cpue_complexes |> #cpue_table_complexes
       janitor::clean_names() |>
