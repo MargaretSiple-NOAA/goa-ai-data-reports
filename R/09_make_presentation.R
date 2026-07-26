@@ -192,6 +192,10 @@ if (SRVY == "AI") {
     dplyr::select(AREA_ID, DEPTH_MAX_M)
   
   nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
+  
+  # Palette for depth shading for strata
+  depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), 
+                           shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
 }
 
 if (SRVY == "GOA") {
@@ -305,9 +309,6 @@ bartheme <- ggpubr::theme_classic2(base_size = 20) +
 linecolor <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[9]
 accentline <- RColorBrewer::brewer.pal(n = 9, name = "Blues")[8]
 
-# Palette for depth shading for strata
-depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
-
 # Palette for joy div plot
 joypal <- lengthen_pal(
   shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues"),
@@ -400,7 +401,7 @@ if (make_catch_comp) {
 
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
-  # * * COMPLEXES ----------
+  # * * Complexes ----------
   list_cpue_bubbles_strata_complexes <- list()
 
   for (i in 1:length(unique(complex_lookup$complex))) {
@@ -597,7 +598,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
   } # /all complexes cpue loop
 
-  #  * * SPECIES ----------
+  #  * * Species ----------
   list_cpue_bubbles_strata_species <- list()
 
   bubble_index <- which(!report_species$species_code %in% c(
@@ -1026,6 +1027,8 @@ if (make_cpue_ianelli) {
 
 # 6. % changes in biomass since last survey ----------------------------
 # This chunk saves a png of a kableExtra table containing the percent change in biomass for report species. 
+# Get lt mean biomass so you can report % difference from long term mean (Melissa H suggestion)
+#biomass_ltmeans <- 
 
 compare_tab <- biomass_total |>
   dplyr::filter(YEAR %in% c(maxyr, compareyr) &
@@ -1042,19 +1045,28 @@ compare_tab <- biomass_total |>
 compare_tab$percent_change <- round((compare_tab[, 3] - compare_tab[, 2]) / compare_tab[, 2] * 100, digits = 1)
 head(compare_tab)
 
+maxyr_col <- paste0("yr_", maxyr)
+compareyr_col <- paste0("yr_", compareyr)
+
 compare_tab2 <- compare_tab |>
-  dplyr::mutate_at("SPECIES_CODE", as.character) |>
+  dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
   left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
-  dplyr::arrange(-yr_2025)
+  dplyr::arrange(desc(.data[[maxyr_col]]))
 
 compare_tab_pres <- compare_tab2 |>
-  dplyr::select(group, spp_name_informal, yr_2023, yr_2025, percent_change) |>
-  dplyr::arrange(-yr_2025) |>
-  dplyr::mutate(across(starts_with("yr_"), ~ round(.x))) |>
+  dplyr::select(
+    group,
+    spp_name_informal,
+    all_of(compareyr_col),
+    all_of(maxyr_col),
+    percent_change
+  ) |>
+  dplyr::arrange(desc(.data[[maxyr_col]])) |>
+  dplyr::mutate(across(starts_with("yr_"), round)) |>
   dplyr::rename(
     "Species or complex" = spp_name_informal,
-    "Biomass in 2025 (mt)" = yr_2025,
-    "Biomass in 2023 (mt)" = yr_2023,
+    !!paste0("Biomass in ", maxyr, " (mt)") := all_of(maxyr_col),
+    !!paste0("Biomass in ", compareyr, " (mt)") := all_of(compareyr_col),
     "Percent change" = percent_change
   )
 
@@ -1063,17 +1075,20 @@ compare_tab_pres$column_color[compare_tab_pres$`Percent change` < 0] <- pct_col[
 compare_tab_pres$column_color[compare_tab_pres$`Percent change` > 0] <- pct_col[2]
 compare_tab_pres$column_color[abs(compare_tab_pres$`Percent change`) < 10] <- "lightgrey"
 
+biomass_maxyr_col <- paste0("Biomass in ", maxyr, " (mt)") # Generalize column name.
+biomass_compareyr_col <- paste0("Biomass in ", compareyr, " (mt)") 
+
 compare_tab_pres <- compare_tab_pres |>
   group_by(group) |>
-  arrange(-`Biomass in 2025 (mt)`, .by_group = TRUE) |>
-  dplyr::ungroup()
+  arrange(desc(.data[[biomass_maxyr_col]]), .by_group = TRUE) |>
+  ungroup()
 
 pcols <- compare_tab_pres$column_color
 # saveRDS(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.RDS"))
 
 compare_tab_pres |>
   dplyr::select(-column_color, -group) |>
-  dplyr::mutate_at(.vars = c("Biomass in 2023 (mt)", "Biomass in 2025 (mt)"), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
+  dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
   dplyr::mutate(`Percent change` = case_when(`Percent change` > 0 ~ paste0("+", `Percent change`), TRUE ~ as.character(`Percent change`))) |>
   kableExtra::kbl(escape = FALSE) |>
   kableExtra::pack_rows(index = table(forcats::fct_inorder(compare_tab_pres$group))) |>
