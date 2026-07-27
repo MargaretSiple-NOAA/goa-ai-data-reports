@@ -168,34 +168,37 @@ maxsurfacetemp <- max(haul_maxyr$SURFACE_TEMPERATURE,
 
 # Base maps ---------------------------------------------------------------
 if (SRVY == "AI") {
-  ai_east <- akgfmaps::get_base_layers(
-    select.region = "ai.east",
-    set.crs = "auto"
-  ) |> 
-    add_depths()
-  
-  ai_central <- akgfmaps::get_base_layers(
-    select.region = "ai.central",
-    set.crs = "auto"
-  )|> 
-    add_depths()
-  
-  ai_west <- akgfmaps::get_base_layers(
-    select.region = "ai.west",
-    set.crs = "auto"
-  ) |> 
-    add_depths()
-
   # stratum lookup table just for this region
   stratum_lookup <- read.csv("data/local_gap_products/area.csv") |>
     dplyr::filter(AREA_TYPE == "STRATUM") |>
     dplyr::select(AREA_ID, DEPTH_MAX_M)
-  
+
+  ai_east <- akgfmaps::get_base_layers(
+    select.region = "ai.east",
+    set.crs = "auto"
+  ) |>
+    add_depths()
+
+  ai_central <- akgfmaps::get_base_layers(
+    select.region = "ai.central",
+    set.crs = "auto"
+  ) |>
+    add_depths()
+
+  ai_west <- akgfmaps::get_base_layers(
+    select.region = "ai.west",
+    set.crs = "auto"
+  ) |>
+    add_depths()
+
+
   nstrata <- length(unique(floor(ai_east$survey.grid$STRATUM / 10)))
-  
+
   # Palette for depth shading for strata
-  depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), 
-                           shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
+  depthpal <- lengthen_pal(
+    x = unique(stratum_lookup$DEPTH_MAX_M),
+    shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7]
+  )
 }
 
 if (SRVY == "GOA") {
@@ -249,7 +252,7 @@ if (make_cpue_bubbles | make_cpue_ianelli | make_cpue_bubbles_strata) {
       set.crs = "EPSG:3338"
     ) |>
       add_depths(stratum_lookup_tab = stratum_lookup)
-    
+
     reg_dat_ai$survey.area <- reg_dat_ai$survey.area |>
       dplyr::mutate(
         SRVY = "AI",
@@ -317,7 +320,7 @@ joypal <- lengthen_pal(
 
 # Palette for species colors and fills
 speciescolors <- lengthen_pal(
-  shortpal = paletteer::paletteer_d("ggthemes::Superfishel_Stone"), #c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497")
+  shortpal = paletteer::paletteer_d("ggthemes::Superfishel_Stone"), # c("#dd7867", "#b83326", "#c8570d", "#edb144", "#8cc8bc", "#7da7ea", "#5773c0", "#1d4497")
   x = 1:(nrow(report_species[which(!grepl("[A-Za-z]", report_species$species_code)), ]) + 1)
 )
 
@@ -420,10 +423,10 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
       SKATES = "skates",
       THORNYHEADS = "thornyheads"
     )
-    cpue_complexes <- cpue_processed |> 
+    cpue_complexes <- cpue_processed |>
       dplyr::filter(grepl(species_code, pattern = "[A-Za-z]"))
-    
-    thisyrshauldata <- cpue_complexes |> #cpue_table_complexes
+
+    thisyrshauldata <- cpue_complexes |> # cpue_table_complexes
       janitor::clean_names() |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == complex_code) |>
@@ -1023,12 +1026,19 @@ if (make_cpue_ianelli) {
 }
 
 
-
-
 # 6. % changes in biomass since last survey ----------------------------
-# This chunk saves a png of a kableExtra table containing the percent change in biomass for report species. 
+# This chunk saves a png of a kableExtra table containing the percent change in biomass for report species.
 # Get lt mean biomass so you can report % difference from long term mean (Melissa H suggestion)
-#biomass_ltmeans <- 
+
+# START HERE NEXT TIME
+biomass_ltmeans <- biomass_total |>
+  filter(SPECIES_CODE %in% report_species$species_code) |>
+  group_by(SPECIES_CODE) |>
+  summarize(
+    MEAN_BIOMASS = mean(BIOMASS_MT),
+    MIN_IDYEAR = min(YEAR),
+    MAX_IDYEAR = max(YEAR)
+  )
 
 compare_tab <- biomass_total |>
   dplyr::filter(YEAR %in% c(maxyr, compareyr) &
@@ -1050,8 +1060,11 @@ compareyr_col <- paste0("yr_", compareyr)
 
 compare_tab2 <- compare_tab |>
   dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
-  left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
-  dplyr::arrange(desc(.data[[maxyr_col]]))
+  dplyr::left_join(report_species, by = c("SPECIES_CODE" = "species_code")) |>
+  dplyr::arrange(desc(.data[[maxyr_col]])) |>
+  dplyr::left_join(biomass_ltmeans, by = "SPECIES_CODE") |>
+  dplyr::mutate(percent_change_from_ltmean = round(100 * (.data[[maxyr_col]] - MEAN_BIOMASS) / MEAN_BIOMASS, digits = 1))
+
 
 compare_tab_pres <- compare_tab2 |>
   dplyr::select(
@@ -1076,7 +1089,7 @@ compare_tab_pres$column_color[compare_tab_pres$`Percent change` > 0] <- pct_col[
 compare_tab_pres$column_color[abs(compare_tab_pres$`Percent change`) < 10] <- "lightgrey"
 
 biomass_maxyr_col <- paste0("Biomass in ", maxyr, " (mt)") # Generalize column name.
-biomass_compareyr_col <- paste0("Biomass in ", compareyr, " (mt)") 
+biomass_compareyr_col <- paste0("Biomass in ", compareyr, " (mt)")
 
 compare_tab_pres <- compare_tab_pres |>
   group_by(group) |>
@@ -1097,20 +1110,18 @@ compare_tab_pres |>
   kableExtra::save_kable(file = paste0(getwd(), "/output/", SRVY, "_", maxyr, "/", "tables/PercentChangeTable2.png"))
 
 
-
-
 # 7. Complex species in order of biomass ----------------------------------
-if(report_or_pres=="pres"){
+if (report_or_pres == "pres") {
   print("Using text about complexes for slides")
-    complex_name_text
-} 
+  complex_name_text
+}
 
 # 8. Joy division plots - Length frequency -----------------------------
 
 if (make_joy_division_length) {
   list_joy_length <- list()
   if (file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
-    report_pseudolengths <- read.csv( paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
+    report_pseudolengths <- read.csv(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
   } else {
     cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
     source("R/06_prep_data.R")
@@ -1329,18 +1340,16 @@ if (make_temp_plot) {
     dplyr::filter(YEAR %in% unique(plotdat$YEAR))
 
 
-
-
   bottom_temp_20yr <- plotdat |>
     filter(YEAR >= (maxyr - 20)) |>
     dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
     as.numeric()
-  
+
   bottom_temp_10yr <- plotdat |>
     filter(YEAR >= (maxyr - 10)) |>
     dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
     as.numeric()
-  
+
   bottom_temp_avgs <- data.frame(
     "Average" = c("10-year", "20-year"),
     "Value" = c(bottom_temp_10yr, bottom_temp_20yr),
