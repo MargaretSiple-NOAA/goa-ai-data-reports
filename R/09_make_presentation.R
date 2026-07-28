@@ -1072,7 +1072,8 @@ compare_tab_pres <- compare_tab2 |>
     spp_name_informal,
     all_of(compareyr_col),
     all_of(maxyr_col),
-    percent_change
+    percent_change,
+    percent_change_from_ltmean
   ) |>
   dplyr::arrange(desc(.data[[maxyr_col]])) |>
   dplyr::mutate(across(starts_with("yr_"), round)) |>
@@ -1080,13 +1081,14 @@ compare_tab_pres <- compare_tab2 |>
     "Species or complex" = spp_name_informal,
     !!paste0("Biomass in ", maxyr, " (mt)") := all_of(maxyr_col),
     !!paste0("Biomass in ", compareyr, " (mt)") := all_of(compareyr_col),
-    "Percent change" = percent_change
+    "Percent change from last survey" = percent_change,
+    "Percent change from long-term mean" = percent_change_from_ltmean
   )
 
 compare_tab_pres$column_color <- NA
-compare_tab_pres$column_color[compare_tab_pres$`Percent change` < 0] <- pct_col[1]
-compare_tab_pres$column_color[compare_tab_pres$`Percent change` > 0] <- pct_col[2]
-compare_tab_pres$column_color[abs(compare_tab_pres$`Percent change`) < 10] <- "lightgrey"
+compare_tab_pres$column_color[compare_tab_pres$`Percent change from last survey` < 0] <- pct_col[1]
+compare_tab_pres$column_color[compare_tab_pres$`Percent change from last survey` > 0] <- pct_col[2]
+compare_tab_pres$column_color[abs(compare_tab_pres$`Percent change from last survey`) < 10] <- "lightgrey"
 
 biomass_maxyr_col <- paste0("Biomass in ", maxyr, " (mt)") # Generalize column name.
 biomass_compareyr_col <- paste0("Biomass in ", compareyr, " (mt)")
@@ -1099,16 +1101,34 @@ compare_tab_pres <- compare_tab_pres |>
 pcols <- compare_tab_pres$column_color
 # saveRDS(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.RDS"))
 
-compare_tab_pres |>
-  dplyr::select(-column_color, -group) |>
+pres_table_option1 <- compare_tab_pres |>
+  dplyr::select(-column_color, -group, -`Percent change from long-term mean`) |>
   dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
-  dplyr::mutate(`Percent change` = case_when(`Percent change` > 0 ~ paste0("+", `Percent change`), TRUE ~ as.character(`Percent change`))) |>
+  dplyr::mutate(`Percent change from last survey` = case_when(
+    `Percent change from last survey` > 0 ~ paste0("+", `Percent change from last survey`),
+    TRUE ~ as.character(`Percent change from last survey`)
+  )) |>
   kableExtra::kbl(escape = FALSE) |>
   kableExtra::pack_rows(index = table(forcats::fct_inorder(compare_tab_pres$group))) |>
   kableExtra::kable_styling(html_font = "Arial Narrow", full_width = FALSE, font_size = 20) |>
-  kableExtra::column_spec(column = 4, background = pcols) |>
-  kableExtra::save_kable(file = paste0(getwd(), "/output/", SRVY, "_", maxyr, "/", "tables/PercentChangeTable2.png"))
+  kableExtra::column_spec(column = 4, background = pcols) 
 
+pres_table_option1
+
+kableExtra::save_kable(pres_table_option1, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable1.png"))
+
+pres_table_option2 <- compare_tab_pres |>
+  dplyr::select(-column_color, -group, -`Percent change from last survey`) |>
+  dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
+  dplyr::mutate(`Percent change from long-term mean` = case_when(`Percent change from long-term mean` > 0 ~ paste0("+", `Percent change from long-term mean`), TRUE ~ as.character(`Percent change from long-term mean`))) |>
+  kableExtra::kbl(escape = FALSE) |>
+  kableExtra::pack_rows(index = table(forcats::fct_inorder(compare_tab_pres$group))) |>
+  kableExtra::kable_styling(html_font = "Arial Narrow", full_width = FALSE, font_size = 20) |>
+  kableExtra::column_spec(column = 4, color = "white", background = spec_color(compare_tab_pres$`Percent change from long-term mean`, palette = RColorBrewer::brewer.pal(11, "Spectral")))
+
+pres_table_option2
+
+kableExtra::save_kable(pres_table_option2, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable2.png"))
 
 # 7. Complex species in order of biomass ----------------------------------
 if (report_or_pres == "pres") {
