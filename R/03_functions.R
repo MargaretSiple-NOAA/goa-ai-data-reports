@@ -641,6 +641,46 @@ format_allocated_sampled <- function(allocated_sampled, area_label, tablefont = 
 }
 
 # Plots ----------------------------
+# function for making color shading that follows 
+library(scales)
+
+make_gradient_colors <- function(x,
+                                 low = "#2166AC",
+                                 high = "#B2182B",
+                                 neutral = "#FFFFFF",
+                                 grey = "#D9D9D9",
+                                 threshold = 5,
+                                 max_value = 100) {
+  
+  # Cap values at +/- max_value
+  x2 <- pmax(pmin(x, max_value), -max_value)
+  
+  cols <- rep(grey, length(x2))
+  
+  neg <- x2 < -threshold
+  pos <- x2 > threshold
+  
+  # Negative side
+  if (any(neg)) {
+    neg_fun <- col_numeric(
+      palette = c(low, neutral),
+      domain = c(-max_value, -threshold)
+    )
+    cols[neg] <- neg_fun(x2[neg])
+  }
+  
+  # Positive side
+  if (any(pos)) {
+    pos_fun <- col_numeric(
+      palette = c(neutral, high),
+      domain = c(threshold, max_value)
+    )
+    cols[pos] <- pos_fun(x2[pos])
+  }
+  
+  cols
+}
+
 
 # * idw plot fn depends on this one
 set_breaks <- function(dat, var) {
