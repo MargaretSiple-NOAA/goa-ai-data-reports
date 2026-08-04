@@ -649,7 +649,7 @@ make_gradient_colors <- function(x,
                                  high = "#B2182B",
                                  neutral = "#FFFFFF",
                                  grey = "#D9D9D9",
-                                 threshold = 5,
+                                 threshold = 10,
                                  max_value = 100) {
   
   # Cap values at +/- max_value
