@@ -1,35 +1,36 @@
 group,spp_name_informal,species_code,spp_name_scientific,presentation,report,reportorder
 Flatfishes,arrowtooth flounder,10110,Atheresthes stomias,1,1,1
 Flatfishes,Kamchatka flounder,10112,Atheresthes evermanni,1,1,2
-Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,1,1,6
-Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,1,1,5
-Flatfishes,flathead sole,10130,Hippoglossoides elassodon,1,1,7
+Flatfishes,Greenland turbot,10115,Reinhardtius hippoglossoides,1,1,7
+Flatfishes,Pacific halibut,10120,Hippoglossus stenolepis,1,1,6
+Flatfishes,flathead sole,10130,Hippoglossoides elassodon,1,1,8
+Flatfishes,rex sole,10200,Glyptocephalus zachirus,1,1,9
 Flatfishes,northern rock sole,10261,Lepidopsetta polyxystra,1,1,3
-Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1,12
-Sculpins,yellow Irish lord,21347,Hemilepidotus jordani,1,1,14
-Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1,10
+Flatfishes,southern rock sole,10262,Lepidopsetta bilineata,0,1,4
+Flatfishes,Dover sole,10180,Microstomus pacificus,1,1,5
+Flatfishes,Other flatfish complex,OFLATS,various,1,1,31
+Miscellaneous,giant octopus,78403,Enteroctopus dofleini,1,1,40
 Rockfishes,walleye pollock,21740,Gadus chalcogrammus,1,1,11
-Roundfishes,Atka mackerel,21921,Pleurogrammus monopterygius,1,1,9
 Rockfishes,shortspine thornyhead,30020,Sebastolobus alascanus,1,1,22
 Rockfishes,rougheye rockfish,30051,Sebastes aleutianus,1,1,20
 Rockfishes,blackspotted rockfish,30052,Sebastes melanostictus,1,1,21
 Rockfishes,Pacific ocean perch,30060,Sebastes alutus,1,1,17
+Rockfishes,dark rockfish,30151,Sebastes ciliatus,0,1,24
 Rockfishes,dusky rockfish,30152,Sebastes variabilis,1,1,23
 Rockfishes,northern rockfish,30420,Sebastes polyspinis,1,1,18
 Rockfishes,shortraker rockfish,30576,Sebastes borealis,1,1,19
-Miscellaneous,giant octopus,78403,Enteroctopus dofleini,1,1,40
-Flatfishes,Other flatfish complex,OFLATS,various,1,1,31
 Rockfishes,Other rockfish complex,OROX,various,1,1,29
 Rockfishes,Rougheye - blackspotted rockfish complex,REBS,various,1,1,30
+Roundfishes,sablefish,20510,Anoplopoma fimbria,1,1,12
+Roundfishes,giant grenadier,21230,Coryphaenoides pectoralis,0,1,13
+Roundfishes,Pacific cod,21720,Gadus macrocephalus,1,1,10
+Roundfishes,Atka mackerel,21921,Pleurogrammus monopterygius,1,1,9
+Sculpins,darkfin sculpin,21341,Malacocottus zonurus,0,0,15
+Sculpins,yellow Irish lord,21347,Hemilepidotus jordani,1,1,14
+Sculpins,great sculpin,21370,Myoxocephalus polyacanthocephalus,0,1,16
 Sharks,Sharks complex,SHARKS,various,1,1,58
-Skates,Skates complex,SKATES,various,1,1,59
 Skates,Alaska skate,471,Bathyraja parmifera,0,1,28
 Skates,Aleutian skate,472,Bathyraja aleutica,0,1,27
 Skates,leopard skate,477,Bathyraja panthera,0,1,26
 Skates,white blotched skate,480,Bathyraja maculata,0,1,25
-Flatfishes,rex sole,10200,Glyptocephalus zachirus,0,1,8
-Flatfishes,southern rock sole,10262,Lepidopsetta bilineata,0,1,4
-Roundfishes,giant grenadier,21230,Coryphaenoides pectoralis,0,1,13
-Sculpins,darkfin sculpin,21341,Malacocottus zonurus,0,0,15
-Sculpins,great sculpin,21370,Myoxocephalus polyacanthocephalus,0,1,16
-Rockfishes,dark rockfish,30151,Sebastes ciliatus,0,1,24
+Skates,Skates complex,SKATES,various,1,1,59
