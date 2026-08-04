@@ -1540,7 +1540,7 @@ plot_complex_sb <- function(biomass_table = biomass_total,
 
   # If there are species in the complex not shown in the stacked bar plot, mention them below the legend:
   if (length(not_caught) > 0) {
-    p1 <- p1 + labs(caption = str_wrap(paste("Not caught:", not_caught_string), width = 120))
+    p1 <- p1 + labs(caption = str_wrap(paste("Not caught:", not_caught_string), width = 80))
   }
 
   return(p1)
