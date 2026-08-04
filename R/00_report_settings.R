@@ -147,6 +147,10 @@ complex_lookup0 <- read.csv("data/complex_lookup.csv")
 complex_lookup <- complex_lookup0 |>
   dplyr::filter(region == SRVY)
 
+if (nrow(complex_lookup |> count(species_code) |> filter(n > 1)) > 0) {
+  print("Stop! Duplicates in complex species lookup table")
+}
+
 # Load species_year table
 if(file.exists("data/local_gap_products/species_year.csv")){
   species_year <- read.csv("data/local_gap_products/species_year.csv")
