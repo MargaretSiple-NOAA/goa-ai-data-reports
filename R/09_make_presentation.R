@@ -3,8 +3,6 @@
 # Author: Megsie Siple
 # Notes: Use this to make pptx slides for the Joint Groundfish Plan Team presentation. This uses tables from Oracle (RACEBASE, GAP_PRODUCTS, and AI and GOA schemas [though these should soon be deprecated]) and builds the figures and some summary stats.
 # ---
-
-
 # Table of contents (toggle true/false to make some plots but not others):
 
 # 1. Biomass indices relative to LT mean
@@ -1083,14 +1081,14 @@ compare_tab_pres <- compare_tab2 |>
     !!paste0("Biomass in ", maxyr, " (mt)") := all_of(maxyr_col),
     !!paste0("Biomass in ", compareyr, " (mt)") := all_of(compareyr_col),
     "Long-term mean biomass (mt)" = MEAN_BIOMASS,
-    "Percent change from last survey" = percent_change,
-    "Percent change from long-term mean" = percent_change_from_ltmean
+    "Percent difference from last survey" = percent_change,
+    "Percent difference from long-term mean" = percent_change_from_ltmean
   )
 
 compare_tab_pres$column_color <- NA
-compare_tab_pres$column_color[compare_tab_pres$`Percent change from last survey` < 0] <- pct_col[1]
-compare_tab_pres$column_color[compare_tab_pres$`Percent change from last survey` > 0] <- pct_col[2]
-compare_tab_pres$column_color[abs(compare_tab_pres$`Percent change from last survey`) < 10] <- "lightgrey"
+compare_tab_pres$column_color[compare_tab_pres$`Percent difference from last survey` < 0] <- pct_col[1]
+compare_tab_pres$column_color[compare_tab_pres$`Percent difference from last survey` > 0] <- pct_col[2]
+compare_tab_pres$column_color[abs(compare_tab_pres$`Percent difference from last survey`) < 10] <- "lightgrey"
 
 biomass_maxyr_col <- paste0("Biomass in ", maxyr, " (mt)") # Generalize column name.
 biomass_compareyr_col <- paste0("Biomass in ", compareyr, " (mt)")
@@ -1099,7 +1097,7 @@ compare_tab_pres <- compare_tab_pres |>
   group_by(group) |>
   arrange(desc(.data[[biomass_maxyr_col]]), .by_group = TRUE) |>
   ungroup() |>
-  mutate(ltmeancolor = make_gradient_colors(`Percent change from long-term mean`,
+  mutate(ltmeancolor = make_gradient_colors(`Percent difference from long-term mean`,
                                             low = "#D7191C",
                                             high = "#2C7BB6"))
 
@@ -1111,12 +1109,12 @@ compare_tab_pres <- compare_tab_pres |>
 pcols <- compare_tab_pres$column_color
 
 pres_table_option1 <- compare_tab_pres |>
-  dplyr::select(-column_color, -group, -`Percent change from long-term mean`, -ltmeancolor) |>
+  dplyr::select(-column_color, -group, -`Percent difference from long-term mean`, -ltmeancolor) |>
   dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
   dplyr::mutate(`Long-term mean biomass (mt)` = format(round(`Long-term mean biomass (mt)`), big.mark = ",", scientific = FALSE)) |>
-  dplyr::mutate(`Percent change from last survey` = case_when(
-    `Percent change from last survey` > 0 ~ paste0("+", `Percent change from last survey`),
-    TRUE ~ as.character(`Percent change from last survey`)
+  dplyr::mutate(`Percent difference from last survey` = case_when(
+    `Percent difference from last survey` > 0 ~ paste0("+", `Percent difference from last survey`),
+    TRUE ~ as.character(`Percent difference from last survey`)
   )) |>
   kableExtra::kbl(escape = FALSE) |>
   kableExtra::pack_rows(index = table(forcats::fct_inorder(compare_tab_pres$group))) |>
@@ -1130,10 +1128,10 @@ kableExtra::save_kable(pres_table_option1, file = paste0(dir_out_srvy_yr, "table
 # option 2 (adapted to Melissa suggestion)
 pcols <- compare_tab_pres$ltmeancolor
 pres_table_option2 <- compare_tab_pres |>
-  dplyr::select(-column_color, -group, -`Percent change from last survey`, -ltmeancolor) |>
+  dplyr::select(-column_color, -group, -`Percent difference from last survey`, -ltmeancolor) |>
   dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
   dplyr::mutate(`Long-term mean biomass (mt)` = format(round(`Long-term mean biomass (mt)`), big.mark = ",", scientific = FALSE)) |>
-  dplyr::mutate(`Percent change from long-term mean` = case_when(`Percent change from long-term mean` > 0 ~ paste0("+", `Percent change from long-term mean`), TRUE ~ as.character(`Percent change from long-term mean`))) |>
+  dplyr::mutate(`Percent difference from long-term mean` = case_when(`Percent difference from long-term mean` > 0 ~ paste0("+", `Percent difference from long-term mean`), TRUE ~ as.character(`Percent difference from long-term mean`))) |>
   kableExtra::kbl(escape = FALSE) |>
   kableExtra::pack_rows(index = table(forcats::fct_inorder(compare_tab_pres$group))) |>
   kableExtra::kable_styling(html_font = "Arial Narrow", full_width = FALSE, font_size = 20) |>
