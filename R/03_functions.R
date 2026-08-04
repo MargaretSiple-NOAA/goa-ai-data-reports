@@ -1497,6 +1497,58 @@ make_ai_plot <- function(haul_data, display_name) {
 }
 
 
+#' Make a stacked bar plot of biomass for complexes
+#'
+#' @param biomass_table A table of biomass; the default is biomass_total which is filtered to year and region.
+#' @param complex_name The complex you want to plot
+#' @param complex_lookup_table  Lookup table of complex names and which species belong to which complexes.
+#'
+#' @returns a ggplot object of a stacked bar plot
+#' @export
+#'
+#' @examples
+#' plot_complex_sb(complex_name = "OFLATS")
+plot_complex_sb <- function(biomass_table = biomass_total,
+                            complex_name = NULL,
+                            complex_lookup_table = complex_lookup) {
+  species_in_complex <- complex_lookup_table$species_code[which(complex_lookup_table$complex == complex_name)]
+  complex_lookup_table$species_code <- as.character(complex_lookup_table$species_code)
+  # filter biomass table to species that are in that complex
+  biomass_table <- biomass_table[which(biomass_table$SPECIES_CODE %in% species_in_complex), ]
+  biomass_table <- biomass_table |>
+    dplyr::left_join(complex_lookup_table, by = c("SPECIES_CODE" = "species_code"))
+
+  not_caught <- species_in_complex[which(!species_in_complex %in% unique(biomass_table$SPECIES_CODE))]
+  not_caught_common_names <- complex_lookup_table[which(complex_lookup_table$species_code %in% not_caught), "common_name"]
+  not_caught_string <- paste(not_caught_common_names, collapse = ", ")
+
+  pal <- lengthen_pal(x = 1:length(unique(biomass_table$SPECIES_CODE)), shortpal = ggthemes::tableau_color_pal(palette = "Green-Orange-Teal")(12))
+  # stacked bar plot showing the biomass in the complex members over time
+  p1 <- biomass_table |>
+    ggplot(aes(x = YEAR, y = BIOMASS_MT / 1000, fill = common_name)) +
+    geom_bar(position = "stack", stat = "identity") +
+    scale_y_continuous(expand = c(0, 0)) +
+    scale_fill_manual(values = pal, labels = scales::label_wrap(20)) +
+    xlab("Year") +
+    ylab("Biomass (1,000 mt)") +
+    theme_light() +
+    theme(
+      legend.title = element_blank(),
+      plot.caption = element_text(hjust = 0),
+      legend.position = "bottom"
+    )
+
+  # If there are species in the complex not shown in the stacked bar plot, mention them below the legend:
+  if (length(not_caught) > 0) {
+    p1 <- p1 + labs(caption = str_wrap(paste("Not caught:", not_caught_string), width = 120))
+  }
+
+  return(p1)
+}
+
+
+
+
 # LATER: Add an independent function to plot CPUE as bars instead of circles
 # plot_ianelli <- function(region, species, year){
 #   key.title <- ""
