@@ -147,6 +147,11 @@ if (!exists("cpue")) {
   cpue <- read.csv("./data/local_gap_products/cpue.csv")
 }
 
+if (!exists("haul")) {
+  haul <- read.csv("./data/local_racebase/haul.csv")
+}
+
+
 cpue_raw <- cpue |>
   dplyr::left_join(haul) |>
   dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |> #
