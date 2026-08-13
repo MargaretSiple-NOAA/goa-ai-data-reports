@@ -30,9 +30,9 @@ This is the fourth year we have instituted some important changes to our survey 
 
 2013-2016, 2021-Present
 
-8 yrs of charter
+10 yrs of charter
 
-Cpt Paulo da Cruz, first year on GOA survey
+Cpt Arthur McArdle, first year on Aleutian Islands survey
 :::
 
 ::: {.column}
@@ -40,14 +40,14 @@ Cpt Paulo da Cruz, first year on GOA survey
 
 2010-2012, 2017-present
 
-10 yrs of charter experience
+13 yrs of charter
 
 Cpt Dan Carney, ~10 yrs experience on survey
 :::
 ::::::
 
 :::notes
-Both of our charter vessels have conducted the `r SRVY` survey several times and our skippers are highly experienced, hard bottom fishermen.
+Both of our charter vessels have conducted the `r SRVY` survey several times and our skippers are experienced fishermen.
 
 Their experience is crucial to the success of this survey.
 :::
@@ -166,7 +166,7 @@ Highlighting a couple of the Special Projects - INSERT SPECIAL COLLECTIONS TO ME
 
 ![Flow of new automated data reports.](../img/DataReportFlowChart.png)
 
-In progress at the AFSC GAP products [GitHub page](https://www.github.com/afsc-gap-products/goa-ai-data-reports/).
+Code to produce these plots and this presentation can be found on the [goa-ai-reports GitHub repo](https://www.github.com/afsc-gap-products/goa-ai-data-reports/).
 
 :::notes
 Our data report (and the slides for this presentation) were made in RMarkdown using a relatively new (as of 2022) framework for reproducible reports. In this process, R code is used to draw from shared drives and our survey database, compile them, create figures and tables, and format them for presentation.
@@ -223,7 +223,7 @@ Now we’ll take a look at biomass trends, length frequencies, and distribution 
 # IMPORTANT PART
 src <- list()
 
-for (i in 1:nrow(report_species)) { # 
+for (i in 1:11) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
