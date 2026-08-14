@@ -27,7 +27,7 @@ if(!"gapindex" %in% installed.packages()){
 }
 
 # Confirm updated version of gapindex
-if (packageVersion("gapindex") <= "3.1.0") {
+if (packageVersion("gapindex") < "3.1.0") {
   message("Updating gapindex to 3.1.0 or higher...")
   pak::pak("afsc-gap-products/gapindex")
 }
