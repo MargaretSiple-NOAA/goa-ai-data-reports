@@ -81,18 +81,7 @@ write.csv(x = a, "./data/local_race_data/cruises.csv", row.names = FALSE)
 
 print("Finished downloading RACE_DATA tables. We may not need all of these forever.")
 
-# # ADFG --------------------------------------------------------------------
-# 
-# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH_ADFG")# do I need this? 
-# write.csv(x = a, "./data/length_ADFG.csv", row.names = FALSE)
-# 
-# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN_ADFG")# do I need this? 
-# write.csv(x = a, "./data/specimen_ADFG.csv", row.names = FALSE)
-# 
-# print("Finished downloading ADF&G tables")
-
 # GOA ---------------------------------------------------------------------
-
 # Need goa_strata because it contains both GOA and AI strata
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
 write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
