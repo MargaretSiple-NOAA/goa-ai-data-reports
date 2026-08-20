@@ -336,7 +336,7 @@ if (make_biomass_timeseries) {
     name_bms <- report_species$spp_name_informal[i]
 
     dat <- biomass_total |>
-      filter(SPECIES_CODE == report_species$species_code[i])
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i])
     lta <- mean(dat$BIOMASS_MT)
 
     p1 <- dat |>
