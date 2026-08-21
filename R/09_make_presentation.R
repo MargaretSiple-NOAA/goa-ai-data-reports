@@ -379,7 +379,7 @@ if (make_catch_comp) {
     levels = c(report_species$spp_name_informal, "Other species")
   )
 
-  p2 <- biomass_total_filtered |>
+  catch_comp_plot <- biomass_total_filtered |>
     filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
     ggplot(aes(x = YEAR, y = BIOMASS_MT / 1e6, fill = fct_reorder(spp_name_informal, BIOMASS_MT, .desc = TRUE))) +
     geom_bar(stat = "identity") +
@@ -391,11 +391,11 @@ if (make_catch_comp) {
     theme(legend.position = "bottom")
 
   ggsave(
-    plot = p2,
+    plot = catch_comp_plot,
     filename = paste0(dir_out_figures, maxyr, "_biomass_catchcomp.png"), width = 13, height = 9, units = "in"
   )
 
-  save(p2, file = paste0(dir_out_figures, "catch_comp.rdata"))
+  save(catch_comp_plot, file = paste0(dir_out_figures, "catch_comp.rdata"))
 }
 
 # 3b. CPUE bubble maps with strata --------------------------------------------
@@ -1142,10 +1142,9 @@ pres_table_option2
 kableExtra::save_kable(pres_table_option2, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable2.png"))
 
 # 7. Complex species in order of biomass ----------------------------------
-if (report_or_pres == "pres") {
-  print("Using text about complexes for slides")
-  complex_name_text
-}
+
+print("Using text about complexes for slides")
+complex_name_text
 
 # 8. Joy division plots - Length frequency -----------------------------
 
@@ -1475,7 +1474,7 @@ if (make_temp_plot) {
   list_temperature[[1]] <- bottom_temp_plot
   list_temperature[[2]] <- surface_temp_plot
 
-  names(list_temperature) <- c("bottomtemp", "surfacetemp")
+  names(list_temperature) <- c("bottom_temp_plot", "surface_temp_plot")
 
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
@@ -1502,12 +1501,12 @@ if (!exists("list_joy_length")) {
 if (!exists("list_temperature")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_temperature.rdata"))
 }
-if (!exists("p2")) {
+if (!exists("catchcomp")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "catch_comp.rdata"))
 }
-if (!exists("compare_tab_pres")) {
-  compare_tab_pres <- readRDS(file = paste0("output/", SRVY, "_", maxyr, "/", "tables/", "compare_tab_pres.RDS"))
-}
+# if (!exists("compare_tab_pres")) {
+#   compare_tab_pres <- readRDS(file = paste0("output/", SRVY, "_", maxyr, "/", "tables/", "compare_tab_pres.RDS"))
+# } # may not need this anymore since I'm loading the image file directly
 
 # GPT slides special: Order slides in order of highest to lowest biomass
 report_species <- biomass_total |>
