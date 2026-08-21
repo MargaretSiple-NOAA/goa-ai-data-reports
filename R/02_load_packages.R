@@ -1,11 +1,6 @@
 # Load packages
 # Install packages --------------------------------------------------------
 # Packages in development (require devtools) ------------------------------
-
-if(!"nmfspalette" %in% installed.packages()){
-  remotes::install_github("nmfs-general-modeling-tools/nmfspalette")
-}
-
 if(!"coldpool" %in% installed.packages()){
   remotes::install_github("afsc-gap-products/coldpool")
 }
@@ -37,6 +32,7 @@ if (packageVersion("akgfmaps") < "4.2.1") {
 
 PKG <- c(
   "devtools",
+  "git2r",
   
   # Markdown
   "knitr", 
@@ -49,7 +45,6 @@ PKG <- c(
   "png",
   "broom",
   "ggpubr",
-  #"nmfspalette", #add back in if needed
   "ggridges",
   "RColorBrewer",
   "MetBrewer",
@@ -133,6 +128,8 @@ for (p in PKG) {
 
 
 #loadfonts(device = "win")
+
+
 
 # Cite R Packages --------------------------------------------------------
 
