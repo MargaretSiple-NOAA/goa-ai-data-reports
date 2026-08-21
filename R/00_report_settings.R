@@ -1,5 +1,28 @@
 # 00_report_settings
 
+# Check if local version of repo is up to date with remote ------------------------
+# This is experimental and built to make sure we aren't using an outdated version of the repo.
+if(!"jsonlite" %in% installed.packages()){
+  install.packages("jsonlite")
+}
+
+if(!"git2r" %in% installed.packages()){
+  install.packages("jsonlite")
+}
+
+library(jsonlite)
+library(git2r)
+
+
+api_url <- "https://api.github.com/repos/MargaretSiple-NOAA/goa-ai-data-reports/commits/main"
+remote_sha <- jsonlite::fromJSON(api_url)$sha
+
+local_sha <- git2r::last_commit(getwd())$sha
+
+is_up_to_date <- identical(local_sha, remote_sha)
+cat("Local SHA:", local_sha, "\nGitHub SHA:   ", remote_sha, "\nUp to date:   ", is_up_to_date, "\n")
+
+
 # Report settings -------------------------------------------------------------
 usePNGPDF <- "png"
 maxyr <- 2024 # Change this for the year!
