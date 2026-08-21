@@ -1,6 +1,6 @@
 # Load packages
 # Install packages --------------------------------------------------------
-# Packages in development (require devtools) -----------------------------------
+# Packages in development (require devtools) ------------------------------
 
 if(!"nmfspalette" %in% installed.packages()){
   remotes::install_github("nmfs-general-modeling-tools/nmfspalette")
@@ -18,18 +18,19 @@ if(!"knitcitations" %in% installed.packages()){
   remotes::install_github("cboettig/knitcitations")
 }
 
-if(!"PNWColors" %in% installed.packages()){
-  remotes::install_github("jakelawlor/PNWColors")
-}
-
 if(!"gapindex" %in% installed.packages()){
   remotes::install_github("afsc-gap-products/gapindex")
 }
 
-# Confirm updated version of gapindex
+# Confirm updated version of gapindex and akgfmaps
 if (packageVersion("gapindex") < "3.1.0") {
   message("Updating gapindex to 3.1.0 or higher...")
   pak::pak("afsc-gap-products/gapindex")
+}
+
+if (packageVersion("akgfmaps") < "4.2.1") {
+  message("Updating akgfmaps to 4.2.1 or higher...")
+  pak::pak("afsc-gap-products/akgfmaps")
 }
 
 # List and load required packages -----------------------------------------
