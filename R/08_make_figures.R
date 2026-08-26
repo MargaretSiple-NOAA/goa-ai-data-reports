@@ -1148,7 +1148,7 @@ if (make_ldscatter) {
   list_ldscatter <- list()
 
   for (i in 1:nrow(report_species)) {
-    if (report_species$species_code[i] == 78403) {
+    if (report_species$species_code[i] == 78403 | report_species$species_code[i] %in% complex_lookup$complex) {
       ldscatter <- ggplot() +
         theme_void()
     } else {
@@ -1443,8 +1443,8 @@ if (make_temp_plot) {
       xend = maxyr,
       color = "#2a5674", alpha = 0.4, lty = 2
     ) +
-    annotate(geom = "text", x = 1999, y = 12, label = "Surface temperature", color = "#68abb8") +
-    annotate(geom = "text", x = 1999, y = 6.5, label = "Bottom temperature", color = "#2a5674") +
+    annotate(geom = "text", x = 1999, y = 7, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 4.5, label = "Bottom temperature", color = "#2a5674") +
     theme_bw(base_size = 14)
 
   png(

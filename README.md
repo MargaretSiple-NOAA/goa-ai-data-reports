@@ -66,9 +66,13 @@ There are instructions for creating the tables and figures for the GOA data repo
 
 *A [release](https://github.com/MargaretSiple-NOAA/goa-ai-data-reports/releases) is made every time this code is used to produce a Data Processed Report for submission or at publication.*
 
+Dowlin, A. N., Siple, M. C., & von Szalay, P. G. (2026). Data Report: 2024 Aleutian Islands bottom trawl survey. https://doi.org/10.25923/090j-8132
+
 Siple, M. C., von Szalay, P. G., Raring, N. W., Dowlin, A. N., & Riggle, B. C. (2024). Data Report: 2023 Gulf of Alaska bottom trawl survey. https://doi.org/10.25923/GBB1-X748
 
 von Szalay, P. G., Raring, N. W., Siple, M. C., Dowlin, A. N., Riggle, B. C., and Laman, E. A. (2023) Data Report: 2022 Aleutian Islands bottom trawl survey.  AFSC Processed Rep. 2023-07, 230 p. Alaska Fish. Sci. Cent., NOAA, Natl. Mar. Fish. Serv., 7600 Sand Point Way NE, Seattle WA 98115. https://doi.org/10.25923/85cy-g225
+
+Riggle, B. C., Siple, M. C., von Szalay, P. G., & Raring, N. W. (2026). Data Report: 2021 Gulf of Alaska Bottom Trawl Survey. AFSC Processed Report.; 2026-02. https://doi.org/10.25923/MAT4-BR54
 
 ## This code is maintained by:
 **Margaret Siple** (margaret.siple AT noaa.gov; @MargaretSiple-NOAA)
