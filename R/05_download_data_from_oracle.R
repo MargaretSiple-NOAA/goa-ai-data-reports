@@ -317,7 +317,7 @@ print("Finished downloading stratum and species groups.")
 # size comps - recreate the sizecomp table as it was in AI and GOA schemas
 # MAY NEED TO WORK ON THIS MORE LATER. THIS SHOULD DOWNLOAD THE RAW TABLE AND THAT SHOULD BE PROCESSED LATER.
 # ** species ----------------------------------------------
-sizecomp0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP")
+sizecomp0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP WHERE SURVEY_DEFINITION_ID IN (47, 52)")
 sizecomp <- dplyr::filter(
   sizecomp0, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) # &
   # AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
