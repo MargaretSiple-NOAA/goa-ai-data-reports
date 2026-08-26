@@ -1321,73 +1321,28 @@ if (make_joy_division_length) {
 # 9. Surface and bottom temperatures --------------------------------------
 if (make_temp_plot) {
   list_temperature <- list()
-
-  sstdat <- haul |>
-    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}")) |>
-    filter(YEAR >= 1990 & REGION == SRVY & YEAR != 1997) |>
-    group_by(YEAR) |>
-    dplyr::summarize(
-      bottom = mean(GEAR_TEMPERATURE, na.rm = TRUE),
-      surface = mean(SURFACE_TEMPERATURE, na.rm = TRUE)
-    ) |>
-    ungroup() |>
-    as.data.frame() |>
-    mutate(YEAR = as.numeric(YEAR))
-
-  if (SRVY == "GOA") {
-    sstdat <- sstdat |> filter(YEAR != 2001) # They didn't finish the GOA survey in 2001
-  }
-
-  # sst_summary <- sstdat |>
-  #   mutate(
-  #     bottom_stz = bottom - mean(bottom, na.rm = T),
-  #     surface_stz = surface - mean(surface, na.rm = T)
-  #   ) |>
-  #   pivot_longer(cols = bottom:surface_stz)
-
+  
   plotdat <- haul |>
     mutate(YEAR = as.numeric(stringr::str_extract(CRUISE, "^\\d{4}"))) |>
-    filter(REGION == SRVY & YEAR != 1997 & YEAR >= 1990) |>
+    filter(PERFORMANCE >= 0 & ABUNDANCE_HAUL == "Y") |>
+    filter(REGION == SRVY & YEAR != 1997 & YEAR >= minyr & YEAR <= maxyr) |> # YEAR >= 1994 &
     filter(CRUISE != 201402) |> # remove study from Makushin bay in 2014 (contains a zero BT)
     filter(HAULJOIN != -17737) # Filter out the situation with BT=0 in 2018
-
-  howmanyboats <- haul |>
-    dplyr::filter(REGION == SRVY) |>
-    mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-    dplyr::group_by(YEAR) |>
-    dplyr::distinct(VESSEL) |>
-    dplyr::ungroup() |>
-    dplyr::group_by(YEAR) |>
-    dplyr::summarize(nboats = length(VESSEL)) |>
-    dplyr::ungroup() |>
-    filter(YEAR >= 1990 & YEAR != 1998) |> # filter to fit the same years as above
-    dplyr::mutate(annotation_star = case_when(
-      nboats == 1 ~ "",
-      nboats == 2 ~ "",
-      nboats == 3 ~ "*",
-      nboats == 4 ~ "*"
-    )) |>
-    dplyr::filter(YEAR %in% unique(plotdat$YEAR))
-
-
+  
   bottom_temp_20yr <- plotdat |>
     filter(YEAR >= (maxyr - 20)) |>
     dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
     as.numeric()
-
   bottom_temp_10yr <- plotdat |>
     filter(YEAR >= (maxyr - 10)) |>
     dplyr::summarize(mean(GEAR_TEMPERATURE, na.rm = T)) |>
     as.numeric()
-
   bottom_temp_avgs <- data.frame(
     "Average" = c("10-year", "20-year"),
     "Value" = c(bottom_temp_10yr, bottom_temp_20yr),
     Start_year = c(maxyr - 10, maxyr - 20)
   )
-
-  # ylims <- range(plotdat$GEAR_TEMPERATURE,na.rm=TRUE)
-
+  
   bottom_temp_plot <- plotdat |>
     ggplot(aes(y = GEAR_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
@@ -1397,23 +1352,15 @@ if (make_temp_plot) {
     ) +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
-    labs(x = "Year", y = expression("Bottom temperature "(degree * C))) +
-    scale_x_continuous(
-      breaks = howmanyboats$YEAR, # add labels w nboats
-      labels = paste0(
-        howmanyboats$YEAR,
-        howmanyboats$annotation_star
-      )
-    ) +
+    xlim(c(minyr, maxyr)) +
+    labs(x = "Year", y = expression("Bottom temperature "(degree * C))) + #
+    theme_light(base_size = 12) +
     geom_segment(data = bottom_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
       x = Start_year, xend = maxyr
-    )) +
-    ylim(c(2, 7)) + # NEED TO CHANGE IN THE FUTURE
-    theme_light(base_size = 14) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+    ))
+  
   surface_temp_20yr <- plotdat |>
     filter(YEAR >= (maxyr - 20)) |>
     dplyr::summarize(mean(SURFACE_TEMPERATURE, na.rm = T)) |>
@@ -1427,32 +1374,97 @@ if (make_temp_plot) {
     "Value" = c(surface_temp_10yr, surface_temp_20yr),
     "Start_year" = c(maxyr - 10, maxyr - 20)
   )
-
-  surface_temp_plot <- plotdat |>
+  
+  surface_temp_plot <- plotdat %>%
     ggplot(aes(y = SURFACE_TEMPERATURE, x = YEAR)) +
     ggdist::stat_interval(linewidth = 3) +
     ggdist::stat_halfeye(
       fill = "tan", alpha = 0.5,
       interval_color = "grey27", point_color = "grey27"
     ) +
+    # geom_point(size = 0.5, color = "gray5") +
     rcartocolor::scale_color_carto_d("Quantile", palette = "Peach") +
     scale_fill_ramp_discrete(na.translate = FALSE) +
+    xlim(c(minyr, maxyr)) +
     labs(x = "Year", y = expression("Surface temperature "(degree * C))) +
+    theme_light(base_size = 12) +
     geom_segment(data = surface_temp_avgs, aes(
       y = Value, yend = Value,
       linetype = Average,
       x = Start_year, xend = maxyr
-    )) +
-    scale_x_continuous(
-      breaks = howmanyboats$YEAR,
-      labels = paste0(
-        howmanyboats$YEAR,
-        howmanyboats$annotation_star
-      )
+    ))
+  
+  # new simplified temp plot
+  yearly_ci <- plotdat |>
+    dplyr::filter(YEAR >= minyr) |>
+    dplyr::group_by(YEAR) |>
+    dplyr::summarize(
+      surface_mean = mean(SURFACE_TEMPERATURE, na.rm = TRUE),
+      surface_sd = sd(SURFACE_TEMPERATURE, na.rm = TRUE),
+      surface_n = sum(!is.na(SURFACE_TEMPERATURE)),
+      bottom_mean = mean(GEAR_TEMPERATURE, na.rm = TRUE),
+      bottom_sd = sd(GEAR_TEMPERATURE, na.rm = TRUE),
+      bottom_n = sum(!is.na(GEAR_TEMPERATURE)),
+      .groups = "drop"
+    ) |>
+    mutate(
+      surface_se = surface_sd / sqrt(surface_n),
+      bottom_se  = bottom_sd / sqrt(bottom_n),
+      surface_lo = surface_mean - 1.96 * surface_se,
+      surface_hi = surface_mean + 1.96 * surface_se,
+      bottom_lo  = bottom_mean - 1.96 * bottom_se,
+      bottom_hi  = bottom_mean + 1.96 * bottom_se
+    )
+  
+  
+  line_temperature <- yearly_ci |>
+    # surface
+    ggplot(aes(x = YEAR, y = surface_mean)) +
+    geom_point(size = 2, color = "#68abb8") +
+    geom_line(color = "#68abb8", lwd = 0.8) +
+    geom_linerange(aes(ymin = surface_lo, ymax = surface_hi),
+                   alpha = 0.4, color = "#68abb8", linewidth = 1
     ) +
-    theme_light(base_size = 14) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+    # bottom (gear)
+    geom_point(aes(x = YEAR, bottom_mean), size = 2, color = "#2a5674") +
+    geom_line(aes(x = YEAR, bottom_mean), color = "#2a5674", lwd = 0.8) +
+    geom_linerange(aes(ymin = bottom_lo, ymax = bottom_hi),
+                   alpha = 0.4, color = "#2a5674", lineend = "butt", linewidth = 1
+    ) +
+    xlab("Year") +
+    ylab(expression("Temperature "(degree * C))) +
+    geom_segment(
+      y = surface_temp_avgs$Value[1],
+      yend = surface_temp_avgs$Value[1],
+      x = surface_temp_avgs$Start_year[1],
+      xend = maxyr,
+      color = "#68abb8", alpha = 0.4
+    ) +
+    geom_segment(
+      y = bottom_temp_avgs$Value[1],
+      yend = bottom_temp_avgs$Value[1],
+      x = bottom_temp_avgs$Start_year[1],
+      xend = maxyr,
+      color = "#2a5674", alpha = 0.4
+    ) +
+    geom_segment(
+      y = surface_temp_avgs$Value[2],
+      yend = surface_temp_avgs$Value[2],
+      x = surface_temp_avgs$Start_year[2],
+      xend = maxyr,
+      color = "#68abb8", alpha = 0.4, lty = 2
+    ) +
+    geom_segment(
+      y = bottom_temp_avgs$Value[2],
+      yend = bottom_temp_avgs$Value[2],
+      x = bottom_temp_avgs$Start_year[2],
+      xend = maxyr,
+      color = "#2a5674", alpha = 0.4, lty = 2
+    ) +
+    annotate(geom = "text", x = 1999, y = 12, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 6.5, label = "Bottom temperature", color = "#2a5674") +
+    theme_bw(base_size = 14)
+  
   png(
     filename = paste0(
       dir_out_figures, maxyr, "_bottomtemp.png"
@@ -1461,7 +1473,7 @@ if (make_temp_plot) {
   )
   print(bottom_temp_plot)
   dev.off()
-
+  
   png(
     filename = paste0(
       dir_out_figures, maxyr, "_surfacetemp.png"
@@ -1470,15 +1482,25 @@ if (make_temp_plot) {
   )
   print(surface_temp_plot)
   dev.off()
-
+  
+  png(
+    filename = paste0(
+      dir_out_figures, maxyr, "_temps_combined.png"
+    ),
+    width = 8, height = 8, units = "in", res = 200
+  )
+  print(line_temperature)
+  dev.off()
+  
   list_temperature[[1]] <- bottom_temp_plot
   list_temperature[[2]] <- surface_temp_plot
-
-  names(list_temperature) <- c("bottom_temp_plot", "surface_temp_plot")
-
+  list_temperature[[3]] <- line_temperature
+  
+  names(list_temperature) <- c("bottomtemp", "surfacetemp", "linetemp")
+  
   save(list_temperature, file = paste0(dir_out_figures, "list_temperature.rdata"))
   print("Done with temperature plots.")
-} # /temperature plots
+} #/ temperature plots
 
 # ################### SLIDE PRODUCTION #######################################
 # If you already made all the figures and you just need to knit them into a presentation, you can start here.
