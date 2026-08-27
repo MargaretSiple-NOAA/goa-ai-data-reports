@@ -177,10 +177,11 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
     area_lookup0 <- area_tbl |>
       dplyr::filter(AREA_TYPE %in% c(
         "INPFC BY DEPTH",
-        "INPFC",
-        "DEPTH", "REGION"
+        #"INPFC",
+        "DEPTH", 
+        "REGION"
       ))
-    area_name <- "INPFC area"
+    #area_name <- "INPFC area"
   }
 
   area_lookup <- area_lookup0 |>
@@ -234,8 +235,8 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
   combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
   combo_ord <- combo |>
-    dplyr::arrange(factor(area_name, levels = c(district_order, "All"))) |>
-    dplyr::select(-`Depth (m)`)
+    dplyr::arrange(factor(area_name, levels = c(district_order, "All")))# |>
+    #dplyr::select(-`Depth (m)`)
 
   if (srvy == "GOA" & year >= 2025) {
     colnames(combo_ord)[which(colnames(combo_ord) == "area_name")] <- "NMFS area"
