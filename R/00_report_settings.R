@@ -39,7 +39,9 @@ YEAR <- maxyr # probably can simplify this later
 
 SRVY <- "AI" # Options: "GOA", "AI"
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
-redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
+goa_redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
+goa_backlog <- ifelse(maxyr < 2025 & SRVY == "GOA", TRUE, FALSE)
+ai_report <- ifelse(SRVY == "AI", TRUE, FALSE)
 
 design_year <- ifelse(SRVY == "AI", 1991, 1984) # used to be 1980; I changed to 1991 for table merging
 if(SRVY == "GOA" & maxyr >= 2025){
@@ -139,7 +141,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
-report_authors <- "B. Riggle, M.Siple, A. Dowlin"
+report_authors <- "A. Dowlin, M.Siple, B. Riggle"
 report_yr <- maxyr
 
 
