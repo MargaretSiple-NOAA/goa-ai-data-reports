@@ -56,18 +56,22 @@ include_price_table <- ifelse(maxyr < 2025 | SRVY == "AI", TRUE, FALSE)
 ```{r child=here::here("gdrive","Introduction.Rmd")}
 ```
 
-```{r child=here::here("gdrive","SpecialCollections-2025.Rmd")}
-```
+
+<!-- ```{r child=here::here("gdrive","SpecialCollections-2026.Rmd")} -->
+<!-- ``` -->
 
 
 # Methods
 ```{r child=here::here("gdrive","Methods_part1.Rmd")}
 ```
 
-```{r eval=redesign,child=here::here("gdrive","Methods_part2_2025onwards.Rmd")}
+```{r eval=goa_redesign,child=here::here("gdrive","Methods_part2_2025onwards.Rmd")}
 ```
 
-```{r eval=!redesign,child=here::here("gdrive","Methods_part2_pre2025.Rmd")}
+```{r eval=goa_backlog,child=here::here("gdrive","Methods_part2_pre2025.Rmd")}
+```
+
+```{r eval=ai_report,child=here::here("gdrive","Methods_part2_pre2028.Rmd")}
 ```
 
 ```{r child=here::here("gdrive","Methods_part3.Rmd")}
@@ -135,8 +139,8 @@ list_tables[["length-sample-sizes"]] |>
 
 <!-- Figures -->
 ```{r fig.cap=ifelse(SRVY=="AI",'Map of the Aleutian Islands 2024 bottom trawl survey area indicating survey districts (WAI = Western Aleutian Islands, CAI = Central Aleutian Islands, EAI = Eastern Aleutian Islands, SBS = Southern Bering Sea).', 'Map of the GOA 2025 bottom trawl survey area indicating NMFS statistical areas (color fill) and stations sampled (black points). The grey line indicates the outline of the bottom trawl survey area.'), fig.id='area-map',  fig.cap.style = "Figure Caption", fig.asp = 0.7, fig.width = 6.5, dpi = 300}
-# if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
-station_map
+if(SRVY=="AI"){include_graphics(here::here(img1_path))}else{station_map}
+#station_map
 ```
 
 
@@ -211,7 +215,7 @@ top_CPUE_formatted(top_CPUE = top_CPUE) |>
 # report_species contains the list of species in the report
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 16:26) { # nrow(report_species)
   # 12:16 includes some complexes and some single-species stocks
 
   species_code <- report_species$species_code[i]
@@ -273,7 +277,7 @@ for (i in 1:3) { # nrow(report_species)
   # 1. Grab the raw data frame
   df_raw <- table3s_list[[as.character(report_species$species_code[i])]]
 
-  # 2. Standardize column names immediately
+  # 2. Standardize column names
   # This maps 'NMFS area' or 'INPFC area' to a consistent 'Area' column
   df_clean <- df_raw |>
     rename_with(~"Area", any_of(c("NMFS area", "INPFC area"))) |>
@@ -314,7 +318,7 @@ for (i in 1:3) { # nrow(report_species)
       dplyr::filter(SPECIES_CODE == species_code) %>%
       top_n(1, `Mean length`) %>%
       {
-        ifelse(SRVY == "AI", dplyr::select(., INPFC_AREA_ABBREV), dplyr::select(., REGULATORY_AREA_NAME))
+        ifelse(SRVY == "AI", dplyr::select(., INPFC_AREA), dplyr::select(., REGULATORY_AREA_NAME))
       } %>%
       as.character()
 
