@@ -39,9 +39,10 @@ if (SRVY == "GOA") {
   load(file = paste0(
     dir_out_srvy_yr, "figures/", maxyr, "_station_map.RDS"
   )) # object: station_map
-  net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
-  net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figures aspect ratio
 }
+
+net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
+net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figures aspect ratio
 
 # Maps with CPUE
 load(file = paste0(
