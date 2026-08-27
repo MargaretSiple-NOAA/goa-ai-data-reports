@@ -227,7 +227,6 @@ if (SRVY == "GOA" & maxyr >= 2025) {
     dplyr::mutate(INPFC_AREA = str_trim(INPFC_AREA))
 
   # For AI years, add abbreviated area names:
-
   region_lu2 <- region_lu |>
     dplyr::group_by(INPFC_AREA) |>
     dplyr::summarize(INPFC_AREA_AREA_km2 = sum(AREA, na.rm = T)) |>
@@ -437,30 +436,26 @@ S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
 
 specimen_maxyr <- S |>
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-  filter(YEAR == maxyr & REGION == SRVY)
-
-otos_collected <- specimen_maxyr |>
+  filter(YEAR == maxyr & REGION == SRVY) |>
   filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN", "CRUISE", "HAUL",
     "REGION", "VESSEL", "YEAR"
   )) |>
+  dplyr::filter(ABUNDANCE_HAUL=="Y")
+
+otos_collected <- specimen_maxyr |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
-  group_by(REGULATORY_AREA_NAME, `Depth range`) |>
+  group_by(INPFC_AREA, `Depth range`) |>
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup() |>
-  arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
+  arrange(factor(INPFC_AREA, levels = district_order)) 
 
 # Otolith collections - can use in oto sampling comparison table if needed
-otos_by_species <- specimen_maxyr |>
-  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
-  dplyr::left_join(haul_maxyr, by = c(
-    "CRUISEJOIN", "CRUISE", "HAULJOIN", "HAUL",
-    "REGION", "VESSEL", "YEAR"
-  )) |>
+otos_by_species <- specimen_maxyr  |>
   dplyr::group_by(SPECIES_CODE) |>
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
-  ungroup()
+  ungroup() 
 
 # This is used for the presentation only
 lengths_species <- length_maxyr_species |>
@@ -493,8 +488,8 @@ meanlengths_area <- length_maxyr |>
     "REGION", "VESSEL", "CRUISE", "YEAR", "HAUL"
   )) |>
   dplyr::filter(ABUNDANCE_HAUL == "Y") |>
-  dplyr::left_join(stratum_lu, by = c("STRATUM")) |>
-  group_by(SPECIES_CODE, REGULATORY_AREA_NAME) |> # , `Depth range`
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
+  group_by(SPECIES_CODE, INPFC_AREA) |> # , `Depth range`
   dplyr::summarize(
     "N" = sum(FREQUENCY, na.rm = TRUE),
     "Mean length" = weighted.mean(LENGTH, w = FREQUENCY, na.rm = TRUE)
@@ -504,10 +499,10 @@ meanlengths_area <- length_maxyr |>
 meanlengths_depth <- length_maxyr |>
   dplyr::left_join(haul_maxyr, by = c(
     "CRUISEJOIN", "HAULJOIN",
-    "REGION", "VESSEL", "CRUISE"
+    "REGION", "VESSEL", "CRUISE", "YEAR", "HAUL"
   )) |>
   dplyr::filter(ABUNDANCE_HAUL == "Y") |>
-  dplyr::left_join(stratum_lu, by = c("STRATUM")) |>
+  dplyr::left_join(region_lu, by = c("STRATUM")) |>
   dplyr::group_by(SPECIES_CODE, `Depth range`) |> # ,
   dplyr::summarize(
     "N" = sum(FREQUENCY, na.rm = TRUE),
@@ -525,7 +520,7 @@ if (!exists("report_pseudolengths")) {
 }
 
 if (!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CODE))) {
-  print("STOP HERE AND RE-RUN DATA DOWNLOAD WITH NEW REPORT SPECIES LIST")
+  print("YOU NEED A EXPANDED LENGTH FILE FOR 1 or MORE SPECIES IN YOUR REPORT LIST. STOP HERE AND RE-RUN DATA DOWNLOAD WITH NEW REPORT SPECIES LIST")
 }
 
 # Taxonomic diversity -----------------------------------------------------
@@ -586,10 +581,4 @@ if (pres_or_report == "pres") {
     mutate(common_name = case_when(BIOMASS_MT == 0 ~ paste0(common_name, "*"), TRUE ~ common_name)) |>
     summarise(species = toString(unique(common_name), .groups = "drop"))
 }
-
-# Notes and tidbits -------------------------------------------------------
-
-# Random vessel info, not sure where to put this: 1,100 kg (Alaska Provider) or 800 kg (Ocean Explorer) - average catch weight per tow on each boat? Based on 2022 values.
-
-# Tally up the otoliths collected for oto comparison table
 
