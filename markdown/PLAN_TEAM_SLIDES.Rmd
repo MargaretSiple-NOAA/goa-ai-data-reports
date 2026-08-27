@@ -1,8 +1,8 @@
 ---
-title: "2025 Gulf of Alaska Biennial Bottom Trawl Survey"
+title: "2024 Aleutian Islands Biennial Bottom Trawl Survey"
 subtitle: "Groundfish Plan Team Meeting"
-author: "Ned Laman, Bethany Riggle, Alexandra Dowlin, and Margaret Siple"
-date: "September 17, 2025"
+author: "Susanne McDermott, Alexandra Dowlin, Bethany Riggle, and Margaret Siple"
+date: "September 10, 2026"
 output:
   powerpoint_presentation:
     reference_doc: styles_reference.pptx
@@ -161,23 +161,18 @@ Highlighting a couple of the Special Projects - INSERT SPECIAL COLLECTIONS TO ME
 :::
 
 ------------------------------------------------------------------------
+## Updates since last year's Plan Team presentation
 
-## Automated data reports
+- Emphasis on differences from long-term mean (provides a better idea of stock status based on the index)
+- asdf
 
-![Flow of new automated data reports.](../img/DataReportFlowChart.png)
-
-Code to produce these plots and this presentation can be found on the [goa-ai-reports GitHub repo](https://www.github.com/afsc-gap-products/goa-ai-data-reports/).
-
-:::notes
-Our data report (and the slides for this presentation) were made in RMarkdown using a relatively new (as of 2022) framework for reproducible reports. In this process, R code is used to draw from shared drives and our survey database, compile them, create figures and tables, and format them for presentation.
-:::
 
 ------------------------------------------------------------------------
 
 ## Catch composition
 
 ```{r catchcomp}
-p2
+knitr::include_graphics(path = here::here("output/AI_2024/figures/2024_biomass_catchcomp.png"))
 ```
 
 :::notes
@@ -187,7 +182,7 @@ Overall species composition in `r maxyr` was similar to past years with `r highe
 ## Bottom temperature (°C)
 
 ```{r bottomtemp}
-{list_temperature[[1]]}
+list_temperature[["bottom_temp_plot"]]
 ```
 
 :::notes
@@ -223,14 +218,14 @@ Now we’ll take a look at biomass trends, length frequencies, and distribution 
 # IMPORTANT PART
 src <- list()
 
-for (i in 1:11) { # nrow(report_species)
+for (i in 1:3) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
-  complex_sentence <- ifelse(grepl(species_code, pattern = "[A-Z]"),
-                             paste("This complex includes:",
-                                   complex_name_text$species[which(complex_name_text$complex==species_code)]),
+  is_complex <- grepl(species_code, pattern = "[A-Z]")
+  complex_sentence <- ifelse(is_complex,
+                             paste("This complex includes:", complex_name_text$species[which(complex_name_text$complex==species_code)]),
                              "")
   
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesSlideTemplate.Rmd"))
@@ -241,10 +236,10 @@ cat(res, sep = "\n")
 ```
 ---
 
-## Biomass compared to `r compareyr`
+## Biomass compared to the long-term mean
 
 ```{r}
-knitr::include_graphics(path = here::here("output/GOA_2025/tables/PercentChangeTable.png"))
+knitr::include_graphics(path = here::here("output/AI_2024/tables/PercentChangeTable2.png"))
 ```
 
 ---
