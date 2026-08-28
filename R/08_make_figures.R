@@ -1040,10 +1040,10 @@ if (make_joy_division_length) {
   # Loop thru species
   for (i in 1:nrow(report_species)) { 
     
-    #Don't produce length comps for complexes
-    if(report_species$species_code[i] %in% unique(complex_lookup$complex)){
-      next
-    }
+    # #Don't produce length comps for complexes
+    # if(report_species$species_code[i] %in% unique(complex_lookup$complex)){
+    #   next
+    # }
     #
     len2plot <- report_pseudolengths |>
       dplyr::filter(SPECIES_CODE == report_species$species_code[i])
