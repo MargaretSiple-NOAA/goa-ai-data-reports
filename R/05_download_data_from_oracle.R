@@ -231,7 +231,11 @@ biomass_total <- biomass |>
   dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
   mutate(
     MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
+    MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR)),
+    SURVEY = case_when(
+      SURVEY_DEFINITION_ID == 47 ~ "GOA",
+      SURVEY_DEFINITION_ID == 52 ~ "AI"
+    )
   ) |>
   mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
   mutate_at("SPECIES_CODE", as.character)
