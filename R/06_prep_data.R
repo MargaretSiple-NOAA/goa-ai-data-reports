@@ -535,7 +535,7 @@ if (!exists("biomass_total")) {
 }
 
 biomass_maxyr <- biomass_total |>
-  filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
 
 highest_biomass <- biomass_maxyr |>
   dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) |>
