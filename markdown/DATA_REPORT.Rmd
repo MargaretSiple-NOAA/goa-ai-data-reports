@@ -1,7 +1,7 @@
 ---
-title: "2019 Gulf of Alaska Biennial Bottom Trawl Survey"
+title: "2024 Aleutian Islands Biennial Bottom Trawl Survey"
 subtitle: "Data Report"
-author: "Bethany Riggle, Margaret Siple, Alexandra Dowlin"
+author: "Alexandra Dowlin, Margaret Siple, Bethany Riggle"
 output:
   officedown::rdocx_document: 
     reference_docx: styles_reference4.docx
@@ -215,8 +215,11 @@ top_CPUE_formatted(top_CPUE = top_CPUE) |>
 # report_species contains the list of species in the report
 src <- list()
 
-for (i in 16:26) { # nrow(report_species)
-  # 12:16 includes some complexes and some single-species stocks
+spps_ordered_by_biomass <- biomass_maxyr %>%
+    dplyr::arrange(-BIOMASS_MT)
+
+for (i in 1:nrow(report_species)) { # 1:nrow(report_species)
+  # 20:26 includes some complexes and some single-species stocks
 
   species_code <- report_species$species_code[i]
 
@@ -229,8 +232,7 @@ for (i in 16:26) { # nrow(report_species)
   species_start_yr <- ifelse(species_code %in% species_year$SPECIES_CODE, species_year[which(species_year$SPECIES_CODE == species_code), "YEAR_STARTED"], minyr)
   region <- survname_long
 
-  spps_ordered_by_biomass <- biomass_maxyr %>%
-    dplyr::arrange(-BIOMASS_MT)
+  
   xth <- which(spps_ordered_by_biomass$SPECIES_CODE == species_code)
 
   species_biomass0 <- format(
