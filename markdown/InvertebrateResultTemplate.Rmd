@@ -32,8 +32,8 @@ table3s_list[[as.character({{ species_code }})]] |>
       `Average weight (kg)` = "Average \nweight \n(kg)",
       `% biomass in area` = "% \n biomass \n in area"
     ) |>
-    flextable::bold(i = 6) |> #bold the row with the All Areas total
-    flextable::compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+    flextable::bold(i = 21) |> #bold the row with the All Areas total
+    flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 
