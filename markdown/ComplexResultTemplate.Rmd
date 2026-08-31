@@ -18,7 +18,7 @@
 
 ```{r echo=FALSE,tab.cap='Summary by statistical area of {{year}} {{SRVY}} trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table1-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 table3s_list[["{{ species_code }}"]] |>
-  #table3s_list[[as.character("NRSSRS")]] |>
+  #table3s_list[[as.character("OFLATS")]] |>
    flextable() |>
   flextable::theme_vanilla() |>
   flextable::fontsize(size = 10, part = "all") |>
@@ -35,7 +35,7 @@ table3s_list[["{{ species_code }}"]] |>
     `Biomass (t)` = "Biomass\n(t)",
     `% biomass in area` = "% \n biomass \n in area"
   ) |>
-  flextable::compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+  flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 \newpage
@@ -43,7 +43,7 @@ table3s_list[["{{ species_code }}"]] |>
 ```{r echo=FALSE,tab.cap='Summary by stratum and depth interval of {{year}} {{SRVY}} survey trawl effort (number of hauls), number of hauls containing members of the {{spp_name_informal_low}}, and their mean CPUE and biomass estimates.', tab.id=paste0("table2-","{{species_code}}"),  tab.cap.style = "Table caption",tab.align="left"}
 
 table4s_list[["{{ species_code }}"]] |>
-# table4s_list[[as.character("NRSSRS")]] %>%
+# table4s_list[[as.character("OFLATS")]] %>%
  flextable() |>
   flextable::fix_border_issues() |>
   flextable::theme_vanilla() |>

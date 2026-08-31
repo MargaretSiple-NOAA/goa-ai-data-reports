@@ -34,10 +34,11 @@ table3s_list[["{{ species_code }}"]] |>
       `Percent positive tows` = "% \npositive \ntows",
       `Biomass (t)` = "Biomass\n(t)",
       `Average weight (kg)` = "Average \nweight \n(kg)",
-      `% biomass in area` = "% \n biomass \n in area"
+      `% biomass in area` = "% \n biomass \n in area"#,
+     # `CPUE (kg/km2)` = "CPUE\n(kg/km2)"
     ) |>
-    flextable::bold(i = 6) |> #bold the row with the All Areas total
-    flextable::compose(part = "header", i = 1, j = 5, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
+    flextable::bold(i = 21) |> #bold the row with the All Areas total
+    flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
 \newpage
