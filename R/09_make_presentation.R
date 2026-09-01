@@ -1133,6 +1133,16 @@ pres_table_option2
 
 kableExtra::save_kable(pres_table_option2, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable2.png"))
 
+paste_table_option2 <- compare_tab_pres |>
+  dplyr::select(-column_color, -group, -`Percent difference from last survey`, -ltmeancolor) |>
+  dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
+  dplyr::mutate(`Long-term mean biomass (mt)` = format(round(`Long-term mean biomass (mt)`), big.mark = ",", scientific = FALSE)) |>
+  dplyr::mutate(`Percent difference from long-term mean` = case_when(
+    `Percent difference from long-term mean` > 0 ~ paste0("+", `Percent difference from long-term mean`), 
+    TRUE ~ as.character(`Percent difference from long-term mean`))) |>
+  dplyr::mutate(pct_diff_sentence = paste0("Biomass in 2026: ", `Biomass in 2026 (mt)`, " mt; ", `Percent difference from long-term mean`, " different from long-term mean"))
+
+write.csv(paste_table_option2, file = paste0(dir_out_srvy_yr,"chapters/text_to_paste_in_slides_",maxyr, ".csv"))
 # 7. Complex species in order of biomass ----------------------------------
 
 print("Using text about complexes for slides")
