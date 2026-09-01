@@ -89,14 +89,14 @@ Our survey is a stratified random design that allocates stations to strata based
 
 ## Data status
 
--   `r SRVY` data are finalized as of **August 25th**
+-   `r SRVY` data are finalized as of **August 27th**
 -   Age composition will be updated as Age & Growth finish analyzing otolith samples
 -   CPUE tables will be available on FOSS and AKIN
--   Collaboration with SMART group to improve data pull and processing steps
+-   GAP_PRODUCTS has been updated with 2026 data products
 
 :::notes
-This year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in RACEBASE.
-We achieved this through some important innovations (like in-season data editing) and a lot of hard work by our Survey Team
+This year we’ve finalized our survey data prior to the September Plan Team meetings and design based estimates along with length composition tables are now available in GAP_PRODUCTS.
+We achieved this through some important innovations (like in-season data editing) and a lot of hard work by our Survey Team.
 
 
 Our CPUE and Effort data will be made available on FOSS, the NMFS Fishery One Stop Shop for data and will also be available as previously on AKFIN.
@@ -161,10 +161,11 @@ Highlighting a couple of the Special Projects - INSERT SPECIAL COLLECTIONS TO ME
 :::
 
 ------------------------------------------------------------------------
+
 ## Updates since last year's Plan Team presentation
 
-- Emphasis on differences from long-term mean (provides a better idea of stock status based on the index)
-- asdf
+- Emphasis on differences from long-term mean (provides a better idea of stock status relative to expectations)
+- Simplified temperature plots
 
 
 ------------------------------------------------------------------------
@@ -172,17 +173,17 @@ Highlighting a couple of the Special Projects - INSERT SPECIAL COLLECTIONS TO ME
 ## Catch composition
 
 ```{r catchcomp}
-knitr::include_graphics(path = here::here("output/AI_2024/figures/2024_biomass_catchcomp.png"))
+knitr::include_graphics(path = here::here("output/AI_2026/figures/2026_biomass_catchcomp.png"))
 ```
 
 :::notes
 Overall species composition in `r maxyr` was similar to past years with `r highest_biomass_overall` and `r second_highest_biomass_overall` dominating the catches. (INSERT NOTE ABOUT TRENDS IF YOU WANT)
 :::
 
-## Bottom temperature (°C)
+## Surface and bottom temperature (°C)
 
 ```{r bottomtemp}
-list_temperature[["bottom_temp_plot"]]
+list_temperature[["linetemp"]]
 ```
 
 :::notes
@@ -193,12 +194,6 @@ Max bottom temp: `r maxbottomtemp` deg C
 
 Larger brown points represent the median, small black points represent individual hauls. Shaded distributions represent the density of measurements. Dotted lines show the mean gear temperature over the past 10 and 20 years.
 :::
-
-## Surface temperature (°C)
-
-```{r surfacetemp}
-{list_temperature[[2]]}
-```
 
 ---
 
@@ -218,7 +213,7 @@ Now we’ll take a look at biomass trends, length frequencies, and distribution 
 # IMPORTANT PART
 src <- list()
 
-for (i in 1:3) { # nrow(report_species)
+for (i in 1:nrow(report_species)) { # nrow(report_species)
   species_code <- report_species$species_code[i]
   spp_name_informal <- report_species$spp_name_informal[i]
   spp_name_informal_sen <- stringr::str_to_sentence(string = spp_name_informal)
@@ -227,6 +222,7 @@ for (i in 1:3) { # nrow(report_species)
   complex_sentence <- ifelse(is_complex,
                              paste("This complex includes:", complex_name_text$species[which(complex_name_text$complex==species_code)]),
                              "")
+  cpue_map_path <- here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_",spp_name_informal,"_bubble.png"))
   
   src[[i]] <- knitr::knit_expand(here::here("markdown", "SpeciesSlideTemplate.Rmd"))
 }
@@ -239,7 +235,7 @@ cat(res, sep = "\n")
 ## Biomass compared to the long-term mean
 
 ```{r}
-knitr::include_graphics(path = here::here("output/AI_2024/tables/PercentChangeTable2.png"))
+knitr::include_graphics(path = here::here("output/AI_2026/tables/PercentChangeTable2.png"))
 ```
 
 ---
