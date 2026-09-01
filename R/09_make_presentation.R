@@ -143,10 +143,10 @@ otos_collected <- specimen_maxyr |>
     "REGION", "VESSEL", "YEAR", "CRUISE", "HAUL"
   )) |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
-  group_by(REGULATORY_AREA_NAME) |>
+  group_by(INPFC_AREA) |> #REGULATORY_AREA_NAME
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup() |>
-  arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
+  arrange(factor(INPFC_AREA, levels = district_order)) #REGULATORY_AREA_NAME
 
 # Temperature info
 minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE > 0)],
@@ -369,6 +369,7 @@ if (make_biomass_timeseries) {
 if (make_catch_comp) {
   head(biomass_total)
   biomass_total_filtered <- biomass_total |>
+    dplyr::filter(!grepl("[a-zA-Z]", SPECIES_CODE)) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
@@ -403,7 +404,7 @@ if (make_catch_comp) {
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
   # * * Complexes ----------
-  list_cpue_bubbles_strata_complexes <- list()
+  #list_cpue_bubbles_strata_complexes <- list()
 
   for (i in 1:length(unique(complex_lookup$complex))) {
     # which complex to plot:
@@ -423,6 +424,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     )
     cpue_complexes <- cpue_processed |>
       dplyr::filter(grepl(species_code, pattern = "[A-Za-z]"))
+    
+    spp_name_informal <- report_species$spp_name_informal[which(report_species$species_code==complex_code)]
 
     thisyrshauldata <- cpue_complexes |> # cpue_table_complexes
       janitor::clean_names() |>
@@ -464,6 +467,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         ) +
         scale_size(bquote("CPUE" ~ (kg / km^2)),
           limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          labels = comma,
           guide = "legend"
         ) +
         coord_sf(
@@ -501,7 +505,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           color = "black"
         ) +
         scale_size(
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          labels = comma
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -510,7 +515,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_central$lon.breaks) +
         scale_y_continuous(breaks = ai_central$lat.breaks) +
         labs(subtitle = "Central Aleutians") +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       p3c <- ggplot() +
         geom_sf(
@@ -523,7 +529,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_fill_manual(values = depthpal, guide = "none") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_west$akland) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), 
+                   guide = "none",
+                   labels = comma,) +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
@@ -547,7 +555,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_west$lon.breaks) +
         scale_y_continuous(breaks = ai_west$lat.breaks) +
         labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
       bottomrow <- cowplot::plot_grid(p3a, rel_widths = c(1, 2))
@@ -576,7 +585,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), 
+                   guide = "none",
+                   labels = comma) +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
           ylim = reg_data$plot.boundary$y
@@ -588,20 +599,15 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, maxyr, "_", complex_code, "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
 
     dev.off()
-
-    list_cpue_bubbles_strata_complexes[[i]] <- final_obj
-    names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
   } # /all complexes cpue loop
 
   #  * * Species ----------
-  list_cpue_bubbles_strata_species <- list()
-
   bubble_index <- which(!report_species$species_code %in% c(
     "OROX", "REBS", "OFLATS",
     "DEEPFLATS", "DSROX", "NRSSRS",
@@ -609,10 +615,11 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     "THORNYHEADS"
   ))
 
-  for (i in 1:length(bubble_index)) {
+  for (i in 1:length(bubble_index)) { #
     spbubble <- report_species$species_code[bubble_index[i]]
     namebubble <- report_species$spp_name_informal[bubble_index[i]]
-
+    spp_name_informal <- namebubble
+    
     thisyrshauldata <- cpue_processed |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
@@ -697,7 +704,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_central$lon.breaks) +
         scale_y_continuous(breaks = ai_central$lat.breaks) +
         labs(subtitle = "Central Aleutians") +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       p3c <- ggplot() +
         geom_sf(
@@ -734,7 +742,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_west$lon.breaks) +
         scale_y_continuous(breaks = ai_west$lat.breaks) +
         labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
       bottomrow <- cowplot::plot_grid(p3a, rel_widths = c(1, 2))
@@ -755,7 +764,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), 
+                   guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
@@ -773,29 +783,11 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         bubbletheme
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
-    png(
-      filename = paste0(dir_out_figures, maxyr, "_", namebubble, "_bubble.png"),
-      width = 9, height = 8, units = "in", res = 200
-    )
-    print(final_obj)
 
-    dev.off()
-
-    list_cpue_bubbles_strata_species[[i]] <- final_obj # save fig to list
+    ggsave(final_obj, filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"), width = 9, height = 8, units = "in", bg = 'white')
+    print(spbubble)
   } # /end species loop
-  names(list_cpue_bubbles_strata_species) <- report_species$species_code[bubble_index]
-
-
-  list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
-
-  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata"))
-
-  # Remove intermediary fig lists
-  rm(list = c(
-    "list_cpue_bubbles_strata_species",
-    "list_cpue_bubbles_strata_complexes"
-  ))
-
+ 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
 
@@ -831,7 +823,7 @@ if (make_cpue_idw) {
       theme(axis.text = element_text(size = 11))
 
     png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_cpue_idw.png"),
+      filename = paste0(dir_out_figures, spp_name_informal, "_", maxyr, "_cpue_idw.png"),
       width = 11, height = 10, units = "in", res = 200
     )
     print(fig)
@@ -1153,8 +1145,7 @@ if (make_joy_division_length) {
   if (file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
     report_pseudolengths <- read.csv(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
   } else {
-    cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
-    source("R/06_prep_data.R")
+    cat("Pseudolength file not found. Go back to the pseudolengths section of the download data from oracle file and create it again (sorry this will take a while... \n")
   }
 
   species_year <- read.csv("data/local_gap_products/species_year.csv")
@@ -1284,7 +1275,7 @@ if (make_joy_division_length) {
           label = paste0("n = ", n),
           x = ifelse(report_species$species_code[i] %in% left_labels, -Inf, Inf)
         ),
-        fill = "white", label.size = NA,
+        fill = "white", linewidth = NA,
         nudge_x = 0,
         nudge_y = 1,
         hjust = "inward", size = 3
@@ -1461,8 +1452,8 @@ if (make_temp_plot) {
       xend = maxyr,
       color = "#2a5674", alpha = 0.4, lty = 2
     ) +
-    annotate(geom = "text", x = 1999, y = 12, label = "Surface temperature", color = "#68abb8") +
-    annotate(geom = "text", x = 1999, y = 6.5, label = "Bottom temperature", color = "#2a5674") +
+    annotate(geom = "text", x = 1999, y = 8, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 5, label = "Bottom temperature", color = "#2a5674") +
     theme_bw(base_size = 14)
   
   png(
@@ -1513,9 +1504,9 @@ if (!exists("list_biomass_ts")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_biomass_ts.rdata"))
 }
 
-if (!exists("list_cpue_bubbles_strata")) {
-  load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_cpue_bubbles_strata.rdata"))
-}
+# if (!exists("list_cpue_bubbles_strata")) {
+#   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_cpue_bubbles_strata.rdata"))
+# }
 
 if (!exists("list_joy_length")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_joy_length.rdata"))
@@ -1523,7 +1514,7 @@ if (!exists("list_joy_length")) {
 if (!exists("list_temperature")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_temperature.rdata"))
 }
-if (!exists("catchcomp")) {
+if (!exists("catch_comp_plot")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "catch_comp.rdata"))
 }
 # if (!exists("compare_tab_pres")) {
