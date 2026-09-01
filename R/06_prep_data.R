@@ -160,6 +160,12 @@ if (maxyr == 2024) { # get allocation from special sheet with reduced stations
     mutate(YEAR = 2024, SURVEY = SRVY)
 }
 
+if (maxyr == 2026) { # get allocation from special sheet with reduced stations
+  a0 <- readxl::read_xlsx("data/ai_2026_station_allocation_400stn.xlsx",sheet = 'Station Allocation')
+  table(a0$STATION_TYPE)
+  all_allocation <- a0 |>
+    mutate(YEAR = 2026, SURVEY = SRVY)
+}
 
 # We didn't do bonus stations until 2022:
 if (maxyr <= 2021) {
@@ -283,7 +289,7 @@ avg_net_width <- haul |>
 
 if (maxyr > 2023) {
   nstationsassigned <- all_allocation |>
-    filter(YEAR == maxyr & STATION_TYPE != "bonus_stn") |>
+    filter(YEAR == maxyr & !grepl("bonus", STATION_TYPE)) |>
     nrow()
 } else {
   nstationsassigned <- all_allocation |>
@@ -293,7 +299,7 @@ if (maxyr > 2023) {
 
 if (maxyr > 2021) {
   nnewstations <- all_allocation |>
-    filter(YEAR == maxyr & STATION_TYPE == "new_stn") |>
+    filter(YEAR == maxyr & grepl("new", STATION_TYPE)) |>
     nrow()
 } else {
   nnewstations <- 0
@@ -322,7 +328,7 @@ new_successfully_sampled <- test |>
 
 # In the AI, we assign boat to investigate new stations that haven't been trawled before. In the GOA survey, that doesn't happen.
 if (SRVY == "AI") {
-  newstationsentence <- paste(nnewstations / 2, "previously untrawled locations were assigned to each vessel in", maxyr, ". Among the", nnewstations, "total new stations assigned in the survey,", new_successfully_sampled, "were found and successfully trawled.")
+  newstationsentence <- paste(nnewstations / 2, "previously untrawled locations were assigned to each vessel in", maxyr, ". Among these,", new_successfully_sampled, "were found and successfully trawled.")
 } else {
   newstationsentence <- ""
 }
@@ -569,16 +575,26 @@ if (!exists("cpue_processed")) {
 # Species in complexes (presentation) -------------------------------------
 if (pres_or_report == "pres") {
   biomass_all <- read.csv("data/local_gap_products/biomass.csv")
+  if(use_gapindex){
+  biomass_all <- biomass_total # Except this doesn't include all the species that are also in complexes
+  }
+  
+  complex_lookup_chr <- complex_lookup |> 
+    mutate(species_code = as.character(species_code))
+  
   biomass_complexes <- biomass_all |>
     dplyr::filter(YEAR == maxyr &
-      SPECIES_CODE %in% complex_lookup$species_code &
+      SPECIES_CODE %in% complex_lookup_chr$species_code &
       AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |>
-    left_join(complex_lookup, by = c("SPECIES_CODE" = "species_code"))
+    right_join(complex_lookup_chr, by = join_by(SPECIES_CODE == species_code))
 
   complex_name_text <- biomass_complexes |>
     group_by(complex) |>
     arrange(-BIOMASS_MT) |>
-    mutate(common_name = case_when(BIOMASS_MT == 0 ~ paste0(common_name, "*"), TRUE ~ common_name)) |>
+    mutate(common_name = case_when(
+      BIOMASS_MT == 0 ~ paste0(common_name, "*"),
+      is.na(BIOMASS_MT) ~ paste0(common_name, "*"),
+      TRUE ~ common_name)) |>
     summarise(species = toString(unique(common_name), .groups = "drop"))
 }
 
