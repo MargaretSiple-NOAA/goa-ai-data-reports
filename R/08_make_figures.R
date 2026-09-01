@@ -144,7 +144,8 @@ bartheme <- ggpubr::theme_classic2(base_size = 12) +
 
 # * Palettes ----------------------------------------------------------------
 
-depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
+depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), 
+                         shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
 
 
 # Palette for lines
@@ -324,7 +325,6 @@ if (make_biomass_timeseries) {
       scale_y_continuous(labels = scales::label_comma()) +
       linetheme +
       scale_x_continuous(limits = c(minyr, maxyr), breaks = pretty_breaks(n = 3))
-    p1
 
     p2 <- dat |>
       ggplot(aes(x = YEAR, y = PERCENT_OF_STATIONS)) +
@@ -371,15 +371,15 @@ if (make_biomass_timeseries) {
     # p1 + p2 + p3
 
     # If needed: make plot of CPUE distribution where present
-    # dat_cpue <- cpue_processed |>
-    #   dplyr::filter(species_code == sp & cpue_kgkm2>0)
-    #
-    # p4 <- dat_cpue |>
-    #   ggplot(aes(x=year, y = cpue_kgkm2)) +
-    #   geom_jitter(alpha=0.2,size=2) +
-    #   linetheme +
-    #   xlab("Year") +
-    #   ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
+    dat_cpue <- cpue_processed |>
+      dplyr::filter(species_code == sp & cpue_kgkm2>0)
+
+    p4 <- dat_cpue |>
+      ggplot(aes(x=year, y = cpue_kgkm2, group = cut_width(year,1))) +
+      geom_jitter(alpha=0.2,size=2) +
+      linetheme +
+      xlab("Year") +
+      ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
 
     # Save just time series
     list_biomass_ts[[i]] <- p1
@@ -391,25 +391,18 @@ if (make_biomass_timeseries) {
     )
     print(p1)
     dev.off()
-
+    
     list_3panel_ts[[i]] <- p1 + p2 + p3
     names(list_3panel_ts)[[i]] <- report_species$species_code[i]
 
     # Save 3-panel figs
     png(
       filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_3panel_ts.png"),
-      width = 6.5, height = 2, units = "in", res = 200
+      width = 9, height = 4.5, units = "in", res = 200
     )
     print(p1 + p2 + p3)
     dev.off()
-
-    ## Save 4-panel figs - not set up yet to save them all as a list in a data file
-    # png(
-    #   filename = paste0(dir_out_figures, name_bms, "_", YEAR, "_biomass_4panel_ts.png"),
-    #   width = 8, height = 8, units = "in", res = 200
-    # )
-    # print(p1 + p2 + p3 + p4)
-    # dev.off()
+    
   } # /end species loop
   # names(list_biomass_ts) <- report_species$species_code
   save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
