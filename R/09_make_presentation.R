@@ -334,16 +334,31 @@ if (make_biomass_timeseries) {
   for (i in 1:nrow(report_species)) {
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
-
+    
     dat <- biomass_total |>
-      dplyr::filter(SPECIES_CODE == report_species$species_code[i])
-    lta <- mean(dat$BIOMASS_MT)
+      dplyr::arrange(YEAR) |>
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
+      dplyr::mutate(PERCENT_OF_STATIONS = round((N_WEIGHT / N_HAUL) * 100)) |>
+      dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
+    
+    dat$PERCENT_CHANGE_BIOMASS[1] <- NA # no difference calculated for first year of ts
+    
+    # if the species has a start year after the start of the survey, filter to after that
+    if (sp %in% species_year$SPECIES_CODE) {
+      dat <- dat |>
+        dplyr::filter(YEAR > species_year$YEAR_STARTED[which(species_year$SPECIES_CODE == sp)])
+    }
+    
+    lta_biomass <- mean(dat$BIOMASS_MT)
+    lta_percent_stns <- mean(dat$PERCENT_OF_STATIONS)
+    lta_percent_change <- mean(dat$PERCENT_CHANGE_BIOMASS, na.rm = TRUE)
 
     p1 <- dat |>
       ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
-      geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
+      geom_hline(yintercept = lta_biomass, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
-      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
+      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), 
+                    color = linecolor, linewidth = 0.9, width = 0.7) +
       ylab("Estimated biomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
@@ -351,13 +366,40 @@ if (make_biomass_timeseries) {
       linetheme
     p1
 
+    
+    p2 <- dat |>
+      ggplot(aes(x = YEAR, y = PERCENT_OF_STATIONS)) +
+      geom_point(color = linecolor, size = 2) +
+      geom_hline(
+        yintercept = lta_percent_stns,
+        color = accentline, lwd = 0.7, lty = 2
+      ) +
+      xlab("Year") +
+      ylab("Proportion of hauls \nwhere present (%)") +
+      linetheme +
+      scale_x_continuous(limits = c(minyr, maxyr), breaks = pretty_breaks(n = 3))
+    
+    # If needed: make plot of CPUE distribution where present
+    dat_cpue <- cpue_processed |>
+      dplyr::filter(species_code == sp & cpue_kgkm2>0)
+    
+    p3 <- dat_cpue |>
+      ggplot(aes(x=year, y = cpue_kgkm2, group = cut_width(year,1))) +
+      #geom_violin(alpha = 0.5) +
+      geom_jitter(alpha=0.2,size=2) +
+      linetheme +
+      xlab("Year") +
+      ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
+    
+    final_plot <- p1 + (p2 + p3) + plot_layout(nrow = 2)
 
-    list_biomass_ts[[i]] <- p1
+    list_biomass_ts[[i]] <- final_plot
+    
     png(
       filename = paste0(dir_out_figures, name_bms, "_", SRVY, "_", maxyr, "_biomass_ts.png"),
-      width = 4.25, height = 2.43, units = "in", res = 150
+      width = 8, height = 8, units = "in", res = 150
     )
-    print(p1)
+    print(final_plot)
     dev.off()
   }
   names(list_biomass_ts) <- as.character(report_species$species_code)
@@ -1094,10 +1136,7 @@ compare_tab_pres <- compare_tab_pres |>
                                             high = "#2C7BB6"))
 
 
-
-# saveRDS(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.RDS"))
-
-# option 1 (from GOA 2025 presentation)
+# option 1 (from GOA 2025 presentation): show percent differences from previous survey; shade in orange and green
 pcols <- compare_tab_pres$column_color
 
 pres_table_option1 <- compare_tab_pres |>
@@ -1117,7 +1156,7 @@ pres_table_option1
 
 kableExtra::save_kable(pres_table_option1, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable1.png"))
 
-# option 2 (adapted to Melissa suggestion)
+# option 2 (adapted to Melissa suggestion): show percent differences from long-term mean; shade in reds/blues
 pcols <- compare_tab_pres$ltmeancolor
 pres_table_option2 <- compare_tab_pres |>
   dplyr::select(-column_color, -group, -`Percent difference from last survey`, -ltmeancolor) |>
