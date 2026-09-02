@@ -144,8 +144,10 @@ bartheme <- ggpubr::theme_classic2(base_size = 12) +
 
 # * Palettes ----------------------------------------------------------------
 
-depthpal <- lengthen_pal(x = unique(stratum_lookup$DEPTH_MAX_M), 
-                         shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7])
+depthpal <- lengthen_pal(
+  x = unique(stratum_lookup$DEPTH_MAX_M),
+  shortpal = RColorBrewer::brewer.pal(n = 9, name = "Blues")[1:7]
+)
 
 
 # Palette for lines
@@ -372,14 +374,14 @@ if (make_biomass_timeseries) {
 
     # If needed: make plot of CPUE distribution where present
     dat_cpue <- cpue_processed |>
-      dplyr::filter(species_code == sp & cpue_kgkm2>0)
+      dplyr::filter(species_code == sp & cpue_kgkm2 > 0)
 
     p4 <- dat_cpue |>
-      ggplot(aes(x=year, y = cpue_kgkm2, group = cut_width(year,1))) +
-      geom_jitter(alpha=0.2,size=2) +
+      ggplot(aes(x = year, y = cpue_kgkm2, group = cut_width(year, 1))) +
+      geom_jitter(alpha = 0.2, size = 2) +
       linetheme +
       xlab("Year") +
-      ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
+      ylab(bquote(CPUE ~ ~where ~ ~present ~ ~ (kg / km^2)))
 
     # Save just time series
     list_biomass_ts[[i]] <- p1
@@ -391,7 +393,7 @@ if (make_biomass_timeseries) {
     )
     print(p1)
     dev.off()
-    
+
     list_3panel_ts[[i]] <- p1 + p2 + p3
     names(list_3panel_ts)[[i]] <- report_species$species_code[i]
 
@@ -402,7 +404,6 @@ if (make_biomass_timeseries) {
     )
     print(p1 + p2 + p3)
     dev.off()
-    
   } # /end species loop
   # names(list_biomass_ts) <- report_species$species_code
   save(list_biomass_ts, file = paste0(dir_out_figures, "biomass_ts.rdata"))
@@ -889,25 +890,25 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 #       crs = "EPSG:4326"
 #     ) |>
 #     st_transform(crs = reg_data$crs)
-# 
+#
 #   max_cpue <- max(cpue_sf$cpue_kgkm2, na.rm = TRUE)
-# 
+#
 #   list_cpue_bubbles_strata <- vector(
 #     "list",
 #     nrow(report_species)
 #   )
-# 
+#
 #   for (i in seq_len(nrow(report_species))) {
 #     species_code_i <- report_species$species_code[i]
 #     display_name_i <- report_species$spp_name_informal[i]
-# 
+#
 #     thisyrshauldata <- cpue_sf |>
 #       filter(species_code == species_code_i)
-# 
+#
 #     if (nrow(thisyrshauldata) == 0) {
 #       next
 #     }
-# 
+#
 #     # create fig
 #     if (SRVY == "AI") {
 #       final_obj <- make_ai_plot(
@@ -927,7 +928,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 #         show_legend = TRUE
 #       )
 #     }
-# 
+#
 #     # save png
 #     png(
 #       filename = paste0(
@@ -942,17 +943,17 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 #       units = "in",
 #       res = 200
 #     )
-# 
+#
 #     print(final_obj)
-# 
+#
 #     dev.off()
-# 
+#
 #     # store in list
 #     list_cpue_bubbles_strata[[i]] <- final_obj
 #   }
-# 
+#
 #   names(list_cpue_bubbles_strata) <- plot_species$species_code
-# 
+#
 #   save(
 #     list_cpue_bubbles_strata,
 #     file = paste0(
@@ -960,7 +961,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 #       "list_cpue_bubbles_strata.rdata"
 #     )
 #   )
-# 
+#
 #   print("Done with CPUE bubble maps showing stratum areas.")
 # }
 
@@ -1031,8 +1032,7 @@ if (make_joy_division_length) {
   # left_labels <- c(30420, 30152) # species for which you want the label on the left instead of the right!
 
   # Loop thru species
-  for (i in 1:nrow(report_species)) { 
-    
+  for (i in 1:nrow(report_species)) {
     # #Don't produce length comps for complexes
     # if(report_species$species_code[i] %in% unique(complex_lookup$complex)){
     #   next
