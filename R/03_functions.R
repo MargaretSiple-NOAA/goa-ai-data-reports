@@ -428,7 +428,7 @@ break_position <- function(x) {
 
 
 # Working with data -------------------------------------------
-#' Title
+#' Add depths to an akgfmaps object
 #'
 #' @param x an akgf maps object like ai_east
 #' @param stratum_lookup_tab a region-specific lookup table of strata and the max depth associated with each
