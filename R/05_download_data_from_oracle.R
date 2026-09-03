@@ -397,7 +397,7 @@ rm(list = c("sizecomp_stratum_complexes"))
 
 write.csv(sizecomp, file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
 
-# Create 'pseudolengths' table used for length comp figures ----------------
+# 'pseudolengths' table for length comp figures ----------------
 # Janky but not sure how else to do it, so will have to deal. See notes below. This table is needed for joy division figs. Only make pseudolengths file if it isn't already there.
 
 if (!exists("sizecomp")) {
@@ -482,7 +482,7 @@ if (SRVY == "GOA") {
 
 print("Finished downloading all the Oracle tables.")
 
-############ OPTIONAL: GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
+# PLAN TEAM: USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # STILL NEED TO WORK ON THIS PART
 # You can use gapindex to make tables like biomass_total if the GAP_PRODUCTS routine has not been run yet. This should be preliminary and not used for the final "gold standard" products. I have used it before for making Plan Team slides.
 if (use_gapindex) {
@@ -581,7 +581,8 @@ if (use_gapindex) {
   # cpue table
   cpue_raw <- cpue_raw_caps |>
     janitor::clean_names() # This table is used for lots of stuff
-
+  #write.csv(cpue_raw,file = paste0(dir_out_srvy_yr,"/tables/cpue_processed.csv"))
+  
   # total biomass table
   biomass_total <- biomass_df
 
@@ -591,35 +592,3 @@ if (use_gapindex) {
   print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
 
-
-#
-# if (!use_gapindex) { # NOTE: GOING TO HAVE TO UPDATE THIS TO LOAD PROCESSED TABLES
-#   x <- read.csv(here::here("data", "local_gap_products", "biomass.csv"))
-#
-#   # Biomass for all species (not complexes)
-#   biomass_total <- x |>
-#     dplyr::filter(AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)) |> # total B only
-#     mutate(
-#       MIN_BIOMASS = BIOMASS_MT - 2 * (sqrt(BIOMASS_VAR)),
-#       MAX_BIOMASS = BIOMASS_MT + 2 * (sqrt(BIOMASS_VAR))
-#     ) |>
-#     mutate(MIN_BIOMASS = ifelse(MIN_BIOMASS < 0, 0, MIN_BIOMASS)) |>
-#     mutate_at("SPECIES_CODE", as.character)
-#
-#   biomass_subarea_species <- x |>
-#     mutate_at("SPECIES_CODE", as.character)
-#
-#   x <- read.csv(here::here("data", "local_gap_products", "cpue.csv")) # this table contains all the cpue for all vessels, regions, etc!
-#
-#   # Filter and rename some columns
-#   cpue_raw <- x |>
-#     dplyr::right_join(haul) |> # SHOULD THIS BE LEFT_JOIN?
-#     dplyr::filter(REGION == SRVY) |>
-#     dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
-#     dplyr::rename(
-#       survey = "REGION",
-#       longitude_dd_start = "START_LONGITUDE",
-#       latitude_dd_start = "START_LATITUDE"
-#     ) |>
-#     janitor::clean_names() # still need cpue of complexes
-# }

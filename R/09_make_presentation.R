@@ -143,10 +143,10 @@ otos_collected <- specimen_maxyr |>
     "REGION", "VESSEL", "YEAR", "CRUISE", "HAUL"
   )) |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
-  group_by(REGULATORY_AREA_NAME) |>
+  group_by(INPFC_AREA) |> #REGULATORY_AREA_NAME
   dplyr::summarize("Pairs of otoliths collected" = n()) |>
   ungroup() |>
-  arrange(factor(REGULATORY_AREA_NAME, levels = district_order))
+  arrange(factor(INPFC_AREA, levels = district_order)) #REGULATORY_AREA_NAME
 
 # Temperature info
 minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE > 0)],
@@ -334,16 +334,31 @@ if (make_biomass_timeseries) {
   for (i in 1:nrow(report_species)) {
     sp <- report_species$species_code[i]
     name_bms <- report_species$spp_name_informal[i]
-
+    
     dat <- biomass_total |>
-      dplyr::filter(SPECIES_CODE == report_species$species_code[i])
-    lta <- mean(dat$BIOMASS_MT)
+      dplyr::arrange(YEAR) |>
+      dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
+      dplyr::mutate(PERCENT_OF_STATIONS = round((N_WEIGHT / N_HAUL) * 100)) |>
+      dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
+    
+    dat$PERCENT_CHANGE_BIOMASS[1] <- NA # no difference calculated for first year of ts
+    
+    # if the species has a start year after the start of the survey, filter to after that
+    if (sp %in% species_year$SPECIES_CODE) {
+      dat <- dat |>
+        dplyr::filter(YEAR > species_year$YEAR_STARTED[which(species_year$SPECIES_CODE == sp)])
+    }
+    
+    lta_biomass <- mean(dat$BIOMASS_MT)
+    lta_percent_stns <- mean(dat$PERCENT_OF_STATIONS)
+    lta_percent_change <- mean(dat$PERCENT_CHANGE_BIOMASS, na.rm = TRUE)
 
     p1 <- dat |>
       ggplot(aes(x = YEAR, y = BIOMASS_MT)) +
-      geom_hline(yintercept = lta, color = accentline, lwd = 0.7, lty = 2) +
+      geom_hline(yintercept = lta_biomass, color = accentline, lwd = 0.7, lty = 2) +
       geom_point(color = linecolor, size = 2) +
-      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), color = linecolor, linewidth = 0.9, width = 0.7) +
+      geom_errorbar(aes(ymin = MIN_BIOMASS, ymax = MAX_BIOMASS), 
+                    color = linecolor, linewidth = 0.9, width = 0.7) +
       ylab("Estimated biomass (mt)") +
       xlab("Year") +
       scale_y_continuous(labels = scales::label_comma()) +
@@ -351,13 +366,40 @@ if (make_biomass_timeseries) {
       linetheme
     p1
 
+    
+    p2 <- dat |>
+      ggplot(aes(x = YEAR, y = PERCENT_OF_STATIONS)) +
+      geom_point(color = linecolor, size = 2) +
+      geom_hline(
+        yintercept = lta_percent_stns,
+        color = accentline, lwd = 0.7, lty = 2
+      ) +
+      xlab("Year") +
+      ylab("Proportion of hauls \nwhere present (%)") +
+      linetheme +
+      scale_x_continuous(limits = c(minyr, maxyr), breaks = pretty_breaks(n = 3))
+    
+    # If needed: make plot of CPUE distribution where present
+    dat_cpue <- cpue_processed |>
+      dplyr::filter(species_code == sp & cpue_kgkm2>0)
+    
+    p3 <- dat_cpue |>
+      ggplot(aes(x=year, y = cpue_kgkm2, group = cut_width(year,1))) +
+      #geom_violin(alpha = 0.5) +
+      geom_jitter(alpha=0.2,size=2) +
+      linetheme +
+      xlab("Year") +
+      ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
+    
+    final_plot <- p1 + (p2 + p3) + plot_layout(nrow = 2)
 
-    list_biomass_ts[[i]] <- p1
+    list_biomass_ts[[i]] <- final_plot
+    
     png(
       filename = paste0(dir_out_figures, name_bms, "_", SRVY, "_", maxyr, "_biomass_ts.png"),
-      width = 4.25, height = 2.43, units = "in", res = 150
+      width = 8, height = 8, units = "in", res = 150
     )
-    print(p1)
+    print(final_plot)
     dev.off()
   }
   names(list_biomass_ts) <- as.character(report_species$species_code)
@@ -369,6 +411,7 @@ if (make_biomass_timeseries) {
 if (make_catch_comp) {
   head(biomass_total)
   biomass_total_filtered <- biomass_total |>
+    dplyr::filter(!grepl("[a-zA-Z]", SPECIES_CODE)) |>
     dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
     left_join(report_species,
       by = c("SPECIES_CODE" = "species_code")
@@ -403,7 +446,7 @@ if (make_catch_comp) {
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
   # * * Complexes ----------
-  list_cpue_bubbles_strata_complexes <- list()
+  #list_cpue_bubbles_strata_complexes <- list()
 
   for (i in 1:length(unique(complex_lookup$complex))) {
     # which complex to plot:
@@ -423,6 +466,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     )
     cpue_complexes <- cpue_processed |>
       dplyr::filter(grepl(species_code, pattern = "[A-Za-z]"))
+    
+    spp_name_informal <- report_species$spp_name_informal[which(report_species$species_code==complex_code)]
 
     thisyrshauldata <- cpue_complexes |> # cpue_table_complexes
       janitor::clean_names() |>
@@ -464,6 +509,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         ) +
         scale_size(bquote("CPUE" ~ (kg / km^2)),
           limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          labels = comma,
           guide = "legend"
         ) +
         coord_sf(
@@ -501,7 +547,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           color = "black"
         ) +
         scale_size(
-          limits = c(1, max(thisyrshauldata$cpue_kgkm2))
+          limits = c(1, max(thisyrshauldata$cpue_kgkm2)),
+          labels = comma
         ) +
         coord_sf(
           xlim = ai_central$plot.boundary$x,
@@ -510,7 +557,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_central$lon.breaks) +
         scale_y_continuous(breaks = ai_central$lat.breaks) +
         labs(subtitle = "Central Aleutians") +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       p3c <- ggplot() +
         geom_sf(
@@ -523,7 +571,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_fill_manual(values = depthpal, guide = "none") +
         scale_color_manual(values = depthpal, guide = "none") +
         geom_sf(data = ai_west$akland) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), 
+                   guide = "none",
+                   labels = comma,) +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
@@ -547,7 +597,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_west$lon.breaks) +
         scale_y_continuous(breaks = ai_west$lat.breaks) +
         labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
       bottomrow <- cowplot::plot_grid(p3a, rel_widths = c(1, 2))
@@ -576,7 +627,9 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), 
+                   guide = "none",
+                   labels = comma) +
         coord_sf(
           xlim = reg_data$plot.boundary$x,
           ylim = reg_data$plot.boundary$y
@@ -588,20 +641,15 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
     # ,out.width=9,out.height=8
     png(
-      filename = paste0(dir_out_figures, maxyr, "_", complex_code, "_bubble.png"),
+      filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"),
       width = 9, height = 8, units = "in", res = 200
     )
     print(final_obj)
 
     dev.off()
-
-    list_cpue_bubbles_strata_complexes[[i]] <- final_obj
-    names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
   } # /all complexes cpue loop
 
   #  * * Species ----------
-  list_cpue_bubbles_strata_species <- list()
-
   bubble_index <- which(!report_species$species_code %in% c(
     "OROX", "REBS", "OFLATS",
     "DEEPFLATS", "DSROX", "NRSSRS",
@@ -609,10 +657,11 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     "THORNYHEADS"
   ))
 
-  for (i in 1:length(bubble_index)) {
+  for (i in 1:length(bubble_index)) { #
     spbubble <- report_species$species_code[bubble_index[i]]
     namebubble <- report_species$spp_name_informal[bubble_index[i]]
-
+    spp_name_informal <- namebubble
+    
     thisyrshauldata <- cpue_processed |>
       # dplyr::mutate(cpue_kgha = cpue_kgkm2 / 100) |>
       dplyr::filter(year == maxyr & survey == SRVY & species_code == spbubble) |>
@@ -697,7 +746,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_central$lon.breaks) +
         scale_y_continuous(breaks = ai_central$lat.breaks) +
         labs(subtitle = "Central Aleutians") +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       p3c <- ggplot() +
         geom_sf(
@@ -734,7 +784,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         scale_x_continuous(breaks = ai_west$lon.breaks) +
         scale_y_continuous(breaks = ai_west$lat.breaks) +
         labs(subtitle = paste0(namebubble, " - Western Aleutians - ", YEAR)) +
-        bubbletheme
+        bubbletheme +
+        theme(legend.position = "none")
 
       toprow <- cowplot::plot_grid(p3c, NULL, rel_widths = c(2, 1))
       bottomrow <- cowplot::plot_grid(p3a, rel_widths = c(1, 2))
@@ -755,7 +806,8 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
           data = filter(thisyrshauldata, cpue_kgkm2 > 0),
           aes(size = cpue_kgkm2), alpha = 0.7, color = "black"
         ) +
-        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), guide = "none") +
+        scale_size(limits = c(1, max(thisyrshauldata$cpue_kgkm2)), 
+                   guide = "none") +
         geom_sf( # x's for places where cpue=0
           data = filter(thisyrshauldata, cpue_kgkm2 == 0),
           alpha = 1,
@@ -773,29 +825,11 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
         bubbletheme
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
-    png(
-      filename = paste0(dir_out_figures, maxyr, "_", namebubble, "_bubble.png"),
-      width = 9, height = 8, units = "in", res = 200
-    )
-    print(final_obj)
 
-    dev.off()
-
-    list_cpue_bubbles_strata_species[[i]] <- final_obj # save fig to list
+    ggsave(final_obj, filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"), width = 9, height = 8, units = "in", bg = 'white')
+    print(spbubble)
   } # /end species loop
-  names(list_cpue_bubbles_strata_species) <- report_species$species_code[bubble_index]
-
-
-  list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
-
-  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata"))
-
-  # Remove intermediary fig lists
-  rm(list = c(
-    "list_cpue_bubbles_strata_species",
-    "list_cpue_bubbles_strata_complexes"
-  ))
-
+ 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
 
@@ -831,7 +865,7 @@ if (make_cpue_idw) {
       theme(axis.text = element_text(size = 11))
 
     png(
-      filename = paste0(dir_out_figures, namebubble, "_", maxyr, "_cpue_idw.png"),
+      filename = paste0(dir_out_figures, spp_name_informal, "_", maxyr, "_cpue_idw.png"),
       width = 11, height = 10, units = "in", res = 200
     )
     print(fig)
@@ -1102,10 +1136,7 @@ compare_tab_pres <- compare_tab_pres |>
                                             high = "#2C7BB6"))
 
 
-
-# saveRDS(compare_tab_pres, file = paste0(dir_out_tables, "compare_tab_pres.RDS"))
-
-# option 1 (from GOA 2025 presentation)
+# option 1 (from GOA 2025 presentation): show percent differences from previous survey; shade in orange and green
 pcols <- compare_tab_pres$column_color
 
 pres_table_option1 <- compare_tab_pres |>
@@ -1125,7 +1156,7 @@ pres_table_option1
 
 kableExtra::save_kable(pres_table_option1, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable1.png"))
 
-# option 2 (adapted to Melissa suggestion)
+# option 2 (adapted to Melissa suggestion): show percent differences from long-term mean; shade in reds/blues
 pcols <- compare_tab_pres$ltmeancolor
 pres_table_option2 <- compare_tab_pres |>
   dplyr::select(-column_color, -group, -`Percent difference from last survey`, -ltmeancolor) |>
@@ -1141,6 +1172,16 @@ pres_table_option2
 
 kableExtra::save_kable(pres_table_option2, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable2.png"))
 
+paste_table_option2 <- compare_tab_pres |>
+  dplyr::select(-column_color, -group, -`Percent difference from last survey`, -ltmeancolor) |>
+  dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
+  dplyr::mutate(`Long-term mean biomass (mt)` = format(round(`Long-term mean biomass (mt)`), big.mark = ",", scientific = FALSE)) |>
+  dplyr::mutate(`Percent difference from long-term mean` = case_when(
+    `Percent difference from long-term mean` > 0 ~ paste0("+", `Percent difference from long-term mean`), 
+    TRUE ~ as.character(`Percent difference from long-term mean`))) |>
+  dplyr::mutate(pct_diff_sentence = paste0("Biomass in 2026: ", `Biomass in 2026 (mt)`, " mt; ", `Percent difference from long-term mean`, " different from long-term mean"))
+
+write.csv(paste_table_option2, file = paste0(dir_out_srvy_yr,"chapters/text_to_paste_in_slides_",maxyr, ".csv"))
 # 7. Complex species in order of biomass ----------------------------------
 
 print("Using text about complexes for slides")
@@ -1153,8 +1194,7 @@ if (make_joy_division_length) {
   if (file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
     report_pseudolengths <- read.csv(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))
   } else {
-    cat("Pseudolength file not found. Sourcing data prep file (sorry this will take a while... \n")
-    source("R/06_prep_data.R")
+    cat("Pseudolength file not found. Go back to the pseudolengths section of the download data from oracle file and create it again (sorry this will take a while... \n")
   }
 
   species_year <- read.csv("data/local_gap_products/species_year.csv")
@@ -1284,7 +1324,7 @@ if (make_joy_division_length) {
           label = paste0("n = ", n),
           x = ifelse(report_species$species_code[i] %in% left_labels, -Inf, Inf)
         ),
-        fill = "white", label.size = NA,
+        fill = "white", linewidth = NA,
         nudge_x = 0,
         nudge_y = 1,
         hjust = "inward", size = 3
@@ -1461,8 +1501,8 @@ if (make_temp_plot) {
       xend = maxyr,
       color = "#2a5674", alpha = 0.4, lty = 2
     ) +
-    annotate(geom = "text", x = 1999, y = 12, label = "Surface temperature", color = "#68abb8") +
-    annotate(geom = "text", x = 1999, y = 6.5, label = "Bottom temperature", color = "#2a5674") +
+    annotate(geom = "text", x = 1999, y = 8, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 5, label = "Bottom temperature", color = "#2a5674") +
     theme_bw(base_size = 14)
   
   png(
@@ -1513,9 +1553,9 @@ if (!exists("list_biomass_ts")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_biomass_ts.rdata"))
 }
 
-if (!exists("list_cpue_bubbles_strata")) {
-  load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_cpue_bubbles_strata.rdata"))
-}
+# if (!exists("list_cpue_bubbles_strata")) {
+#   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_cpue_bubbles_strata.rdata"))
+# }
 
 if (!exists("list_joy_length")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_joy_length.rdata"))
@@ -1523,7 +1563,7 @@ if (!exists("list_joy_length")) {
 if (!exists("list_temperature")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "list_temperature.rdata"))
 }
-if (!exists("catchcomp")) {
+if (!exists("catch_comp_plot")) {
   load(paste0("output/", SRVY, "_", maxyr, "/", "figures/", "catch_comp.rdata"))
 }
 # if (!exists("compare_tab_pres")) {
