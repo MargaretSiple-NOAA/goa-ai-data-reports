@@ -118,7 +118,7 @@ Now for a quick summary of our collections
 ## Species lengths collected
 
 ```{r echo=FALSE,tab.cap='Lengths collected for each species in this presentation.', tab.id='lengths-species',  tab.cap.style = "Table caption"}
-lengths_species |> 
+otos_collected_by_species |> 
   flextable(cwidth = 2) |>
   font(fontname = "Arial Narrow", part = "all") |>
   bold(part = "header") |>

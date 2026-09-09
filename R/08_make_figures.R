@@ -1415,35 +1415,54 @@ if (make_temp_plot) {
     xlab("Year") +
     ylab(expression("Temperature "(degree * C))) +
     geom_segment(
-      y = surface_temp_avgs$Value[1],
-      yend = surface_temp_avgs$Value[1],
-      x = surface_temp_avgs$Start_year[1],
-      xend = maxyr,
+      aes(
+        y = surface_temp_avgs$Value[1],
+        yend = surface_temp_avgs$Value[1],
+        x = surface_temp_avgs$Start_year[1],
+        xend = maxyr,
+        linetype = "10-year average"
+      ),
       color = "#68abb8", alpha = 0.4
     ) +
     geom_segment(
-      y = bottom_temp_avgs$Value[1],
-      yend = bottom_temp_avgs$Value[1],
-      x = bottom_temp_avgs$Start_year[1],
-      xend = maxyr,
+      aes(
+        y = bottom_temp_avgs$Value[1],
+        yend = bottom_temp_avgs$Value[1],
+        x = bottom_temp_avgs$Start_year[1],
+        xend = maxyr,
+        linetype = "10-year average"
+      ),
       color = "#2a5674", alpha = 0.4
     ) +
     geom_segment(
-      y = surface_temp_avgs$Value[2],
-      yend = surface_temp_avgs$Value[2],
-      x = surface_temp_avgs$Start_year[2],
-      xend = maxyr,
-      color = "#68abb8", alpha = 0.4, lty = 2
+      aes(
+        y = surface_temp_avgs$Value[2],
+        yend = surface_temp_avgs$Value[2],
+        x = surface_temp_avgs$Start_year[2],
+        xend = maxyr,
+        linetype = "20-year average"
+      ),
+      color = "#68abb8", alpha = 0.4
     ) +
     geom_segment(
-      y = bottom_temp_avgs$Value[2],
-      yend = bottom_temp_avgs$Value[2],
-      x = bottom_temp_avgs$Start_year[2],
-      xend = maxyr,
-      color = "#2a5674", alpha = 0.4, lty = 2
+      aes(
+        y = bottom_temp_avgs$Value[2],
+        yend = bottom_temp_avgs$Value[2],
+        x = bottom_temp_avgs$Start_year[2],
+        xend = maxyr,
+        linetype = "20-year average"
+      ),
+      color = "#2a5674", alpha = 0.4
     ) +
-    annotate(geom = "text", x = 1999, y = 7, label = "Surface temperature", color = "#68abb8") +
-    annotate(geom = "text", x = 1999, y = 4.5, label = "Bottom temperature", color = "#2a5674") +
+    scale_linetype_manual(
+      name = NULL,
+      values = c(
+        "10-year average" = "solid",
+        "20-year average" = "dashed"
+      )
+    ) +
+    annotate(geom = "text", x = 1999, y = 7.25, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 1999, y = 4.75, label = "Bottom temperature", color = "#2a5674") +
     theme_bw(base_size = 14)
 
   png(
@@ -1468,7 +1487,7 @@ if (make_temp_plot) {
     filename = paste0(
       dir_out_figures, maxyr, "_temps_combined.png"
     ),
-    width = 8, height = 8, units = "in", res = 200
+    width = 9, height = 5, units = "in", res = 200
   )
   print(line_temperature)
   dev.off()
