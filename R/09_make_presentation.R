@@ -148,6 +148,23 @@ otos_collected <- specimen_maxyr |>
   ungroup() |>
   arrange(factor(INPFC_AREA, levels = district_order)) #REGULATORY_AREA_NAME
 
+otos_collected_by_species <- specimen_maxyr |>
+  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # SAMPLE_TYPE==1 means it's an oto collection
+  dplyr::left_join(haul_maxyr, by = c(
+    "HAULJOIN",
+    "REGION", "VESSEL", "YEAR", "CRUISE", "HAUL"
+  )) |>
+  group_by(SPECIES_CODE) |> 
+  dplyr::summarize("Pairs of otoliths collected" = n()) |>
+  ungroup() |>
+  mutate(species_code = as.character(SPECIES_CODE)) |>
+  left_join(report_species) |>
+  right_join(lengths_species, by = c('spp_name_informal' = 'Common name')) |>
+  dplyr::select(spp_name_informal,`Lengths collected`, `Pairs of otoliths collected`) |>
+  dplyr::arrange(-`Lengths collected`)
+
+write.csv(otos_collected_by_species, file = "output/AI_2026/chapters/otos_collected_by_species.csv")
+
 # Temperature info
 minbottomtemp <- min(haul_maxyr$GEAR_TEMPERATURE[which(haul_maxyr$GEAR_TEMPERATURE > 0)],
   na.rm = T
@@ -423,7 +440,7 @@ if (make_catch_comp) {
   )
 
   catch_comp_plot <- biomass_total_filtered |>
-    filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
+    #filter(!grepl(pattern = "[A-Za-z]", SPECIES_CODE)) |>
     ggplot(aes(x = YEAR, y = BIOMASS_MT / 1e6, fill = fct_reorder(spp_name_informal, BIOMASS_MT, .desc = TRUE))) +
     geom_bar(stat = "identity") +
     scale_fill_manual("", values = speciescolors) +
@@ -1170,8 +1187,10 @@ pres_table_option2 <- compare_tab_pres |>
 
 pres_table_option2
 
-kableExtra::save_kable(pres_table_option2, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable2.png"))
+kableExtra::save_kable(pres_table_option2, file = paste0(dir_out_srvy_yr, "tables/PercentChangeTable2.png")) # html allows you to copy-paste the table directly into google slides and gives you the highest resolution. Sadly it is a pain in the ass.
 
+
+# Text to paste into slides (should automate this eventually)
 paste_table_option2 <- compare_tab_pres |>
   dplyr::select(-column_color, -group, -`Percent difference from last survey`, -ltmeancolor) |>
   dplyr::mutate_at(.vars = c(biomass_compareyr_col, biomass_maxyr_col), .funs = function(x) format(x, big.mark = ",", scientific = FALSE)) |>
@@ -1181,7 +1200,10 @@ paste_table_option2 <- compare_tab_pres |>
     TRUE ~ as.character(`Percent difference from long-term mean`))) |>
   dplyr::mutate(pct_diff_sentence = paste0("Biomass in 2026: ", `Biomass in 2026 (mt)`, " mt; ", `Percent difference from long-term mean`, " different from long-term mean"))
 
-write.csv(paste_table_option2, file = paste0(dir_out_srvy_yr,"chapters/text_to_paste_in_slides_",maxyr, ".csv"))
+#write.csv(paste_table_option2, file = paste0(dir_out_srvy_yr,"chapters/text_to_paste_in_slides_",maxyr, ".csv"))
+
+
+
 # 7. Complex species in order of biomass ----------------------------------
 
 print("Using text about complexes for slides")
