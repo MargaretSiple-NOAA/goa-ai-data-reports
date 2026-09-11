@@ -499,6 +499,11 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     all_allocation <- all_allocation |> dplyr::rename("STRATUM" = stratum) # in case stratum isn't capitalized
   }
 
+  if(is.character(all_allocation$STRATUM)){
+    print("Characters detected in stratum lookup table; converting stratum IDs to numeric values.")
+    all_allocation$STRATUM <- as.numeric(all_allocation$STRATUM)
+  }
+  
   piece1 <- all_allocation |>
     # dplyr::filter(YEAR == maxyr) |>
     dplyr::left_join(area_lookup_table, by = c("STRATUM")) |>
@@ -550,12 +555,14 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     ungroup() |>
     mutate(stations_per_1000km2 = succeeded / AREA) |>
     tibble::add_column(MANAGEMENT_AREA = "All areas", .before = "Depth range")
-
-  allocated_sampled <- bind_rows(allocated_prep, all_areas, all_areas_depths) |>
+  
+  allocated_sampled <- suppressWarnings( # warnings are suppressed because str_extract returns an NA when it gets to Depth range = 'All Depths'
+    bind_rows(allocated_prep, all_areas, all_areas_depths) |>
     dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`)) |>
     dplyr::mutate(depthorder = ifelse(`Depth range` == "All depths", 1000, as.numeric(stringr::str_extract(`Depth range`, "[^- ]+")))) |>
     dplyr::arrange(factor(MANAGEMENT_AREA, levels = c(district_order, "All areas")), depthorder) |>
     dplyr::select(-depthorder)
+  )
 
   colnames(allocated_sampled) <- c(
     "Management area", "Depth range (m)",

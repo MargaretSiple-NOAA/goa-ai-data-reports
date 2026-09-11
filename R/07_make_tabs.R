@@ -58,7 +58,7 @@ subregion_fam_div <- appB |>
     pivot_wider(names_from = inpfc_area, values_from = nsp) |>
     dplyr::rename(Family = family) |>
     ungroup() |>
-    mutate_at(2:6, ~ replace_na(., 0)) |>
+    mutate_at(vars(-Family), ~ replace_na(., 0)) |>
     relocate(any_of(c("Family", district_order)))
 }
 
