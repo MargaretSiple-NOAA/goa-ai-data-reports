@@ -402,7 +402,7 @@ if (make_biomass_timeseries) {
     # Save 3-panel figs
     png(
       filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_3panel_ts.png"),
-      width = 9, height = 4.5, units = "in", res = 200
+      width = 8, height = 2, units = "in", res = 200
     )
     print( p1 + p2 + p4 + p3 + plot_layout(nrow = 1))
     dev.off()
