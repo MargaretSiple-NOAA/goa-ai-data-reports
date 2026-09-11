@@ -298,14 +298,14 @@ if (make_biomass_timeseries) {
     name_bms <- report_species$spp_name_informal[i]
 
     dat <- biomass_total |>
-      dplyr::arrange(YEAR) |>
+      dplyr::arrange(YEAR) |> # important for calculating % changes
       dplyr::filter(SPECIES_CODE == report_species$species_code[i]) |>
       dplyr::mutate(PERCENT_OF_STATIONS = round((N_WEIGHT / N_HAUL) * 100)) |>
       dplyr::mutate(PERCENT_CHANGE_BIOMASS = round((BIOMASS_MT - lag(BIOMASS_MT, default = first(BIOMASS_MT))) / lag(BIOMASS_MT, default = first(BIOMASS_MT)) * 100))
 
     dat$PERCENT_CHANGE_BIOMASS[1] <- NA # no difference calculated for first year of ts
 
-    # if the species has a start year after the start of the survey, filter to after that
+    # if the species has a start year after the start of the survey, filter to after that for plotting and for calculating long term means:
     if (sp %in% species_year$SPECIES_CODE) {
       dat <- dat |>
         dplyr::filter(YEAR > species_year$YEAR_STARTED[which(species_year$SPECIES_CODE == sp)])
@@ -324,9 +324,10 @@ if (make_biomass_timeseries) {
       ) +
       ylab("Estimated total \nbiomass (mt)") +
       xlab("Year") +
-      scale_y_continuous(labels = scales::label_comma()) +
-      linetheme +
-      scale_x_continuous(limits = c(minyr, maxyr), breaks = pretty_breaks(n = 3))
+      scale_x_continuous(limits = c(minyr, maxyr+0.5), # add a little buffer at the end, otherwise geom_errorbar chokes
+                         breaks = pretty_breaks(n = 3)) +
+      scale_y_continuous(labels = scales::label_comma()) + 
+      linetheme 
 
     p2 <- dat |>
       ggplot(aes(x = YEAR, y = PERCENT_OF_STATIONS)) +
@@ -388,13 +389,14 @@ if (make_biomass_timeseries) {
     names(list_biomass_ts)[[i]] <- report_species$species_code[i]
 
     png(
-      filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_ts.png"),
-      width = 7, height = 7, units = "in", res = 200
+      filename = paste0(dir_out_figures, name_bms, "_", SRVY, "_", maxyr, "_biomass_ts.png"),
+      width = 8, height = 8, units = "in", res = 150
     )
     print(p1)
     dev.off()
+    
 
-    list_3panel_ts[[i]] <- p1 + p2 + p3
+    list_3panel_ts[[i]] <- p1 + p2 + p4 + p3
     names(list_3panel_ts)[[i]] <- report_species$species_code[i]
 
     # Save 3-panel figs
@@ -402,7 +404,7 @@ if (make_biomass_timeseries) {
       filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_3panel_ts.png"),
       width = 9, height = 4.5, units = "in", res = 200
     )
-    print(p1 + p2 + p3)
+    print( p1 + p2 + p4 + p3 + plot_layout(nrow = 1))
     dev.off()
   } # /end species loop
   # names(list_biomass_ts) <- report_species$species_code
@@ -1377,6 +1379,9 @@ if (make_temp_plot) {
 
   # new simplified temp plot
   yearly_ci <- plotdat |>
+    # add NAs for 2008 and 2020 when we did not sample
+    add_row(YEAR = 2008) |>
+    add_row(YEAR = 2020) |>
     dplyr::filter(YEAR >= minyr) |>
     dplyr::group_by(YEAR) |>
     dplyr::summarize(
