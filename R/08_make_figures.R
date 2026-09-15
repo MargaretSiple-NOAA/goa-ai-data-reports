@@ -381,8 +381,9 @@ if (make_biomass_timeseries) {
       ggplot(aes(x = year, y = cpue_kgkm2, group = cut_width(year, 1))) +
       geom_jitter(alpha = 0.2, size = 2) +
       linetheme +
+      scale_y_continuous(labels = scales::label_comma()) +
       xlab("Year") +
-      ylab(bquote(CPUE ~ ~where ~ ~present ~ ~ (kg / km^2)))
+      ylab(bquote(CPUE~~where~~present~~(kg / km^2)))
 
     # Save just time series
     list_biomass_ts[[i]] <- p1
@@ -402,7 +403,7 @@ if (make_biomass_timeseries) {
     # Save 3-panel figs
     png(
       filename = paste0(dir_out_figures, maxyr, "_", name_bms, "_biomass_3panel_ts.png"),
-      width = 8, height = 2, units = "in", res = 200
+      width = 8, height = 2.5, units = "in", res = 200
     )
     print( p1 + p2 + p4 + p3 + plot_layout(nrow = 1))
     dev.off()
@@ -475,7 +476,7 @@ if (make_catch_comp) {
 if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
 
   # * * COMPLEXES ----------
-  list_cpue_bubbles_strata_complexes <- list()
+  #list_cpue_bubbles_strata_complexes <- list()
 
   cpue_complexes <- cpue_processed |>
     filter(grepl(species_code, pattern = "[A-Za-z]"))
@@ -666,18 +667,18 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     # ,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, maxyr, "_", complex_code, "_bubble.png"),
-      width = 9, height = 8, units = "in", res = 200
+      width = 10, height = 8, units = "in", res = 200
     )
     print(final_obj)
 
     dev.off()
 
-    list_cpue_bubbles_strata_complexes[[i]] <- final_obj
-    names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
+    #list_cpue_bubbles_strata_complexes[[i]] <- final_obj
+    #names(list_cpue_bubbles_strata_complexes)[i] <- complex_code
   } # /all complexes cpue loop
 
   #  * * SPECIES ----------
-  list_cpue_bubbles_strata_species <- list()
+  #list_cpue_bubbles_strata_species <- list()
 
   bubble_index <- which(!report_species$species_code %in% c(
     "OROX", "REBS", "OFLATS",
@@ -855,26 +856,26 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     # ,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, maxyr, "_", namebubble, "_bubble.png"),
-      width = 9, height = 8, units = "in", res = 200
+      width = 10, height = 8, units = "in", res = 200
     )
     print(final_obj)
 
     dev.off()
 
-    list_cpue_bubbles_strata_species[[i]] <- final_obj # save fig to list
+    #list_cpue_bubbles_strata_species[[i]] <- final_obj # save fig to list
   } # /end species loop
-  names(list_cpue_bubbles_strata_species) <- report_species$species_code[bubble_index]
+  #names(list_cpue_bubbles_strata_species) <- report_species$species_code[bubble_index]
 
 
-  list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
+  #list_cpue_bubbles_strata <- c(list_cpue_bubbles_strata_species, list_cpue_bubbles_strata_complexes)
 
-  save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata"))
+  #save(list_cpue_bubbles_strata, file = paste0(dir_out_figures, "list_cpue_bubbles_strata.rdata"))
 
   # Remove intermediary fig lists
-  rm(list = c(
-    "list_cpue_bubbles_strata_species",
-    "list_cpue_bubbles_strata_complexes"
-  ))
+  # rm(list = c(
+  #   "list_cpue_bubbles_strata_species",
+  #   "list_cpue_bubbles_strata_complexes"
+  # ))
 
   print("Done with CPUE bubble maps showing stratum areas.")
 }
