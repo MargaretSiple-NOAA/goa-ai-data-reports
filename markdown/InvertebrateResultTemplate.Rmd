@@ -63,12 +63,13 @@ table4s_list[[as.character({{species_code}})]] |>
   flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
-list_3panel_ts[["{{species_code}}"]]
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,tab.cap.style = "Figure Caption", out.width="100%", fig.asp={{ts_asp}}}
+#list_3panel_ts[["{{species_code}}"]]
+knitr::include_graphics(path = "{{timeseries_path}}")
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
-```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE, kg/ha; X = no catch) of {{spp_name_informal}} in the {{year}} {{SRVY}} summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5, dpi=300}
-list_cpue_bubbles_strata[[as.character({{species_code}})]]
+```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE, kg/ha; X = no catch) of {{spp_name_informal}} in the {{year}} {{SRVY}} summer bottom trawl survey catches.', fig.id=paste0("cpue-",{{species_code}}),  tab.cap.style = "Figure Caption", fig.width=7, out.width="100%", fig.asp={{cpue_asp}}}
+knitr::include_graphics(path = "{{cpue_map_path}}")
 ```
 <!---BLOCK_LANDSCAPE_STOP--->

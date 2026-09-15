@@ -1,5 +1,5 @@
 ---
-title: "2024 Aleutian Islands Biennial Bottom Trawl Survey"
+title: "2026 Aleutian Islands Biennial Bottom Trawl Survey"
 subtitle: "Data Report"
 author: "Alexandra Dowlin, Margaret Siple, Bethany Riggle"
 output:
@@ -228,6 +228,12 @@ for (i in 1:nrow(report_species)) { # 1:nrow(report_species)
   spp_name_informal_low <- stringr::str_to_lower(string = spp_name_informal)
   spp_name_scientific <- report_species$spp_name_scientific[i]
 
+  # This is a test -- paths to all the figures for that species
+  cpue_map_path <- here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_",spp_name_informal,"_bubble.png"))
+  timeseries_path <- here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_",spp_name_informal,"_biomass_3panel_ts.png"))
+  lengthcomp_path <- here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_",spp_name_informal,"_joyfreqhist.png"))
+  ldscatter_path <- here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_",spp_name_informal,"_ldscatter.png"))
+  
   year <- maxyr
   species_start_yr <- ifelse(species_code %in% species_year$SPECIES_CODE, species_year[which(species_year$SPECIES_CODE == species_code), "YEAR_STARTED"], minyr)
   region <- survname_long

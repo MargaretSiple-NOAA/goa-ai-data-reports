@@ -41,13 +41,33 @@ if (SRVY == "GOA") {
   )) # object: station_map
 }
 
+
+# Diagram of net
 net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"))
-net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figures aspect ratio
+net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figure's aspect ratio
 
 # Maps with CPUE
-load(file = paste0(
-  dir_in_figures, "list_cpue_bubbles_strata.rdata"
-)) # object: list_cpue_bubbles
+# update: I have removed this from loading because it is a HUGE rdata file. Instead, the code takes raw pngs that have already been generated and inserts them in the Word doc.
+# load(file = paste0(
+#   dir_in_figures, "list_cpue_bubbles_strata.rdata"
+# )) # object: list_cpue_bubbles
+
+# Calculate aspect ratio of CPUE maps (should be same aspect ratio for all species and complexes):
+cpue_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_bubble.png"))) # just as an example - and POP is in both regions
+cpue_asp <- magick::image_info(cpue_img)$height / magick::image_info(cpue_img)$width
+
+# Aspect ratio for biomass time series plots
+ts_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_biomass_3panel_ts.png")))
+ts_asp <- magick::image_info(ts_img)$height / magick::image_info(ts_img)$width 
+
+# Aspect ratio for "joy division plots" of length composition
+lengthcomp_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_joyfreqhist.png"))) 
+lengthcomp_asp <- magick::image_info(lengthcomp_img)$height / magick::image_info(lengthcomp_img)$width
+
+# Aspect ratio for length-depth scatter plot
+ldscatter_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_ldscatter.png"))) 
+ldscatter_asp <- magick::image_info(ldscatter_img)$height / magick::image_info(ldscatter_img)$width 
+
 
 # 3-panel time series plots
 load(file = paste0(

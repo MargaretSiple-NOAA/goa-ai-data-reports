@@ -69,24 +69,28 @@ table4s_list[["{{ species_code }}"]] |>
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,fig.height=2, tab.cap.style = "Figure Caption"}
-list_3panel_ts[["{{species_code}}"]]
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,tab.cap.style = "Figure Caption", out.width="100%", fig.asp={{ts_asp}}}
+#list_3panel_ts[["{{species_code}}"]]
+knitr::include_graphics(path = "{{timeseries_path}}")
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
 
-```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE; X = no catch) of {{spp_name_informal}} in the {{year}} {{SRVY}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=10,fig.height = 5.5, dpi=300}
-list_cpue_bubbles_strata[["{{species_code}}"]]
+```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE; X = no catch) of {{spp_name_informal}} in the {{year}} {{SRVY}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption", fig.width=7, out.width="100%", fig.asp={{cpue_asp}}}
+#list_cpue_bubbles_strata[["{{species_code}}"]]
+knitr::include_graphics(path = "{{cpue_map_path}}")
 ```
 
 <!---BLOCK_LANDSCAPE_STOP--->
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey between {{species_start_yr}} and {{maxyr}}. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption"}
-list_joy_length[["{{species_code}}"]]
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Population length composition of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey between {{species_start_yr}} and {{maxyr}}. The dotted vertical line indicates median length. {{skate_len_sentence}}', fig.id=paste0("lengthcomp-","{{species_code}}"), fig.width=6.5, tab.cap.style = "Figure Caption", out.width="100%", fig.asp={{lengthcomp_asp}}}
+#list_joy_length[["{{species_code}}"]]
+knitr::include_graphics(path="{{lengthcomp_path}}")
 ```
 
 <br/>
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{SRVY}} bottom trawl survey. Lines represent predictions from a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths. The x-axis represents the full depth range where {{spp_name_informal}} were collected.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,fig.height=2,  tab.cap.style = "Figure Caption"}
-list_ldscatter[["{{species_code}}"]]
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Length versus depth for {{spp_name_informal}} by survey district in the {{year}} {{SRVY}} bottom trawl survey. Lines represent predictions from a GAM of length by depth (with a random haul effect) added to show trends in length. Shaded bands indicate 95% confidence intervals. Semitransparent black points indicate raw (measured) lengths. The x-axis represents the full depth range where {{spp_name_informal}} were collected.', fig.id=paste0("lengthdepth-","{{species_code}}"), fig.width=6.5,tab.cap.style = "Figure Caption", out.width="100%", fig.asp={{ldscatter_asp}}}
+#list_ldscatter[["{{species_code}}"]]
+knitr::include_graphics(path="{{ldscatter_path}}")
 ```
