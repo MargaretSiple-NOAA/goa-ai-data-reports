@@ -74,7 +74,7 @@ if(SRVY == "GOA" & maxyr >= 2025){
 } else {
   area_gp_reg_area <- area_gp |>
     dplyr::filter(AREA_TYPE %in% c("INPFC", "REGION") &
-      DESIGN_YEAR == ifelse(SRVY=="GOA", 1984, 1980)) # get proper design year
+      DESIGN_YEAR == ifelse(SRVY=="GOA", 1984, 1991)) # get proper design year
 }
 
 topn <- 20
