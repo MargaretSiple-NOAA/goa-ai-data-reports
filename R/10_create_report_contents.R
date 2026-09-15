@@ -60,6 +60,7 @@ sort(sizes, decreasing = TRUE)
 
 rm(list = c(
   "x", "cpue_raw", "catch", "S",
+  "L",
   "biomass_gp", "catch_haul",
   "reg_dat_ai", "reg_data",
   "haul", "all",
