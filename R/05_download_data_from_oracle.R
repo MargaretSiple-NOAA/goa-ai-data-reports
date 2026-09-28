@@ -122,36 +122,52 @@ a <- a |>
 
 write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 
-# * CPUE ------------------------------------------------------------------
-# CPUE table
-cpue <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.CPUE")
-write.csv(x = cpue, "./data/local_gap_products/cpue.csv", row.names = FALSE)
-print("Finished downloading GAP_PRODUCTS.CPUE")
+# * CPUE -----------------------------------------------------------------
+# ** species -------------------------------------------------------------
 
-# ** species --------------------------------------------------
+cpue_raw <- 
+  gapindex::sql_query(channel = channel,
+                      query = "
+select 
+    floor(haul.cruise/100) as year,
+    haul.START_LONGITUDE as longitude_dd_start,
+    haul.START_LATITUDE  as latitude_dd_start,
+    haul.region as survey,
+    cpue.*, 
+    haul.* 
+from 
+    gap_products.cpue cpue              -- only abundance_haul = Y tows 
+join 
+    racebase.haul haul on haul.hauljoin = cpue.hauljoin
+where 
+    haul.region in ('AI', 'GOA')
+                      ") |>
+  janitor::clean_names() |>
+  dplyr::mutate(species_code = as.character(species_code))
+
 # complex_lookup is defined in report_settings.
 # So far, this uses the cpue and the haul tables from above.
 # Filter and rename some columns
-if (!exists("cpue")) {
-  cpue <- read.csv("./data/local_gap_products/cpue.csv")
-}
-
-if (!exists("haul")) {
-  haul <- read.csv("./data/local_racebase/haul.csv")
-}
-
-
-cpue_raw <- cpue |>
-  dplyr::left_join(haul) |>
-  dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |> #
-  dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
-  dplyr::rename(
-    survey = "REGION",
-    longitude_dd_start = "START_LONGITUDE",
-    latitude_dd_start = "START_LATITUDE"
-  ) |>
-  janitor::clean_names() |>
-  dplyr::mutate(species_code = as.character(species_code))
+# if (!exists("cpue")) {
+#   cpue <- read.csv("./data/local_gap_products/cpue.csv")
+# }
+# 
+# if (!exists("haul")) {
+#   haul <- read.csv("./data/local_racebase/haul.csv")
+# }
+# 
+# 
+# cpue_raw <- cpue |>
+#   dplyr::left_join(haul) |>
+#   dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |> #
+#   dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
+#   dplyr::rename(
+#     survey = "REGION",
+#     longitude_dd_start = "START_LONGITUDE",
+#     latitude_dd_start = "START_LATITUDE"
+#   ) |>
+#   janitor::clean_names() |>
+#   dplyr::mutate(species_code = as.character(species_code))
 
 
 # ** complexes -------------------------------------------------
