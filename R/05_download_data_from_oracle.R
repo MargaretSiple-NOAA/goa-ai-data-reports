@@ -4,7 +4,6 @@
 # Setup folders for local files -------------------------------------------
 if (!file.exists("data/local_racebase")) dir.create("data/local_racebase", recursive = TRUE)
 if (!file.exists("data/local_race_data")) dir.create("data/local_race_data", recursive = TRUE)
-if (!file.exists("data/local_nodc")) dir.create("data/local_nodc", recursive = TRUE)
 if (!file.exists("data/local_ai")) dir.create("data/local_ai", recursive = TRUE)
 if (!file.exists("data/local_goa")) dir.create("data/local_goa", recursive = TRUE)
 if (!file.exists("data/local_ai_processed")) dir.create("data/local_ai_processed", recursive = TRUE)
@@ -69,15 +68,9 @@ print("Finished downloading SPECIMEN, STRATUM, SPECIES, CRUISE and SPECIES_CLASS
 
 
 # RACE_DATA ---------------------------------------------------------------
-
+# only used for appendix B:
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.RACE_SPECIES_CODES")
 write.csv(x = a, "./data/local_race_data/race_species_codes.csv", row.names = FALSE)
-
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.VESSELS")
-write.csv(x = a, "./data/local_race_data/vessels.csv", row.names = FALSE)
-
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.V_CRUISES")
-write.csv(x = a, "./data/local_race_data/cruises.csv", row.names = FALSE)
 
 print("Finished downloading RACE_DATA tables. We may not need all of these forever.")
 
