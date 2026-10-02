@@ -26,7 +26,7 @@ if(maxyr >= 2023){
 otosheet <- googledrive::drive_ls(path = id_googledrive_otos,
                                   pattern = paste0(SRVY, maxyr, "_otolith_targets"),
                                   type = "spreadsheet")
-
+if(nrow(otosheet)==0){print("No oto targets found in the google drive folder for this year. Make sure you have a google sheet with the region, year, and otolith_targets in the filename.")}
 googledrive::drive_download(
   file = googledrive::as_id(otosheet$id),
   type = "csv",
@@ -37,16 +37,15 @@ googledrive::drive_download(
 
 # Convert text files in gdrive directory into Rmd files -------------------
 
-txtfiles <- list.files(path = paste0(dir_out_gdrive, "/"), pattern = ".txt")
+txtfiles <- list.files(path = here::here("gdrive"), pattern = "\\.txt$")
 
-for (i in 1:length(txtfiles)) {
-  print(txtfiles[i])
-  pandoc_convert(input = here::here("gdrive", paste(txtfiles[i])),
-    to = "markdown",
-    output = here::here(
-      "gdrive",
-      gsub(txtfiles[i], pattern = ".txt", replacement = ".Rmd")
-    ),
-    citeproc = TRUE # not sure if this is needed
-  )
+for (f in txtfiles) {
+  print(f)
+  
+  # Read txt verbatim and write directly to .Rmd
+  txt_content <- readLines(here::here("gdrive", f), warn = FALSE)
+  
+  rmd_path <- here::here("gdrive", gsub("\\.txt$", ".Rmd", f))
+  writeLines(txt_content, rmd_path)
 }
+

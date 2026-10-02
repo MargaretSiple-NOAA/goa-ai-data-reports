@@ -76,7 +76,7 @@ knitr::include_graphics(path = "{{timeseries_path}}")
 
 <!---BLOCK_LANDSCAPE_START--->
 
-```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE; X = no catch) of {{spp_name_informal}} in the {{year}} {{SRVY}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption", fig.width=7, out.width="100%", fig.asp={{cpue_asp}}}
+```{r echo=FALSE,fig.cap='Catch per unit effort (CPUE; X = no catch) of {{spp_name_informal}} in the {{year}} {{SRVY}} RACE GAP summer bottom trawl survey. Strata are shaded by their maximum depth (darker colors = deeper).', fig.id=paste0("cpue-","{{species_code}}"), tab.cap.style = "Figure Caption",fig.width=8,  out.width="100%", fig.asp={{cpue_asp}}}
 #list_cpue_bubbles_strata[["{{species_code}}"]]
 knitr::include_graphics(path = "{{cpue_map_path}}")
 ```

@@ -101,10 +101,16 @@ gc()
 
 # Render
 starttime <- Sys.time()
-rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
-  output_dir = dir_out_chapters,
-  output_file = "DATA_REPORT.docx"
-)
+# Must now render locally (don't ask me why)  
+out_file <- rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
+    output_file = "DATA_REPORT.docx"
+  )
+  
+# Move rendered .docx file to the proper directory
+  file.rename(
+    from = out_file,
+    to = file.path(dir_out_chapters, "DATA_REPORT.docx")
+  )
 
 Sys.time() - starttime
 
