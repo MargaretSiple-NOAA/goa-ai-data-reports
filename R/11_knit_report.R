@@ -53,7 +53,7 @@ net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$widt
 # )) # object: list_cpue_bubbles
 
 # Calculate aspect ratio of CPUE maps (should be same aspect ratio for all species and complexes):
-cpue_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_bubble.png"))) # just as an example - and POP is in both regions
+cpue_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_bubble.png"))) # just as an example - and POP is in both GOA and AI
 cpue_asp <- magick::image_info(cpue_img)$height / magick::image_info(cpue_img)$width
 
 # Aspect ratio for biomass time series plots
