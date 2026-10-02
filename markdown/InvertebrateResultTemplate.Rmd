@@ -63,7 +63,7 @@ table4s_list[[as.character({{species_code}})]] |>
   flextable::compose(part = "header", i = 1, j = 6, value = as_paragraph("CPUE\n(kg/km", as_sup("2"), ")"))
 ```
 
-```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=6.5,tab.cap.style = "Figure Caption", out.width="100%", fig.asp={{ts_asp}}}
+```{r echo=FALSE,fig.fullwidth=TRUE,dpi=300,fig.cap='Time series of biomass, prevalence in survey hauls, and percent change in biomass of {{spp_name_informal}} in the {{SRVY}} bottom trawl survey from {{species_start_yr}} to {{maxyr}}. The dashed horizontal line indicates the long term average.', fig.id=paste0("threepanel-","{{species_code}}"), fig.width=8.5,tab.cap.style = "Figure Caption", out.width="100%", fig.asp={{ts_asp}}}
 #list_3panel_ts[["{{species_code}}"]]
 knitr::include_graphics(path = "{{timeseries_path}}")
 ```

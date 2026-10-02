@@ -672,7 +672,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     # ,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"),
-      width = 9.5, height = 6.5, units = "in", res = 200
+      width = 8.5, height = 5.5, units = "in", res = 200
     )
     print(final_obj)
     
@@ -856,7 +856,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     
-    ggsave(final_obj, filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"), width = 9.5, height = 6.5, units = "in", bg = 'white')
+    ggsave(final_obj, filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"), width = 8.5, height = 5.5, units = "in", bg = 'white')
     print(spbubble)
   } # /end species loop
   
