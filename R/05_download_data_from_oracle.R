@@ -478,10 +478,10 @@ rm(list = c("males", "females", "unsexed", "report_pseudolengths"))
 
 # Ex-vessel prices --------------------------------------------------------
 # Filenames are misleading
-if (SRVY == "AI") {
-  a <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
-  write.csv(x = a, "./data/AI_planning_species_2020.csv", row.names = FALSE)
-}
+# if (SRVY == "AI") {
+#   a <- read.csv("G:/ALEUTIAN/Survey Planning/AI_planning_species_2020.csv")
+#   write.csv(x = a, "./data/AI_planning_species_2020.csv", row.names = FALSE)
+# }
 
 if (SRVY == "GOA") {
   # GOA_planning_species_2021.csv
