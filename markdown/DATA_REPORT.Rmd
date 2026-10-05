@@ -318,7 +318,7 @@ for (i in 1:nrow(report_species)) { # 1:nrow(report_species)
   depth_highest_biomass <- gsub(pattern = " ", replacement = "&nbsp;", x = depth_highest_biomass0)
   #
   # Octopus
-  if (species_code == 78403) { # true/false, if it's for octopus don't make length comp or length scatter figs and use a different template maybe
+  if (species_code == 78403) { # true/false, if it's for octopus don't make length comp or length scatter figs and use a different template
     src[[i]] <- knitr::knit_expand(here::here("markdown", "InvertebrateResultTemplate.Rmd"))
   } else {
     # Fish and fish complexes
