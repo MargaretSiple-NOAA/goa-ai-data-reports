@@ -6,8 +6,6 @@ if (!file.exists("data/local_racebase")) dir.create("data/local_racebase", recur
 if (!file.exists("data/local_race_data")) dir.create("data/local_race_data", recursive = TRUE)
 if (!file.exists("data/local_ai")) dir.create("data/local_ai", recursive = TRUE)
 if (!file.exists("data/local_goa")) dir.create("data/local_goa", recursive = TRUE)
-if (!file.exists("data/local_ai_processed")) dir.create("data/local_ai_processed", recursive = TRUE)
-if (!file.exists("data/local_goa_processed")) dir.create("data/local_goa_processed", recursive = TRUE)
 
 # Setup channel to connect to Oracle --------------------------------------
 
@@ -18,31 +16,43 @@ channel <- gapindex::get_connected(db = "AFSC")
 
 # a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH WHERE REGION IN ('GOA','AI')")
 # write.csv(x = a, "./data/local_racebase/catch.csv", row.names = FALSE)
-# 
+#
 # print("Finished downloading CATCH")
 
-haul <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL WHERE REGION IN ('GOA','AI')")
+haul <- RODBC::sqlQuery(
+  channel,
+  sprintf(
+    "SELECT * FROM RACEBASE.HAUL WHERE REGION = '%s'",
+    SRVY
+  )
+)
 
 write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
 
-if (!exists("haul")) {
-  haul <- read.csv("./data/local_racebase/haul.csv")
-}
-
 print("Finished downloading HAUL")
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH WHERE REGION IN ('GOA','AI')")
-write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
+# Length
+a <- RODBC::sqlQuery(
+  channel,
+  sprintf(
+    "SELECT * FROM RACEBASE.LENGTH WHERE REGION = '%s'",
+    SRVY
+  )
+)
 
+#a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH WHERE REGION IN ('GOA','AI')")
+
+write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
 print("Finished downloading LENGTH")
 
-cruises <- 
-  gapindex::sql_query(channel = channel,
-                      query = paste0("
+# Cruises
+cruises <-
+  gapindex::sql_query(
+    channel = channel,
+    query = paste0("
 select * from gap_products.survey_design
 where survey_definition_id = ", sdi, "
-order by year;"
-                      )
+order by year;")
   )
 
 write.csv(x = cruises, ".data/local_gap_products/cruises.csv")
@@ -99,9 +109,11 @@ if (SRVY == "AI") {
 # GAP_PRODUCTS ------------------------------------------------------------
 # * SPECIMEN ----------------------------------------------------------------
 # NEW version of table query that pulls the specimen samples from maxyr
-specimen_maxyr <- 
-  gapindex::sql_query(channel = channel,
-                      query = paste0("
+specimen_maxyr <-
+  gapindex::sql_query(
+    channel = channel,
+    query = paste0(
+      "
 /* Alternate to pulling the entire specimen table. Pulling from  */
 /* GAP_PRODUCTS.SPECIMEN auto applies the ABUNDANCE_HAUL = 'Y' filter.  */
 select 
@@ -118,10 +130,10 @@ where
     and cruise.survey_definition_id = ", sdi, "
     and weight_g > 0 and length_mm > 0
     and specimen_sample_type = 1" # only oto samples - these are the only ones we use
-                      )
+    )
   )
 
-write.csv(specimen_maxyr, "./data/local_gap_products/specimen_maxyr.csv", row.names = FALSE)  # Zack da best
+write.csv(specimen_maxyr, "./data/local_gap_products/specimen_maxyr.csv", row.names = FALSE) # Zack da best
 
 
 # * TAXONOMIC_CLASSIFICATION ----------------------------------------------
@@ -139,9 +151,10 @@ write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 # * CPUE -----------------------------------------------------------------
 # ** species -------------------------------------------------------------
 
-cpue_raw <- 
-  gapindex::sql_query(channel = channel,
-                      query = "
+cpue_raw <-
+  gapindex::sql_query(
+    channel = channel,
+    query = "
 select 
     floor(haul.cruise/100) as year,
     haul.START_LONGITUDE as longitude_dd_start,
@@ -155,7 +168,8 @@ join
     racebase.haul haul on haul.hauljoin = cpue.hauljoin
 where 
     haul.region in ('AI', 'GOA')
-                      ") |>
+                      "
+  ) |>
   janitor::clean_names() |>
   dplyr::mutate(species_code = as.character(species_code))
 
@@ -165,12 +179,12 @@ where
 # if (!exists("cpue")) {
 #   cpue <- read.csv("./data/local_gap_products/cpue.csv")
 # }
-# 
+#
 # if (!exists("haul")) {
 #   haul <- read.csv("./data/local_racebase/haul.csv")
 # }
-# 
-# 
+#
+#
 # cpue_raw <- cpue |>
 #   dplyr::left_join(haul) |>
 #   dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |> #
@@ -428,73 +442,76 @@ rm(list = c("sizecomp_stratum_complexes"))
 write.csv(sizecomp, file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
 
 # 'pseudolengths' table for length comp figures ----------------
-# Janky but not sure how else to do it, so will have to deal. See notes below. This table is needed for joy division figs. Only make pseudolengths file if it isn't already there.
+# Janky but not sure how else to do it, so will have to deal. See notes below. This table is needed for joy division figs.
 
 if (!exists("sizecomp")) {
   sizecomp <- read.csv(file = paste0(dir_out_srvy_yr, "tables/sizecomp_all.csv"))
 }
 
-report_pseudolengths <- data.frame()
+# Only make pseudolengths file if it isn't already there.
+if (!file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
+  report_pseudolengths <- data.frame()
 
-for (i in 1:nrow(report_species)) {
-  sp_code <- report_species$species_code[i]
+  for (i in 1:nrow(report_species)) {
+    sp_code <- report_species$species_code[i]
 
-  # Is the species code for a complex?
-  if (grepl(x = sp_code, "[A-Za-z]")) {
-    sizecomp1 <- sizecomp[grepl("[A-Za-z]", sizecomp$SPECIES_CODE), ]
-  } else {
-    sizecomp1 <- sizecomp[grepl("[0-9]", sizecomp$SPECIES_CODE), ]
+    # Is the species code for a complex?
+    if (grepl(x = sp_code, "[A-Za-z]")) {
+      sizecomp1 <- sizecomp[grepl("[A-Za-z]", sizecomp$SPECIES_CODE), ]
+    } else {
+      sizecomp1 <- sizecomp[grepl("[0-9]", sizecomp$SPECIES_CODE), ]
+    }
+
+    if (nrow(sizecomp1) == 0) {
+      stop(paste("No size comps for species", sp_code))
+    }
+
+    males <- sizecomp1 |>
+      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
+      dplyr::filter(SPECIES_CODE == sp_code) |>
+      dplyr::group_by(YEAR) |>
+      dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) |>
+      dplyr::mutate(prop_10k = round(prop_10k)) |>
+      arrange(-YEAR, LENGTH) |>
+      dplyr::mutate(prop_10k = ifelse(MALES == 0, 0, prop_10k)) |>
+      tidyr::uncount(prop_10k, .id = "id") |>
+      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
+      mutate(Sex = "Male")
+
+    females <- sizecomp1 |>
+      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
+      dplyr::filter(SPECIES_CODE == sp_code) |>
+      dplyr::group_by(YEAR) |>
+      dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) |> # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
+      dplyr::mutate(prop_10k = round(prop_10k)) |>
+      arrange(-YEAR, LENGTH) |>
+      dplyr::mutate(prop_10k = ifelse(FEMALES == 0, 0, prop_10k)) |>
+      uncount(prop_10k, .id = "id") |>
+      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
+      mutate(Sex = "Female")
+
+    unsexed <- sizecomp1 |>
+      dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
+      dplyr::filter(SPECIES_CODE == sp_code) |>
+      dplyr::group_by(YEAR) |>
+      dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) |>
+      dplyr::mutate(prop_10k = round(prop_10k)) |>
+      arrange(-YEAR, LENGTH) |>
+      dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) |>
+      uncount(prop_10k, .id = "id") |>
+      dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
+      mutate(Sex = "Unsexed")
+    all <- bind_rows(males, females, unsexed)
+
+    report_pseudolengths <- rbind(report_pseudolengths, all)
   }
 
-  if (nrow(sizecomp1) == 0) {
-    stop(paste("No size comps for species", sp_code))
-  }
 
-  males <- sizecomp1 |>
-    dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
-    dplyr::filter(SPECIES_CODE == sp_code) |>
-    dplyr::group_by(YEAR) |>
-    dplyr::mutate(prop_10k = (MALES / sum(MALES)) * 10000) |>
-    dplyr::mutate(prop_10k = round(prop_10k)) |>
-    arrange(-YEAR, LENGTH) |>
-    dplyr::mutate(prop_10k = ifelse(MALES == 0, 0, prop_10k)) |>
-    tidyr::uncount(prop_10k, .id = "id") |>
-    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
-    mutate(Sex = "Male")
+  write.csv(report_pseudolengths, paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"), row.names = FALSE)
 
-  females <- sizecomp1 |>
-    dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
-    dplyr::filter(SPECIES_CODE == sp_code) |>
-    dplyr::group_by(YEAR) |>
-    dplyr::mutate(prop_10k = (FEMALES / sum(FEMALES)) * 10000) |> # this is just a way to recreate the proportions in each length category with a smaller total number for figs and stuff.
-    dplyr::mutate(prop_10k = round(prop_10k)) |>
-    arrange(-YEAR, LENGTH) |>
-    dplyr::mutate(prop_10k = ifelse(FEMALES == 0, 0, prop_10k)) |>
-    uncount(prop_10k, .id = "id") |>
-    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
-    mutate(Sex = "Female")
-
-  unsexed <- sizecomp1 |>
-    dplyr::filter(YEAR <= maxyr & YEAR >= minyr) |>
-    dplyr::filter(SPECIES_CODE == sp_code) |>
-    dplyr::group_by(YEAR) |>
-    dplyr::mutate(prop_10k = (UNSEXED / sum(UNSEXED)) * 10000) |>
-    dplyr::mutate(prop_10k = round(prop_10k)) |>
-    arrange(-YEAR, LENGTH) |>
-    dplyr::mutate(prop_10k = ifelse(UNSEXED == 0, 0, prop_10k)) |>
-    uncount(prop_10k, .id = "id") |>
-    dplyr::select(SURVEY, YEAR, SPECIES_CODE, LENGTH, id) |>
-    mutate(Sex = "Unsexed")
-  all <- bind_rows(males, females, unsexed)
-
-  report_pseudolengths <- rbind(report_pseudolengths, all)
+  # Cleanup
+  rm(list = c("males", "females", "unsexed", "report_pseudolengths"))
 }
-
-
-write.csv(report_pseudolengths, paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"), row.names = FALSE)
-
-# Cleanup
-rm(list = c("males", "females", "unsexed", "report_pseudolengths"))
 
 
 # Ex-vessel prices --------------------------------------------------------
@@ -611,8 +628,8 @@ if (use_gapindex) {
   # cpue table
   cpue_raw <- cpue_raw_caps |>
     janitor::clean_names() # This table is used for lots of stuff
-  #write.csv(cpue_raw,file = paste0(dir_out_srvy_yr,"/tables/cpue_processed.csv"))
-  
+  # write.csv(cpue_raw,file = paste0(dir_out_srvy_yr,"/tables/cpue_processed.csv"))
+
   # total biomass table
   biomass_total <- biomass_df
 
@@ -621,4 +638,3 @@ if (use_gapindex) {
   rm(list = c("biomass_subarea"))
   print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
-
