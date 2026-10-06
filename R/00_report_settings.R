@@ -38,6 +38,7 @@ YEAR <- maxyr # probably can simplify this later
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
 SRVY <- "AI" # Options: "GOA", "AI"
+sdi <- c("AI" = 52, "GOA" = 47)[SRVY]
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 goa_redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
 goa_backlog <- ifelse(maxyr < 2025 & SRVY == "GOA", TRUE, FALSE)
