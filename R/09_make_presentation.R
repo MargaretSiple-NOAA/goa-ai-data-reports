@@ -121,23 +121,26 @@ nsquidlengths <- sum(length_maxyr |>
   format(big.mark = ",")
 
 # Otoliths collected
-S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
-specimen_maxyr <- S |>
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-  filter(YEAR == maxyr & REGION == SRVY)
+
+#S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
+# specimen_maxyr <- S |>
+#   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
+#   filter(YEAR == maxyr & REGION == SRVY)
+
+specimen_maxyr <- read.csv(here::here("data", "local_gap_products","specimen_maxyr.csv"))
 
 total_otos_collected <- specimen_maxyr |>
-  filter(SPECIMEN_SAMPLE_TYPE == 1) |>
+  #filter(SPECIMEN_SAMPLE_TYPE == 1) |>
   nrow() |>
   format(big.mark = ",")
 
 n_oto_species <- specimen_maxyr |>
-  filter(SPECIMEN_SAMPLE_TYPE == 1) |>
+  #filter(SPECIMEN_SAMPLE_TYPE == 1) |>
   count(SPECIES_CODE) |>
   nrow()
 
 otos_collected <- specimen_maxyr |>
-  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # SAMPLE_TYPE==1 means it's an oto collection
+  #filter(SPECIMEN_SAMPLE_TYPE == 1) |> # SAMPLE_TYPE==1 means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
     "HAULJOIN",
     "REGION", "VESSEL", "YEAR", "CRUISE", "HAUL"
@@ -149,7 +152,7 @@ otos_collected <- specimen_maxyr |>
   arrange(factor(INPFC_AREA, levels = district_order)) #REGULATORY_AREA_NAME
 
 otos_collected_by_species <- specimen_maxyr |>
-  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # SAMPLE_TYPE==1 means it's an oto collection
+  #filter(SPECIMEN_SAMPLE_TYPE == 1) |> # SAMPLE_TYPE==1 means it's an oto collection
   dplyr::left_join(haul_maxyr, by = c(
     "HAULJOIN",
     "REGION", "VESSEL", "YEAR", "CRUISE", "HAUL"

@@ -438,17 +438,20 @@ nsquidlengths <- sum(length_maxyr_species |>
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
-S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
+# S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
 
-specimen_maxyr <- S |>
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-  filter(YEAR == maxyr & REGION == SRVY) |>
-  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
-  dplyr::left_join(haul_maxyr, by = c(
-    "CRUISEJOIN", "HAULJOIN", "CRUISE", "HAUL",
-    "REGION", "VESSEL", "YEAR"
-  )) |>
-  dplyr::filter(ABUNDANCE_HAUL=="Y")
+specimen_maxyr <- read.csv("data/local_gap_products/specimen_maxyr.csv", header = TRUE)
+
+# specimen_maxyr <- S |>
+#   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
+#   filter(YEAR == maxyr & REGION == SRVY) |>
+#   filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
+#   dplyr::left_join(haul_maxyr, by = c(
+#     "CRUISEJOIN", "HAULJOIN", "CRUISE", "HAUL",
+#     "REGION", "VESSEL", "YEAR"
+#   )) |>
+#   dplyr::filter(ABUNDANCE_HAUL=="Y")
+# nrow(specimen_maxyr)
 
 otos_collected <- specimen_maxyr |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
@@ -528,11 +531,6 @@ if (!exists("report_pseudolengths")) {
 if (!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CODE))) {
   print("YOU NEED A EXPANDED LENGTH FILE FOR 1 or MORE SPECIES IN YOUR REPORT LIST. STOP HERE AND RE-RUN DATA DOWNLOAD WITH NEW REPORT SPECIES LIST")
 }
-
-# Taxonomic diversity -----------------------------------------------------
-# get number of fish and invert spps
-catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
-
 
 # Species with highest est'd biomass --------------------------------------
 # Load total biomass table with all species and complexes

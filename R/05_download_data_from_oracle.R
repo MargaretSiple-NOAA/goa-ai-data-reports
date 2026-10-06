@@ -16,22 +16,12 @@ channel <- gapindex::get_connected(db = "AFSC")
 ################## DOWNLOAD TABLES##########################################
 # RACEBASE ----------------------------------------------------------------
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH WHERE REGION IN ('GOA','AI')")
-write.csv(x = a, "./data/local_racebase/catch.csv", row.names = FALSE)
-
-print("Finished downloading CATCH")
+# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH WHERE REGION IN ('GOA','AI')")
+# write.csv(x = a, "./data/local_racebase/catch.csv", row.names = FALSE)
+# 
+# print("Finished downloading CATCH")
 
 haul <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL WHERE REGION IN ('GOA','AI')")
-# haul <- RODBC::sqlQuery(
-#   channel,
-#   paste0(
-#     "SELECT ",
-#     paste0(names(a)[names(a) != "START_TIME"],
-#       sep = ",", collapse = " "
-#     ),
-#     " TO_CHAR(START_TIME,'MM/DD/YYYY HH24:MI:SS') START_TIME  FROM RACEBASE.HAUL"
-#   )
-# )
 
 write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
 
@@ -46,8 +36,6 @@ write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
 
 print("Finished downloading LENGTH")
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN WHERE REGION IN ('GOA','AI')")
-write.csv(x = a, "./data/local_racebase/specimen.csv", row.names = FALSE)
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.STRATUM WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/stratum.csv", row.names = FALSE)
@@ -102,6 +90,32 @@ if (SRVY == "AI") {
 }
 
 # GAP_PRODUCTS ------------------------------------------------------------
+# * SPECIMEN ----------------------------------------------------------------
+# NEW version of table query that pulls the specimen samples from maxyr
+specimen_maxyr <- 
+  gapindex::sql_query(channel = channel,
+                      query = paste0("
+/* Alternate to pulling the entire specimen table. Pulling from  */
+/* GAP_PRODUCTS.SPECIMEN auto applies the ABUNDANCE_HAUL = 'Y' filter.  */
+select 
+    cruise.year, cruise.survey_definition_id, specimen.HAULJOIN, haul.stratum, SPECIES_CODE, SEX, LENGTH_MM, WEIGHT_G
+from 
+    gap_products.specimen specimen
+join 
+    gap_products.haul haul on haul.hauljoin = specimen.hauljoin
+join 
+    gap_products.cruise cruise on cruise.cruisejoin = haul.cruisejoin
+
+where
+    cruise.year = ", maxyr, "
+    and cruise.survey_definition_id = ", sdi, "
+    and weight_g > 0 and length_mm > 0
+    and specimen_sample_type = 1" # only oto samples - these are the only ones we use
+                      )
+  )
+
+write.csv(specimen_maxyr, "./data/local_gap_products/specimen_maxyr.csv", row.names = FALSE)  # Zack da best
+
 
 # * TAXONOMIC_CLASSIFICATION ----------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE SURVEY_SPECIES = 1") # note: this table will move!
