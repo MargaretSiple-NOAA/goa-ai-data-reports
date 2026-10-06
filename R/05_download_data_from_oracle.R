@@ -514,6 +514,68 @@ if (!file.exists(paste0(dir_out_srvy_yr, "tables/report_pseudolengths.csv"))) {
 }
 
 
+# Make appendix B straight from SQL ---------------------------------------
+# Zack made this using SQL instead of what we currently have.
+appendix_b_tbl <- 
+  gapindex::sql_query(channel = channel,
+                      query = paste0("
+/* 
+   Appendix B: list of species observed in each INPFC area.
+   Source replacement for RACEBASE.CATCH table in script 05_download_data_from_oracle.R.
+*/
+select 
+    area.area_name,
+    tax.family_taxon,
+    tax.common_name,
+    tax.species_name,
+    tax.species_code
+from 
+    racebase.catch catch_ 
+join /* attach taxonomic info */
+    gap_products.taxonomic_classification tax on tax.species_code = catch_.species_code
+join /* attach abundance_haul info */
+    gap_products.haul haul on haul.hauljoin = catch_.hauljoin
+join /* attach year and survey_definition_id */
+    gap_products.cruise cruise on cruise.cruisejoin = haul.cruisejoin
+join /* attach design_year info */
+    gap_products.survey_design design on design.year = cruise.year and design.survey_definition_id = cruise.survey_definition_id
+join /* attach area_id of the INPFC or NMFS area that the strata belong to*/
+    gap_products.stratum_groups stratum_groups on stratum_groups.stratum = haul.stratum
+join /* attach area name */
+    gap_products.area area on 
+        area.survey_definition_id = stratum_groups.survey_definition_id 
+        and area.design_year = stratum_groups.design_year
+        and area.area_id = stratum_groups.area_id
+where 
+   /* filter records from tax that the survey uses */
+    tax.survey_species = 1
+   /* by INPFC areas in the AI and NMFS areas in the GOA*/
+    and area.area_type = '", unname(c("AI" = "INPFC", "GOA" = "NMFS")[SRVY]), "' 
+   /* filter for the current year */
+    and cruise.year = ", maxyr, " 
+   /* filter for the current survey region*/
+    and area.survey_definition_id = ", sdi, " 
+    /* filter for only species-level SPECIES_CODES, remove egg cases, larva, tubes, etc. */
+    and tax.id_rank = 'species' 
+    and tax.species_name not like '% egg%'
+    and tax.species_name not like '%egg case%'
+    and tax.species_name not like '%larva%' 
+    and tax.species_name not like '%larvae%'
+    and tax.species_name not like '% tubes%'
+group by 
+    area.area_name,
+    tax.family_taxon,
+    tax.common_name,
+    tax.species_name,
+    tax.species_code
+order by 
+    area.area_name, 
+    tax.species_code
+")
+  )
+
+write.csv(appendix_b_tbl, file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"), row.names = FALSE)
+
 # Ex-vessel prices --------------------------------------------------------
 # Filenames are misleading
 # if (SRVY == "AI") {
