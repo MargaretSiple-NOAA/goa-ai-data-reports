@@ -10,6 +10,69 @@ species_codes <- read_csv("data/local_race_data/race_species_codes.csv") |>
 
 haul <- read_csv("data/local_racebase/haul.csv")
 
+
+# Alternative to above chunk: Zack SQL query ------------------------------
+channel <- gapindex::get_connected(db = "AFSC")
+appendix_b_tbl <- 
+  gapindex::sql_query(channel = channel,
+                      query = paste0("
+/* 
+   Appendix B: list of species observed in each INPFC area.
+   Source replacement for RACEBASE.CATCH table in script 05_download_data_from_oracle.R.
+*/
+select 
+    area.area_name,
+    tax.family_taxon,
+    tax.common_name,
+    tax.species_name,
+    tax.species_code
+from 
+    racebase.catch catch_ 
+join /* attach taxonomic info */
+    gap_products.taxonomic_classification tax on tax.species_code = catch_.species_code
+join /* attach abundance_haul info */
+    gap_products.haul haul on haul.hauljoin = catch_.hauljoin
+join /* attach year and survey_definition_id */
+    gap_products.cruise cruise on cruise.cruisejoin = haul.cruisejoin
+join /* attach design_year info */
+    gap_products.survey_design design on design.year = cruise.year and design.survey_definition_id = cruise.survey_definition_id
+join /* attach area_id of the INPFC or NMFS area that the strata belong to*/
+    gap_products.stratum_groups stratum_groups on stratum_groups.stratum = haul.stratum
+join /* attach area name */
+    gap_products.area area on 
+        area.survey_definition_id = stratum_groups.survey_definition_id 
+        and area.design_year = stratum_groups.design_year
+        and area.area_id = stratum_groups.area_id
+where 
+   /* filter records from tax that the survey uses */
+    tax.survey_species = 1
+   /* by INPFC areas in the AI and NMFS areas in the GOA*/
+    and area.area_type = '", unname(c("AI" = "INPFC", "GOA" = "NMFS")[SRVY]), "' 
+   /* filter for the current year */
+    and cruise.year = ", maxyr, " 
+   /* filter for the current survey region*/
+    and area.survey_definition_id = ", sdi, " 
+    /* filter for only species-level SPECIES_CODES, remove egg cases, larva, tubes, etc. */
+    and tax.id_rank = 'species' 
+    and tax.species_name not like '% egg%'
+    and tax.species_name not like '%egg case%'
+    and tax.species_name not like '%larva%' 
+    and tax.species_name not like '%larvae%'
+    and tax.species_name not like '% tubes%'
+group by 
+    area.area_name,
+    tax.family_taxon,
+    tax.common_name,
+    tax.species_name,
+    tax.species_code
+order by 
+    area.area_name, 
+    tax.species_code
+")
+  )
+
+
+
 # Getting species from year ----------------------------------------------------
 
 # filtering to just species caught this survey year and getting subregion info
@@ -51,9 +114,7 @@ species_maxyr <- catch_maxyr |>
 
 
 # Finding outliers ----------------------------------------------------
-
 # checking for species that were caught this year that are suspicious/need manual checking using DBSCAN/past confirmed records
-
 
 # all catch/haul data to check against
 catch_haul <- catch |>
@@ -110,7 +171,7 @@ appB0 <- species_maxyr |>
 
 if (SRVY == "GOA" & design_year >= 2025) {
   appB <- appB0 |>
-    dplyr::select(regulatory_area_name, species_name, common_name,
+    dplyr::select(regulatory_area_name, species_code, species_name, common_name,
       family = family_taxon, phylum = phylum_taxon,
       major_group, tax_group
     ) |>
@@ -118,13 +179,19 @@ if (SRVY == "GOA" & design_year >= 2025) {
     arrange(regulatory_area_name, tax_group, major_group, species_name)
 } else {
   appB <- appB0 |>
-    dplyr::select(inpfc_area, species_name, common_name,
+    dplyr::select(inpfc_area, species_code, species_name, common_name,
       family = family_taxon, phylum = phylum_taxon,
       major_group, tax_group
     ) |>
     distinct() |>
     arrange(inpfc_area, tax_group, major_group, species_name)
 }
+
+
+# Compare appB with appendix_b_tbl from above:
+appB$species_code[which(!appB$species_code %in% appendix_b_tbl$SPECIES_CODE)]
+
+
 
 # diversity by subregion
 if(SRVY == "AI" | maxyr < 2025){
