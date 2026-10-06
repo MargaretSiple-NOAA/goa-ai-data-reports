@@ -1,4 +1,6 @@
-# RACEBASE tables ----------------------------------------------------
+appB_option =="SQL_QUERY"
+
+# This option uses RACEBASE tables ---------------------------------------------
 if (appB_option == "RACEBASE") {
   # get catch and taxonomy info
   catch <- read_csv("data/local_racebase/catch.csv") |>
