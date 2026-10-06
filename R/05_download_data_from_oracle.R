@@ -36,6 +36,16 @@ write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
 
 print("Finished downloading LENGTH")
 
+cruises <- 
+  gapindex::sql_query(channel = channel,
+                      query = paste0("
+select * from gap_products.survey_design
+where survey_definition_id = ", sdi, "
+order by year;"
+                      )
+  )
+
+write.csv(x = cruises, ".data/local_gap_products/cruises.csv")
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.STRATUM WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/stratum.csv", row.names = FALSE)
@@ -46,13 +56,10 @@ write.csv(x = a, "./data/local_racebase/stations.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIES")
 write.csv(x = a, "./data/local_racebase/species.csv", row.names = FALSE)
 
-a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CRUISE")
-write.csv(x = a, "./data/local_racebase/cruise.csv", row.names = FALSE)
-
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIES_CLASSIFICATION")
 write.csv(x = a, "./data/local_racebase/species_classification.csv", row.names = FALSE)
 
-print("Finished downloading SPECIMEN, STRATUM, SPECIES, CRUISE and SPECIES_CLASSIFICATION")
+print("Finished downloading SPECIMEN, STRATUM, SPECIES, and SPECIES_CLASSIFICATION")
 
 
 # RACE_DATA ---------------------------------------------------------------
