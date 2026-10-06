@@ -539,7 +539,7 @@ if (!exists("biomass_total")) {
 }
 
 biomass_maxyr <- biomass_total |>
-  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == sdi)
 
 highest_biomass <- biomass_maxyr |>
   dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) |>
@@ -550,7 +550,7 @@ highest_biomass_flatfish <- highest_biomass |>
   filter(major_group == "Flatfish")
 
 highest_chonds <- biomass_total |>
-  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) |>
+  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == sdi) |>
   janitor::clean_names() |>
   dplyr::left_join(species_names) |>
   dplyr::filter(major_group == "Chondrichthyans") |>

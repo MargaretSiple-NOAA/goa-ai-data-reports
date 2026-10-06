@@ -125,7 +125,7 @@ write.csv(x = a, "./data/local_gap_products/taxonomic_classification.csv", row.n
 # * AREA ------------------------------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.AREA")
 a <- a |>
-  dplyr::filter(SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+  dplyr::filter(SURVEY_DEFINITION_ID == sdi)
 
 write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 
@@ -237,7 +237,7 @@ biomass0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS WHERE S
 
 biomass <- dplyr::filter(
   biomass0,
-  SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)
+  SURVEY_DEFINITION_ID == sdi
 )
 
 write.csv(x = biomass, "./data/local_gap_products/biomass.csv", row.names = FALSE)
@@ -311,9 +311,9 @@ write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr, "tables/biomass_subare
 write.csv(biomass_total, file = paste0(dir_out_srvy_yr, "tables/biomass_total_all.csv"))
 
 
-# Stratum groups ----------------------------------------------------------
+# * STRATUM_GROUPS ----------------------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
-a <- subset(a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+a <- subset(a, SURVEY_DEFINITION_ID == sdi)
 if (SRVY == "GOA") {
   a <- subset(a, DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025))
 }
@@ -327,7 +327,7 @@ write.csv(x = a, "./data/local_gap_products/species_year.csv", row.names = FALSE
 
 # STRATUM_GROUPS table - to lookup what region a stratum is in
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
-a <- subset(a, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+a <- subset(a, SURVEY_DEFINITION_ID == sdi)
 
 if (SRVY == "GOA") {
   a <- subset(a, DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025))
@@ -345,7 +345,7 @@ print("Finished downloading stratum and species groups.")
 # ** species ----------------------------------------------
 sizecomp0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP WHERE SURVEY_DEFINITION_ID IN (47, 52)")
 sizecomp <- dplyr::filter(
-  sizecomp0, SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) # &
+  sizecomp0, SURVEY_DEFINITION_ID == sdi # &
   # AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
 ) |>
   dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(
@@ -393,7 +393,7 @@ sizecomp_subareas_complexes <- gapindex::calc_sizecomp_subarea(
 
 sizecomp_complexes <- sizecomp_subareas_complexes |>
   dplyr::filter(
-    SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+    SURVEY_DEFINITION_ID == sdi &
       AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
   ) |>
   dplyr::mutate(SURVEY = SRVY, SEX = case_when(
@@ -578,7 +578,7 @@ if (use_gapindex) {
 
   sizecomp_gapindex <- sizecomp_subareas |>
     dplyr::filter(
-      SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52) &
+      SURVEY_DEFINITION_ID == sdi &
         AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
     ) |>
     dplyr::mutate(SURVEY = SRVY, SEX = case_when(
