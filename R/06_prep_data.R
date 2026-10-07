@@ -138,9 +138,10 @@ if (SRVY == "GOA") {
   if (!maxyr %in% c(2019, 2021, 2025)) {
     print("make sure your allocation file directory is set. Or modify this part of the code to be less janky :)")
   }
-} else {
-  all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
-}
+} 
+# else {
+#   all_allocation <- readxl::read_xlsx(path = here::here("data", "ai_2026_station_allocation_400stn.xlsx"), sheet = "Station Allocation")
+# }
 
 if (maxyr == 2024) { # get allocation from special sheet with reduced stations
   a0 <- read.csv("data/AI2024_allocation.csv", na.strings = "NA")
