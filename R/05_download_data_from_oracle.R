@@ -19,6 +19,7 @@ channel <- gapindex::get_connected(db = "AFSC")
 #
 # print("Finished downloading CATCH")
 
+if(!file.exists("./data/local_racebase/haul.csv")){
 haul <- RODBC::sqlQuery(
   channel,
   sprintf(
@@ -26,10 +27,9 @@ haul <- RODBC::sqlQuery(
     SRVY
   )
 )
-
 write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
-
 print("Finished downloading HAUL")
+}
 
 # Length
 a <- RODBC::sqlQuery(
@@ -200,6 +200,7 @@ where
 
 # ** complexes -------------------------------------------------
 ## Pull data - this is filtered to abundance haul = Y, years, and region
+
 yrs_to_pull <- minyr:maxyr
 
 complexes_data <- gapindex::get_data(
