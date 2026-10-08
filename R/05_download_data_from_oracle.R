@@ -55,7 +55,7 @@ where survey_definition_id = ", sdi, "
 order by year;")
   )
 
-write.csv(x = cruises, ".data/local_gap_products/cruises.csv")
+write.csv(x = cruises, "./data/local_gap_products/cruises.csv")
 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.STRATUM WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/stratum.csv", row.names = FALSE)
