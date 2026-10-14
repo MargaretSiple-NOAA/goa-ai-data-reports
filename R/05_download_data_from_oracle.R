@@ -542,6 +542,7 @@ appendix_b_tbl <-
 select 
     area.area_name,
     tax.family_taxon,
+    tax.phylum_taxon,
     tax.common_name,
     tax.species_name,
     tax.species_code
@@ -581,6 +582,7 @@ where
 group by 
     area.area_name,
     tax.family_taxon,
+    tax.phylum_taxon,
     tax.common_name,
     tax.species_name,
     tax.species_code
