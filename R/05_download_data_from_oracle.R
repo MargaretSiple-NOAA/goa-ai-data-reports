@@ -11,39 +11,43 @@ if (!file.exists("data/local_goa")) dir.create("data/local_goa", recursive = TRU
 
 channel <- gapindex::get_connected(db = "AFSC")
 
+
 ################## DOWNLOAD TABLES##########################################
 # RACEBASE ----------------------------------------------------------------
-
-# a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH WHERE REGION IN ('GOA','AI')")
-# write.csv(x = a, "./data/local_racebase/catch.csv", row.names = FALSE)
-#
-# print("Finished downloading CATCH")
-
-if(!file.exists("./data/local_racebase/haul.csv")){
-haul <- RODBC::sqlQuery(
-  channel,
-  sprintf(
-    "SELECT * FROM RACEBASE.HAUL WHERE REGION = '%s'",
-    SRVY
+# We used to DL the whole catch table here. Can add it back in if it comes up later.
+# Haul
+if (!check_for_table(path = "./data/local_racebase/haul.csv", region = SRVY)) {
+  haul <- RODBC::sqlQuery(
+    channel,
+    sprintf(
+      "SELECT * FROM RACEBASE.HAUL WHERE REGION = '%s'",
+      SRVY
+    )
   )
-)
-write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
-print("Finished downloading HAUL")
+  write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
+  cat("\u2705 Finished downloading HAUL")
+}else{
+  cat("\u2705 HAUL table already exists, moving on.")
 }
 
+
+
 # Length
-a <- RODBC::sqlQuery(
-  channel,
-  sprintf(
-    "SELECT * FROM RACEBASE.LENGTH WHERE REGION = '%s'",
-    SRVY
+if (!check_for_table(path = "./data/local_racebase/length.csv", region = SRVY)) {
+  a <- RODBC::sqlQuery(
+    channel,
+    sprintf(
+      "SELECT * FROM RACEBASE.LENGTH WHERE REGION = '%s'",
+      SRVY
+    )
   )
-)
 
-#a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH WHERE REGION IN ('GOA','AI')")
+  write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
+  cat("\u2705 Finished downloading LENGTH")
+} else {
+  cat("\u2705 LENGTH table already exists, moving on.")
+}
 
-write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
-print("Finished downloading LENGTH")
 
 # Cruises
 cruises <-
@@ -57,6 +61,7 @@ order by year;")
 
 write.csv(x = cruises, "./data/local_gap_products/cruises.csv")
 
+# Stratum, stations, species_classification - these are small so you can download them every time.
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.STRATUM WHERE REGION IN ('GOA','AI')")
 write.csv(x = a, "./data/local_racebase/stratum.csv", row.names = FALSE)
 
@@ -69,7 +74,7 @@ write.csv(x = a, "./data/local_racebase/species.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIES_CLASSIFICATION")
 write.csv(x = a, "./data/local_racebase/species_classification.csv", row.names = FALSE)
 
-print("Finished downloading SPECIMEN, STRATUM, SPECIES, and SPECIES_CLASSIFICATION")
+cat("\u2705 Finished downloading STRATUM, SPECIES, and SPECIES_CLASSIFICATION")
 
 
 # RACE_DATA ---------------------------------------------------------------
@@ -77,14 +82,15 @@ print("Finished downloading SPECIMEN, STRATUM, SPECIES, and SPECIES_CLASSIFICATI
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.RACE_SPECIES_CODES")
 write.csv(x = a, "./data/local_race_data/race_species_codes.csv", row.names = FALSE)
 
-print("Finished downloading RACE_DATA tables. We may not need all of these forever.")
+cat("\u2705 Finished downloading RACE_DATA tables. We may not need all of these forever.")
 
 # GOA ---------------------------------------------------------------------
-# Need goa_strata because it contains both GOA and AI strata
+# goa_strata contains both GOA and AI strata information
+
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
 write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
 
-print("Finished downloading strata file.")
+cat("\u2705 Finished downloading strata file.")
 
 
 if (SRVY == "GOA") {
@@ -94,50 +100,61 @@ if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOAGRID")
   write.csv(x = a, "./data/local_goa/goagrid.csv", row.names = FALSE)
 
-  print("Finished downloading GOA schema tables")
+  cat("\u2705 Finished downloading GOA schema tables")
 }
-
 
 # AI ----------------------------------------------------------------------
 if (SRVY == "AI") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
 
-  print("Finished downloading AI schema tables")
+  cat("\u2705 Finished downloading AI schema tables")
 }
 
 # GAP_PRODUCTS ------------------------------------------------------------
-# * SPECIMEN ----------------------------------------------------------------
+# * SPECIMEN --------------------------------------------------------------
 # NEW version of table query that pulls the specimen samples from maxyr
-specimen_maxyr <-
-  gapindex::sql_query(
-    channel = channel,
-    query = paste0(
-      "
-/* Alternate to pulling the entire specimen table. Pulling from  */
-/* GAP_PRODUCTS.SPECIMEN auto applies the ABUNDANCE_HAUL = 'Y' filter.  */
-select 
-    cruise.year, cruise.survey_definition_id, specimen.HAULJOIN, haul.stratum, SPECIES_CODE, SEX, LENGTH_MM, WEIGHT_G
-from 
-    gap_products.specimen specimen
-join 
-    gap_products.haul haul on haul.hauljoin = specimen.hauljoin
-join 
-    gap_products.cruise cruise on cruise.cruisejoin = haul.cruisejoin
-
-where
+if (!check_for_table(
+  path = "./data/local_gap_products/specimen_maxyr.csv",
+  region = "AI"
+)) {
+  specimen_maxyr <-
+    gapindex::sql_query(
+      channel = channel,
+      query = paste0(
+        "
+    /* Alternate to pulling the entire specimen table. Pulling from  */
+    /* GAP_PRODUCTS.SPECIMEN auto applies the ABUNDANCE_HAUL = 'Y' filter.  */
+    select 
+        cruise.year, cruise.survey_definition_id, specimen.HAULJOIN, haul.stratum, SPECIES_CODE, SEX, LENGTH_MM, WEIGHT_G
+    from 
+        gap_products.specimen specimen
+    join 
+        gap_products.haul haul on haul.hauljoin = specimen.hauljoin
+    join 
+        gap_products.cruise cruise on cruise.cruisejoin = haul.cruisejoin
+    
+    where
     cruise.year = ", maxyr, "
     and cruise.survey_definition_id = ", sdi, "
     and weight_g > 0 and length_mm > 0
     and specimen_sample_type = 1" # only oto samples - these are the only ones we use
+      )
     )
-  )
-
-write.csv(specimen_maxyr, "./data/local_gap_products/specimen_maxyr.csv", row.names = FALSE) # Zack da best
+  if(is.character(specimen_maxyr)){
+    cat("Oracle channel not connected properly; re-define your channel and run again.")
+  }
+  
+  write.csv(specimen_maxyr, "./data/local_gap_products/specimen_maxyr.csv", row.names = FALSE) 
+  # Zack da best
+  cat("\u2705 Finished downloading specimen table for this year and survey.")
+}else{
+  cat("Specimen table for this year and survey already exists. Moving on.")
+}
 
 
 # * TAXONOMIC_CLASSIFICATION ----------------------------------------------
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE SURVEY_SPECIES = 1") # note: this table will move!
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE SURVEY_SPECIES = 1")
 
 write.csv(x = a, "./data/local_gap_products/taxonomic_classification.csv", row.names = FALSE)
 
@@ -150,7 +167,7 @@ write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 
 # * CPUE -----------------------------------------------------------------
 # ** species -------------------------------------------------------------
-
+# Haul-joined CPUE table for all individual species, can pull straight from GAP_PRODUCTS
 cpue_raw <-
   gapindex::sql_query(
     channel = channel,
@@ -173,33 +190,9 @@ where
   janitor::clean_names() |>
   dplyr::mutate(species_code = as.character(species_code))
 
-# complex_lookup is defined in report_settings.
-# So far, this uses the cpue and the haul tables from above.
-# Filter and rename some columns
-# if (!exists("cpue")) {
-#   cpue <- read.csv("./data/local_gap_products/cpue.csv")
-# }
-#
-# if (!exists("haul")) {
-#   haul <- read.csv("./data/local_racebase/haul.csv")
-# }
-#
-#
-# cpue_raw <- cpue |>
-#   dplyr::left_join(haul) |>
-#   dplyr::filter(REGION == SRVY & HAUL_TYPE == 3 & ABUNDANCE_HAUL == "Y") |> #
-#   dplyr::mutate(year = as.numeric(substr(CRUISE, 1, 4))) |>
-#   dplyr::rename(
-#     survey = "REGION",
-#     longitude_dd_start = "START_LONGITUDE",
-#     latitude_dd_start = "START_LATITUDE"
-#   ) |>
-#   janitor::clean_names() |>
-#   dplyr::mutate(species_code = as.character(species_code))
-
-
 # ** complexes -------------------------------------------------
-## Pull data - this is filtered to abundance haul = Y, years, and region
+# Haul-joined CPUE table for complexes. This has to be generated from gapindex package.
+# Pull data - this is filtered to abundance haul = Y, years, and region
 
 yrs_to_pull <- minyr:maxyr
 
@@ -219,17 +212,9 @@ complexes_data <- gapindex::get_data(
 cpue_raw_complexes0 <- gapindex::calc_cpue(gapdata = complexes_data) |>
   dplyr::left_join(haul)
 
-# Redesign filtration step
-if (SRVY == "GOA" & maxyr >= 2025) {
-  cpue_raw_complexes <- cpue_raw_complexes0 #|> 
-  # dplyr::filter(DESIGN_YEAR == 2025) # January 2026: let's see if this blows everything up
-} else {
-  cpue_raw_complexes <- cpue_raw_complexes0
-}
-
 
 # Trim columns to make cpue_raw and cpue_raw_complexes match
-cpue_raw_complexes <- cpue_raw_complexes |>
+cpue_raw_complexes <- cpue_raw_complexes0 |>
   dplyr::select(
     -START_LATITUDE, -START_LONGITUDE,
     -LATITUDE_DD_END, -LONGITUDE_DD_END,
@@ -237,10 +222,9 @@ cpue_raw_complexes <- cpue_raw_complexes |>
     -DEPTH_M
   )
 
-# Compare the columns between cpue_raw and cpue_raw_complexes
 # janitor::compare_df_cols(cpue_raw, cpue_raw_complexes)
 
-# glue together the species cpue from the gap_products table and the complexes cpue calculated from gapindex
+# glue together the species cpue from the gap_products table and the complexes cpue calculated from gapindex:
 cpue_processed <- dplyr::bind_rows(
   cpue_raw,
   janitor::clean_names(cpue_raw_complexes)
@@ -252,19 +236,32 @@ any(is.na(cpue_processed$haul))
 
 write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_processed.csv")) # use this in place of cpue_raw, everywhere
 
-# * BIOMASS  --------------------------------------------------------------
-# biomass
-# ** species --------------------------------------------------
-biomass0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS WHERE SURVEY_DEFINITION_ID IN (47, 52)")
+cat("\u2705 GAP_PRODUCTS.CPUE table joined to complex table and donwloaded.")
 
-biomass <- dplyr::filter(
-  biomass0,
-  SURVEY_DEFINITION_ID == sdi
-)
+# * BIOMASS  -------------------------------------------------------------------
+# ** species --------------------------------------------------------------
+        # biomass0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.BIOMASS WHERE SURVEY_DEFINITION_ID IN (47, 52)")
+        # 
+        # biomass <- dplyr::filter(
+        #   biomass0,
+        #   SURVEY_DEFINITION_ID == sdi
+        # )
+if (!check_for_table(path = "./data/local_gap_products/biomass.csv", region = SRVY)) {
+  "Downloading biomass-- this will take a minute."
+  biomass <- gapindex::sql_query(
+    channel = channel,
+    query = paste0("
+select * from gap_products.biomass
+where survey_definition_id = ", sdi, "
+order by year;")
+  )
 
-write.csv(x = biomass, "./data/local_gap_products/biomass.csv", row.names = FALSE)
+  write.csv(x = biomass, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
-print("Finished downloading GAP_PRODUCTS.BIOMASS")
+  cat("\u2705 Finished downloading GAP_PRODUCTS.BIOMASS")
+} else {
+  cat("\u2705 GAP_PRODUCTS.biomass table already exists for this year and region. Moving on.")
+}
 
 
 # Biomass for all species (not complexes)
@@ -325,7 +322,7 @@ rm(list = c(
   "biomass_subarea_complexes"
 ))
 
-print("Created cpue_table_complexes and biomass_total_complexes.")
+cat("\u2705 Created cpue_table_complexes and biomass_total_complexes.")
 
 write.csv(biomass_stratum_complexes, file = paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv")) # used in tables
 write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr, "tables/biomass_subarea_all.csv"))
@@ -358,40 +355,58 @@ if (SRVY == "GOA") {
 
 write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
-print("Finished downloading stratum and species groups.")
+cat("\u2705 Finished downloading stratum and species groups.")
 
 
 # * SIZECOMP --------------------------------------------------------------
 # size comps - recreate the sizecomp table as it was in AI and GOA schemas
 # MAY NEED TO WORK ON THIS MORE LATER. THIS SHOULD DOWNLOAD THE RAW TABLE AND THAT SHOULD BE PROCESSED LATER.
 # ** species ----------------------------------------------
-sizecomp0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP WHERE SURVEY_DEFINITION_ID IN (47, 52)")
-sizecomp <- dplyr::filter(
-  sizecomp0, SURVEY_DEFINITION_ID == sdi # &
-  # AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
-) |>
-  dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(
-    SEX == 1 ~ "MALES",
-    SEX == 2 ~ "FEMALES",
-    SEX == 3 ~ "UNSEXED"
-  )) |>
-  dplyr::rename(LENGTH = LENGTH_MM) |>
-  tidyr::pivot_wider(
-    names_from = "SEX",
-    values_from = "POPULATION_COUNT",
-    values_fill = 0
-  ) |>
-  dplyr::mutate(
-    TOTAL = MALES + FEMALES + UNSEXED,
-    SUMMARY_AREA = 999
-  ) |>
-  dplyr::filter(YEAR >= minyr) |>
-  dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
-  dplyr::filter(SPECIES_CODE %in% report_species$species_code)
 
-write.csv(x = sizecomp, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
+# sizecomp0 <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SIZECOMP WHERE SURVEY_DEFINITION_ID IN (47, 52)")
 
-print("Finished downloading GAP_PRODUCTS.SIZECOMP")
+if(!check_for_table(
+  path = "./data/local_gap_products/sizecomp.csv", 
+                    survey_definition_id = sdi)){
+  
+  sizecomp0 <- RODBC::sqlQuery(
+  channel,
+  sprintf(
+    "SELECT * FROM GAP_PRODUCTS.SIZECOMP WHERE SURVEY_DEFINITION_ID = '%s'",
+    sdi
+  )
+)
+  
+  sizecomp <- dplyr::filter(
+    sizecomp0, SURVEY_DEFINITION_ID == sdi # &
+    # AREA_ID == ifelse(SRVY == "GOA", 99903, 99904)
+  ) |>
+    dplyr::mutate(SURVEY = SRVY, SEX = dplyr::case_when(
+      SEX == 1 ~ "MALES",
+      SEX == 2 ~ "FEMALES",
+      SEX == 3 ~ "UNSEXED"
+    )) |>
+    dplyr::rename(LENGTH = LENGTH_MM) |>
+    tidyr::pivot_wider(
+      names_from = "SEX",
+      values_from = "POPULATION_COUNT",
+      values_fill = 0
+    ) |>
+    dplyr::mutate(
+      TOTAL = MALES + FEMALES + UNSEXED,
+      SUMMARY_AREA = 999
+    ) |>
+    dplyr::filter(YEAR >= minyr) |>
+    dplyr::mutate(SPECIES_CODE = as.character(SPECIES_CODE)) |>
+    dplyr::filter(SPECIES_CODE %in% report_species$species_code)
+  
+  write.csv(x = sizecomp, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
+  
+  cat("\u2705 Finished downloading GAP_PRODUCTS.SIZECOMP")
+}else{
+  sizecomp <- read.csv("data/local_gap_products/sizecomp.csv")
+  cat("\u2705 Sizecomp table already exists for this year and region. Using this one for use with complexes and moving on.")
+}
 
 
 # ** complexes ------------------------------------------------------------
@@ -587,10 +602,10 @@ write.csv(appendix_b_tbl, file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"
 if (SRVY == "GOA") {
   # GOA_planning_species_2021.csv
   # These are Sheet 1 from G:/GOA/Survey Planning/goa_planning_species_01052023.xlsx
-  print("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
+  cat("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
 }
 
-print("Finished downloading all the Oracle tables.")
+cat("\u2705 Finished downloading all the Oracle tables.")
 
 # PLAN TEAM: USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # STILL NEED TO WORK ON THIS PART
