@@ -77,7 +77,7 @@ and this will become a permanent feature of our station allocations in the futur
 vessel1 <- "FV&nbsp;*Ocean Explorer*"
 vessel2 <- "FV&nbsp;*Alaska Provider*"
 captain1 <- "Dan Carney"
-captain2 <- "Loren Reynolds"
+captain2 <- "Art McArdle"
 
 # Internal reviewers
 reviewer1 <- "INSERT REVIEWER NAME 1"
