@@ -428,20 +428,8 @@ nsquidlengths <- sum(length_maxyr_species |>
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
-# S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
-
+# New: this used to draw from RACEBASE.SPECIMEN, now it uses GAP_PRODUCTS.SPECIMEN
 specimen_maxyr <- read.csv("data/local_gap_products/specimen_maxyr.csv", header = TRUE)
-
-# specimen_maxyr <- S |>
-#   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-#   filter(YEAR == maxyr & REGION == SRVY) |>
-#   filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
-#   dplyr::left_join(haul_maxyr, by = c(
-#     "CRUISEJOIN", "HAULJOIN", "CRUISE", "HAUL",
-#     "REGION", "VESSEL", "YEAR"
-#   )) |>
-#   dplyr::filter(ABUNDANCE_HAUL=="Y")
-# nrow(specimen_maxyr)
 
 otos_collected <- specimen_maxyr |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
