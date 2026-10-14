@@ -1,4 +1,5 @@
-# File management --------------------------------------------------------#' Check file existence and display status messages
+# File management --------------------------------------------------------
+#' Check file existence and display status messages
 #'
 #' @param file_paths Named or un-named vector/list of file paths.
 #' @param category Label for the log header (e.g., "Tables", "Figures").
@@ -34,6 +35,36 @@ check_files <- function(file_paths, category = "Files") {
   }
 
   invisible(status)
+}
+
+#' Check for a downloaded csv of a file and confirm it contains data for the region you want
+#'
+#' @param path path to the data file you want to check
+#' @param region  can be character ("GOA" or "AI") or survey definition ID (52 or 47)
+#'
+#' @returns logical of whether the file exists AND whether it is the correct region
+#' @export
+#'
+#' @examples
+check_for_table <- function(path = "./data/local_racebase/haul.csv",
+                            region = "AI", survey_definition_id = NULL) {
+  
+  if (!is.null(survey_definition_id)) {
+    region <- switch(as.character(survey_definition_id),
+      "47" = "GOA",
+      "52" = "AI",
+      "NULL"
+    )
+  }
+
+  region_correct <- FALSE
+
+  if (file.exists(path)) {
+    # look at the top row of data and see if it contains the right region
+    data_raw <- readLines(path, n = -1)  # just the first row of actual data
+    region_correct <- any(grepl(region, data_raw))
+  }
+  return(region_correct)
 }
 
 
