@@ -122,11 +122,13 @@ nsquidlengths <- sum(length_maxyr |>
 
 # Otoliths collected
 
-#S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
+# Method used for Plan Team 2026:
+# S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
 # specimen_maxyr <- S |>
 #   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-#   filter(YEAR == maxyr & REGION == SRVY)
+#   filter(YEAR == maxyr & REGION == SRVY & SPECIMEN_SAMPLE_TYPE ==1 )
 
+# Method used starting now, using GAP_PRODUCTS: 
 specimen_maxyr <- read.csv(here::here("data", "local_gap_products","specimen_maxyr.csv"))
 
 total_otos_collected <- specimen_maxyr |>
