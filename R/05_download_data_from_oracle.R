@@ -25,9 +25,9 @@ if (!check_for_table(path = "./data/local_racebase/haul.csv", region = SRVY)) {
     )
   )
   write.csv(x = haul, "./data/local_racebase/haul.csv", row.names = FALSE)
-  cat("\u2705 Finished downloading HAUL")
+  cat("\n \u2705 Finished downloading HAUL")
 }else{
-  cat("\u2705 HAUL table already exists, moving on.")
+  cat("\n \u2705 HAUL table already exists, moving on.")
 }
 
 
@@ -43,9 +43,9 @@ if (!check_for_table(path = "./data/local_racebase/length.csv", region = SRVY)) 
   )
 
   write.csv(x = a, "./data/local_racebase/length.csv", row.names = FALSE)
-  cat("\u2705 Finished downloading LENGTH")
+  cat("\n \u2705 Finished downloading LENGTH")
 } else {
-  cat("\u2705 LENGTH table already exists, moving on.")
+  cat("\n \u2705 LENGTH table already exists, moving on.")
 }
 
 
@@ -74,7 +74,7 @@ write.csv(x = a, "./data/local_racebase/species.csv", row.names = FALSE)
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIES_CLASSIFICATION")
 write.csv(x = a, "./data/local_racebase/species_classification.csv", row.names = FALSE)
 
-cat("\u2705 Finished downloading STRATUM, SPECIES, and SPECIES_CLASSIFICATION")
+cat("\n \u2705 Finished downloading STRATUM, SPECIES, and SPECIES_CLASSIFICATION")
 
 
 # RACE_DATA ---------------------------------------------------------------
@@ -82,7 +82,7 @@ cat("\u2705 Finished downloading STRATUM, SPECIES, and SPECIES_CLASSIFICATION")
 a <- RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.RACE_SPECIES_CODES")
 write.csv(x = a, "./data/local_race_data/race_species_codes.csv", row.names = FALSE)
 
-cat("\u2705 Finished downloading RACE_DATA tables. We may not need all of these forever.")
+cat("\n \u2705 Finished downloading RACE_DATA tables. We may not need all of these forever.")
 
 # GOA ---------------------------------------------------------------------
 # goa_strata contains both GOA and AI strata information
@@ -90,7 +90,7 @@ cat("\u2705 Finished downloading RACE_DATA tables. We may not need all of these 
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
 write.csv(x = a, "./data/goa_strata.csv", row.names = FALSE)
 
-cat("\u2705 Finished downloading strata file.")
+cat("\n \u2705 Finished downloading strata file.")
 
 
 if (SRVY == "GOA") {
@@ -100,7 +100,7 @@ if (SRVY == "GOA") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOAGRID")
   write.csv(x = a, "./data/local_goa/goagrid.csv", row.names = FALSE)
 
-  cat("\u2705 Finished downloading GOA schema tables")
+  cat("\n \u2705 Finished downloading GOA schema tables")
 }
 
 # AI ----------------------------------------------------------------------
@@ -108,7 +108,7 @@ if (SRVY == "AI") {
   a <- RODBC::sqlQuery(channel, "SELECT * FROM AI.STATION_ALLOCATION")
   write.csv(x = a, "./data/local_ai/ai_station_allocation.csv", row.names = FALSE)
 
-  cat("\u2705 Finished downloading AI schema tables")
+  cat("\n \u2705 Finished downloading AI schema tables")
 }
 
 # GAP_PRODUCTS ------------------------------------------------------------
@@ -147,9 +147,9 @@ if (!check_for_table(
   
   write.csv(specimen_maxyr, "./data/local_gap_products/specimen_maxyr.csv", row.names = FALSE) 
   # Zack da best
-  cat("\u2705 Finished downloading specimen table for this year and survey.")
+  cat("\n \u2705 Finished downloading specimen table for this year and survey.")
 }else{
-  cat("Specimen table for this year and survey already exists. Moving on.")
+  cat("\n Specimen table for this year and survey already exists. Moving on.")
 }
 
 
@@ -236,7 +236,7 @@ any(is.na(cpue_processed$haul))
 
 write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_processed.csv")) # use this in place of cpue_raw, everywhere
 
-cat("\u2705 GAP_PRODUCTS.CPUE table joined to complex table and donwloaded.")
+cat("\n \u2705 GAP_PRODUCTS.CPUE table joined to complex table and donwloaded.")
 
 # * BIOMASS  -------------------------------------------------------------------
 # ** species --------------------------------------------------------------
@@ -258,9 +258,9 @@ order by year;")
 
   write.csv(x = biomass, "./data/local_gap_products/biomass.csv", row.names = FALSE)
 
-  cat("\u2705 Finished downloading GAP_PRODUCTS.BIOMASS")
+  cat("\n \u2705 Finished downloading GAP_PRODUCTS.BIOMASS")
 } else {
-  cat("\u2705 GAP_PRODUCTS.biomass table already exists for this year and region. Moving on.")
+  cat("\n \u2705 GAP_PRODUCTS.biomass table already exists for this year and region. Moving on.")
 }
 
 
@@ -322,7 +322,7 @@ rm(list = c(
   "biomass_subarea_complexes"
 ))
 
-cat("\u2705 Created cpue_table_complexes and biomass_total_complexes.")
+cat("\n \u2705 Created cpue_table_complexes and biomass_total_complexes.")
 
 write.csv(biomass_stratum_complexes, file = paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv")) # used in tables
 write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr, "tables/biomass_subarea_all.csv"))
@@ -355,7 +355,7 @@ if (SRVY == "GOA") {
 
 write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
-cat("\u2705 Finished downloading stratum and species groups.")
+cat("\n \u2705 Finished downloading stratum and species groups.")
 
 
 # * SIZECOMP --------------------------------------------------------------
@@ -402,10 +402,10 @@ if(!check_for_table(
   
   write.csv(x = sizecomp, "./data/local_gap_products/sizecomp.csv", row.names = FALSE)
   
-  cat("\u2705 Finished downloading GAP_PRODUCTS.SIZECOMP")
+  cat("\n \u2705 Finished downloading GAP_PRODUCTS.SIZECOMP")
 }else{
   sizecomp <- read.csv("data/local_gap_products/sizecomp.csv")
-  cat("\u2705 Sizecomp table already exists for this year and region. Using this one for use with complexes and moving on.")
+  cat("\n \u2705 Sizecomp table already exists for this year and region. Using this one for use with complexes and moving on.")
 }
 
 
@@ -602,10 +602,10 @@ write.csv(appendix_b_tbl, file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"
 if (SRVY == "GOA") {
   # GOA_planning_species_2021.csv
   # These are Sheet 1 from G:/GOA/Survey Planning/goa_planning_species_01052023.xlsx
-  cat("Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
+  cat("\n Using GOA_planning_species_2021.csv, which is based on goa_planning_species_01052023.xlsx. This is the most recent version of the ex-vessel prices for GOA species.")
 }
 
-cat("\u2705 Finished downloading all the Oracle tables.")
+cat("\n \u2705 Finished downloading all the Oracle tables.")
 
 # PLAN TEAM: USE GAPINDEX TO GET CPUE AND BIOMASS TABLES ###########
 # STILL NEED TO WORK ON THIS PART
@@ -714,5 +714,5 @@ if (use_gapindex) {
   # sizecomps will be assigned later
 
   rm(list = c("biomass_subarea"))
-  print("Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
+  cat("\n Created biomass_total and cpue_raw with gapindex. This is a preliminary option and if the GAP_PRODUCTS routines have already been run this year, you should set use_gapindex=FALSE and use the GAP_PRODUCTS tables instead.")
 }
