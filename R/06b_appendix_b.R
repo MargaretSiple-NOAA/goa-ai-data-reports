@@ -1,4 +1,4 @@
-appB_option =="SQL_QUERY"
+appB_option = "SQL_QUERY"
 
 # This option uses RACEBASE tables ---------------------------------------------
 if (appB_option == "RACEBASE") {
