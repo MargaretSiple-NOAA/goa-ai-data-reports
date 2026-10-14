@@ -1,7 +1,10 @@
-appB_option = "SQL_QUERY"
+appB_option <- "SQL_QUERY"
 
-# This option uses RACEBASE tables ---------------------------------------------
-if (appB_option == "RACEBASE") {
+# This option uses a SQL query written by Zack --------------------------------
+if (appB_option == "SQL_QUERY") {
+  appB <- read.csv(file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"))
+} else {
+  # This option uses RACEBASE tables
   # get catch and taxonomy info
   catch <- read_csv("data/local_racebase/catch.csv") |>
     mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}"))
@@ -92,10 +95,7 @@ if (appB_option == "RACEBASE") {
       distinct() |>
       arrange(inpfc_area, tax_group, major_group, species_name)
   }
-} else {
-  appB <- read.csv(file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"))
 }
-
 
 # Compare appB with appendix_b_tbl from above:
 # These species are in appB but don't appear in the new SQL-pulled table
