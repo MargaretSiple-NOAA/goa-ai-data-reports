@@ -2,7 +2,23 @@ appB_option <- "SQL_QUERY"
 
 # This option uses a SQL query written by Zack --------------------------------
 if (appB_option == "SQL_QUERY") {
-  appB <- read.csv(file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"))
+  appB0 <- read.csv(file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"))
+  appB0 <- appB0 |>
+    janitor::clean_names() |>
+    mutate(major_group = case_when(
+      species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
+      species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
+      species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
+      species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
+      species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
+    )) |>
+    dplyr::mutate(tax_group = dplyr::case_when(
+      species_code <= 31550 ~ "fish",
+      species_code >= 40001 ~ "invert"
+    )) |>
+    dplyr::mutate(family_taxon = case_when(
+      species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon
+    ))
 } else {
   # This option uses RACEBASE tables
   # get catch and taxonomy info
@@ -88,14 +104,14 @@ if (appB_option == "SQL_QUERY") {
       arrange(regulatory_area_name, tax_group, major_group, species_name)
   } else {
     appB <- appB0 |>
-      dplyr::select(inpfc_area, species_code, species_name, common_name,
+      dplyr::select(area_name, species_code, species_name, common_name,
         family = family_taxon, phylum = phylum_taxon,
         major_group, tax_group
       ) |>
       distinct() |>
-      arrange(inpfc_area, tax_group, major_group, species_name)
+      arrange(area_name, tax_group, major_group, species_name)
   }
-}
+} #/ end RACEBASE option for Appendix B
 
 # Compare appB with appendix_b_tbl from above:
 # These species are in appB but don't appear in the new SQL-pulled table
@@ -105,18 +121,18 @@ if (appB_option == "SQL_QUERY") {
 # diversity by subregion
 if (SRVY == "AI" | maxyr < 2025) {
   subregion_diversity <- appB |>
-    group_by(inpfc_area, tax_group) |>
+    group_by(area_name, tax_group) |>
     tally(name = "nsp") |>
     pivot_wider(names_from = tax_group, values_from = nsp)
 } else {
-  subregion_diversity <- appB |>
-    group_by(regulatory_area_name, tax_group) |>
+  subregion_diversity <- appB |> # this may need fixing for GOA 2027
+    group_by(area_name, tax_group) |>
     tally(name = "nsp") |>
     pivot_wider(names_from = tax_group, values_from = nsp)
 }
 
 # standardize colnames to work for both areas, all years
-colnames(subregion_diversity)[which(colnames(subregion_diversity) == "inpfc_area")] <- "regulatory_area_name"
+colnames(subregion_diversity)[which(colnames(subregion_diversity) == "AREA_NAME")] <- "regulatory_area_name"
 
 head(subregion_diversity)
 
@@ -128,7 +144,7 @@ if (SRVY == "GOA" & design_year >= 2025) {
     unique()
 } else {
   total_diversity <- appB |>
-    dplyr::select(-inpfc_area) |>
+    dplyr::select(-area_name) |>
     unique()
 }
 
