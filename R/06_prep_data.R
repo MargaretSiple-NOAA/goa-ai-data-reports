@@ -291,6 +291,10 @@ if (maxyr > 2021) {
   nnewstations <- all_allocation |>
     filter(YEAR == maxyr & grepl("new", STATION_TYPE)) |>
     nrow()
+  newstation_strata <- all_allocation |>
+    filter(YEAR == maxyr & grepl("new", STATION_TYPE)) |>
+    distinct(STRATUM) 
+  
 } else {
   nnewstations <- 0
 }
@@ -300,6 +304,7 @@ if (nnewstations == 0) {
 }
 
 # Of the new stations allocated to the different vessels, which ones were successfully sampled?
+# These are historically sampled stations:
 hist_stations <- haul |>
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
   filter(REGION == SRVY) |>
@@ -310,7 +315,7 @@ hist_stations <- hist_stations$STATIONID
 
 test <- haul_maxyr |>
   mutate(newstation = ifelse(STATIONID %in% hist_stations, "no", "yes")) |>
-  filter(newstation == "yes")
+  filter(newstation == "yes" & STRATUM %in% newstation_strata$STRATUM)
 
 new_successfully_sampled <- test |>
   filter(ABUNDANCE_HAUL == "Y") |>
