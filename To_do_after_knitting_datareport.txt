@@ -6,6 +6,7 @@ Add to data reports once we have a finished Markdown output:
 
 - Go through the chapters for the complexes and make sure they're grammatically correct! [grimace emoji]
 - Insert a TOC; make sure it's just called Contents
+- Format Table 5 (the mean CPUE for the 20 most abundant species) so that the caption runs across the top instead of being in one of the columns.
 - Find/replace "first most abundant species" or "1st most abundant species" - change to "most abundant species"
 - Make sure vessel names are italicized in bullet points
 - Make sure all table and figure captions are left-justified the way they're supposed to be in TMs and DPRs. Use the "table caption" formatting button in the Home tab of Word. I don't know why the figure captions automatically format and the table captions don't. Tooooo lazy to figure it out. Anchor at 0', floating anchor at 0.75"
