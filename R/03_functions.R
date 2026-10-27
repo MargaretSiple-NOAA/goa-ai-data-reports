@@ -623,7 +623,7 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     dplyr::summarize(across(allocated:AREA, sum)) |>
     tibble::add_column(`Depth range` = "All depths", .before = "allocated") |>
     ungroup() |>
-    mutate(stations_per_1000km2 = succeeded / AREA) |>
+    mutate(stations_per_1000km2 =  round((succeeded / AREA) * 1000, digits = 2)) |>
     tibble::add_column(MANAGEMENT_AREA = "All areas", .before = "Depth range")
 
   allocated_sampled <- suppressWarnings( # warnings are suppressed because str_extract returns an NA when it gets to Depth range = 'All Depths'
