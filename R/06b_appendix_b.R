@@ -93,25 +93,26 @@ if (appB_option == "SQL_QUERY") {
     dplyr::mutate(family_taxon = case_when(
       species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon
     ))
-
-  if (SRVY == "GOA" & design_year >= 2025) {
-    appB <- appB0 |>
-      dplyr::select(regulatory_area_name, species_code, species_name, common_name,
-        family = family_taxon, phylum = phylum_taxon,
-        major_group, tax_group
-      ) |>
-      distinct() |>
-      arrange(regulatory_area_name, tax_group, major_group, species_name)
-  } else {
-    appB <- appB0 |>
-      dplyr::select(area_name, species_code, species_name, common_name,
-        family = family_taxon, phylum = phylum_taxon,
-        major_group, tax_group
-      ) |>
-      distinct() |>
-      arrange(area_name, tax_group, major_group, species_name)
-  }
 } #/ end RACEBASE option for Appendix B
+
+if (SRVY == "GOA" & design_year >= 2025) {
+  appB <- appB0 |>
+    dplyr::select(regulatory_area_name, species_code, species_name, common_name,
+                  family = family_taxon, phylum = phylum_taxon,
+                  major_group, tax_group
+    ) |>
+    distinct() |>
+    arrange(regulatory_area_name, tax_group, major_group, species_name)
+} else {
+  appB <- appB0 |>
+    dplyr::select(area_name, species_code, species_name, common_name,
+                  family = family_taxon, phylum = phylum_taxon,
+                  major_group, tax_group
+    ) |>
+    distinct() |>
+    arrange(area_name, tax_group, major_group, species_name)
+}
+
 
 # Compare appB with appendix_b_tbl from above:
 # These species are in appB but don't appear in the new SQL-pulled table
