@@ -188,7 +188,9 @@ where
                       "
   ) |>
   janitor::clean_names() |>
-  dplyr::mutate(species_code = as.character(species_code))
+  dplyr::mutate(species_code = as.character(species_code), 
+                start_time = as.character(start_time))
+
 
 # ** complexes -------------------------------------------------
 # Haul-joined CPUE table for complexes. This has to be generated from gapindex package.
@@ -208,6 +210,11 @@ complexes_data <- gapindex::get_data(
   pull_lengths = TRUE,
   channel = channel
 )
+
+# Load haul data if needed - add to CPUE table from gapindex
+if(!exists("haul")){
+  haul <- read.csv("./data/local_racebase/haul.csv")
+}
 
 cpue_raw_complexes0 <- gapindex::calc_cpue(gapdata = complexes_data) |>
   dplyr::left_join(haul)
@@ -451,6 +458,7 @@ sizecomp_complexes <- sizecomp_subareas_complexes |>
   as.data.frame()
 
 # Full sizecomp table with species and complexes:
+sizecomp$SPECIES_CODE <- as.character(sizecomp$SPECIES_CODE)
 sizecomp <- dplyr::bind_rows(sizecomp, sizecomp_complexes)
 
 rm(list = c("sizecomp_stratum_complexes"))

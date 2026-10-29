@@ -53,9 +53,9 @@ subregion_fam_div <- appB |>
   relocate(any_of(c("Family", district_order)))
 }else{
   subregion_fam_div <- appB |>
-    group_by(inpfc_area, family) |>
+    group_by(area_name, family) |> #inpfc_area, family
     tally(name = "nsp") |>
-    pivot_wider(names_from = inpfc_area, values_from = nsp) |>
+    pivot_wider(names_from = area_name, values_from = nsp) |> #names_from = inpfc_area
     dplyr::rename(Family = family) |>
     ungroup() |>
     mutate_at(vars(-Family), ~ replace_na(., 0)) |>
