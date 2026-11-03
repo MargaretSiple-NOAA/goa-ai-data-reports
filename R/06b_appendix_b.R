@@ -95,14 +95,14 @@ if (appB_option == "SQL_QUERY") {
     ))
 } #/ end RACEBASE option for Appendix B
 
-if (SRVY == "GOA" & design_year >= 2025) {
+if (SRVY == "GOA" & design_year >= 2025) { #check later after goa 2019 backlog starts
   appB <- appB0 |>
-    dplyr::select(regulatory_area_name, species_code, species_name, common_name,
+    dplyr::select(area_name, species_code, species_name, common_name,
                   family = family_taxon, phylum = phylum_taxon,
                   major_group, tax_group
     ) |>
     distinct() |>
-    arrange(regulatory_area_name, tax_group, major_group, species_name)
+    arrange(area_name, tax_group, major_group, species_name)
 } else {
   appB <- appB0 |>
     dplyr::select(area_name, species_code, species_name, common_name,
@@ -133,7 +133,7 @@ if (SRVY == "AI" | maxyr < 2025) {
 }
 
 # standardize colnames to work for both areas, all years
-colnames(subregion_diversity)[which(colnames(subregion_diversity) == "AREA_NAME")] <- "regulatory_area_name"
+colnames(subregion_diversity)[which(colnames(subregion_diversity) == "AREA_NAME")] <- "area_name"
 
 head(subregion_diversity)
 
@@ -141,7 +141,7 @@ head(subregion_diversity)
 # statement for text
 if (SRVY == "GOA" & design_year >= 2025) {
   total_diversity <- appB |>
-    dplyr::select(-regulatory_area_name) |>
+    dplyr::select(-area_name) |>
     unique()
 } else {
   total_diversity <- appB |>
