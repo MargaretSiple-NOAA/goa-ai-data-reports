@@ -168,10 +168,15 @@ write.csv(x = a, "./data/local_gap_products/area.csv", row.names = FALSE)
 # * CPUE -----------------------------------------------------------------
 # ** species -------------------------------------------------------------
 # Haul-joined CPUE table for all individual species, can pull straight from GAP_PRODUCTS
+
+# Subset to report_species that are single species (complexes are dealt with below)
+species_list <- gapindex::stitch_entries(report_species$species_code[grepl("[0-9]",report_species$species_code)]) 
+
+# Pull CPUE for just report_species from GAP_PRODUCTS/RACEBASE.HAUL
 cpue_raw <-
   gapindex::sql_query(
     channel = channel,
-    query = "
+    query = paste0("
 select 
     floor(haul.cruise/100) as year,
     haul.START_LONGITUDE as longitude_dd_start,
@@ -184,9 +189,10 @@ from
 join 
     racebase.haul haul on haul.hauljoin = cpue.hauljoin
 where 
-    haul.region in ('AI', 'GOA')
-                      "
-  ) |>
+    haul.region = '", SRVY, "'
+    and cpue.species_code in ", species_list
+    ) 
+  )|>
   janitor::clean_names() |>
   dplyr::mutate(species_code = as.character(species_code), 
                 start_time = as.character(start_time))
@@ -243,7 +249,7 @@ any(is.na(cpue_processed$haul))
 
 write.csv(cpue_processed, file = paste0(dir_out_srvy_yr, "tables/cpue_processed.csv")) # use this in place of cpue_raw, everywhere
 
-cat("\n \u2705 GAP_PRODUCTS.CPUE table joined to complex table and donwloaded.")
+cat("\n \u2705 GAP_PRODUCTS.CPUE table bound to gapindex complexes table and downloaded.")
 
 # * BIOMASS  -------------------------------------------------------------------
 # ** species --------------------------------------------------------------
@@ -254,7 +260,7 @@ cat("\n \u2705 GAP_PRODUCTS.CPUE table joined to complex table and donwloaded.")
         #   SURVEY_DEFINITION_ID == sdi
         # )
 if (!check_for_table(path = "./data/local_gap_products/biomass.csv", region = SRVY)) {
-  "Downloading biomass-- this will take a minute."
+  cat("\n Downloading biomass-- this will take a minute.")
   biomass <- gapindex::sql_query(
     channel = channel,
     query = paste0("
@@ -329,13 +335,12 @@ rm(list = c(
   "biomass_subarea_complexes"
 ))
 
-cat("\n \u2705 Created cpue_table_complexes and biomass_total_complexes.")
-
 write.csv(biomass_stratum_complexes, file = paste0(dir_out_srvy_yr, "tables/biomass_stratum_complexes.csv")) # used in tables
 write.csv(biomass_subarea, file = paste0(dir_out_srvy_yr, "tables/biomass_subarea_all.csv"))
 
 write.csv(biomass_total, file = paste0(dir_out_srvy_yr, "tables/biomass_total_all.csv"))
 
+cat("\n \u2705 Created biomass_total and biomass_total_complexes, bound together, and saved.")
 
 # * STRATUM_GROUPS ----------------------------------------------------------
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
