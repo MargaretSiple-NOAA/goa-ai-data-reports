@@ -46,24 +46,91 @@ check_files <- function(file_paths, category = "Files") {
 #' @export
 #'
 #' @examples
+#' Check for a downloaded csv of a file and confirm it contains data for the region you want
+#'
+#' @param path path to the data file you want to check
+#' @param region  can be character ("GOA" or "AI") or survey definition ID (52 or 47)
+#'
+#' @returns logical of whether the file exists AND whether it is the correct region
+#' @export
+#'
+#' @examples
 check_for_table <- function(path = "./data/local_racebase/haul.csv",
-                            region = "AI", survey_definition_id = NULL) {
-  
+                            region = "AI",
+                            survey_definition_id = NULL,
+                            cruise = NULL,
+                            year = NULL) {
+  # Check region based on survey_definition_id
   if (!is.null(survey_definition_id)) {
     region <- switch(as.character(survey_definition_id),
-      "47" = "GOA",
-      "52" = "AI",
-      "NULL"
+                     "47" = "GOA",
+                     "52" = "AI",
+                     "NULL"
+    )
+  } else {
+    survey_definition_id <- switch(as.character(region),
+                                   "GOA" = "47",
+                                   "AI" = "52",
+                                   "NULL"
     )
   }
-
+  
   region_correct <- FALSE
-
-  if (file.exists(path)) {
-    # look at the top row of data and see if it contains the right region
-    data_raw <- readLines(path, n = -1)  # just the first row of actual data
-    region_correct <- any(grepl(region, data_raw))
+  cruise_correct <- FALSE
+  
+  if (!file.exists(path)) {
+    return(FALSE)
   }
+  # 1. Check region from the top rows
+  data_raw <- readLines(path, n = 5) # read header and first few rows
+  region_correct <- any(grepl(region, data_raw)) | any(grepl(survey_definition_id, data_raw))
+  
+  if (!region_correct) {
+    return(FALSE)
+  }
+  
+  has_dt <- requireNamespace("data.table", quietly = TRUE)
+  
+  # 2. If a cruise is specified, check if it exists in the file
+  if (!is.null(cruise)) {
+    # Efficiently read just the CRUISE column using data.table if available,
+    # or read.csv with colClasses/nrows if preferring base R.
+    if (has_dt) {
+      dt <- data.table::fread(path, select = "CRUISE", colClasses = "character")
+      cruise_correct <- as.character(cruise) %in% dt$CRUISE
+    } else {
+      df <- read.csv(path, colClasses = c(CRUISE = "character"), nrows = 100000) # fallback or full read
+      # Alternatively, read just header & column:
+      header <- names(read.csv(path, nrows = 1))
+      if ("CRUISE" %in% header) {
+        # read full CRUISE column efficiently in base R
+        full_df <- read.csv(path, colClasses = c(CRUISE = "character"))
+        cruise_correct <- as.character(cruise) %in% full_df$CRUISE
+      } else {
+        cruise_correct <- FALSE
+      }
+    }
+    return(region_correct && cruise_correct)
+  }
+  
+  if (!is.null(year)) {
+    if (has_dt) {
+      dt <- data.table::fread(path, select = "YEAR", colClasses = "character")
+      year_correct <- as.character(year) %in% dt$YEAR
+    } else {
+      header <- names(read.csv(path, nrows = 1))
+      if ("YEAR" %in% header) {
+        full_df <- read.csv(path, colClasses = c(YEAR = "character"))
+        year_correct <- as.character(year) %in% full_df$YEAR
+      } else {
+        year_correct <- FALSE
+      }
+    }
+    if (!year_correct) {
+      return(FALSE)
+    }
+  }
+  
   return(region_correct)
 }
 
