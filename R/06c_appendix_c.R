@@ -15,18 +15,18 @@ nrow(abundance_hauls)
 
 # Filter and rename cols in specimen data from RACEBASE -------------------
 specimen_maxyr2 <- specimen_maxyr |>
-  dplyr::rename(
-    "LENGTH_MM" = "LENGTH", # units, people!!
-    "WEIGHT_G" = "WEIGHT"
-  ) |>
+  # dplyr::rename(
+  #   "LENGTH_MM" = "LENGTH", # units, people!!
+  #   "WEIGHT_G" = "WEIGHT"
+  # ) |>
   dplyr::filter(SPECIES_CODE %in% report_species$species_code &
     LENGTH_MM > 0 & WEIGHT_G > 0)
 
 # Want to only use data from abundance_haul==Y
 specimen_maxyr_fit <- specimen_maxyr2 |>
-  left_join(haul_maxyr, by = c("CRUISEJOIN", "HAULJOIN", "REGION", "VESSEL", "CRUISE", "HAUL", "YEAR")) |>
+  left_join(haul_maxyr, by = c("HAULJOIN","YEAR", "STRATUM")) |>
   dplyr::filter(ABUNDANCE_HAUL == "Y") |>
-  dplyr::select(CRUISE, HAUL, SPECIMENID, SPECIES_CODE, LENGTH_MM, SEX, WEIGHT_G)
+  dplyr::select(CRUISE, HAUL, SPECIES_CODE, SEX, LENGTH_MM, WEIGHT_G)
 
 nrow(specimen_maxyr_fit)
 
