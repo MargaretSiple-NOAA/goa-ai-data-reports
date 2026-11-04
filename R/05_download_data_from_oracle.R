@@ -233,7 +233,9 @@ cpue_raw_complexes <- cpue_raw_complexes0 |>
     -LATITUDE_DD_END, -LONGITUDE_DD_END,
     -REGION, -BOTTOM_TEMPERATURE_C,
     -DEPTH_M
-  )
+  )  |>
+  dplyr::mutate(START_TIME = as.character(START_TIME),
+                SPECIES_CODE = as.character(SPECIES_CODE))
 
 # janitor::compare_df_cols(cpue_raw, cpue_raw_complexes)
 
