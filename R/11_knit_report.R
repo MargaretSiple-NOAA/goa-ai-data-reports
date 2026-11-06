@@ -88,10 +88,7 @@ net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"
 net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figure's aspect ratio
 
 # Maps with CPUE
-# update: I have removed this from loading because it is a HUGE rdata file. Instead, the code takes raw pngs that have already been generated and inserts them in the Word doc.
-# load(file = paste0(
-#   dir_in_figures, "list_cpue_bubbles_strata.rdata"
-# )) # object: list_cpue_bubbles
+# update: Instead of loading a huge rdata file, the code takes raw pngs that have already been generated and inserts them in the Word doc.
 
 # Calculate aspect ratio of CPUE maps (should be same aspect ratio for all species and complexes):
 cpue_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/", "figures/", maxyr, "_", "Pacific ocean perch", "_bubble.png"))) # just as an example - and POP is in both GOA and AI
@@ -140,10 +137,10 @@ load(file = paste0(dir_out_tables, "list_samplingdensities.rdata")) # object: li
 # Free unused memory
 gc()
 
-# Render
+# Start a timer to estimate knitting time (should be 3-5 mins for full report)
 starttime <- Sys.time()
-#source("R/00_report_settings.R")
-# Must now render locally (don't ask me why)
+
+# Must now render local to the Rmd file (don't ask me why):
 out_file <- rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_file = "DATA_REPORT.docx"
 )
@@ -154,26 +151,26 @@ file.rename(
   to = file.path(dir_out_chapters, "DATA_REPORT.docx")
 )
 
-Sys.time() - starttime
+Sys.time() - starttime # end timer
 
 #  time for 4 species: about 40-50 seconds
 #  for all species: about 5 mins
 
 
 # Make the appendices -----------------------------------------------------
-# These will print to the output/[date]/chapters/ directory
+# Appendices will print to: output/[region]_[year]/chapters/ 
 source("R/12_knit_appendices.R")
 
 # Append the appendices using officer -------------------------------------
-# gc() # clean up unused memory again (helps for giant data objects)
+# gc() # clean up unused memory again
 #
-# maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
+# maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) |>
 #   body_add_break()
 #
 # fullreport <- body_add_docx(
 #   x = maindoc,
 #   src = paste0(appendix_dir, "Appendix A/Appendix A 2023.docx")
-# ) %>%
+# ) |>
 #   body_add_break()
 #
 # # Make Appendix B
@@ -181,13 +178,13 @@ source("R/12_knit_appendices.R")
 #
 # fullreport <- body_add_docx(fullreport,
 #   src = (paste0(dir_out_chapters, "AppendixB.docx"))
-# ) %>%
+# ) |>
 #   body_add_break()
 #
 # # Add Appendix C
 # fullreport <- body_add_docx(fullreport,
 #   src = paste0(appendix_dir, "Appendix C/APPENDIX C_2023.docx")
-# ) %>%
+# ) |>
 #   body_add_break()
 #
 # print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))
