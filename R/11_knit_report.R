@@ -142,6 +142,7 @@ gc()
 
 # Render
 starttime <- Sys.time()
+#source("R/00_report_settings.R")
 # Must now render locally (don't ask me why)
 out_file <- rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_file = "DATA_REPORT.docx"
