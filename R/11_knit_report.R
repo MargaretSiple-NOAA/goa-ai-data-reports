@@ -162,7 +162,7 @@ Sys.time() - starttime
 
 # Make the appendices -----------------------------------------------------
 # These will print to the output/[date]/chapters/ directory
-source("R/12_make_appendices.R")
+source("R/12_knit_appendices.R")
 
 # Append the appendices using officer -------------------------------------
 # gc() # clean up unused memory again (helps for giant data objects)
