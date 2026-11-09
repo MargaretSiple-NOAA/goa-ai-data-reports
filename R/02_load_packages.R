@@ -6,6 +6,7 @@ if(!"coldpool" %in% installed.packages()){
 }
 
 if(!"akgfmaps" %in% installed.packages() | packageVersion("akgfmaps") < "4.2.1"){
+  message("Installing/updating akgfmaps to 4.2.1 or higher...")
   remotes::install_github("afsc-gap-products/akgfmaps", build_vignettes = TRUE)
 }
 
@@ -21,11 +22,6 @@ if(!"gapindex" %in% installed.packages()){
 if (packageVersion("gapindex") < "3.1.0") {
   message("Updating gapindex to 3.1.0 or higher...")
   pak::pak("afsc-gap-products/gapindex")
-}
-
-if (packageVersion("akgfmaps") < "4.2.1") {
-  message("Updating akgfmaps to 4.2.1 or higher...")
-  pak::pak("afsc-gap-products/akgfmaps")
 }
 
 # List and load required packages -----------------------------------------
