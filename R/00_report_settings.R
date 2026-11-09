@@ -7,7 +7,7 @@ if(!"jsonlite" %in% installed.packages()){
 }
 
 if(!"git2r" %in% installed.packages()){
-  install.packages("jsonlite")
+  install.packages("git2r")
 }
 
 library(jsonlite)
