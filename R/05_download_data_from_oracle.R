@@ -154,7 +154,7 @@ if (!check_for_table(
 
 
 # * TAXONOMIC_CLASSIFICATION ----------------------------------------------
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE SURVEY_SPECIES = 1")
+a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION WHERE ACTIVE = 1")
 
 write.csv(x = a, "./data/local_gap_products/taxonomic_classification.csv", row.names = FALSE)
 
@@ -580,7 +580,7 @@ join /* attach area name */
         and area.area_id = stratum_groups.area_id
 where 
    /* filter records from tax that the survey uses */
-    tax.survey_species = 1
+    tax.active = 1
    /* by INPFC areas in the AI and NMFS areas in the GOA*/
     and area.area_type = '", unname(c("AI" = "INPFC", "GOA" = "NMFS")[SRVY]), "' 
    /* filter for the current year */
