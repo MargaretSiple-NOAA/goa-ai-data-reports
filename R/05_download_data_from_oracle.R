@@ -345,6 +345,7 @@ write.csv(biomass_total, file = paste0(dir_out_srvy_yr, "tables/biomass_total_al
 cat("\n \u2705 Created biomass_total and biomass_total_complexes, bound together, and saved.")
 
 # * STRATUM_GROUPS ----------------------------------------------------------
+# STRATUM_GROUPS table - to lookup what region a stratum is in
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
 a <- subset(a, SURVEY_DEFINITION_ID == sdi)
 if (SRVY == "GOA") {
@@ -356,18 +357,6 @@ write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FAL
 # Table of when each species was first positively identified
 a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.SPECIES_YEAR")
 write.csv(x = a, "./data/local_gap_products/species_year.csv", row.names = FALSE)
-
-
-# STRATUM_GROUPS table - to lookup what region a stratum is in
-a <- RODBC::sqlQuery(channel, "SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS")
-a <- subset(a, SURVEY_DEFINITION_ID == sdi)
-
-if (SRVY == "GOA") {
-  a <- subset(a, DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025))
-}
-
-
-write.csv(x = a, "./data/local_gap_products/stratum_groups.csv", row.names = FALSE)
 
 cat("\n \u2705 Finished downloading stratum and species groups.")
 
