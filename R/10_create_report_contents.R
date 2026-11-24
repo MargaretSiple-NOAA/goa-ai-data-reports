@@ -44,7 +44,6 @@ rm(list = c(
   "top_CPUE",
   "table3s_list",
   "table4s_list",
-  "list_cpue_bubbles_strata",
   "list_joy_length",
   "list_ldscatter",
   "list_temperature"
@@ -59,9 +58,9 @@ sort(sizes, decreasing = TRUE)
 
 
 rm(list = c(
-  "x", "cpue_raw", "catch", "S",
+  "x", "cpue_raw", "catch",
   "L",
-  "biomass_gp", "catch_haul",
+  "biomass_gp",
   "reg_dat_ai", "reg_data",
   "haul", "all",
   "complexes_data",
@@ -71,8 +70,7 @@ rm(list = c(
   "ai_central", "ai_east", "ai_west",
   "surface_temp_plot", "bottom_temp_plot",
   "length_maxyr_species",
-  "p2", "plotdat", "biomass_total",
-  "biomass_total_filtered"
+  "p2", "plotdat", "biomass_total"
 ))
 
 # Save all the values needed to make the report so you can easily load later --
