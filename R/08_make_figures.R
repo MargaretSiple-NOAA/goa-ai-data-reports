@@ -672,7 +672,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     # ,out.width=9,out.height=8
     png(
       filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"),
-      width = 9, height = 8, units = "in", res = 200
+      width = 8.5, height = 5.5, units = "in", res = 200
     )
     print(final_obj)
     
@@ -856,7 +856,7 @@ if (make_cpue_bubbles_strata) { # / end make stratum bubble figs
     } # / end bubble stratum maps for individual species
     # ,out.width=9,out.height=8
     
-    ggsave(final_obj, filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"), width = 9, height = 8, units = "in", bg = 'white')
+    ggsave(final_obj, filename = paste0(dir_out_figures, maxyr, "_", spp_name_informal, "_bubble.png"), width = 8.5, height = 5.5, units = "in", bg = 'white')
     print(spbubble)
   } # /end species loop
   
@@ -1450,9 +1450,10 @@ if (make_temp_plot) {
         "20-year average" = "dashed"
       )
     ) +
-    annotate(geom = "text", x = 1999, y = 7.25, label = "Surface temperature", color = "#68abb8") +
-    annotate(geom = "text", x = 1999, y = 4.75, label = "Bottom temperature", color = "#2a5674") +
-    theme_bw(base_size = 14)
+    annotate(geom = "text", x = 2000, y = 7.25, label = "Surface temperature", color = "#68abb8") +
+    annotate(geom = "text", x = 2000, y = 4.75, label = "Bottom temperature", color = "#2a5674") +
+    theme_bw(base_size = 12) +
+    theme(legend.position = "bottom")
 
   png(
     filename = paste0(
@@ -1476,7 +1477,7 @@ if (make_temp_plot) {
     filename = paste0(
       dir_out_figures, maxyr, "_temps_combined.png"
     ),
-    width = 9, height = 5, units = "in", res = 200
+    width = 6, height = 4.5, units = "in", res = 200
   )
   print(line_temperature)
   dev.off()

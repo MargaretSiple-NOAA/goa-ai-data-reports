@@ -7,7 +7,7 @@ if(!"jsonlite" %in% installed.packages()){
 }
 
 if(!"git2r" %in% installed.packages()){
-  install.packages("jsonlite")
+  install.packages("git2r")
 }
 
 library(jsonlite)
@@ -28,8 +28,8 @@ usePNGPDF <- "png"
 maxyr <- 2026 # Change this for the year!
 minyr <- 1991 # This is the min year for the "data stanza" - 1991 for AI and 1990 for GOA
 compareyr <- 2024 # Change this for the year!
-pres_or_report <- "pres" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
-use_gapindex <- TRUE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
+pres_or_report <- "report" # if "pres" the scripts will only make a subset of the figures and tables, the ones that we show for the GPT meeting
+use_gapindex <- FALSE # If TRUE will calculate total biomass and cpue_raw using the gapindex pkg. If FALSE, will use GAP_PRODUCTS schema.
 complexes <- TRUE # If TRUE will produce figures and tables for species complexes in addition to the basic single species (for AI this is OROX, REBS, OFLATS)
 tablefont <- "Arial"
 
@@ -38,6 +38,7 @@ YEAR <- maxyr # probably can simplify this later
 # charter start and end dates (From Ned: these dates should represent the inclusive vessel charter dates (we stagger start the vessels now) and not just the dates when we began and ended towing. The dates in the present report appear to capture the correct date range.)
 
 SRVY <- "AI" # Options: "GOA", "AI"
+sdi <- c("AI" = 52, "GOA" = 47)[SRVY]
 survname_long <- ifelse(SRVY == "GOA", "Gulf of Alaska", "Aleutian Islands")
 goa_redesign <- ifelse(maxyr >= 2025 & SRVY == "GOA", TRUE, FALSE)
 goa_backlog <- ifelse(maxyr < 2025 & SRVY == "GOA", TRUE, FALSE)
@@ -76,7 +77,7 @@ and this will become a permanent feature of our station allocations in the futur
 vessel1 <- "FV&nbsp;*Ocean Explorer*"
 vessel2 <- "FV&nbsp;*Alaska Provider*"
 captain1 <- "Dan Carney"
-captain2 <- "Loren Reynolds"
+captain2 <- "Art McArdle"
 
 # Internal reviewers
 reviewer1 <- "INSERT REVIEWER NAME 1"
@@ -141,7 +142,7 @@ report_title <- paste0(
   "Data Report: ", maxyr, " ", SRVY,
   " Bottom Trawl Survey"
 )
-report_authors <- "A. Dowlin, M.Siple, B. Riggle"
+report_authors <- "A. Dowlin, M. Siple, R. Howard"
 report_yr <- maxyr
 
 

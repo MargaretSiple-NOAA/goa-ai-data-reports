@@ -59,19 +59,8 @@ haul_maxyr <- haul |>
   filter(YEAR == maxyr & ABUNDANCE_HAUL == "Y")
 
 # This year's survey number
-cruises <- read.csv(here::here("data", "local_race_data", "cruises.csv"))
-
-survnumber <- cruises |>
-  dplyr::filter(SURVEY_NAME == ifelse(SRVY == "AI",
-    "Aleutian Islands Bottom Trawl Survey",
-    "Gulf of Alaska Bottom Trawl Survey"
-  )) |>
-  dplyr::filter(YEAR >= ifelse(SRVY == "AI", 1991, 1990)) |> # Per Ned, "ABUNDANCE_HAUL = 'Y' should return the standardized survey stanza (1990-present for Gulf...after Chris Anderson runs the update I've proposed) and 1991 to present for AI"
-  dplyr::filter(CRUISE != 202001 & YEAR <= maxyr) |>
-  dplyr::distinct(YEAR) |>
-  dplyr::arrange(YEAR) |>
-  nrow() |>
-  scales::ordinal()
+cruises <- read.csv(here::here("data", "local_gap_products", "cruises.csv"))
+(survnumber <- nrow(x = cruises) |> scales::ordinal())
 
 # Temp data --------------------------------------------------------
 
@@ -149,9 +138,10 @@ if (SRVY == "GOA") {
   if (!maxyr %in% c(2019, 2021, 2025)) {
     print("make sure your allocation file directory is set. Or modify this part of the code to be less janky :)")
   }
-} else {
-  all_allocation <- read.csv(here::here("data", "local_ai", "ai_station_allocation.csv"))
-}
+} 
+# else {
+#   all_allocation <- readxl::read_xlsx(path = here::here("data", "ai_2026_station_allocation_400stn.xlsx"), sheet = "Station Allocation")
+# }
 
 if (maxyr == 2024) { # get allocation from special sheet with reduced stations
   a0 <- read.csv("data/AI2024_allocation.csv", na.strings = "NA")
@@ -301,6 +291,10 @@ if (maxyr > 2021) {
   nnewstations <- all_allocation |>
     filter(YEAR == maxyr & grepl("new", STATION_TYPE)) |>
     nrow()
+  newstation_strata <- all_allocation |>
+    filter(YEAR == maxyr & grepl("new", STATION_TYPE)) |>
+    distinct(STRATUM) 
+  
 } else {
   nnewstations <- 0
 }
@@ -310,6 +304,7 @@ if (nnewstations == 0) {
 }
 
 # Of the new stations allocated to the different vessels, which ones were successfully sampled?
+# These are historically sampled stations:
 hist_stations <- haul |>
   mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
   filter(REGION == SRVY) |>
@@ -320,7 +315,7 @@ hist_stations <- hist_stations$STATIONID
 
 test <- haul_maxyr |>
   mutate(newstation = ifelse(STATIONID %in% hist_stations, "no", "yes")) |>
-  filter(newstation == "yes")
+  filter(newstation == "yes" & STRATUM %in% newstation_strata$STRATUM)
 
 new_successfully_sampled <- test |>
   filter(ABUNDANCE_HAUL == "Y") |>
@@ -438,17 +433,8 @@ nsquidlengths <- sum(length_maxyr_species |>
   format(big.mark = ",")
 
 # Number of otoliths sampled per area
-S <- read.csv(here::here("data", "local_racebase", "specimen.csv"))
-
-specimen_maxyr <- S |>
-  mutate(YEAR = as.numeric(gsub("(^\\d{4}).*", "\\1", CRUISE))) |>
-  filter(YEAR == maxyr & REGION == SRVY) |>
-  filter(SPECIMEN_SAMPLE_TYPE == 1) |> # this means it's an oto collection
-  dplyr::left_join(haul_maxyr, by = c(
-    "CRUISEJOIN", "HAULJOIN", "CRUISE", "HAUL",
-    "REGION", "VESSEL", "YEAR"
-  )) |>
-  dplyr::filter(ABUNDANCE_HAUL=="Y")
+# New: this used to draw from RACEBASE.SPECIMEN, now it uses GAP_PRODUCTS.SPECIMEN
+specimen_maxyr <- read.csv("data/local_gap_products/specimen_maxyr.csv", header = TRUE)
 
 otos_collected <- specimen_maxyr |>
   dplyr::left_join(region_lu, by = c("STRATUM")) |>
@@ -529,11 +515,6 @@ if (!all(report_species$species_code %in% unique(report_pseudolengths$SPECIES_CO
   print("YOU NEED A EXPANDED LENGTH FILE FOR 1 or MORE SPECIES IN YOUR REPORT LIST. STOP HERE AND RE-RUN DATA DOWNLOAD WITH NEW REPORT SPECIES LIST")
 }
 
-# Taxonomic diversity -----------------------------------------------------
-# get number of fish and invert spps
-catch <- read.csv("data/local_racebase/catch.csv", header = TRUE)
-
-
 # Species with highest est'd biomass --------------------------------------
 # Load total biomass table with all species and complexes
 if (!exists("biomass_total")) {
@@ -541,7 +522,7 @@ if (!exists("biomass_total")) {
 }
 
 biomass_maxyr <- biomass_total |>
-  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52))
+  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == sdi)
 
 highest_biomass <- biomass_maxyr |>
   dplyr::slice_max(n = 50, order_by = BIOMASS_MT, with_ties = FALSE) |>
@@ -552,7 +533,7 @@ highest_biomass_flatfish <- highest_biomass |>
   filter(major_group == "Flatfish")
 
 highest_chonds <- biomass_total |>
-  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == ifelse(SRVY == "GOA", 47, 52)) |>
+  dplyr::filter(YEAR == maxyr & SURVEY_DEFINITION_ID == sdi) |>
   janitor::clean_names() |>
   dplyr::left_join(species_names) |>
   dplyr::filter(major_group == "Chondrichthyans") |>

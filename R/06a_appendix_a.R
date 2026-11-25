@@ -8,9 +8,6 @@ area <- read.csv("data/local_gap_products/area.csv")
 if (SRVY == "GOA") {
   area <- area |>
     filter(DESIGN_YEAR == ifelse(maxyr < 2025, 1984, 2025) & SURVEY_DEFINITION_ID == 47)
-} else { # AI
-  area <- area |>
-    filter(DESIGN_YEAR == 1980 & SURVEY_DEFINITION_ID == 52)
 }
 
 depth_totals <- area |>

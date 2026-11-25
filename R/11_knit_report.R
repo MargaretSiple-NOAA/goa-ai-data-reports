@@ -7,6 +7,47 @@ source("R/01_directories.R")
 source("R/02_load_packages.R")
 source("R/03_functions.R")
 
+
+# Confirm that all tables and figures have been created -------------------
+table_files <- c(
+  "report_tables"          = file.path(dir_in_tables, "report_tables.rdata"),
+  "table3s_list"           = file.path(dir_in_tables, "table3s_list.rdata"),
+  "table4s_list"           = file.path(dir_in_tables, "table4s_list.rdata"),
+  "top_CPUE"               = file.path(dir_in_tables, paste0("top_CPUE_", maxyr, ".csv")),
+  "compare_tab"            = file.path(dir_in_tables, paste0(maxyr, "_comparison_w_previous_survey.csv")),
+  "sizecomp"               = file.path(dir_out_srvy_yr, "tables", "sizecomp_all.csv"),
+  "reportvalues"           = file.path(dir_in_reportvalues, "reportvalues.rdata"),
+  "samplingdensities"      = file.path(dir_out_tables, "list_samplingdensities.rdata")
+)
+
+table_status <- check_files(table_files, category = "Tables")
+
+# Static map path based on SRVY
+img1_path <- if (SRVY == "AI") {
+  "img/AleutiansMap.png"
+} else if (SRVY == "GOA") {
+  "img/INPFC_areas_GOA.png"
+} else {
+  NA_character_
+}
+
+# Construct figure file list
+figure_files <- c(
+  "region_map"             = img1_path,
+  "net_diagram"            = here::here("img/Poly_NorE_Bottom Trawl.png"),
+  "list_3panel_ts"         = file.path(dir_in_figures, "list_3panel_ts.rdata"),
+  "list_joy_length"        = file.path(dir_in_figures, "list_joy_length.rdata"),
+  "list_temperature"       = file.path(dir_in_figures, "list_temperature.rdata"),
+  "list_ldscatter"         = file.path(dir_in_figures, "list_ldscatter.rdata")
+)
+
+# Optional conditional figure (GOA station map)
+if (SRVY == "GOA") {
+  figure_files["station_map"] <- file.path(dir_out_srvy_yr, "figures", paste0(maxyr, "_station_map.RDS"))
+}
+
+figure_status <- check_files(figure_files, category = "Figures")
+
 # Load tables  ------------------------------------------------------------
 load(file = paste0(dir_in_tables, "report_tables.rdata")) # object: list_tables
 load(file = paste0(dir_in_tables, "table3s_list.rdata")) # object: table3s_list
@@ -47,26 +88,23 @@ net_img <- magick::image_read(path = here::here("img/Poly_NorE_Bottom Trawl.png"
 net_asp <- magick::image_info(net_img)$height / magick::image_info(net_img)$width # calculate the figure's aspect ratio
 
 # Maps with CPUE
-# update: I have removed this from loading because it is a HUGE rdata file. Instead, the code takes raw pngs that have already been generated and inserts them in the Word doc.
-# load(file = paste0(
-#   dir_in_figures, "list_cpue_bubbles_strata.rdata"
-# )) # object: list_cpue_bubbles
+# update: Instead of loading a huge rdata file, the code takes raw pngs that have already been generated and inserts them in the Word doc.
 
 # Calculate aspect ratio of CPUE maps (should be same aspect ratio for all species and complexes):
-cpue_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_bubble.png"))) # just as an example - and POP is in both regions
+cpue_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/", "figures/", maxyr, "_", "Pacific ocean perch", "_bubble.png"))) # just as an example - and POP is in both GOA and AI
 cpue_asp <- magick::image_info(cpue_img)$height / magick::image_info(cpue_img)$width
 
 # Aspect ratio for biomass time series plots
-ts_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_biomass_3panel_ts.png")))
-ts_asp <- magick::image_info(ts_img)$height / magick::image_info(ts_img)$width 
+ts_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/", "figures/", maxyr, "_", "Pacific ocean perch", "_biomass_3panel_ts.png")))
+ts_asp <- magick::image_info(ts_img)$height / magick::image_info(ts_img)$width
 
 # Aspect ratio for "joy division plots" of length composition
-lengthcomp_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_joyfreqhist.png"))) 
+lengthcomp_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/", "figures/", maxyr, "_", "Pacific ocean perch", "_joyfreqhist.png")))
 lengthcomp_asp <- magick::image_info(lengthcomp_img)$height / magick::image_info(lengthcomp_img)$width
 
 # Aspect ratio for length-depth scatter plot
-ldscatter_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/","figures/",maxyr,"_","Pacific ocean perch","_ldscatter.png"))) 
-ldscatter_asp <- magick::image_info(ldscatter_img)$height / magick::image_info(ldscatter_img)$width 
+ldscatter_img <- magick::image_read(path = here::here(paste0("output/", SRVY, "_", maxyr, "/", "figures/", maxyr, "_", "Pacific ocean perch", "_ldscatter.png")))
+ldscatter_asp <- magick::image_info(ldscatter_img)$height / magick::image_info(ldscatter_img)$width
 
 
 # 3-panel time series plots
@@ -99,47 +137,54 @@ load(file = paste0(dir_out_tables, "list_samplingdensities.rdata")) # object: li
 # Free unused memory
 gc()
 
-# Render
+# Start a timer to estimate knitting time (should be 3-5 mins for full report)
 starttime <- Sys.time()
-rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
-  output_dir = dir_out_chapters,
+
+# Must now render local to the Rmd file (don't ask me why):
+out_file <- rmarkdown::render(paste0(dir_markdown, "/DATA_REPORT.Rmd"),
   output_file = "DATA_REPORT.docx"
 )
 
-Sys.time() - starttime
+# Move rendered .docx file to the proper directory
+file.rename(
+  from = out_file,
+  to = file.path(dir_out_chapters, "DATA_REPORT.docx")
+)
+
+Sys.time() - starttime # end timer
 
 #  time for 4 species: about 40-50 seconds
 #  for all species: about 5 mins
 
 
 # Make the appendices -----------------------------------------------------
-# These will print to the output/[date]/chapters/ directory
-source("R/12_make_appendices.R")
+# Appendices will print to: output/[region]_[year]/chapters/ 
+source("R/12_knit_appendices.R")
 
 # Append the appendices using officer -------------------------------------
-# gc() # clean up unused memory again (helps for giant data objects)
-# 
-# maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) %>%
+# gc() # clean up unused memory again
+#
+# maindoc <- read_docx(path = here::here(paste0(dir_out_chapters, "DATA_REPORT.docx"))) |>
 #   body_add_break()
-# 
+#
 # fullreport <- body_add_docx(
 #   x = maindoc,
 #   src = paste0(appendix_dir, "Appendix A/Appendix A 2023.docx")
-# ) %>%
+# ) |>
 #   body_add_break()
-# 
+#
 # # Make Appendix B
 # source(here::here("R", "12_make_appendices.R"))
-# 
+#
 # fullreport <- body_add_docx(fullreport,
 #   src = (paste0(dir_out_chapters, "AppendixB.docx"))
-# ) %>%
+# ) |>
 #   body_add_break()
-# 
+#
 # # Add Appendix C
 # fullreport <- body_add_docx(fullreport,
 #   src = paste0(appendix_dir, "Appendix C/APPENDIX C_2023.docx")
-# ) %>%
+# ) |>
 #   body_add_break()
-# 
+#
 # print(fullreport, target = paste0(dir_out_chapters, "Report&Appendices.docx"))

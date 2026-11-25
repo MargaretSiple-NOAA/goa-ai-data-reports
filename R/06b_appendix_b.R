@@ -1,146 +1,139 @@
-# RACEBASE tables ----------------------------------------------------
-# get catch and taxonomy info
-catch <- read_csv("data/local_racebase/catch.csv") |>
-  mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}"))
+appB_option <- "SQL_QUERY"
 
-taxonomy <- read_csv("data/local_racebase/species_classification.csv")
+# This option uses a SQL query written by Zack --------------------------------
+if (appB_option == "SQL_QUERY") {
+  appB0 <- read.csv(file = paste0(dir_out_srvy_yr, "tables/appendix_b.csv"))
+  appB0 <- appB0 |>
+    janitor::clean_names() |>
+    mutate(major_group = case_when(
+      species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
+      species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
+      species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
+      species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
+      species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
+    )) |>
+    dplyr::mutate(tax_group = dplyr::case_when(
+      species_code <= 31550 ~ "fish",
+      species_code >= 40001 ~ "invert"
+    )) |>
+    dplyr::mutate(family_taxon = case_when(
+      species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon
+    ))
+} else {
+  # This option uses RACEBASE tables
+  # get catch and taxonomy info
+  catch <- read_csv("data/local_racebase/catch.csv") |>
+    mutate(YEAR = stringr::str_extract(CRUISE, "^\\d{4}"))
 
-species_codes <- read_csv("data/local_race_data/race_species_codes.csv") |>
-  dplyr::select("SPECIES_CODE", "SPECIES_NAME", "COMMON_NAME")
+  taxonomy <- read_csv("data/local_racebase/species_classification.csv")
 
-haul <- read_csv("data/local_racebase/haul.csv")
+  species_codes <- read_csv("data/local_race_data/race_species_codes.csv") |>
+    dplyr::select("SPECIES_CODE", "SPECIES_NAME", "COMMON_NAME")
 
-# Getting species from year ----------------------------------------------------
-
-# filtering to just species caught this survey year and getting subregion info
-catch_maxyr0 <- catch |>
-  filter(YEAR == maxyr & REGION == SRVY) |>
-  left_join(haul, by = join_by(CRUISEJOIN, HAULJOIN, REGION, VESSEL, CRUISE, HAUL))
-
-if (SRVY == "GOA" & design_year >= 2025) {
-  catch_maxyr <- catch_maxyr0 |> # need to merge with haul df to get stratum
-    left_join(stratum_lu, by = "STRATUM") |>
-    dplyr::select("SPECIES_CODE", "REGULATORY_AREA_NAME", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
-    unique()
-} else { # for AI and old GOA surveys
-  catch_maxyr <- catch_maxyr0 |> # need to merge with haul df to get stratum
-    left_join(region_lu, by = "STRATUM") |> # this and the following line are different
-    dplyr::select("SPECIES_CODE", "INPFC_AREA", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
-    unique()
-}
-
-# non species indicator strings
-rm_bits <- paste0(
-  c(" egg", "egg case", "larva", "larvae", " tubes", "sp\\.$"),
-  collapse = "|"
-)
+  haul <- read_csv("data/local_racebase/haul.csv")
 
 
-# limiting to only taxa identified to species level (i.e. no genus, etc. level IDs)
-species_maxyr <- catch_maxyr |>
-  left_join(species_codes) |>
-  mutate(
-    SPECIES_NAME = trimws(SPECIES_NAME),
-    level = case_when(
-      str_detect(SPECIES_NAME, rm_bits) | !str_detect(SPECIES_NAME, " ") | is.na(SPECIES_NAME) ~ "",
-      TRUE ~ "species"
-    )
-  ) |>
-  filter(level == "species") |>
-  dplyr::select(-level)
+  # Getting species from year ----------------------------------------------------
 
+  # filtering to just species caught this survey year and getting subregion info
+  catch_maxyr0 <- catch |>
+    filter(YEAR == maxyr & REGION == SRVY) |>
+    left_join(haul, by = join_by(CRUISEJOIN, HAULJOIN, REGION, VESSEL, CRUISE, HAUL))
 
-# Finding outliers ----------------------------------------------------
+  if (SRVY == "GOA" & design_year >= 2025) {
+    catch_maxyr <- catch_maxyr0 |> # need to merge with haul df to get stratum
+      left_join(stratum_lu, by = "STRATUM") |>
+      dplyr::select("SPECIES_CODE", "REGULATORY_AREA_NAME", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
+      unique()
+  } else { # for AI and old GOA surveys
+    catch_maxyr <- catch_maxyr0 |> # need to merge with haul df to get stratum
+      left_join(region_lu, by = "STRATUM") |> # this and the following line are different
+      dplyr::select("SPECIES_CODE", "INPFC_AREA", "START_LONGITUDE", "START_LATITUDE", "BOTTOM_DEPTH") |>
+      unique()
+  }
 
-# checking for species that were caught this year that are suspicious/need manual checking using DBSCAN/past confirmed records
-
-
-# all catch/haul data to check against
-catch_haul <- catch |>
-  filter(SPECIES_CODE %in% species_maxyr$SPECIES_CODE) |>
-  left_join(haul, by = c("CRUISEJOIN", "HAULJOIN")) |>
-  left_join(species_codes, by = "SPECIES_CODE") |>
-  # mutate(START_LONGITUDE = ifelse(START_LONGITUDE < 0,
-  #                                 START_LONGITUDE, START_LONGITUDE*-1)) %>%
-  dplyr::select(
-    SPECIES_CODE, SPECIES_NAME, START_LONGITUDE,
-    START_LATITUDE, GEAR_DEPTH, YEAR
+  # non species indicator strings
+  rm_bits <- paste0(
+    c(" egg", "egg case", "larva", "larvae", " tubes", "sp\\.$"),
+    collapse = "|"
   )
 
 
-# outlier species from this year
-outlier_spp <- species_maxyr |>
-  dplyr::select(SPECIES_CODE) |>
-  unique() |>
-  mutate(outlier = purrr::map(SPECIES_CODE, ~ check_outlier(.x, maxyr, catch_haul))) |>
-  unnest(cols = outlier) |>
-  left_join(species_codes) |>
-  dplyr::select(SPECIES_CODE, SPECIES_NAME) |>
-  unique()
+  # limiting to only taxa identified to species level (i.e. no genus, etc. level IDs)
+  species_maxyr <- catch_maxyr |>
+    left_join(species_codes) |>
+    mutate(
+      SPECIES_NAME = trimws(SPECIES_NAME),
+      level = case_when(
+        str_detect(SPECIES_NAME, rm_bits) | !str_detect(SPECIES_NAME, " ") | is.na(SPECIES_NAME) ~ "",
+        TRUE ~ "species"
+      )
+    ) |>
+    filter(level == "species") |>
+    dplyr::select(-level)
 
 
-# # plots outliers to pdf document -- FOR SARAH
-# pdf(paste0("output/outliers_", maxyr, ".pdf"))
-# outlier_spp %>%
-#   mutate(g = purrr::map(SPECIES_CODE, ~check_outlier(.x, maxyr, catch_haul, plot = T)))
-# dev.off()
+  # Generate tables/stats ----------------------------------------------------
+  # Table for Appendix B
+  appB0 <- species_maxyr |>
+    left_join(taxonomy, by = "SPECIES_CODE") |>
+    left_join(species_codes) |>
+    janitor::clean_names() |>
+    mutate(major_group = case_when(
+      species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
+      species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
+      species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
+      species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
+      species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
+    )) |>
+    dplyr::mutate(tax_group = dplyr::case_when(
+      species_code <= 31550 ~ "fish",
+      species_code >= 40001 ~ "invert"
+    )) |>
+    dplyr::mutate(family_taxon = case_when(
+      species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon
+    ))
+} #/ end RACEBASE option for Appendix B
 
-
-# Generate tables/stats ----------------------------------------------------
-
-# Table for Appendix B
-appB0 <- species_maxyr |>
-  left_join(taxonomy, by = "SPECIES_CODE") |>
-  left_join(species_codes) |>
-  janitor::clean_names() |>
-  mutate(major_group = case_when(
-    species_code >= 10000 & species_code <= 19999 ~ "Flatfish",
-    species_code >= 20000 & species_code <= 39999 ~ "Roundfish",
-    species_code >= 30000 & species_code <= 36999 ~ "Rockfish",
-    species_code >= 40000 & species_code <= 99990 ~ "Invertebrates",
-    species_code >= 00150 & species_code <= 00799 ~ "Chondrichthyans"
-  )) |>
-  dplyr::mutate(tax_group = dplyr::case_when(
-    species_code <= 31550 ~ "fish",
-    species_code >= 40001 ~ "invert"
-  )) |>
-  dplyr::mutate(family_taxon = case_when(
-    species_code == 44086 ~ "Primnoidae", TRUE ~ family_taxon
-  ))
-
-if (SRVY == "GOA" & design_year >= 2025) {
+if (SRVY == "GOA" & design_year >= 2025) { #check later after goa 2019 backlog starts
   appB <- appB0 |>
-    dplyr::select(regulatory_area_name, species_name, common_name,
-      family = family_taxon, phylum = phylum_taxon,
-      major_group, tax_group
+    dplyr::select(area_name, species_code, species_name, common_name,
+                  family = family_taxon, phylum = phylum_taxon,
+                  major_group, tax_group
     ) |>
     distinct() |>
-    arrange(regulatory_area_name, tax_group, major_group, species_name)
+    arrange(area_name, tax_group, major_group, species_name)
 } else {
   appB <- appB0 |>
-    dplyr::select(inpfc_area, species_name, common_name,
-      family = family_taxon, phylum = phylum_taxon,
-      major_group, tax_group
+    dplyr::select(area_name, species_code, species_name, common_name,
+                  family = family_taxon, phylum = phylum_taxon,
+                  major_group, tax_group
     ) |>
     distinct() |>
-    arrange(inpfc_area, tax_group, major_group, species_name)
+    arrange(area_name, tax_group, major_group, species_name)
 }
 
+
+# Compare appB with appendix_b_tbl from above:
+# These species are in appB but don't appear in the new SQL-pulled table
+# appB$species_code[which(!appB$species_code %in% appendix_b_tbl$SPECIES_CODE)]
+
+
 # diversity by subregion
-if(SRVY == "AI" | maxyr < 2025){
-subregion_diversity <- appB |>
-  group_by(inpfc_area, tax_group) |>
-  tally(name = "nsp") |>
-  pivot_wider(names_from = tax_group, values_from = nsp)
-}else{
+if (SRVY == "AI" | maxyr < 2025) {
   subregion_diversity <- appB |>
-    group_by(regulatory_area_name, tax_group) |>
+    group_by(area_name, tax_group) |>
+    tally(name = "nsp") |>
+    pivot_wider(names_from = tax_group, values_from = nsp)
+} else {
+  subregion_diversity <- appB |> # this may need fixing for GOA 2027
+    group_by(area_name, tax_group) |>
     tally(name = "nsp") |>
     pivot_wider(names_from = tax_group, values_from = nsp)
 }
 
-# standardize colnames to work for both areas, all years 
-colnames(subregion_diversity)[which(colnames(subregion_diversity)=='inpfc_area')] <- 'regulatory_area_name'
+# standardize colnames to work for both areas, all years
+colnames(subregion_diversity)[which(colnames(subregion_diversity) == "AREA_NAME")] <- "area_name"
 
 head(subregion_diversity)
 
@@ -148,11 +141,11 @@ head(subregion_diversity)
 # statement for text
 if (SRVY == "GOA" & design_year >= 2025) {
   total_diversity <- appB |>
-    dplyr::select(-regulatory_area_name) |>
+    dplyr::select(-area_name) |>
     unique()
 } else {
   total_diversity <- appB |>
-    dplyr::select(-inpfc_area) |>
+    dplyr::select(-area_name) |>
     unique()
 }
 

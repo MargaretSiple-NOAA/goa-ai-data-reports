@@ -1,3 +1,140 @@
+# File management --------------------------------------------------------
+#' Check file existence and display status messages
+#'
+#' @param file_paths Named or un-named vector/list of file paths.
+#' @param category Label for the log header (e.g., "Tables", "Figures").
+#' @return Invisible named logical vector (TRUE = exists, FALSE = missing).
+check_files <- function(file_paths, category = "Files") {
+  # Standardize to named vector for clean logging
+  paths <- unlist(file_paths)
+  if (is.null(names(paths))) {
+    names(paths) <- basename(paths)
+  } else {
+    names(paths) <- ifelse(names(paths) == "", basename(paths), names(paths))
+  }
+
+  cat(sprintf("\n=== Checking %s (%d files) ===\n", category, length(paths)))
+
+  status <- file.exists(paths)
+
+  for (i in seq_along(paths)) {
+    label <- names(paths)[i]
+    path <- paths[i]
+    if (status[i]) {
+      cat(sprintf(" [OK]      %s\n          -> %s\n", label, path))
+    } else {
+      cat(sprintf(" [MISSING] %s\n          -> %s\n", label, path))
+    }
+  }
+
+  missing_count <- sum(!status)
+  if (missing_count == 0) {
+    cat(sprintf("✓ All %s files are present.\n", tolower(category)))
+  } else {
+    warning(sprintf("%d %s file(s) are missing!", missing_count, tolower(category)), call. = FALSE)
+  }
+
+  invisible(status)
+}
+
+#' Check for a downloaded csv of a file and confirm it contains data for the region you want
+#'
+#' @param path path to the data file you want to check
+#' @param region  can be character ("GOA" or "AI") or survey definition ID (52 or 47)
+#'
+#' @returns logical of whether the file exists AND whether it is the correct region
+#' @export
+#'
+#' @examples
+#' Check for a downloaded csv of a file and confirm it contains data for the region you want
+#'
+#' @param path path to the data file you want to check
+#' @param region  can be character ("GOA" or "AI") or survey definition ID (52 or 47)
+#'
+#' @returns logical of whether the file exists AND whether it is the correct region
+#' @export
+#'
+#' @examples
+check_for_table <- function(path = "./data/local_racebase/haul.csv",
+                            region = "AI",
+                            survey_definition_id = NULL,
+                            cruise = NULL,
+                            year = NULL) {
+  # Check region based on survey_definition_id
+  if (!is.null(survey_definition_id)) {
+    region <- switch(as.character(survey_definition_id),
+                     "47" = "GOA",
+                     "52" = "AI",
+                     "NULL"
+    )
+  } else {
+    survey_definition_id <- switch(as.character(region),
+                                   "GOA" = "47",
+                                   "AI" = "52",
+                                   "NULL"
+    )
+  }
+  
+  region_correct <- FALSE
+  cruise_correct <- FALSE
+  
+  if (!file.exists(path)) {
+    return(FALSE)
+  }
+  # 1. Check region from the top rows
+  data_raw <- readLines(path, n = 5) # read header and first few rows
+  region_correct <- any(grepl(region, data_raw)) | any(grepl(survey_definition_id, data_raw))
+  
+  if (!region_correct) {
+    return(FALSE)
+  }
+  
+  has_dt <- requireNamespace("data.table", quietly = TRUE)
+  
+  # 2. If a cruise is specified, check if it exists in the file
+  if (!is.null(cruise)) {
+    # Efficiently read just the CRUISE column using data.table if available,
+    # or read.csv with colClasses/nrows if preferring base R.
+    if (has_dt) {
+      dt <- data.table::fread(path, select = "CRUISE", colClasses = "character")
+      cruise_correct <- as.character(cruise) %in% dt$CRUISE
+    } else {
+      df <- read.csv(path, colClasses = c(CRUISE = "character"), nrows = 100000) # fallback or full read
+      # Alternatively, read just header & column:
+      header <- names(read.csv(path, nrows = 1))
+      if ("CRUISE" %in% header) {
+        # read full CRUISE column efficiently in base R
+        full_df <- read.csv(path, colClasses = c(CRUISE = "character"))
+        cruise_correct <- as.character(cruise) %in% full_df$CRUISE
+      } else {
+        cruise_correct <- FALSE
+      }
+    }
+    return(region_correct && cruise_correct)
+  }
+  
+  if (!is.null(year)) {
+    if (has_dt) {
+      dt <- data.table::fread(path, select = "YEAR", colClasses = "character")
+      year_correct <- as.character(year) %in% dt$YEAR
+    } else {
+      header <- names(read.csv(path, nrows = 1))
+      if ("YEAR" %in% header) {
+        full_df <- read.csv(path, colClasses = c(YEAR = "character"))
+        year_correct <- as.character(year) %in% full_df$YEAR
+      } else {
+        year_correct <- FALSE
+      }
+    }
+    if (!year_correct) {
+      return(FALSE)
+    }
+  }
+  
+  return(region_correct)
+}
+
+
 # Conversions --------------------------------------------
 biomass_round <- function(x) {
   round(x, digits = 0)
@@ -177,11 +314,11 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
     area_lookup0 <- area_tbl |>
       dplyr::filter(AREA_TYPE %in% c(
         "INPFC BY DEPTH",
-        #"INPFC",
-        "DEPTH", 
+        # "INPFC",
+        "DEPTH",
         "REGION"
       ))
-    #area_name <- "INPFC area"
+    # area_name <- "INPFC area"
   }
 
   area_lookup <- area_lookup0 |>
@@ -210,7 +347,7 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
       AVG_WEIGHT_KG
     )
 
-  combo0$PERCENT_IN_AREA <- paste0(round((combo0$BIOMASS_MT / combo0$BIOMASS_MT[which(combo0$AREA_NAME == "All" & combo0$DEPTH_RANGE=="All depths")]) * 100), "%")
+  combo0$PERCENT_IN_AREA <- paste0(round((combo0$BIOMASS_MT / combo0$BIOMASS_MT[which(combo0$AREA_NAME == "All" & combo0$DEPTH_RANGE == "All depths")]) * 100), "%")
   # Fix the zeroes
   combo0$PERCENT_IN_AREA[which(grepl("N", (combo0$PERCENT_IN_AREA)))] <- "0%"
 
@@ -235,8 +372,8 @@ make_tab3 <- function(species_code = NULL, year = NULL, biomass_tbl, area_tbl, d
   combo$`Biomass (t)` <- format(round(combo$`Biomass (t)`), big.mark = ",")
 
   combo_ord <- combo |>
-    dplyr::arrange(factor(area_name, levels = c(district_order, "All")))# |>
-    #dplyr::select(-`Depth (m)`)
+    dplyr::arrange(factor(area_name, levels = c(district_order, "All"))) # |>
+  # dplyr::select(-`Depth (m)`)
 
   if (srvy == "GOA" & year >= 2025) {
     colnames(combo_ord)[which(colnames(combo_ord) == "area_name")] <- "NMFS area"
@@ -499,11 +636,11 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     all_allocation <- all_allocation |> dplyr::rename("STRATUM" = stratum) # in case stratum isn't capitalized
   }
 
-  if(is.character(all_allocation$STRATUM)){
+  if (is.character(all_allocation$STRATUM)) {
     print("Characters detected in stratum lookup table; converting stratum IDs to numeric values.")
     all_allocation$STRATUM <- as.numeric(all_allocation$STRATUM)
   }
-  
+
   piece1 <- all_allocation |>
     # dplyr::filter(YEAR == maxyr) |>
     dplyr::left_join(area_lookup_table, by = c("STRATUM")) |>
@@ -553,15 +690,15 @@ make_allocated_sampled <- function(haul_maxyr = haul_maxyr,
     dplyr::summarize(across(allocated:AREA, sum)) |>
     tibble::add_column(`Depth range` = "All depths", .before = "allocated") |>
     ungroup() |>
-    mutate(stations_per_1000km2 = succeeded / AREA) |>
+    mutate(stations_per_1000km2 =  round((succeeded / AREA) * 1000, digits = 2)) |>
     tibble::add_column(MANAGEMENT_AREA = "All areas", .before = "Depth range")
-  
+
   allocated_sampled <- suppressWarnings( # warnings are suppressed because str_extract returns an NA when it gets to Depth range = 'All Depths'
     bind_rows(allocated_prep, all_areas, all_areas_depths) |>
-    dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`)) |>
-    dplyr::mutate(depthorder = ifelse(`Depth range` == "All depths", 1000, as.numeric(stringr::str_extract(`Depth range`, "[^- ]+")))) |>
-    dplyr::arrange(factor(MANAGEMENT_AREA, levels = c(district_order, "All areas")), depthorder) |>
-    dplyr::select(-depthorder)
+      dplyr::mutate(`Depth range` = gsub(" m", "", `Depth range`)) |>
+      dplyr::mutate(depthorder = ifelse(`Depth range` == "All depths", 1000, as.numeric(stringr::str_extract(`Depth range`, "[^- ]+")))) |>
+      dplyr::arrange(factor(MANAGEMENT_AREA, levels = c(district_order, "All areas")), depthorder) |>
+      dplyr::select(-depthorder)
   )
 
   colnames(allocated_sampled) <- c(
@@ -649,7 +786,7 @@ format_allocated_sampled <- function(allocated_sampled, area_label, tablefont = 
 }
 
 # Plots ----------------------------
-# function for making color shading that follows 
+# function for making color shading that follows
 library(scales)
 
 make_gradient_colors <- function(x,
@@ -659,15 +796,14 @@ make_gradient_colors <- function(x,
                                  grey = "#D9D9D9",
                                  threshold = 10,
                                  max_value = 100) {
-  
   # Cap values at +/- max_value
   x2 <- pmax(pmin(x, max_value), -max_value)
-  
+
   cols <- rep(grey, length(x2))
-  
+
   neg <- x2 < -threshold
   pos <- x2 > threshold
-  
+
   # Negative side
   if (any(neg)) {
     neg_fun <- col_numeric(
@@ -676,7 +812,7 @@ make_gradient_colors <- function(x,
     )
     cols[neg] <- neg_fun(x2[neg])
   }
-  
+
   # Positive side
   if (any(pos)) {
     pos_fun <- col_numeric(
@@ -685,7 +821,7 @@ make_gradient_colors <- function(x,
     )
     cols[pos] <- pos_fun(x2[pos])
   }
-  
+
   cols
 }
 
@@ -1553,8 +1689,6 @@ plot_complex_sb <- function(biomass_table = biomass_total,
 
   return(p1)
 }
-
-
 
 
 # LATER: Add an independent function to plot CPUE as bars instead of circles
